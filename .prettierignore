@@ -1,0 +1,25 @@
+dist/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+node_modules/
+package-lock.json
+
+# Tooling / environment directories not part of this project
+.claude/
+.git/
+
+# Environment-provided dotfiles (not part of this project)
+.ripgreprc
+.vscode
+.idea
+.zprofile
+.zshrc
+.bashrc
+.bash_profile
+.profile
+.gitconfig
+.gitmodules
+.mcp.json
+IMPL_PLAN.md

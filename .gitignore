@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dev-dist/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Editor / OS
+.DS_Store
+*.local
+.idea
+.vscode
+
+# Sandbox/environment-injected files (not part of this project)
+.claude/
+.mcp.json
+.ripgreprc
+.bashrc
+.bash_profile
+.profile
+.zshrc
+.zprofile
+.gitconfig
+.gitmodules
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript incremental build cache
+*.tsbuildinfo
