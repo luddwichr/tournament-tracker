@@ -80,9 +80,9 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   const filePath = await download.path()
   const fileContent = await readFile(filePath!, 'utf-8')
 
-  // Step 2: Reset — register handler BEFORE click so the dialog is accepted immediately
-  page.once('dialog', (dialog) => void dialog.accept())
+  // Step 2: Reset — click settings button, then confirm in the custom dialog
   await page.getByRole('button', { name: 'Zurücksetzen' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Zurücksetzen' }).click()
 
   // Verify reset cleared results
   await page.goto('/groups')
@@ -90,14 +90,14 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
     page.getByRole('button', { name: 'Mexiko – Südafrika: Ergebnis eingeben' }),
   ).toBeVisible()
 
-  // Step 3: Import — register handler before setInputFiles; confirm fires in the async FileReader callback
+  // Step 3: Import — upload file, then confirm in the custom dialog
   await page.goto('/settings')
-  page.once('dialog', (dialog) => void dialog.accept())
   await page.locator('input[type="file"]').setInputFiles({
     name: 'wc2026-results.json',
     mimeType: 'application/json',
     buffer: Buffer.from(fileContent),
   })
+  await page.getByRole('dialog').getByRole('button', { name: 'Ersetzen' }).click()
 
   // Wait for the store to persist the imported state
   await page.waitForFunction(
@@ -115,6 +115,55 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   await expect(
     page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
   ).toBeVisible()
+})
+
+test('Abbrechen on reset dialog leaves results intact', async ({ page }) => {
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value as string),
+    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
+  )
+  await page.goto('/settings')
+
+  await page.getByRole('button', { name: 'Zurücksetzen' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
+
+  await page.goto('/groups')
+  await expect(
+    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
+  ).toBeVisible()
+})
+
+test('Abbrechen on import dialog leaves results intact', async ({ page }) => {
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value as string),
+    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
+  )
+  await page.goto('/settings')
+
+  const emptyResults = JSON.stringify({ version: 1, results: {} })
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'empty.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(emptyResults),
+  })
+  await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
+
+  await page.goto('/groups')
+  await expect(
+    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
+  ).toBeVisible()
+})
+
+test('confirm dialog has no detectable accessibility violations', async ({ page }) => {
+  await page.goto('/settings')
+  await page.getByRole('button', { name: 'Zurücksetzen' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze()
+
+  expect(results.violations).toEqual([])
 })
 
 test('Importieren with invalid JSON shows error', async ({ page }) => {

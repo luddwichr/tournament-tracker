@@ -1,11 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import type { Result } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { exportJson, parseImport } from '../lib/persistence'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const store = useTournamentStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 const importError = ref<string | null>(null)
+const pendingAction = ref<'import' | 'reset' | null>(null)
+const pendingImportResults = ref<Record<string, Result> | null>(null)
+
+const confirmConfig = computed(() => {
+  if (pendingAction.value === 'import') {
+    return {
+      title: 'Daten importieren',
+      message: 'Alle vorhandenen Ergebnisse werden durch die importierten Daten ersetzt.',
+      confirmLabel: 'Ersetzen',
+    }
+  }
+  if (pendingAction.value === 'reset') {
+    return {
+      title: 'Zurücksetzen',
+      message: 'Alle eingegebenen Ergebnisse werden unwiderruflich gelöscht.',
+      confirmLabel: 'Zurücksetzen',
+    }
+  }
+  return null
+})
 
 function handleExport(): void {
   exportJson(store.results)
@@ -24,8 +46,8 @@ function handleFileChange(event: Event): void {
   reader.onload = () => {
     try {
       const newResults = parseImport(reader.result as string)
-      if (!window.confirm('Vorhandene Ergebnisse ersetzen?')) return
-      store.importResults(newResults)
+      pendingImportResults.value = newResults
+      pendingAction.value = 'import'
     } catch (e) {
       importError.value = e instanceof Error ? e.message : 'Fehler beim Importieren.'
     } finally {
@@ -36,8 +58,22 @@ function handleFileChange(event: Event): void {
 }
 
 function handleReset(): void {
-  if (!window.confirm('Alle eingegebenen Ergebnisse löschen?')) return
-  store.reset()
+  pendingAction.value = 'reset'
+}
+
+function handleConfirm(): void {
+  if (pendingAction.value === 'import' && pendingImportResults.value) {
+    store.importResults(pendingImportResults.value)
+  } else if (pendingAction.value === 'reset') {
+    store.reset()
+  }
+  pendingAction.value = null
+  pendingImportResults.value = null
+}
+
+function handleCancel(): void {
+  pendingAction.value = null
+  pendingImportResults.value = null
 }
 </script>
 
@@ -79,6 +115,15 @@ function handleReset(): void {
       />
     </section>
   </main>
+
+  <ConfirmDialog
+    v-if="confirmConfig"
+    :title="confirmConfig.title"
+    :message="confirmConfig.message"
+    :confirm-label="confirmConfig.confirmLabel"
+    @confirm="handleConfirm"
+    @cancel="handleCancel"
+  />
 </template>
 
 <style scoped>
