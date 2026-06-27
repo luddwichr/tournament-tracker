@@ -31,6 +31,7 @@ const links: NavLink[] = [
   gap: var(--space-1);
   margin: 0;
   padding: 0 var(--space-2) var(--space-2);
+  list-style: none;
 }
 
 .app-nav__item {

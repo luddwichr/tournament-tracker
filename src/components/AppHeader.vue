@@ -13,6 +13,9 @@ import AppNav from './AppNav.vue'
 
 <style scoped>
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background-color: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
