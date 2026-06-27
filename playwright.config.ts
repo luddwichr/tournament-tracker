@@ -6,6 +6,8 @@ const isCI = !!process.env['CI']
 
 export default defineConfig({
   testDir: './e2e',
+  // pwa-offline.spec.ts needs the production preview server — run via test:e2e:pwa.
+  testIgnore: ['**/pwa-offline.spec.ts'],
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
