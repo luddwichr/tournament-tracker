@@ -12,5 +12,9 @@
        "Bash(npm run dev)",
        "Bash(npm run preview)"
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/workspace/.claude/hooks/statusline.js"
   }
 }
