@@ -22,14 +22,14 @@ function decrement(current: number, setter: (v: number) => void): void {
         <button
           type="button"
           class="score-input__step"
-          aria-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} abziehen`"
+          :aria-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} abziehen`"
           @click="decrement(homeGoals, (v) => (homeGoals = v))"
         >−</button>
         <span class="score-input__value" aria-live="polite" aria-atomic="true">{{ homeGoals }}</span>
         <button
           type="button"
           class="score-input__step"
-          aria-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} hinzufügen`"
+          :aria-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} hinzufügen`"
           @click="homeGoals = homeGoals + 1"
         >+</button>
       </div>
@@ -43,14 +43,14 @@ function decrement(current: number, setter: (v: number) => void): void {
         <button
           type="button"
           class="score-input__step"
-          aria-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} abziehen`"
+          :aria-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} abziehen`"
           @click="decrement(awayGoals, (v) => (awayGoals = v))"
         >−</button>
         <span class="score-input__value" aria-live="polite" aria-atomic="true">{{ awayGoals }}</span>
         <button
           type="button"
           class="score-input__step"
-          aria-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} hinzufügen`"
+          :aria-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} hinzufügen`"
           @click="awayGoals = awayGoals + 1"
         >+</button>
       </div>

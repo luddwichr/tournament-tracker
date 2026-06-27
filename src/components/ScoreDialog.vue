@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from '../composables/use-announce'
@@ -26,6 +26,15 @@ const homeYellow = ref(initial.value?.homeYellow ?? 0)
 const homeRed = ref(initial.value?.homeRed ?? 0)
 const awayYellow = ref(initial.value?.awayYellow ?? 0)
 const awayRed = ref(initial.value?.awayRed ?? 0)
+const penaltyWinner = ref<'home' | 'away' | null>(initial.value?.penaltyWinner ?? null)
+
+const isKnockout = computed(() => props.match.stage !== 'group')
+const showPenaltyPicker = computed(() => isKnockout.value && homeGoals.value === awayGoals.value)
+
+// Clear penalty winner whenever scores diverge
+watch(showPenaltyPicker, (show) => {
+  if (!show) penaltyWinner.value = null
+})
 
 const title = computed(() => {
   const home = props.homeTeam?.name ?? 'Heim'
@@ -46,6 +55,7 @@ function handleSave(): void {
     homeRed: homeRed.value,
     awayYellow: awayYellow.value,
     awayRed: awayRed.value,
+    penaltyWinner: showPenaltyPicker.value ? penaltyWinner.value : null,
   })
   const home = props.homeTeam?.name ?? 'Heim'
   const away = props.awayTeam?.name ?? 'Gast'
@@ -86,6 +96,34 @@ function handleClear(): void {
           :home-team="homeTeam"
           :away-team="awayTeam"
         />
+
+        <div
+          v-if="showPenaltyPicker"
+          class="score-dialog__penalties"
+          role="group"
+          aria-labelledby="penalty-label"
+        >
+          <p id="penalty-label" class="score-dialog__penalty-label">
+            Elfmeterschießen — Sieger
+          </p>
+          <div class="score-dialog__penalty-btns">
+            <button
+              type="button"
+              class="score-dialog__penalty-btn"
+              :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'home' }"
+              :aria-pressed="penaltyWinner === 'home'"
+              @click="penaltyWinner = penaltyWinner === 'home' ? null : 'home'"
+            >{{ homeTeam?.name ?? 'Heim' }}</button>
+            <button
+              type="button"
+              class="score-dialog__penalty-btn"
+              :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'away' }"
+              :aria-pressed="penaltyWinner === 'away'"
+              @click="penaltyWinner = penaltyWinner === 'away' ? null : 'away'"
+            >{{ awayTeam?.name ?? 'Gast' }}</button>
+          </div>
+        </div>
+
         <DisciplineInput
           v-model:home-yellow="homeYellow"
           v-model:home-red="homeRed"
@@ -178,6 +216,52 @@ function handleClear(): void {
 
 .score-dialog__body {
   padding: var(--space-5) var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.score-dialog__penalties {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+.score-dialog__penalty-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.score-dialog__penalty-btns {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.score-dialog__penalty-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  min-height: var(--tap-target);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  transition: none;
+}
+
+.score-dialog__penalty-btn:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.score-dialog__penalty-btn--active {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
 }
 
 .score-dialog__footer {

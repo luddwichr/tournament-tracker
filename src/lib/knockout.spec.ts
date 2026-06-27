@@ -157,7 +157,7 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
     expect(winner!.id).toBe(a2!.id)
   })
 
-  it('returns null for a draw (winner is indeterminate)', () => {
+  it('returns null for a draw without a penalty winner', () => {
     const results: Record<string, Result> = {}
     groupMatches
       .filter((m) => m.group === 'A' || m.group === 'B')
@@ -167,6 +167,42 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
     results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     expect(resolveTeamRef(ref, results)).toBeNull()
+  })
+
+  it('resolves winner via penaltyWinner when draw', () => {
+    const results: Record<string, Result> = {}
+    groupMatches
+      .filter((m) => m.group === 'A' || m.group === 'B')
+      .forEach((m) => {
+        results[m.id] = makeResult(m.id, 1, 0)
+      })
+    results['M73'] = { ...makeResult('M73', 1, 1), penaltyWinner: 'home' }
+    const winnerRef: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
+    const loserRef: TeamRef = { kind: 'matchLoser', matchId: 'M73' }
+    const winner = resolveTeamRef(winnerRef, results)
+    const loser = resolveTeamRef(loserRef, results)
+    expect(winner).not.toBeNull()
+    expect(loser).not.toBeNull()
+    expect(winner!.id).not.toBe(loser!.id)
+    // penaltyWinner = 'home' → home team is the winner
+    const homeRef = knockoutMatches.find((m) => m.id === 'M73')!.homeRef
+    const homeTeam = resolveTeamRef(homeRef, results)
+    expect(winner!.id).toBe(homeTeam!.id)
+  })
+
+  it('resolves away winner via penaltyWinner: away', () => {
+    const results: Record<string, Result> = {}
+    groupMatches
+      .filter((m) => m.group === 'A' || m.group === 'B')
+      .forEach((m) => {
+        results[m.id] = makeResult(m.id, 1, 0)
+      })
+    results['M73'] = { ...makeResult('M73', 2, 2), penaltyWinner: 'away' }
+    const winnerRef: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
+    const winner = resolveTeamRef(winnerRef, results)
+    const awayRef = knockoutMatches.find((m) => m.id === 'M73')!.awayRef
+    const awayTeam = resolveTeamRef(awayRef, results)
+    expect(winner!.id).toBe(awayTeam!.id)
   })
 })
 

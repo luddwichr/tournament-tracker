@@ -52,7 +52,12 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
       const awayTeam = resolveTeamRef(match.awayRef, results)
       if (!homeTeam || !awayTeam) return null
 
-      if (matchResult.homeGoals === matchResult.awayGoals) return null
+      if (matchResult.homeGoals === matchResult.awayGoals) {
+        if (!matchResult.penaltyWinner) return null
+        const homeWonPenalty = matchResult.penaltyWinner === 'home'
+        if (ref.kind === 'matchWinner') return homeWonPenalty ? homeTeam : awayTeam
+        return homeWonPenalty ? awayTeam : homeTeam
+      }
 
       const homeWon = matchResult.homeGoals > matchResult.awayGoals
       if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam

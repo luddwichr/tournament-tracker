@@ -162,6 +162,85 @@ test('entering a knockout result propagates to the next round', async ({ page })
 })
 
 // ---------------------------------------------------------------------------
+// Match status badges (knockout stage is upcoming as of 2026-06-27)
+// ---------------------------------------------------------------------------
+
+test('R32 match cards show "geplant" badge before kickoff', async ({ page }) => {
+  // Freeze Date.now() to before the first R32 kickoff (2026-06-28T12:00 MST).
+  await page.addInitScript(() => {
+    const FIXED = new Date('2026-06-27T12:00:00Z').getTime()
+    Date.now = () => FIXED
+  })
+  await page.goto('/knockout')
+  // Wait for the bracket to render before checking status badges.
+  await expect(page.getByRole('heading', { level: 2, name: 'Runde der 32' })).toBeVisible()
+  const firstBadge = page.locator('.bracket-round').first().locator('.match-card__status--upcoming').first()
+  await expect(firstBadge).toBeVisible()
+  await expect(firstBadge).toHaveText('geplant')
+})
+
+// ---------------------------------------------------------------------------
+// Penalty winner picker
+// ---------------------------------------------------------------------------
+
+test('penalty winner section is hidden for a non-tied knockout score', async ({ page }) => {
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value as string),
+    [STORAGE_KEY, storedState(allGroupResults())],
+  )
+  await page.goto('/knockout')
+  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+
+  // Default scores are 0:0 — picker visible; set to 1:0 to hide it
+  await dialog.locator('.score-input__step').filter({ hasText: '+' }).first().click()
+  await expect(dialog.locator('.score-dialog__penalties')).not.toBeVisible()
+})
+
+test('penalty winner section appears for a tied knockout score', async ({ page }) => {
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value as string),
+    [STORAGE_KEY, storedState(allGroupResults())],
+  )
+  await page.goto('/knockout')
+  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+
+  // Scores are 0:0 by default → both teams tied → picker should show
+  await expect(dialog.locator('.score-dialog__penalties')).toBeVisible()
+  await expect(dialog.getByRole('group', { name: /Elfmeterschießen/ })).toBeVisible()
+})
+
+test('saving a tied knockout result with penalty winner propagates bracket', async ({ page }) => {
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value as string),
+    [STORAGE_KEY, storedState(allGroupResults())],
+  )
+  await page.goto('/knockout')
+
+  // Open the first R32 card (M73: A2 vs B2)
+  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+
+  // Leave score at 0:0 (draw) and pick home team as penalty winner
+  const penaltyGroup = dialog.getByRole('group', { name: /Elfmeterschießen/ })
+  await expect(penaltyGroup).toBeVisible()
+  const penaltyBtns = penaltyGroup.getByRole('button')
+  await penaltyBtns.first().click() // pick home team
+  await expect(penaltyBtns.first()).toHaveAttribute('aria-pressed', 'true')
+
+  await dialog.getByRole('button', { name: 'Speichern' }).click()
+  await expect(dialog).not.toBeVisible()
+
+  // M90 (R16) homeRef = winner(M73) — home team should now be resolved
+  const m90card = page.locator('.bracket-round').nth(1).locator('button.match-card').nth(1)
+  await expect(m90card.locator('.team-label')).toHaveCount(1)
+})
+
+// ---------------------------------------------------------------------------
 // Accessibility
 // ---------------------------------------------------------------------------
 

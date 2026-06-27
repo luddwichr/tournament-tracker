@@ -49,13 +49,18 @@ function isValidPersistedState(value: unknown): value is PersistedState {
 function isValidResult(value: unknown): value is Result {
   if (typeof value !== 'object' || value === null) return false
   const r = value as Record<string, unknown>
-  return (
-    typeof r['matchId'] === 'string' &&
-    typeof r['homeGoals'] === 'number' &&
-    typeof r['awayGoals'] === 'number' &&
-    typeof r['homeYellow'] === 'number' &&
-    typeof r['homeRed'] === 'number' &&
-    typeof r['awayYellow'] === 'number' &&
-    typeof r['awayRed'] === 'number'
-  )
+  if (
+    typeof r['matchId'] !== 'string' ||
+    typeof r['homeGoals'] !== 'number' ||
+    typeof r['awayGoals'] !== 'number' ||
+    typeof r['homeYellow'] !== 'number' ||
+    typeof r['homeRed'] !== 'number' ||
+    typeof r['awayYellow'] !== 'number' ||
+    typeof r['awayRed'] !== 'number'
+  ) {
+    return false
+  }
+  const pw = r['penaltyWinner']
+  if (pw !== undefined && pw !== null && pw !== 'home' && pw !== 'away') return false
+  return true
 }

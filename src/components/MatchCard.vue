@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
 import TeamLabel from './TeamLabel.vue'
+import { getMatchStatus, MATCH_STATUS_LABEL } from '../lib/match-status'
 
 const props = defineProps<{
   match: MatchSlot
@@ -15,6 +16,7 @@ const props = defineProps<{
 const emit = defineEmits<{ click: [] }>()
 
 const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
+const status = computed(() => getMatchStatus(props.match.kickoff, !!props.result))
 
 const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
   weekday: 'short',
@@ -47,9 +49,14 @@ function ariaLabel(): string {
     :disabled="blocked"
     @click="emit('click')"
   >
-    <time class="match-card__kickoff" :datetime="match.kickoff">
-      {{ formatKickoff(match.kickoff) }}
-    </time>
+    <div class="match-card__meta">
+      <time class="match-card__kickoff" :datetime="match.kickoff">
+        {{ formatKickoff(match.kickoff) }}
+      </time>
+      <span class="match-card__status" :class="`match-card__status--${status}`">
+        {{ MATCH_STATUS_LABEL[status] }}
+      </span>
+    </div>
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" />
@@ -108,9 +115,39 @@ function ariaLabel(): string {
   border-style: dashed;
 }
 
+.match-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .match-card__kickoff {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.match-card__status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1em 0.45em;
+  border-radius: var(--radius-full);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+.match-card__status--upcoming {
+  background: color-mix(in srgb, var(--color-text-muted) 15%, transparent);
+  color: var(--color-text-muted);
+}
+
+.match-card__status--live {
+  background: var(--color-draw);
+  color: var(--color-primary-contrast);
+}
+
+.match-card__status--finished {
+  background: var(--color-win);
+  color: var(--color-primary-contrast);
 }
 
 .match-card__body {

@@ -37,6 +37,13 @@ body {
   transform: translateY(0);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+    /* Keep the element off-screen; translateY is still applied when focused */
+  }
+}
+
 /* Screen-reader-only utility */
 .visually-hidden {
   position: absolute;

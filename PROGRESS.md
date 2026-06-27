@@ -13,9 +13,54 @@ ends with a runnable app + green tests.
 | M6 — Knockout deduction                    | ✅ Done        | third-place ranking, resolveTeamRef, canEnterResult, tests |
 | M7 — Knockout bracket view                 | ✅ Done        | BracketView + BracketRound + placeholder labels, ScoreDialog wired |
 | M8 — PWA                                   | ✅ Done        | vite-plugin-pwa Workbox precache, icons, offline e2e tests |
-| M9 — Polish                                | ⏳ Not started |                                                            |
+| M9 — Polish                                | ✅ Done        | Status badges, penalty winner, aria-label fix, contrast fix |
 | M10 — Squad viewer                         | ⏳ Not started |                                                            |
 | M11 — Possible matchups (headline feature) | ⏳ Not started |                                                            |
+
+## M9 — Polish (completed 2026-06-27)
+
+Delivered:
+
+- **Match status badges** (`geplant` / `läuft` / `beendet`) on every `<MatchCard>`:
+  - `src/lib/match-status.ts` — pure `getMatchStatus(kickoff, hasResult)` function; returns
+    `'upcoming' | 'live' | 'finished'`. `Date.now() >= kickoff → live`, presence of result →
+    `finished`.
+  - `MatchCard.vue` — `<div class="match-card__meta">` wraps kickoff time + new status chip.
+    Status chip uses `--color-draw` (amber) / `--color-win` (green) solid backgrounds with
+    `--color-primary-contrast` text to meet WCAG AA 4.5:1 contrast at 12 px.
+
+- **Penalty shootout winner** for knockout draws (resolves M6 known limitation):
+  - `tournament.ts` — `Result.penaltyWinner?: 'home' | 'away' | null` (optional; absent on
+    group-stage and non-drawn knockout results; accepted by existing import data without it).
+  - `knockout.ts` — `resolveTeamRef` now reads `penaltyWinner` when `homeGoals === awayGoals`
+    in a knockout match; still returns `null` if neither score differs nor `penaltyWinner` is set.
+  - `persistence.ts` — `isValidResult` validates the new optional field (accepts `undefined`,
+    `null`, `'home'`, `'away'`; rejects anything else).
+  - `ScoreDialog.vue` — shows a _„Elfmeterschießen — Sieger"_ toggle section (two `aria-pressed`
+    buttons, one per team) whenever `match.stage !== 'group'` and current scores are tied; the
+    section disappears and `penaltyWinner` is cleared when scores diverge.
+
+- **aria-label bug fix** in `ScoreInput.vue` — four `aria-label="..."` static bindings
+  (containing JS template literals) changed to `:aria-label="..."` dynamic bindings. They
+  were rendering the raw backtick syntax as the label text.
+
+- **`prefers-reduced-motion` skip-link** — explicit `@media (prefers-reduced-motion: reduce)`
+  block in `base.css` for the skip-link transition (belt-and-suspenders; the Andy Bell reset
+  already covers this globally).
+
+- **Tests** (88 unit tests, 34 e2e, all green):
+  - `src/lib/match-status.spec.ts` — 5 unit tests for `getMatchStatus` with `vi.useFakeTimers`.
+  - `src/lib/persistence.spec.ts` — 11 unit tests for `parseImport` covering valid data,
+    malformed JSON, wrong version, missing fields, and all `penaltyWinner` variants.
+  - `src/lib/knockout.spec.ts` — 3 new tests: draw without `penaltyWinner` returns null;
+    home/away penalty winner resolves correctly.
+  - `e2e/groups.spec.ts` — 2 new tests: "läuft" badge with frozen clock; "beendet" badge
+    after seeding a result.
+  - `e2e/knockout.spec.ts` — 4 new tests: "geplant" badge with frozen clock; penalty section
+    hidden/shown on score changes; saving tied result with penalty winner propagates bracket.
+
+**Verify:** `npm run typecheck` clean, `npm run lint` clean, `npm run test:unit` (88 pass),
+`npm run test:e2e` (34 pass, all axe-core a11y checks green).
 
 ## M8 — PWA (completed 2026-06-27)
 
