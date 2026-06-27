@@ -8,6 +8,8 @@ const props = defineProps<{
   homeTeam: Team | null
   awayTeam: Team | null
   result?: Result | null
+  homePlaceholder?: string
+  awayPlaceholder?: string
 }>()
 
 const emit = defineEmits<{ click: [] }>()
@@ -51,7 +53,7 @@ function ariaLabel(): string {
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" />
-        <span v-else class="match-card__placeholder">?</span>
+        <span v-else class="match-card__placeholder">{{ homePlaceholder ?? '?' }}</span>
       </span>
 
       <span class="match-card__score" aria-hidden="true">
@@ -67,7 +69,7 @@ function ariaLabel(): string {
 
       <span class="match-card__team match-card__team--away">
         <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" />
-        <span v-else class="match-card__placeholder">?</span>
+        <span v-else class="match-card__placeholder">{{ awayPlaceholder ?? '?' }}</span>
       </span>
     </div>
   </button>
@@ -102,7 +104,8 @@ function ariaLabel(): string {
 
 .match-card--blocked {
   cursor: not-allowed;
-  opacity: 0.5;
+  border-color: var(--color-border);
+  border-style: dashed;
 }
 
 .match-card__kickoff {
@@ -165,5 +168,9 @@ function ariaLabel(): string {
   color: var(--color-text-muted);
   font-style: italic;
   font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 </style>

@@ -11,11 +11,39 @@ ends with a runnable app + green tests.
 | M4 — Result entry + standings              | ✅ Done        | Pinia store, full FIFA tiebreakers, ScoreDialog, standings |
 | M5 — Persistence + export/import           | ✅ Done        | localStorage persist, JSON export/import, SettingsView     |
 | M6 — Knockout deduction                    | ✅ Done        | third-place ranking, resolveTeamRef, canEnterResult, tests |
-| M7 — Knockout bracket view                 | ⏳ Not started |                                                            |
+| M7 — Knockout bracket view                 | ✅ Done        | BracketView + BracketRound + placeholder labels, ScoreDialog wired |
 | M8 — PWA                                   | ⏳ Not started |                                                            |
 | M9 — Polish                                | ⏳ Not started |                                                            |
 | M10 — Squad viewer                         | ⏳ Not started |                                                            |
 | M11 — Possible matchups (headline feature) | ⏳ Not started |                                                            |
+
+## M7 — Knockout bracket view (completed 2026-06-27)
+
+Delivered:
+
+- `src/lib/bracket-labels.ts` — `teamRefLabel(ref) → string`: generates meaningful
+  German placeholder text for any unresolved `TeamRef` (e.g. `groupRank` rank 1 →
+  `"Sieger Gruppe A"`, `thirdPlace` → `"Bester 3. Platz"`, `matchWinner` →
+  `"Sieger Sp. 73"`).
+- `src/components/MatchCard.vue` — added optional `homePlaceholder` / `awayPlaceholder`
+  props; shown instead of `?` when the team ref is unresolved.
+- `src/components/BracketRound.vue` — presentational column component: sticky blue
+  header, stacked `<MatchCard>` entries, optional per-match `sectionLabel` (used for
+  the Finale column to label "Spiel um Platz 3" vs "Finale" within the same round).
+- `src/components/BracketView.vue` — groups the 32 knockout matches into 5 round
+  columns (Runde der 32, Achtelfinale, Viertelfinale, Halbfinale, Finale). Resolves
+  teams via `resolveTeamRef` reactively from the Pinia store. Horizontal-scrolling
+  flex container (`overflow-x: auto`, `min-width: max-content`) for narrow screens.
+  Emits `matchClick` up to the view.
+- `src/views/KnockoutView.vue` — page view: renders `<BracketView>`, manages
+  `selectedMatch` state, resolves home/away teams for the selected match, mounts
+  `<ScoreDialog>` on demand.
+
+**Verify:** `npm run typecheck` clean, `npm run test:unit` (63 pass), `npm run lint`
+clean. Browser: all 5 round headers visible, 32 match cards, placeholder labels
+correct, all R32 cards disabled until group results entered, ScoreDialog opens on
+click with correct team names (flags + scores), Esc closes it. Horizontal scroll
+works at 390 px viewport (scrollWidth 1464 vs clientWidth 358).
 
 ## M6 — Knockout deduction (completed 2026-06-27)
 
