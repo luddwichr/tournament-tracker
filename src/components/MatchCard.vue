@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
 import TeamLabel from './TeamLabel.vue'
 
@@ -10,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ click: [] }>()
+
+const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
 
 const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
   weekday: 'short',
@@ -37,8 +40,9 @@ function ariaLabel(): string {
   <button
     type="button"
     class="match-card"
-    :class="{ 'match-card--played': !!result }"
+    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
     :aria-label="ariaLabel()"
+    :disabled="blocked"
     @click="emit('click')"
   >
     <time class="match-card__kickoff" :datetime="match.kickoff">
@@ -94,6 +98,11 @@ function ariaLabel(): string {
 
 .match-card--played {
   border-color: var(--color-border);
+}
+
+.match-card--blocked {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .match-card__kickoff {

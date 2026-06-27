@@ -9,13 +9,52 @@ ends with a runnable app + green tests.
 | M2 — Domain + fixture data                 | ✅ Done        | Types, 48 teams, 104 fixtures, Annex C table, sanity tests |
 | M3 — Group view (read-only)                | ✅ Done        | 12 group cards, flags, matches, sticky header              |
 | M4 — Result entry + standings              | ✅ Done        | Pinia store, full FIFA tiebreakers, ScoreDialog, standings |
-| M5 — Persistence + export/import           | ⏳ Not started |                                                            |
-| M6 — Knockout deduction                    | ⏳ Not started |                                                            |
+| M5 — Persistence + export/import           | ✅ Done        | localStorage persist, JSON export/import, SettingsView     |
+| M6 — Knockout deduction                    | ✅ Done        | third-place ranking, resolveTeamRef, canEnterResult, tests |
 | M7 — Knockout bracket view                 | ⏳ Not started |                                                            |
 | M8 — PWA                                   | ⏳ Not started |                                                            |
 | M9 — Polish                                | ⏳ Not started |                                                            |
 | M10 — Squad viewer                         | ⏳ Not started |                                                            |
 | M11 — Possible matchups (headline feature) | ⏳ Not started |                                                            |
+
+## M6 — Knockout deduction (completed 2026-06-27)
+
+Delivered:
+
+- `src/lib/third-place.ts` — `rankThirdPlaced(results) → TeamStat[] | null`: ranks
+  all 12 third-placed teams using the cross-group tiebreaker chain (pts → GD → GF →
+  fair-play → FIFA ranking; no H2H since teams come from different groups). Returns
+  null until all 12 groups are complete. `resolveThirdPlaceSlot(slot, results) → Team | null`:
+  takes the top 8, builds the `ABCDEFGH`-style key, looks up in `THIRD_PLACE_ALLOCATION`,
+  maps hostGroup → sourceGroup → team.
+- `src/lib/knockout.ts` — `resolveTeamRef(ref, results) → Team | null`: walks the
+  full TeamRef chain (`team` / `groupRank` / `thirdPlace` / `matchWinner` / `matchLoser`),
+  returning null at any unresolvable step. Draws in knockout matches return null for
+  winner/loser (current model has no penalty field). `canEnterResult(match, results) →
+  boolean`: convenience predicate used to block result entry on unresolved knockout slots.
+- `src/lib/third-place.spec.ts` — 11 unit tests: null until complete, 12 teams, one per
+  group, sorted by pts/GD, slot tests (non-null, distinct, from top-8 groups).
+- `src/lib/knockout.spec.ts` — 20 unit tests covering all TeamRef kinds, draw handling,
+  `canEnterResult`, and full bracket propagation (R32→R16→QF→SF→Final).
+- `src/components/MatchCard.vue` — button now carries `disabled` + `match-card--blocked`
+  (cursor: not-allowed, opacity 0.5) when `homeTeam === null || awayTeam === null`.
+
+**Known limitation:** knockout matches that go to penalties cannot yet identify the
+winner — the `Result` model has no penalty field. Draw results in knockout leave
+winner/loser as null. Addressed in M9 (Polish).
+
+**Verify:** `npm run test:unit` (56 pass), `npm run typecheck` clean, `npm run lint` clean.
+
+## M5 — Persistence + export/import (completed 2026-06-27)
+
+Delivered:
+
+- `pinia-plugin-persistedstate` wired to localStorage key `wc2026:results:v1`.
+- `src/lib/persistence.ts` — `exportJson(results)` triggers download as
+  `wc2026-results-YYYY-MM-DD.json`; `parseImport(text)` validates and returns the
+  results map; schema version checked on import.
+- `src/views/SettingsView.vue` — _Exportieren_, _Importieren_, _Zurücksetzen_ buttons
+  with confirmation dialog on reset.
 
 ## M4 — Result entry + standings (completed 2026-06-27)
 
