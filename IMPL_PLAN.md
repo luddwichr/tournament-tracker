@@ -7,26 +7,26 @@ Greenfield project (only `.git` present). Goal: an offline-first web app that
 1. Displays the full WC 2026 schedule (48 teams, 12 groups, 104 matches).
 2. Lets the user enter actual match results.
 3. Automatically computes group standings (FIFA tiebreakers) and propagates winners through the knockout bracket — including the 8 best 3rd-placed teams in the 48-team format.
-4. **(Headline extra feature, post-basics)** For each upcoming knockout slot still unresolved, a dedicated button reveals the *set of teams that could still fill that slot* given current results.
+4. **(Headline extra feature, post-basics)** For each upcoming knockout slot still unresolved, a dedicated button reveals the _set of teams that could still fill that slot_ given current results.
 
 Today is 2026-06-26 — the tournament started 2026-06-11, so the app must support back-filling already-played matches as soon as it ships.
 
 ### Locked-in decisions
 
-| Decision | Choice |
-| --- | --- |
-| Scope | Result tracker only (no predictions/tipping) |
-| Stack | Vue 3 + Vite + TypeScript 6 (latest exact pin) |
-| State | Pinia + auto-persist to `localStorage`; manual JSON export/import |
-| Deployment | PWA (installable, offline-first) |
-| UI language | **German** (UI strings only) |
-| Code language | **English** (filenames, components, identifiers, comments) |
-| Dependency versions | **Exact pinned** in `package.json` — no `^`/`~` |
-| Match metadata | Date/time + stage only (no venues) |
-| Knockout | Fully automatic from group standings — no manual override |
-| Fixtures | Hardcoded TypeScript module in repo |
-| Flags | `flag-icons` (lipis) npm package |
-| Tests | Playwright (e2e) + Vitest (unit) |
+| Decision            | Choice                                                            |
+| ------------------- | ----------------------------------------------------------------- |
+| Scope               | Result tracker only (no predictions/tipping)                      |
+| Stack               | Vue 3 + Vite + TypeScript 6 (latest exact pin)                    |
+| State               | Pinia + auto-persist to `localStorage`; manual JSON export/import |
+| Deployment          | PWA (installable, offline-first)                                  |
+| UI language         | **German** (UI strings only)                                      |
+| Code language       | **English** (filenames, components, identifiers, comments)        |
+| Dependency versions | **Exact pinned** in `package.json` — no `^`/`~`                   |
+| Match metadata      | Date/time + stage only (no venues)                                |
+| Knockout            | Fully automatic from group standings — no manual override         |
+| Fixtures            | Hardcoded TypeScript module in repo                               |
+| Flags               | `flag-icons` (lipis) npm package                                  |
+| Tests               | Playwright (e2e) + Vitest (unit)                                  |
 
 ---
 
@@ -51,7 +51,7 @@ The scaffolding agent **must** check the actual latest version of each dependenc
 Maintain `docs/` at repo root with one markdown file per significant dependency (`docs/typescript-6.md`, `docs/vue.md`, `docs/vite-pwa.md`, …). For each:
 
 - Exact pinned version.
-- Notable changes vs. older widely-known versions that affect *this* codebase (sourced from release notes / web search at the time of pinning).
+- Notable changes vs. older widely-known versions that affect _this_ codebase (sourced from release notes / web search at the time of pinning).
 - Migration gotchas an implementing agent hit (so the next agent doesn't repeat them).
 
 These files are the project's living "things-the-LLM-might-not-have-known-during-training" notebook. Update whenever a dep is added or upgraded.
@@ -65,7 +65,7 @@ These files are the project's living "things-the-LLM-might-not-have-known-during
 - **Small, focused** components with a single responsibility. If a `.vue` file passes ~150 lines or holds two distinct concerns, split it.
 - **Logic stays out of components.** Anything algorithmic — standings, tiebreakers, knockout resolution, possible-team enumeration — lives in `src/lib/` as pure functions, unit-tested in isolation. Components orchestrate and present.
 - Prefer **composition + events** over prop-drilling. Use Pinia for app-wide state, `provide`/`inject` only when a subtree clearly needs shared local state.
-- **Spacing rule:** *components only set padding; margin is the parent's job.* This keeps components reusable without owning their surrounding whitespace. Enforce via code review and a brief note in `docs/styling.md`.
+- **Spacing rule:** _components only set padding; margin is the parent's job._ This keeps components reusable without owning their surrounding whitespace. Enforce via code review and a brief note in `docs/styling.md`.
 
 ### Layout
 
@@ -77,7 +77,7 @@ These files are the project's living "things-the-LLM-might-not-have-known-during
 
 - **Semantic HTML** first: `<nav>`, `<main>`, `<table>` for group standings, `<button>` for actions (never clickable `<div>`s), `<dialog>` for modals.
 - **Visible focus ring** on every interactive element. Manage focus on route change and after modal open/close.
-- **Color contrast** WCAG AA minimum (4.5:1 body text, 3:1 large/UI). Never convey state by color alone — pair with icons/labels (e.g. win/draw/loss shown with both color *and* a glyph).
+- **Color contrast** WCAG AA minimum (4.5:1 body text, 3:1 large/UI). Never convey state by color alone — pair with icons/labels (e.g. win/draw/loss shown with both color _and_ a glyph).
 - **Form labels** properly associated (`<label for>` or wrapping).
 - **ARIA live region** announces score updates and dialog open/close.
 - **`prefers-reduced-motion`** honored — disable bracket transitions for users who opt out.
@@ -92,7 +92,7 @@ These files are the project's living "things-the-LLM-might-not-have-known-during
 - **Large numerals** for scores (≥ 32 px on mobile).
 - **Universally recognized iconography** (trophy = winner, lock = unresolved, calendar = upcoming). Pair every icon with a short German label so screen readers + adults both still get it.
 - **Color-coded outcomes:** W = green, D = amber, L = red — always paired with an icon or letter (a11y + colorblind safety).
-- **Plain German vocabulary**, short sentences, no abbreviations beyond standard ones (*Tor*, *Spiel*, *Gruppe*, *Sieger*, *K.-o.-Runde*).
+- **Plain German vocabulary**, short sentences, no abbreviations beyond standard ones (_Tor_, _Spiel_, _Gruppe_, _Sieger_, _K.-o.-Runde_).
 - **Generous spacing**, large fonts (base ≥ 18 px on mobile), readable line-height.
 
 ### Styling foundations
@@ -235,16 +235,18 @@ worldcup-2026/
 Each milestone ends with a runnable app + green tests. A coding agent can pick up at any milestone boundary.
 
 ### M1 — Scaffold
+
 - `npm create vite@latest` → Vue + TS template; immediately re-pin every version to latest exact
 - Install Pinia, `pinia-plugin-persistedstate`, Vue Router, Vitest, `@vue/test-utils`, `@playwright/test`, `@axe-core/playwright`, ESLint flat + `eslint-plugin-vue` + `eslint-plugin-vuejs-accessibility` + Prettier, `vite-plugin-pwa`, `flag-icons`
 - `tsconfig.json` strict; path alias `@/* → src/*`
 - Create `docs/` with starter `styling.md`, `accessibility.md`, plus version-note files for the major deps
 - Drop in `src/styles/reset.css` and `src/styles/tokens.css`
-- App shell with `<AppHeader>` + `<AppNav>` + `<RouterView>`; 3 empty views; German nav labels (*Gruppen*, *K.-o.-Runde*, *Einstellungen*), English routes (`/groups`, `/knockout`, `/settings`)
+- App shell with `<AppHeader>` + `<AppNav>` + `<RouterView>`; 3 empty views; German nav labels (_Gruppen_, _K.-o.-Runde_, _Einstellungen_), English routes (`/groups`, `/knockout`, `/settings`)
 - Playwright smoke spec loads `/` and runs axe-core (must pass)
 - **Verify:** `npm run dev` shows shell; `npm run test:unit`, `npm run test:e2e`, `npm run lint` all clean
 
 ### M2 — Domain + fixture data
+
 - Implement `src/types/tournament.ts`
 - Author `src/data/teams.ts` — 48 qualified teams (German names + `flag-icons` codes + **FIFA World Ranking** position, with snapshot-date comment)
 - Author `src/data/fixtures-2026.ts` — all 104 `MatchSlot`s:
@@ -255,16 +257,18 @@ Each milestone ends with a runnable app + green tests. A coding agent can pick u
 - **Verify:** `npm run test:unit` green
 
 ### M3 — Group view (read-only)
+
 - `GroupsView.vue` renders 12 `<GroupTable>`s in a responsive CSS Grid (1 col mobile → 2 → 3 → 4)
 - `<GroupTable>` lists teams (alphabetical) via `<TeamLabel>` + 6 matches via `<MatchCard>` (kickoff + teams, no score input yet)
 - Big flags, large numerals, plain German labels
 - **Verify:** dev server walk-through at 360 px and desktop; Playwright "all 12 groups visible, all teams present"; axe-core clean
 
 ### M4 — Result entry + standings (with full FIFA tiebreakers)
+
 - Pinia `tournament.ts` store: `results: Record<string, Result>`; actions `enterResult`, `clearResult`
 - `<MatchCard>` click opens `<ScoreDialog>` (semantic `<dialog>`, focus trap, Esc to close):
   - `<ScoreInput>`: two number inputs for goals (labeled, non-negative integers)
-  - `<DisciplineInput>`: collapsed section *„Karten (optional)"* with four inputs (Gelb/Rot × Heim/Gast), all defaulting to 0
+  - `<DisciplineInput>`: collapsed section _„Karten (optional)"_ with four inputs (Gelb/Rot × Heim/Gast), all defaulting to 0
 - `lib/standings.ts` + `lib/tiebreakers.ts` implement the full FIFA group tiebreaker chain:
   1. Points
   2. GD (all matches)
@@ -275,55 +279,62 @@ Each milestone ends with a runnable app + green tests. A coding agent can pick u
   7. **Fair-play points** (simplified rule, documented in `docs/tiebreakers.md`): `score = −1·yellow − 3·red` summed across all group matches; higher (less negative) is better
   8. **FIFA World Ranking** (from `Team.fifaRanking`) — deterministic final tiebreaker; explicitly replaces FIFA's drawing-of-lots step
 - When H2H collapses N tied teams into a smaller still-tied subset, re-run the full chain on that subset (test explicitly)
-- Because step 8 is deterministic, the tiebreaker chain *always* resolves — no unresolved-tie banner needed
+- Because step 8 is deterministic, the tiebreaker chain _always_ resolves — no unresolved-tie banner needed
 - `<StandingsRow>` shows `<TeamLabel>` + P, W, D, L, GF, GA, GD, Pts with `<OutcomeBadge>`s for recent form
 - ARIA live region announces "Ergebnis gespeichert: …"
 - **Verify:** Vitest tiebreakers cover: GD, H2H decides, 3-way collapse, fair-play decides, world-ranking decides; Playwright: enter results → standings update; axe clean
 
 ### M5 — Persistence + export/import
+
 - `pinia-plugin-persistedstate` for results map (localStorage key `wc2026:results:v1` — versioned)
 - `lib/persistence.ts`:
   - `exportJson()` → downloads `wc2026-results-YYYY-MM-DD.json` (`{ version, results }`)
   - `importJson(file)` → parse, validate, confirm-replace
   - `reset()` → confirm, clear
-- `SettingsView.vue`: *Exportieren*, *Importieren*, *Zurücksetzen* buttons
+- `SettingsView.vue`: _Exportieren_, _Importieren_, _Zurücksetzen_ buttons
 - **Verify:** e2e enter → reload → present; export → reset → import → restored
 
 ### M6 — Knockout deduction
+
 - `lib/third-place.ts`: rank 12 third-placed teams via tiebreakers; top 8 → R32 slots via lookup table (M2). Return `null` for ranks that can't be resolved (UI keeps working)
 - `lib/knockout.ts`: `resolveTeamRef(ref, state) → Team | null` walks `groupRank` → `thirdPlace` → `matchWinner` / `matchLoser`
 - Block result entry on a knockout match while either ref is unresolved
 - **Verify:** Vitest (12 third-placed ranked, full R32→final propagation, blocked entry when upstream unresolved)
 
 ### M7 — Knockout bracket view
+
 - `KnockoutView.vue` → `<BracketView>` → `<BracketRound>` × 5 (R32, R16, QF, SF, Final + 3rd-place adjacent)
 - CSS Grid for round columns; horizontal scroll on narrow screens with sticky round headers
-- Each slot = `<MatchCard>`; unresolved slots show placeholders (*„Sieger Gruppe A"*, *„3. der Gruppe …"*)
+- Each slot = `<MatchCard>`; unresolved slots show placeholders (_„Sieger Gruppe A"_, _„3. der Gruppe …"_)
 - **Verify:** e2e — enter all group results → R32 populated → cascade through final; axe clean
 
 ### M8 — PWA
-- `vite-plugin-pwa` `registerType: 'autoUpdate'`, German manifest (`name`: *WM 2026 Tracker*, `lang: 'de'`, theme color from `tokens.css`), icons in `public/icons/`
+
+- `vite-plugin-pwa` `registerType: 'autoUpdate'`, German manifest (`name`: _WM 2026 Tracker_, `lang: 'de'`, theme color from `tokens.css`), icons in `public/icons/`
 - Workbox precaches built shell + fixtures
 - **Verify:** `npm run build && npm run preview` → install prompt in Chrome; Playwright `--offline` context → app loads + works offline
 
 ### M9 — Polish
-- Match status badges (*geplant* / *läuft* / *beendet*) from kickoff vs `Date.now()` + presence of result
+
+- Match status badges (_geplant_ / _läuft_ / _beendet_) from kickoff vs `Date.now()` + presence of result
 - Edit existing results (re-open `<ScoreDialog>`, prefilled)
 - Empty/error states (malformed JSON, etc.)
 - Lighthouse PWA audit ≥ 90; Lighthouse a11y audit ≥ 95
 - Verify `prefers-reduced-motion` and `prefers-color-scheme: dark`
 
 ### M10 — Squad viewer
+
 Static, read-only display of each team's 26-player roster.
 
 - Author `src/data/squads.ts`: `Record<teamId, Player[]>` — 48 teams × 26 players
 - `<TeamLabel>` becomes interactively clickable (button semantics, focusable, Enter/Space) → opens `<SquadDialog>`
 - `<SquadDialog>` uses semantic `<dialog>`; shows team flag + name in heading, then `<SquadList>` (table of number / name / position)
-- Plain German position labels (*Torwart / Abwehr / Mittelfeld / Sturm*)
+- Plain German position labels (_Torwart / Abwehr / Mittelfeld / Sturm_)
 - **Verify:** Vitest: every team in `teams.ts` has a non-empty squad entry; Playwright: click a team flag → dialog opens → Esc closes; axe clean
 
 ### M11 — Possible matchups (headline extra feature)
-On each unresolved knockout slot, a *„Mögliche Teams anzeigen"* button (`<PossibleTeamsButton>`) opens `<PossibleTeamsDialog>` listing teams that could still fill that slot.
+
+On each unresolved knockout slot, a _„Mögliche Teams anzeigen"_ button (`<PossibleTeamsButton>`) opens `<PossibleTeamsDialog>` listing teams that could still fill that slot.
 
 - `lib/possible-teams.ts`:
   - `possibleTeamsFor(ref, state) → Set<Team>`
@@ -338,11 +349,11 @@ On each unresolved knockout slot, a *„Mögliche Teams anzeigen"* button (`<Pos
 
 ## Critical correctness points
 
-1. **3rd-place lookup table** is *the* source of truth — encode verbatim with a comment linking the FIFA source. Community implementations of past tournaments often get this wrong.
-2. **Tiebreaker subgroup logic**: H2H tiebreakers apply *only to matches between still-tied teams*; if H2H collapses N tied teams into a smaller subset, re-run the full chain on that subset.
+1. **3rd-place lookup table** is _the_ source of truth — encode verbatim with a comment linking the FIFA source. Community implementations of past tournaments often get this wrong.
+2. **Tiebreaker subgroup logic**: H2H tiebreakers apply _only to matches between still-tied teams_; if H2H collapses N tied teams into a smaller subset, re-run the full chain on that subset.
 3. **Versioned localStorage key** (`wc2026:results:v1`): schema bump → migration in `persistence.ts`.
 4. **Unresolved ties never block the UI** — show banner, let user continue elsewhere.
-5. **Pinned versions**: a dep upgrade that changes behavior must be documented under `docs/<dep>.md` *before* the code change lands.
+5. **Pinned versions**: a dep upgrade that changes behavior must be documented under `docs/<dep>.md` _before_ the code change lands.
 6. **M11 enumeration bounds**: memoization is mandatory; main thread first, Web Worker only if needed.
 
 ---
@@ -353,9 +364,9 @@ On each unresolved knockout slot, a *„Mögliche Teams anzeigen"* button (`<Pos
 2. Enter all 72 group results (e2e fixture set)
 3. R32 matchups appear correctly, including the 8 best 3rd-placed teams
 4. Propagate winners through R16 → QF → SF → 3rd place → Final
-5. *Exportieren* → JSON downloads with full state
-6. *Zurücksetzen* → empty state restored
-7. *Importieren* selecting the exported file → state fully restored
+5. _Exportieren_ → JSON downloads with full state
+6. _Zurücksetzen_ → empty state restored
+7. _Importieren_ selecting the exported file → state fully restored
 8. `npm run build && npm run preview` → install as PWA, go offline → fully functional
 9. `npm run test:unit` and `npm run test:e2e` (incl. axe-core a11y spec) → all green; `npm run lint` clean
 

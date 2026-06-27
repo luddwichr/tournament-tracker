@@ -14,10 +14,8 @@ test-results/
 .DS_Store
 *.local
 .idea
-.vscode
 
 # Sandbox/environment-injected files (not part of this project)
-.claude/
 .mcp.json
 .ripgreprc
 .bashrc

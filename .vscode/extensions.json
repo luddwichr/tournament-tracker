@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "vue.volar",
+    "anthropic.claude-code",
+    "dbaeumer.vscode-eslint",
+    "ms-playwright.playwright",
+    "esbenp.prettier-vscode",
+    "vitest.explorer"
+  ]
+}
