@@ -22,7 +22,7 @@ export const teams: readonly Team[] = [
   { id: 'kor', name: 'Südkorea', flagCode: 'kr', group: 'A', fifaRanking: 25 },
   { id: 'cze', name: 'Tschechien', flagCode: 'cz', group: 'A', fifaRanking: 40 },
   { id: 'can', name: 'Kanada', flagCode: 'ca', group: 'B', fifaRanking: 30 },
-  { id: 'bih', name: 'Bosnien und Herzegowina', flagCode: 'ba', group: 'B', fifaRanking: 64 },
+  { id: 'bih', name: 'Bosnien H.', flagCode: 'ba', group: 'B', fifaRanking: 64 },
   { id: 'qat', name: 'Katar', flagCode: 'qa', group: 'B', fifaRanking: 56 },
   { id: 'sui', name: 'Schweiz', flagCode: 'ch', group: 'B', fifaRanking: 19 },
   { id: 'bra', name: 'Brasilien', flagCode: 'br', group: 'C', fifaRanking: 6 },

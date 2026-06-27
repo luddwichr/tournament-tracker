@@ -1,4 +1,16 @@
 {
   "autoMemoryEnabled": false,
-  "plansDirectory": ".claude/plans"
+  "plansDirectory": ".claude/plans",
+  "permissions": {
+    "allow": [
+       "Bash(npm run test:*)",
+       "Bash(npm run typecheck)",
+       "Bash(npm run lint)",
+       "Bash(npm run lint:fix)",
+       "Bash(npm run format:*)",
+       "Bash(npm run build)",
+       "Bash(npm run dev)",
+       "Bash(npm run preview)"
+    ]
+  }
 }

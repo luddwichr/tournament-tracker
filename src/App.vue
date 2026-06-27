@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
+import { announceKey } from './composables/useAnnounce'
 
 const route = useRoute()
 const mainRef = ref<HTMLElement | null>(null)
 const announcement = ref('')
+
+function announce(msg: string): void {
+  // Clear then set on next tick so the same message can be re-announced.
+  announcement.value = ''
+  nextTick(() => {
+    announcement.value = msg
+  })
+}
+
+provide(announceKey, announce)
 
 // On route change, move focus to the main landmark and announce the new page
 // so keyboard and screen-reader users are oriented.
@@ -13,7 +24,7 @@ watch(
   () => route.fullPath,
   () => {
     const title = route.meta.title ?? ''
-    announcement.value = title ? `Seite: ${title}` : ''
+    announce(title ? `Seite: ${title}` : '')
     mainRef.value?.focus()
   },
 )

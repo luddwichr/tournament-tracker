@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import type { GroupId } from '../types/tournament'
-import { teamsById, teamsInGroup } from '../data/teams'
+import { ref, computed } from 'vue'
+import type { GroupId, MatchSlot, Team } from '../types/tournament'
+import { teamsById } from '../data/teams'
 import { groupMatches } from '../data/fixtures-2026'
-import TeamLabel from './TeamLabel.vue'
+import { useTournamentStore } from '../stores/tournament'
+import { computeGroupStandings } from '../lib/standings'
 import MatchCard from './MatchCard.vue'
+import StandingsRow from './StandingsRow.vue'
+import ScoreDialog from './ScoreDialog.vue'
 
-const props = defineProps<{
-  groupId: GroupId
-}>()
+const props = defineProps<{ groupId: GroupId }>()
 
-const teams = teamsInGroup(props.groupId).toSorted((a, b) =>
-  a.name.localeCompare(b.name, 'de'),
-)
+const store = useTournamentStore()
 
 const matches = groupMatches.filter((m) => m.group === props.groupId)
 
-function resolveTeam(ref: (typeof matches)[0]['homeRef']) {
+const standings = computed(() => computeGroupStandings(props.groupId, store.results))
+
+const selectedMatch = ref<MatchSlot | null>(null)
+
+function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
   if (ref.kind === 'team') return teamsById.get(ref.teamId) ?? null
   return null
 }
@@ -27,12 +31,30 @@ function resolveTeam(ref: (typeof matches)[0]['homeRef']) {
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <section class="group-table__teams" aria-label="Teams">
-      <ul class="group-table__team-list">
-        <li v-for="team in teams" :key="team.id" class="group-table__team-item">
-          <TeamLabel :team="team" flag-size="2rem" />
-        </li>
-      </ul>
+    <section class="group-table__standings" aria-label="Tabelle">
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th scope="col" class="standings-table__team-col">Team</th>
+            <th scope="col" class="standings-table__num-col" title="Spiele">Sp</th>
+            <th scope="col" class="standings-table__num-col" title="Siege">S</th>
+            <th scope="col" class="standings-table__num-col" title="Unentschieden">U</th>
+            <th scope="col" class="standings-table__num-col" title="Niederlagen">N</th>
+            <th scope="col" class="standings-table__num-col" title="Tore">T+</th>
+            <th scope="col" class="standings-table__num-col" title="Gegentore">T-</th>
+            <th scope="col" class="standings-table__num-col" title="Tordifferenz">TD</th>
+            <th scope="col" class="standings-table__num-col" title="Punkte">Pkt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <StandingsRow
+            v-for="(stat, idx) in standings"
+            :key="stat.team.id"
+            :stat="stat"
+            :rank="idx + 1"
+          />
+        </tbody>
+      </table>
     </section>
 
     <section class="group-table__matches" aria-label="Spiele">
@@ -42,8 +64,18 @@ function resolveTeam(ref: (typeof matches)[0]['homeRef']) {
         :match="match"
         :home-team="resolveTeam(match.homeRef)"
         :away-team="resolveTeam(match.awayRef)"
+        :result="store.results[match.id] ?? null"
+        @click="selectedMatch = match"
       />
     </section>
+
+    <ScoreDialog
+      v-if="selectedMatch"
+      :match="selectedMatch"
+      :home-team="resolveTeam(selectedMatch.homeRef)"
+      :away-team="resolveTeam(selectedMatch.awayRef)"
+      @close="selectedMatch = null"
+    />
   </article>
 </template>
 
@@ -67,23 +99,35 @@ function resolveTeam(ref: (typeof matches)[0]['homeRef']) {
   font-weight: 700;
 }
 
-.group-table__teams {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+.group-table__standings {
+  overflow-x: auto;
 }
 
-.group-table__team-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
 }
 
-.group-table__team-item {
-  display: flex;
-  align-items: center;
+.standings-table thead tr {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.standings-table th {
+  padding: var(--space-1) var(--space-2);
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.standings-table__team-col {
+  text-align: left !important;
+  padding-left: var(--space-3) !important;
+}
+
+.standings-table__num-col {
+  min-width: 2rem;
 }
 
 .group-table__matches {
@@ -91,5 +135,6 @@ function resolveTeam(ref: (typeof matches)[0]['homeRef']) {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
 }
 </style>
