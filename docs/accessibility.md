@@ -1,7 +1,7 @@
 # Accessibility (a11y)
 
-Target: **WCAG 2.1 AA**. Linted with `eslint-plugin-vuejs-accessibility` and
-scanned in e2e with `@axe-core/playwright` on every route.
+Target: **WCAG 2.1 AA**. Scanned in e2e with `@axe-core/playwright` on every
+route.
 
 ## Checklist (applies to every feature)
 

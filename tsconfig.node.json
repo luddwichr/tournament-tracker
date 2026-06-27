@@ -1,13 +1,13 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.json",
+  "extends": ["@vue/tsconfig/tsconfig.json", "./tsconfig.base.json"],
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["node"],
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    // keep tsconfig.base.json target in sync with libs in tsconfig.*.json files and vite.config.ts `build.target`
+    "lib": ["ES2025"],
+    "types": ["node"]
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "eslint.config.js"]
+  "include": ["vite.config.ts", "playwright.config.ts"]
 }

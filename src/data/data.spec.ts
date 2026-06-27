@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest'
 
-import { teams, teamsById } from '@/data/teams'
+import { teams, teamsById } from './teams'
 import {
   fixtures,
   groupMatches,
   knockoutMatches,
   THIRD_PLACE_SLOT_HOST,
   THIRD_PLACE_ALLOCATION,
-} from '@/data/fixtures-2026'
-import { GROUP_IDS, type GroupId } from '@/types/tournament'
+} from './fixtures-2026'
+import { GROUP_IDS, type GroupId } from '../types/tournament'
+
+const countStage = (stage: string) => knockoutMatches.filter((m) => m.stage === stage).length
+const matchNum = (id: string) => Number(id.slice(1))
 
 describe('teams', () => {
   it('has all 48 qualified teams', () => {
@@ -58,13 +61,12 @@ describe('fixtures', () => {
   })
 
   it('has the expected number of matches per knockout stage', () => {
-    const byStage = (s: string) => knockoutMatches.filter((m) => m.stage === s).length
-    expect(byStage('r32')).toBe(16)
-    expect(byStage('r16')).toBe(8)
-    expect(byStage('qf')).toBe(4)
-    expect(byStage('sf')).toBe(2)
-    expect(byStage('third')).toBe(1)
-    expect(byStage('final')).toBe(1)
+    expect(countStage('r32')).toBe(16)
+    expect(countStage('r16')).toBe(8)
+    expect(countStage('qf')).toBe(4)
+    expect(countStage('sf')).toBe(2)
+    expect(countStage('third')).toBe(1)
+    expect(countStage('final')).toBe(1)
   })
 })
 
@@ -110,28 +112,30 @@ describe('group stage', () => {
 describe('knockout bracket reachability', () => {
   const ids = new Set(fixtures.map((m) => m.id))
 
-  const num = (id: string) => Number(id.slice(1))
-
   it('resolves every knockout reference to a valid group, slot or earlier match', () => {
     for (const m of knockoutMatches) {
       for (const ref of [m.homeRef, m.awayRef]) {
         switch (ref.kind) {
-          case 'groupRank':
+          case 'groupRank': {
             expect(GROUP_IDS).toContain(ref.group)
             expect([1, 2]).toContain(ref.rank)
             break
-          case 'thirdPlace':
+          }
+          case 'thirdPlace': {
             expect(ref.slot).toBeGreaterThanOrEqual(1)
             expect(ref.slot).toBeLessThanOrEqual(8)
             break
+          }
           case 'matchWinner':
-          case 'matchLoser':
+          case 'matchLoser': {
             expect(ids.has(ref.matchId), `dangling ${ref.matchId}`).toBe(true)
             // referenced match is always played earlier
-            expect(num(ref.matchId)).toBeLessThan(num(m.id))
+            expect(matchNum(ref.matchId)).toBeLessThan(matchNum(m.id))
             break
-          default:
+          }
+          default: {
             throw new Error(`group-style ref in knockout match ${m.id}`)
+          }
         }
       }
     }
@@ -195,9 +199,9 @@ describe('third-place allocation table', () => {
   it('keys every row by 8 distinct sorted group letters', () => {
     for (const key of Object.keys(THIRD_PLACE_ALLOCATION)) {
       expect(key).toHaveLength(8)
-      const letters = key.split('')
+      const letters = [...key]
       expect(new Set(letters).size).toBe(8)
-      expect([...letters].sort().join('')).toBe(key)
+      expect(letters.toSorted().join('')).toBe(key)
       for (const l of letters) expect(GROUP_IDS).toContain(l as GroupId)
     }
   })
@@ -205,9 +209,9 @@ describe('third-place allocation table', () => {
   it('assigns, in every row, the eight qualifying groups to the eight host slots', () => {
     for (const [key, mapping] of Object.entries(THIRD_PLACE_ALLOCATION)) {
       // one assignment per host group
-      expect(Object.keys(mapping).sort().join('')).toBe([...hosts].sort().join(''))
+      expect(Object.keys(mapping).toSorted().join('')).toBe(hosts.toSorted().join(''))
       // the assigned third-placed groups are exactly the qualifying set
-      expect([...Object.values(mapping)].sort().join('')).toBe(key)
+      expect(Object.values(mapping).toSorted().join('')).toBe(key)
     }
   })
 })

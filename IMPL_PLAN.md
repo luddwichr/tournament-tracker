@@ -43,7 +43,7 @@ The scaffolding agent **must** check the actual latest version of each dependenc
 - **`flag-icons`** (by lipis) — supports GB constituent nations (`gb-eng`, `gb-sct`, `gb-wls`)
 - **Vitest** + **`@vue/test-utils`**
 - **`@playwright/test`**
-- **ESLint** flat config + **`eslint-plugin-vue`** + **`eslint-plugin-vuejs-accessibility`** + **Prettier**
+- **oxlint** (`typescript` + `oxc` + `vue` plugins) + **oxfmt**
 - No UI framework — plain CSS (custom-property design tokens)
 
 ### Version documentation discipline
@@ -82,7 +82,8 @@ These files are the project's living "things-the-LLM-might-not-have-known-during
 - **ARIA live region** announces score updates and dialog open/close.
 - **`prefers-reduced-motion`** honored — disable bracket transitions for users who opt out.
 - **Keyboard support** end-to-end: Tab order, Enter/Space to activate, Esc to close dialogs.
-- Lint with **`eslint-plugin-vuejs-accessibility`** in CI.
+- Enforce a11y via the **`@axe-core/playwright`** e2e scan in CI (oxlint has no
+  static Vue-template a11y rules).
 
 ### Designed for age-6 readers
 
@@ -159,7 +160,8 @@ worldcup-2026/
 ├── vite.config.ts              # Vite + PWA + Vitest config
 ├── playwright.config.ts
 ├── tsconfig.json               # strict
-├── eslint.config.js            # flat
+├── .oxlintrc.json              # oxlint config
+├── .oxfmtrc.json               # oxfmt config
 ├── IMPL_PLAN.md                # this file
 ├── docs/                       # see "Version documentation discipline"
 │   ├── styling.md              # CSS architecture + spacing rule + design tokens
@@ -237,7 +239,7 @@ Each milestone ends with a runnable app + green tests. A coding agent can pick u
 ### M1 — Scaffold
 
 - `npm create vite@latest` → Vue + TS template; immediately re-pin every version to latest exact
-- Install Pinia, `pinia-plugin-persistedstate`, Vue Router, Vitest, `@vue/test-utils`, `@playwright/test`, `@axe-core/playwright`, ESLint flat + `eslint-plugin-vue` + `eslint-plugin-vuejs-accessibility` + Prettier, `vite-plugin-pwa`, `flag-icons`
+- Install Pinia, `pinia-plugin-persistedstate`, Vue Router, Vitest, `@vue/test-utils`, `@playwright/test`, `@axe-core/playwright`, `oxlint` + `oxfmt`, `vite-plugin-pwa`, `flag-icons`
 - `tsconfig.json` strict; path alias `@/* → src/*`
 - Create `docs/` with starter `styling.md`, `accessibility.md`, plus version-note files for the major deps
 - Drop in `src/styles/reset.css` and `src/styles/tokens.css`

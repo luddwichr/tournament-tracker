@@ -1,5 +1,3 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -24,15 +22,14 @@ export default defineConfig({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+  build: {
+    // keep tsconfig.base.json target in sync with libs in tsconfig.*.json files and vite.config.ts `build.target`
+    target: 'es2025',
   },
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['tests/unit/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts'],
     css: true,
   },
 })

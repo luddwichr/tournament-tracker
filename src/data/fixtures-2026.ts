@@ -13,7 +13,7 @@
 //   - https://en.wikipedia.org/wiki/Template:2026_FIFA_World_Cup_third-place_table
 //   - per-group fixtures: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
 
-import type { GroupId, MatchSlot, ThirdPlaceSlot } from '@/types/tournament'
+import type { GroupId, MatchSlot, ThirdPlaceSlot } from '../types/tournament'
 
 /**
  * The eight round-of-32 slots filled by a third-placed team, keyed by slot
@@ -850,9 +850,7 @@ export const fixtures: readonly MatchSlot[] = [...groupMatches, ...knockoutMatch
  * group, per THIRD_PLACE_SLOT_HOST) to the group whose third-placed team it
  * faces. Source: Template:2026_FIFA_World_Cup_third-place_table.
  */
-export const THIRD_PLACE_ALLOCATION: Readonly<
-  Record<string, Readonly<Partial<Record<GroupId, GroupId>>>>
-> = {
+export const THIRD_PLACE_ALLOCATION: Readonly<Record<string, Readonly<Partial<Record<GroupId, GroupId>>>>> = {
   ABCDEFGH: { A: 'H', B: 'G', D: 'B', E: 'C', G: 'A', I: 'F', K: 'D', L: 'E' },
   ABCDEFGI: { A: 'C', B: 'G', D: 'B', E: 'D', G: 'A', I: 'F', K: 'E', L: 'I' },
   ABCDEFGJ: { A: 'C', B: 'G', D: 'B', E: 'D', G: 'A', I: 'F', K: 'E', L: 'J' },

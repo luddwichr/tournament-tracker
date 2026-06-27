@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc", "vue", "unicorn"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "unicorn/consistent-function-scoping": "error",
+    "unicorn/no-array-sort": "error",
+    "unicorn/prefer-spread": "error",
+    "unicorn/relative-url-style": "error",
+    "unicorn/switch-case-braces": "error",
+    "unicorn/no-null": "off",
+    "unicorn/filename-case": ["error", { "cases": { "pascalCase": true, "kebabCase": true } }]
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "es2025": true
+  }
+}

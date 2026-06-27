@@ -14,19 +14,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/groups',
     name: 'groups',
-    component: () => import('@/views/GroupsView.vue'),
+    component: () => import('./views/GroupsView.vue'),
     meta: { title: 'Gruppen' },
   },
   {
     path: '/knockout',
     name: 'knockout',
-    component: () => import('@/views/KnockoutView.vue'),
+    component: () => import('./views/KnockoutView.vue'),
     meta: { title: 'K.-o.-Runde' },
   },
   {
     path: '/settings',
     name: 'settings',
-    component: () => import('@/views/SettingsView.vue'),
+    component: () => import('./views/SettingsView.vue'),
     meta: { title: 'Einstellungen' },
   },
 ]

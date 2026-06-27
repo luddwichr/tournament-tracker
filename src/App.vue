@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import AppHeader from '@/components/AppHeader.vue'
+import AppHeader from './components/AppHeader.vue'
 
 const route = useRoute()
 const mainRef = ref<HTMLElement | null>(null)

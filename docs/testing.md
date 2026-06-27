@@ -2,22 +2,16 @@
 
 Pinned (exact) at scaffold time (2026-06-26):
 
-| Package                             | Version  |
-| ----------------------------------- | -------- |
-| `vitest`                            | `4.1.9`  |
-| `@vitest/coverage-v8`               | `4.1.9`  |
-| `@vue/test-utils`                   | `2.4.11` |
-| `jsdom`                             | `29.1.1` |
-| `@playwright/test`                  | `1.61.1` |
-| `@axe-core/playwright`              | `4.12.1` |
-| `eslint`                            | `10.5.0` |
-| `@eslint/js`                        | `10.0.1` |
-| `eslint-plugin-vue`                 | `10.9.2` |
-| `eslint-plugin-vuejs-accessibility` | `2.5.0`  |
-| `@vue/eslint-config-typescript`     | `14.9.0` |
-| `@vue/eslint-config-prettier`       | `10.2.0` |
-| `typescript-eslint`                 | `8.62.0` |
-| `prettier`                          | `3.8.5`  |
+| Package                | Version  |
+| ---------------------- | -------- |
+| `vitest`               | `4.1.9`  |
+| `@vitest/coverage-v8`  | `4.1.9`  |
+| `@vue/test-utils`      | `2.4.11` |
+| `jsdom`                | `29.1.1` |
+| `@playwright/test`     | `1.61.1` |
+| `@axe-core/playwright` | `4.12.1` |
+| `oxlint`               | `1.71.0` |
+| `oxfmt`                | `0.56.0` |
 
 ## Unit tests (Vitest)
 
@@ -37,13 +31,13 @@ Pinned (exact) at scaffold time (2026-06-26):
 
 ## Linting / formatting
 
-- **ESLint 10, flat config** (`eslint.config.js`). Flat config is the default in
-  ESLint 9+/10; there is no `.eslintrc`. Built with
-  `defineConfigWithVueTs` + `vueTsConfigs.recommended` from
-  `@vue/eslint-config-typescript`, `eslint-plugin-vue` flat recommended,
-  `eslint-plugin-vuejs-accessibility` flat recommended, and Prettier
-  skip-formatting last.
-- `globalIgnores(...)` (imported from `eslint/config`) excludes build/test
-  output.
-- Prettier config in `.prettierrc.json` (no semicolons, single quotes,
-  printWidth 100, trailing commas). Run `npm run lint` and `npm run format`.
+- **oxlint** (Rust-based, `.oxlintrc.json`). Enabled plugins: `typescript`,
+  `oxc`, and `vue`; the `correctness` category is set to `error`. `ignorePatterns`
+  excludes build/test output.
+- **oxfmt** is the formatter (`.oxfmtrc.json`) It
+  respects `.gitignore` plus the config's `ignorePatterns`.
+- Run `npm run lint` / `npm run lint:fix` and `npm run format` /
+  `npm run format:check`.
+- **Note:** oxlint has no equivalent of `eslint-plugin-vuejs-accessibility`, so
+  static a11y linting of Vue templates is no longer performed. Accessibility is
+  still covered at runtime by the `@axe-core/playwright` e2e scan.

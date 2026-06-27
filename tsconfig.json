@@ -1,4 +1,6 @@
 {
+  // Solution file only: compilerOptions here do NOT propagate to referenced
+  // projects. Shared options live in tsconfig.base.json (pulled in via `extends`).
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
