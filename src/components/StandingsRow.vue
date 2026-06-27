@@ -12,7 +12,7 @@ defineProps<{
   <tr class="standings-row" :class="rank <= 2 ? 'standings-row--qualified' : ''">
     <td class="standings-row__team">
       <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
-      <TeamLabel :team="stat.team" flag-size="1.5rem" />
+      <TeamLabel :team="stat.team" flag-size="1.5rem" :clickable="true" />
     </td>
     <td class="standings-row__num">{{ stat.played }}</td>
     <td class="standings-row__num">{{ stat.wins }}</td>

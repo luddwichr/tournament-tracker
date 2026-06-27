@@ -14,8 +14,51 @@ ends with a runnable app + green tests.
 | M7 — Knockout bracket view                 | ✅ Done        | BracketView + BracketRound + placeholder labels, ScoreDialog wired |
 | M8 — PWA                                   | ✅ Done        | vite-plugin-pwa Workbox precache, icons, offline e2e tests |
 | M9 — Polish                                | ✅ Done        | Status badges, penalty winner, aria-label fix, contrast fix |
-| M10 — Squad viewer                         | ⏳ Not started |                                                            |
+| M10 — Squad viewer                         | ✅ Done        | squads.ts (48×26), SquadDialog, SquadList, TeamLabel clickable |
 | M11 — Possible matchups (headline feature) | ⏳ Not started |                                                            |
+
+## M10 — Squad viewer (completed 2026-06-28)
+
+Delivered:
+
+- `scripts/fetch-squads.py` — standalone Python 3 script (stdlib only) that
+  downloads the Wikipedia wikitext via the MediaWiki API, parses all
+  `{{nat fs g player|...}}` templates (48 teams × 26 players = 1 248 rows),
+  strips wiki markup from player names, and writes `src/data/squads.ts`.
+  Re-runnable whenever roster changes need to be refreshed.
+
+- `src/data/squads.ts` — 48 teams × 26 players, shirt number + Latin-script
+  name + position (`GK/DF/MF/FW`). Source: Wikipedia 2026-06-28 snapshot.
+
+- `src/components/SquadList.vue` — `<table>` with `<thead>` (Nr / Position /
+  Name) and 26 `<tbody>` rows. German position labels (Torwart / Abwehr /
+  Mittelfeld / Sturm). Hover highlight via `color-mix`.
+
+- `src/components/SquadDialog.vue` — native `<dialog showModal()>`. Header
+  shows team flag + name; body is a scrollable `SquadList` with `tabindex="0"`
+  (required by WCAG 2.1.1 — `scrollable-region-focusable`); close button
+  (✕) top-right; Esc to close via browser default. Emits `close` on dialog
+  close event.
+
+- `src/components/TeamLabel.vue` — new optional `clickable` prop. When true,
+  renders as a `<button>` (with `aria-label="… – Kader anzeigen"`) and manages
+  a SquadDialog internally via a `<Teleport to="body">` wrapper (avoids invalid
+  nested-button HTML when TeamLabel is used inside MatchCard's button). When
+  false (default), unchanged `<span>` — no behaviour change for MatchCard.
+
+- `src/components/StandingsRow.vue` — passes `:clickable="true"` to TeamLabel
+  so every team in the standings table opens its squad dialog.
+
+- `src/data/squads.spec.ts` — 7 Vitest tests: has entry for every team; 26
+  players per squad; ≥3 GKs per squad; unique shirt numbers; numbers 1–99; no
+  blank names; all positions valid.
+
+- `e2e/squads.spec.ts` — 5 Playwright tests: clicking a team button opens the
+  dialog; 26 rows visible; Esc closes it; close button closes it; axe-core
+  a11y scan of the open dialog passes.
+
+**Verify:** `npm run typecheck` clean, `npm run lint` clean,
+`npm run test:unit` (95 pass), `npm run test:e2e` (39 pass — all axe checks green).
 
 ## M9 — Polish (completed 2026-06-27)
 
