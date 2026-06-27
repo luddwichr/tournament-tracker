@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { TeamStat } from '../lib/standings'
 import TeamLabel from './TeamLabel.vue'
-import OutcomeBadge from './OutcomeBadge.vue'
 
 defineProps<{
   stat: TeamStat
@@ -14,9 +13,6 @@ defineProps<{
     <td class="standings-row__team">
       <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
       <TeamLabel :team="stat.team" flag-size="1.5rem" />
-      <span role="group" class="standings-row__form" aria-label="Form">
-        <OutcomeBadge v-for="(outcome, i) in stat.form" :key="i" :outcome="outcome" />
-      </span>
     </td>
     <td class="standings-row__num">{{ stat.played }}</td>
     <td class="standings-row__num">{{ stat.wins }}</td>
@@ -51,12 +47,6 @@ defineProps<{
   color: var(--color-text-muted);
   min-width: 1ch;
   text-align: right;
-}
-
-.standings-row__form {
-  display: flex;
-  gap: 2px;
-  margin-left: var(--space-1);
 }
 
 .standings-row__num {

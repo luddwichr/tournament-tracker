@@ -115,12 +115,20 @@ function ariaLabel(): string {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--space-2);
+  font-size: var(--font-size-sm);
 }
 
 .match-card__team {
   display: flex;
   align-items: center;
   min-width: 0;
+  overflow: hidden;
+}
+
+.match-card__team :deep(.team-label__name) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .match-card__team--away {
@@ -132,24 +140,24 @@ function ariaLabel(): string {
   align-items: center;
   justify-content: center;
   gap: 0.2em;
-  min-width: 3.5rem;
+  min-width: 2.5rem;
 }
 
 .match-card__score-value {
-  font-size: var(--font-size-score);
+  font-size: var(--font-size-base);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .match-card__score-sep {
-  font-size: var(--font-size-score);
+  font-size: var(--font-size-base);
   font-weight: 700;
   line-height: 1;
 }
 
 .match-card__score-dash {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   color: var(--color-text-muted);
 }
 
