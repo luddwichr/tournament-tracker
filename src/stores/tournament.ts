@@ -15,7 +15,15 @@ export const useTournamentStore = defineStore(
       delete results.value[matchId]
     }
 
-    return { results, enterResult, clearResult }
+    function reset(): void {
+      results.value = {}
+    }
+
+    function importResults(newResults: Record<string, Result>): void {
+      results.value = { ...newResults }
+    }
+
+    return { results, enterResult, clearResult, reset, importResults }
   },
   {
     persist: {

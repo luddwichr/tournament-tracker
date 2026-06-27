@@ -14,7 +14,7 @@ defineProps<{
     <td class="standings-row__team">
       <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
       <TeamLabel :team="stat.team" flag-size="1.5rem" />
-      <span class="standings-row__form" aria-label="Form">
+      <span role="group" class="standings-row__form" aria-label="Form">
         <OutcomeBadge v-for="(outcome, i) in stat.form" :key="i" :outcome="outcome" />
       </span>
     </td>

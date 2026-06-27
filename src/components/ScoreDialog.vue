@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
-import { useAnnounce } from '../composables/useAnnounce'
+import { useAnnounce } from '../composables/use-announce'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
 

@@ -31,7 +31,7 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <section class="group-table__standings" aria-label="Tabelle">
+    <section class="group-table__standings" aria-label="Tabelle" tabindex="0">
       <table class="standings-table">
         <thead>
           <tr>

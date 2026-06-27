@@ -2,7 +2,7 @@
 import { ref, watch, nextTick, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
-import { announceKey } from './composables/useAnnounce'
+import { announceKey } from './composables/use-announce'
 
 const route = useRoute()
 const mainRef = ref<HTMLElement | null>(null)

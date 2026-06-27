@@ -20,13 +20,17 @@ test('shows all 48 team names', async ({ page }) => {
   }
 })
 
-test('each group has exactly 4 teams and 6 matches', async ({ page }) => {
+test('each group has exactly 4 team rows and 6 match buttons', async ({ page }) => {
   for (const groupId of GROUP_IDS) {
     const card = page.getByRole('article', { name: `Gruppe ${groupId}` })
-    const teamItems = card.getByRole('listitem')
-    await expect(teamItems).toHaveCount(4)
-    const matchCards = card.getByRole('article')
-    await expect(matchCards).toHaveCount(6)
+    // Teams rendered as <tbody tr> rows in the standings table
+    const standingsRegion = card.getByRole('region', { name: 'Tabelle' })
+    const teamRows = standingsRegion.locator('tbody tr')
+    await expect(teamRows).toHaveCount(4)
+    // Matches rendered as <button> elements in the Spiele section
+    const matchesRegion = card.getByRole('region', { name: 'Spiele' })
+    const matchButtons = matchesRegion.getByRole('button')
+    await expect(matchButtons).toHaveCount(6)
   }
 })
 

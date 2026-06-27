@@ -77,7 +77,7 @@ function computeH2HStats(
 }
 
 function clusterByH2H(teams: Team[], h2hStats: Map<string, H2HStat>): Team[][] {
-  const sorted = [...teams].sort((a, b) => {
+  const sorted = teams.toSorted((a, b) => {
     const sa = h2hStats.get(a.id)!
     const sb = h2hStats.get(b.id)!
     if (sb.points !== sa.points) return sb.points - sa.points
@@ -131,7 +131,7 @@ function resolveH2H<S extends TiebreakerStat>(
     }
 
     // H2H made no progress — apply fair-play then FIFA ranking.
-    return [...cluster].sort((a, b) => {
+    return cluster.toSorted((a, b) => {
       const fpA = overallStats.get(a.id)!.fairPlayScore
       const fpB = overallStats.get(b.id)!.fairPlayScore
       if (fpA !== fpB) return fpB - fpA // higher (less negative) = better
@@ -153,7 +153,7 @@ export function sortTeams<S extends TiebreakerStat>(
   results: Record<string, Result>,
   overallStats: Map<string, S>,
 ): Team[] {
-  const byOverall = [...teams].sort((a, b) => {
+  const byOverall = teams.toSorted((a, b) => {
     const sa = overallStats.get(a.id)!
     const sb = overallStats.get(b.id)!
     if (sb.points !== sa.points) return sb.points - sa.points
