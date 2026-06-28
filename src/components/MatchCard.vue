@@ -39,10 +39,7 @@ const ariaLabel = computed(() => {
 </script>
 
 <template>
-  <div
-    class="match-card"
-    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
-  >
+  <div class="match-card" :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }">
     <div class="match-card__meta">
       <time class="match-card__kickoff" :datetime="match.kickoff">
         {{ formatKickoff(match.kickoff) }}

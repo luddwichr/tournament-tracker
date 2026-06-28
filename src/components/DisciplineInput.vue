@@ -24,11 +24,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Rot</span>
-          <StepperInput
-            v-model="homeRed"
-            dec-label="Rote Karte Heim abziehen"
-            inc-label="Rote Karte Heim hinzufügen"
-          />
+          <StepperInput v-model="homeRed" dec-label="Rote Karte Heim abziehen" inc-label="Rote Karte Heim hinzufügen" />
         </div>
       </div>
 
@@ -44,11 +40,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Rot</span>
-          <StepperInput
-            v-model="awayRed"
-            dec-label="Rote Karte Gast abziehen"
-            inc-label="Rote Karte Gast hinzufügen"
-          />
+          <StepperInput v-model="awayRed" dec-label="Rote Karte Gast abziehen" inc-label="Rote Karte Gast hinzufügen" />
         </div>
       </div>
     </div>

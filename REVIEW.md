@@ -35,7 +35,7 @@ directly against the source (noted inline as _verified_).
   tracked. Delete both lines and the comment.
 
 - **Name shadowing.** `BracketView.vue:149,175` declare a local DOM element `const rounds`
-  that shadows the module-level `rounds` *data* computed (line 32) — same identifier, two
+  that shadows the module-level `rounds` _data_ computed (line 32) — same identifier, two
   meanings in one file. Several functions also name a `TeamRef` parameter `ref`
   (`r32RefKey`, `GroupTable.vue:23 resolveTeam`), shadowing Vue's imported `ref`. Rename
   to `roundsContainer` / `teamRef`.
@@ -73,7 +73,7 @@ directly against the source (noted inline as _verified_).
   (`clusterByH2H`) vs `145-178` (`sortTeams`) implement the same "sort by
   (points, GD, GF) then group equal-key runs" loop almost verbatim, including the same
   `current[current.length-1]!` trick and comment. The `(points, GD, GF)` comparator
-  appears a *third* time in `third-place.ts:23-27`. **Fix:** one generic
+  appears a _third_ time in `third-place.ts:23-27`. **Fix:** one generic
   `clusterBy<T>(items, keyFns)` + a shared `compareByPointsGdGf`.
 
 - **`isGroupComplete` defined twice, byte-for-byte** (`third-place.ts:18-20`,
@@ -98,7 +98,7 @@ directly against the source (noted inline as _verified_).
 
 - **`persistence.ts:49-65` accepts garbage numbers.** `isValidResult` checks
   `typeof === 'number'` but not finite/integer/sign, so `{homeGoals:-3.5, awayGoals:NaN}`
-  passes the *untrusted import boundary* and `NaN` poisons all downstream comparisons.
+  passes the _untrusted import boundary_ and `NaN` poisons all downstream comparisons.
   Reject non-finite / negative / non-integer.
 - **Redundant `| null` on an optional field.** `types/tournament.ts:89`
   `penaltyWinner?: 'home'|'away'|null` — `?` already admits `undefined`; consumers
@@ -214,7 +214,7 @@ directly against the source (noted inline as _verified_).
   cap and never reflow, the type scale never adapts. **Fix:** a small breakpoint set; scale
   bracket/card widths at md/lg.
 - **Dark-mode tokens quadruplicated.** `tokens.css` defines the light palette in `:root`
-  *and* `[data-theme='light']`, and dark in `@media(dark)` *and* `[data-theme='dark']` —
+  _and_ `[data-theme='light']`, and dark in `@media(dark)` _and_ `[data-theme='dark']` —
   four blocks, two value sets, a maintenance trap. **Fix:** define each palette once and
   share via selector lists.
 
@@ -277,20 +277,20 @@ directly against the source (noted inline as _verified_).
 
 #### Coverage-gap summary
 
-| Module | Tested? | Notes |
-|---|---|---|
-| `lib/tiebreakers.ts` | Indirect only | No own spec; exercised via `computeGroupStandings` |
-| `lib/standings.ts` (`computeGroupStandings`) | Yes | played/wins/GF/GA/cards/form/ordering all covered |
-| `lib/third-place.ts` | Partial | fair-play / FIFA-rank / null-allocation paths untested |
-| `lib/possible-teams.ts` | Decent | Memoization not actually tested; weak assertions |
-| `lib/persistence.ts` | Partial | `parseImport` solid; `exportJson` untested |
-| `lib/knockout.ts` | Good | Unknown-matchId branch untested |
-| `lib/bracket-labels.ts` | Full | Well parameterized |
-| `data/*` | Strong | `data.spec.ts` is the strongest file in the suite |
-| `stores/tournament.ts` | e2e only | …which may not run |
-| `stores/settings.ts` | None | Theme untested |
-| `composables/*` | None | scroll-lock ref-counting & announce untested |
-| 15 components + 4 views | Mostly none | Only AppNav/ConfirmDialog/StepperInput have specs |
+| Module                                       | Tested?       | Notes                                                  |
+| -------------------------------------------- | ------------- | ------------------------------------------------------ |
+| `lib/tiebreakers.ts`                         | Indirect only | No own spec; exercised via `computeGroupStandings`     |
+| `lib/standings.ts` (`computeGroupStandings`) | Yes           | played/wins/GF/GA/cards/form/ordering all covered      |
+| `lib/third-place.ts`                         | Partial       | fair-play / FIFA-rank / null-allocation paths untested |
+| `lib/possible-teams.ts`                      | Decent        | Memoization not actually tested; weak assertions       |
+| `lib/persistence.ts`                         | Partial       | `parseImport` solid; `exportJson` untested             |
+| `lib/knockout.ts`                            | Good          | Unknown-matchId branch untested                        |
+| `lib/bracket-labels.ts`                      | Full          | Well parameterized                                     |
+| `data/*`                                     | Strong        | `data.spec.ts` is the strongest file in the suite      |
+| `stores/tournament.ts`                       | e2e only      | …which may not run                                     |
+| `stores/settings.ts`                         | None          | Theme untested                                         |
+| `composables/*`                              | None          | scroll-lock ref-counting & announce untested           |
+| 15 components + 4 views                      | Mostly none   | Only AppNav/ConfirmDialog/StepperInput have specs      |
 
 ---
 

@@ -39,4 +39,3 @@ test('groups view has no detectable accessibility violations', async ({ page }) 
 
   expect(results.violations).toEqual([])
 })
-

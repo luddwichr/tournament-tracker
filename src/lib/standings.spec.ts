@@ -100,10 +100,7 @@ describe('computeGroupStandings — basic aggregation', () => {
 
   it('accumulates yellow and red cards and computes fairPlayScore', () => {
     // M01 mex 1-0 rsa; mex gets 2 yellows (home), rsa gets 1 red (away)
-    const standings = computeGroupStandings(
-      'A',
-      resultsMap(makeResult(0, 1, 0, { homeYellow: 2, awayRed: 1 })),
-    )
+    const standings = computeGroupStandings('A', resultsMap(makeResult(0, 1, 0, { homeYellow: 2, awayRed: 1 })))
     const mex = standings.find((s) => s.team.id === 'mex')!
     expect(mex.yellowCards).toBe(2)
     expect(mex.redCards).toBe(0)

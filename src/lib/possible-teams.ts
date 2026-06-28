@@ -52,9 +52,7 @@ function groupResultFingerprint(group: GroupId, results: Record<string, Result>)
       // Include discipline counts: fair-play (yellow/red cards) breaks ties and
       // must be part of the cache key, otherwise two identical-score results with
       // different cards would collide and return a stale cached set.
-      return r
-        ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}`
-        : '_'
+      return r ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}` : '_'
     })
     .join(',')
 }
