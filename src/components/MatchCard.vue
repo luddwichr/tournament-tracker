@@ -39,13 +39,16 @@ function ariaLabel(): string {
 </script>
 
 <template>
-  <button
-    type="button"
+  <div
+    role="button"
+    :tabindex="blocked ? -1 : 0"
     class="match-card"
     :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
     :aria-label="ariaLabel()"
-    :disabled="blocked"
-    @click="emit('click')"
+    :aria-disabled="blocked ? 'true' : undefined"
+    @click="!blocked && emit('click')"
+    @keydown.enter.prevent="!blocked && emit('click')"
+    @keydown.space.prevent="!blocked && emit('click')"
   >
     <div class="match-card__meta">
       <time class="match-card__kickoff" :datetime="match.kickoff">
@@ -54,7 +57,7 @@ function ariaLabel(): string {
     </div>
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
-        <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" />
+        <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
         <span v-else class="match-card__placeholder">{{ homePlaceholder ?? '?' }}</span>
       </span>
 
@@ -70,11 +73,11 @@ function ariaLabel(): string {
       </span>
 
       <span class="match-card__team match-card__team--away">
-        <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" />
+        <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
         <span v-else class="match-card__placeholder">{{ awayPlaceholder ?? '?' }}</span>
       </span>
     </div>
-  </button>
+  </div>
 </template>
 
 <style scoped>
@@ -89,16 +92,18 @@ function ariaLabel(): string {
      surface background; played matches use full border-color opacity. */
   border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
   cursor: pointer;
-  text-align: left;
-  width: 100%;
-  color: inherit;
-  font-family: inherit;
   font-size: inherit;
+  user-select: none;
 }
 
 .match-card:hover,
 .match-card:focus-visible {
   border-color: var(--color-primary);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.match-card:hover {
   outline: none;
 }
 

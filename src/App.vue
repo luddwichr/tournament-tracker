@@ -7,7 +7,7 @@ import { useSettingsStore } from './stores/settings'
 
 const settings = useSettingsStore()
 watchEffect(() => {
-  document.documentElement.dataset.theme = settings.theme
+  document.documentElement.dataset['theme'] = settings.theme
 })
 
 const route = useRoute()

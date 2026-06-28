@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Player } from '../types/tournament'
 
-defineProps<{ players: Player[] }>()
+const props = defineProps<{ players: Player[] }>()
 
 const POSITION_LABEL: Record<string, string> = {
   GK: 'Torwart',
@@ -9,6 +10,16 @@ const POSITION_LABEL: Record<string, string> = {
   MF: 'Mittelfeld',
   FW: 'Sturm',
 }
+
+const POSITION_ORDER: Record<string, number> = { GK: 0, DF: 1, MF: 2, FW: 3 }
+
+const sorted = computed(() =>
+  [...props.players].sort((a, b) => {
+    const pa = POSITION_ORDER[a.position ?? ''] ?? 99
+    const pb = POSITION_ORDER[b.position ?? ''] ?? 99
+    return pa !== pb ? pa - pb : a.number - b.number
+  }),
+)
 </script>
 
 <template>
@@ -21,7 +32,7 @@ const POSITION_LABEL: Record<string, string> = {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="player in players" :key="player.number" class="squad-list__row">
+      <tr v-for="player in sorted" :key="player.number" class="squad-list__row">
         <td class="squad-list__num">{{ player.number }}</td>
         <td class="squad-list__pos">
           {{ player.position ? (POSITION_LABEL[player.position] ?? player.position) : '—' }}

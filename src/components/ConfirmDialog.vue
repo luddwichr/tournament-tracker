@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useScrollLock } from '../composables/use-scroll-lock'
 
 defineProps<{
   title: string
@@ -14,6 +15,8 @@ const emit = defineEmits<{
 
 const dialogEl = ref<HTMLDialogElement | null>(null)
 const wasConfirmed = ref(false)
+
+useScrollLock()
 
 onMounted(() => {
   dialogEl.value?.showModal()

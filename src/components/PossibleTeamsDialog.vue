@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
+import { useScrollLock } from '../composables/use-scroll-lock'
 
 const props = defineProps<{
   /** German label for the home position (e.g. team name or placeholder). */
@@ -16,6 +17,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ close: [] }>()
 const dialogEl = ref<HTMLDialogElement | null>(null)
+
+useScrollLock()
 
 onMounted(() => {
   dialogEl.value?.showModal()
@@ -135,6 +138,7 @@ onMounted(() => {
 
 .possible-teams-dialog__body {
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1;
   padding: var(--space-4);
   display: flex;

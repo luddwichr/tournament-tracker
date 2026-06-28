@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadDialog from './SquadDialog.vue'
@@ -14,6 +14,27 @@ const props = defineProps<{
 
 const squadOpen = ref(false)
 const players = squads[props.team.id] ?? []
+
+let savedScrollY = 0
+watch(squadOpen, (open) => {
+  if (open) {
+    savedScrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${savedScrollY}px`
+    document.body.style.width = '100%'
+  } else {
+    document.body.style.position = ''
+    document.body.style.top = ''
+    document.body.style.width = ''
+    window.scrollTo(0, savedScrollY)
+  }
+})
+
+function handleClick(e: MouseEvent): void {
+  if (!props.clickable) return
+  e.stopPropagation()
+  squadOpen.value = true
+}
 </script>
 
 <template>
@@ -24,7 +45,7 @@ const players = squads[props.team.id] ?? []
     :type="clickable ? 'button' : undefined"
     :aria-label="clickable ? `${team.name} – Kader anzeigen` : undefined"
     :style="flagSize ? { '--flag-size': flagSize } : {}"
-    @click="clickable && (squadOpen = true)"
+    @click="handleClick"
   >
     <TeamFlag :flag-code="team.flagCode" :name="team.name" />
     <span class="team-label__name">{{ team.name }}</span>
@@ -51,13 +72,15 @@ const players = squads[props.team.id] ?? []
   font-size: inherit;
   color: inherit;
   border-radius: var(--radius-sm);
+}
+
+.team-label--btn .team-label__name {
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 2px;
-  transition: none;
 }
 
-.team-label--btn:hover {
+.team-label--btn:hover .team-label__name {
   text-decoration-color: var(--color-primary);
 }
 

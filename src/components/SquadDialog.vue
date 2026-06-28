@@ -114,6 +114,7 @@ onMounted(() => {
 
 .squad-dialog__body {
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1;
 }
 </style>

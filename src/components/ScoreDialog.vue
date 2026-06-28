@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from '../composables/use-announce'
+import { useScrollLock } from '../composables/use-scroll-lock'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
 
@@ -17,6 +18,8 @@ const emit = defineEmits<{ close: [] }>()
 const store = useTournamentStore()
 const announce = useAnnounce()
 const dialogEl = ref<HTMLDialogElement | null>(null)
+
+useScrollLock()
 
 const initial = computed(() => store.results[props.match.id] ?? null)
 
