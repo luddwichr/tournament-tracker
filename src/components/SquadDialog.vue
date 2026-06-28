@@ -40,7 +40,7 @@ onMounted(() => {
         <button type="button" class="squad-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
       </header>
 
-      <div class="squad-dialog__body">
+      <div class="squad-dialog__body" tabindex="0">
         <SquadList :players="players" />
       </div>
     </div>

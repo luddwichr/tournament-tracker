@@ -34,8 +34,8 @@ test('each R32 card has a "Mögliche Teams" button when no results entered', asy
   // Wait for the round to render
   await r32Round.waitFor()
   const buttons = r32Round.getByRole('button', { name: /Mögliche Teams/ })
-  // 16 R32 matches × 1 button each = 16 buttons
-  await expect(buttons).toHaveCount(16)
+  // 16 R32 matches × 2 unresolved team slots each = 32 buttons
+  await expect(buttons).toHaveCount(32)
 })
 
 test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({ page }) => {
@@ -87,8 +87,8 @@ test('the possible-teams dialog lists team names with flags', async ({ page }) =
   await expect(firstItem.locator('.possible-teams-dialog__team-name')).not.toBeEmpty()
 })
 
-test('dialog shows teams from both group-rank upstream refs (groups A and B for M73)', async ({ page }) => {
-  // M73 is A2 vs B2. With no group results, all 4 teams from A and 4 from B are possible.
+test('dialog shows only the possible teams for the clicked slot (home side of M73)', async ({ page }) => {
+  // M73 is A2 vs B2. Clicking the home-slot button shows only the 4 possible home teams (group A).
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
   await r32Round
@@ -98,9 +98,9 @@ test('dialog shows teams from both group-rank upstream refs (groups A and B for 
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
-  // 4 teams per side = 8 items total
+  // First button = home placeholder → 4 possible teams from group A only
   const items = dialog.locator('.possible-teams-dialog__item')
-  await expect(items).toHaveCount(8)
+  await expect(items).toHaveCount(4)
 })
 
 // ---------------------------------------------------------------------------
@@ -157,10 +157,10 @@ test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
 
-  // With group results but no R32 results, each R16 slot has 2 possible teams
-  // (the winner of either R32 participant). So 2 possible home + 2 possible away = 4 items.
+  // Clicking the home-slot button of M90 shows only 2 possible teams:
+  // the winner of M73 (A2 or B2) — both R32 participants are known but M73 is unplayed.
   const items = dialog.locator('.possible-teams-dialog__item')
-  await expect(items).toHaveCount(4)
+  await expect(items).toHaveCount(2)
 })
 
 // ---------------------------------------------------------------------------

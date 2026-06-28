@@ -32,6 +32,7 @@ const emit = defineEmits<{
 
 const store = useTournamentStore()
 const possibleTeamsMatch = ref<MatchSlot | null>(null)
+const possibleTeamsSlot = ref<'home' | 'away' | null>(null)
 
 const ptHomeTeam = computed(() =>
   possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.homeRef, store.results) : null,
@@ -40,12 +41,12 @@ const ptAwayTeam = computed(() =>
   possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.awayRef, store.results) : null,
 )
 const possibleHome = computed((): Team[] =>
-  possibleTeamsMatch.value && !ptHomeTeam.value
+  possibleTeamsMatch.value && possibleTeamsSlot.value === 'home' && !ptHomeTeam.value
     ? [...possibleTeamsFor(possibleTeamsMatch.value.homeRef, store.results)]
     : [],
 )
 const possibleAway = computed((): Team[] =>
-  possibleTeamsMatch.value && !ptAwayTeam.value
+  possibleTeamsMatch.value && possibleTeamsSlot.value === 'away' && !ptAwayTeam.value
     ? [...possibleTeamsFor(possibleTeamsMatch.value.awayRef, store.results)]
     : [],
 )
@@ -55,6 +56,16 @@ const homeLabel = computed(() =>
 const awayLabel = computed(() =>
   possibleTeamsMatch.value ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef)) : '',
 )
+
+function openPossibleTeams(match: MatchSlot, slot: 'home' | 'away'): void {
+  possibleTeamsMatch.value = match
+  possibleTeamsSlot.value = slot
+}
+
+function closePossibleTeams(): void {
+  possibleTeamsMatch.value = null
+  possibleTeamsSlot.value = null
+}
 </script>
 
 <template>
@@ -82,7 +93,7 @@ const awayLabel = computed(() =>
             :home-placeholder="row.homePlaceholder"
             :away-placeholder="row.awayPlaceholder"
             @click="emit('matchClick', row.match)"
-            @placeholder-click="possibleTeamsMatch = row.match"
+            @placeholder-click="(slot) => openPossibleTeams(row.match, slot)"
           />
         </div>
       </template>
@@ -96,7 +107,7 @@ const awayLabel = computed(() =>
       :away-label="awayLabel"
       :possible-home="possibleHome"
       :possible-away="possibleAway"
-      @close="possibleTeamsMatch = null"
+      @close="closePossibleTeams"
     />
   </Teleport>
 </template>

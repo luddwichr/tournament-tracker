@@ -12,7 +12,7 @@ const props = defineProps<{
   awayPlaceholder?: string
 }>()
 
-const emit = defineEmits<{ click: []; placeholderClick: [] }>()
+const emit = defineEmits<{ click: []; placeholderClick: [slot: 'home' | 'away'] }>()
 
 const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
 
@@ -48,7 +48,13 @@ const ariaLabel = computed(() => {
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
-        <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
+        <button
+          v-else
+          type="button"
+          class="match-card__placeholder"
+          :aria-label="`Mögliche Teams: ${homePlaceholder ?? '?'}`"
+          @click="emit('placeholderClick', 'home')"
+        >
           {{ homePlaceholder ?? '?' }}
         </button>
       </span>
@@ -73,7 +79,13 @@ const ariaLabel = computed(() => {
 
       <span class="match-card__team match-card__team--away">
         <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
-        <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
+        <button
+          v-else
+          type="button"
+          class="match-card__placeholder"
+          :aria-label="`Mögliche Teams: ${awayPlaceholder ?? '?'}`"
+          @click="emit('placeholderClick', 'away')"
+        >
           {{ awayPlaceholder ?? '?' }}
         </button>
       </span>

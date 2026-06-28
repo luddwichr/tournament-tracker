@@ -147,14 +147,15 @@ test('entering a knockout result propagates to the next round', async ({ page })
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
 
-  // Increment home goals once via the "+" step button (first .score-input__step that shows "+")
-  await dialog.locator('.score-input__step').filter({ hasText: '+' }).first().click()
+  // Increment home goals once via the "+" step button (first .stepper__step that shows "+")
+  await dialog.locator('.stepper__step').filter({ hasText: '+' }).first().click()
   await dialog.getByRole('button', { name: 'Speichern' }).click()
   await expect(dialog).not.toBeVisible()
 
-  // M73 winner (A2, home win) should now appear as the resolved home team in M90 (R16 index 1)
+  // M73 winner (A2, home win) should now appear as the resolved home team in M90 (R16 index 0)
   // M90 homeRef = winner(M73), awayRef = winner(M75) — M75 still unresolved
-  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(1)
+  // M90 kicks off earlier than M89 (UTC), so it sorts to position 0 in the R16 column.
+  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(0)
   await expect(m90card.locator('.team-label')).toHaveCount(1)
   await expect(m90card.locator('.match-card__placeholder')).toHaveCount(1)
 })
@@ -174,7 +175,7 @@ test('penalty winner section is hidden for a non-tied knockout score', async ({ 
   await expect(dialog).toBeVisible()
 
   // Default scores are 0:0 — picker visible; set to 1:0 to hide it
-  await dialog.locator('.score-input__step').filter({ hasText: '+' }).first().click()
+  await dialog.locator('.stepper__step').filter({ hasText: '+' }).first().click()
   await expect(dialog.locator('.score-dialog__penalties')).not.toBeVisible()
 })
 
@@ -216,7 +217,8 @@ test('saving a tied knockout result with penalty winner propagates bracket', asy
   await expect(dialog).not.toBeVisible()
 
   // M90 (R16) homeRef = winner(M73) — home team should now be resolved
-  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(1)
+  // M90 sorts to position 0 in R16 (earlier kickoff than M89).
+  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(0)
   await expect(m90card.locator('.team-label')).toHaveCount(1)
 })
 
