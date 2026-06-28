@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
+import { useTournamentStore } from '../stores/tournament'
+import { resolveTeamRef } from '../lib/knockout'
+import { possibleTeamsFor } from '../lib/possible-teams'
+import { teamRefLabel } from '../lib/bracket-labels'
 import MatchCard from './MatchCard.vue'
-import PossibleTeamsButton from './PossibleTeamsButton.vue'
+import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 
 export interface MatchRow {
   match: MatchSlot
@@ -24,6 +29,36 @@ const emit = defineEmits<{
   matchHover: [matchId: string]
   matchHoverEnd: []
 }>()
+
+const store = useTournamentStore()
+const possibleTeamsMatch = ref<MatchSlot | null>(null)
+
+const ptHomeTeam = computed(() =>
+  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.homeRef, store.results) : null,
+)
+const ptAwayTeam = computed(() =>
+  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.awayRef, store.results) : null,
+)
+const possibleHome = computed((): Team[] =>
+  possibleTeamsMatch.value && !ptHomeTeam.value
+    ? [...possibleTeamsFor(possibleTeamsMatch.value.homeRef, store.results)]
+    : [],
+)
+const possibleAway = computed((): Team[] =>
+  possibleTeamsMatch.value && !ptAwayTeam.value
+    ? [...possibleTeamsFor(possibleTeamsMatch.value.awayRef, store.results)]
+    : [],
+)
+const homeLabel = computed(() =>
+  possibleTeamsMatch.value
+    ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef))
+    : '',
+)
+const awayLabel = computed(() =>
+  possibleTeamsMatch.value
+    ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef))
+    : '',
+)
 </script>
 
 <template>
@@ -51,12 +86,23 @@ const emit = defineEmits<{
             :home-placeholder="row.homePlaceholder"
             :away-placeholder="row.awayPlaceholder"
             @click="emit('matchClick', row.match)"
+            @placeholder-click="possibleTeamsMatch = row.match"
           />
-          <PossibleTeamsButton v-if="!row.homeTeam || !row.awayTeam" :match="row.match" />
         </div>
       </template>
     </div>
   </section>
+
+  <Teleport to="body">
+    <PossibleTeamsDialog
+      v-if="possibleTeamsMatch"
+      :home-label="homeLabel"
+      :away-label="awayLabel"
+      :possible-home="possibleHome"
+      :possible-away="possibleAway"
+      @close="possibleTeamsMatch = null"
+    />
+  </Teleport>
 </template>
 
 <style scoped>

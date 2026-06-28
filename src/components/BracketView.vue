@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { MatchSlot } from '../types/tournament'
+import type { MatchSlot, TeamRef } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
 import { resolveTeamRef } from '../lib/knockout'
 import { teamRefLabel } from '../lib/bracket-labels'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
+import OriginColumn from './OriginColumn.vue'
 
 const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
 
@@ -65,7 +66,7 @@ const nextMatchMap = computed(() => {
   return map
 })
 
-// Backward map: matchId → previous-round matches that feed into it.
+// Backward map: matchId → previous-round KO matches that feed into it.
 const prevMatchMap = computed(() => {
   const map = new Map<string, string[]>()
   for (const match of knockoutMatches) {
@@ -77,19 +78,66 @@ const prevMatchMap = computed(() => {
   return map
 })
 
+function r32RefKey(ref: TeamRef): string | null {
+  if (ref.kind === 'groupRank') return `groupRank:${ref.group}:${ref.rank}`
+  if (ref.kind === 'thirdPlace') return `thirdPlace:${ref.slot}`
+  return null
+}
+
+// Map from origin ref key → R32 match id.
+const teamRefToMatchId = computed(() => {
+  const map = new Map<string, string>()
+  for (const match of knockoutMatches.filter((m) => m.stage === 'r32')) {
+    const hk = r32RefKey(match.homeRef)
+    const ak = r32RefKey(match.awayRef)
+    if (hk) map.set(hk, match.id)
+    if (ak) map.set(ak, match.id)
+  }
+  return map
+})
+
+// Reverse map: R32 match id → origin ref keys that feed into it.
+const matchToRefKeys = computed(() => {
+  const map = new Map<string, string[]>()
+  for (const [refKey, matchId] of teamRefToMatchId.value) {
+    const keys = map.get(matchId) ?? []
+    keys.push(refKey)
+    map.set(matchId, keys)
+  }
+  return map
+})
+
 const bracketViewEl = ref<HTMLElement | null>(null)
 const roundsEl = ref<HTMLElement | null>(null)
 const hoveredMatchId = ref<string | null>(null)
+const hoveredRefKey = ref<string | null>(null)
 const connectorPaths = ref<string[]>([])
 
-// IDs of all matches connected to the hovered one (sources + target).
+// Matches highlighted via bracket hover (next + previous KO round).
 const highlightedMatchIds = computed((): string[] => {
-  if (!hoveredMatchId.value) return []
   const ids: string[] = []
-  const target = nextMatchMap.value.get(hoveredMatchId.value)
-  if (target) ids.push(target)
-  ids.push(...(prevMatchMap.value.get(hoveredMatchId.value) ?? []))
+  if (hoveredMatchId.value) {
+    const target = nextMatchMap.value.get(hoveredMatchId.value)
+    if (target) ids.push(target)
+    ids.push(...(prevMatchMap.value.get(hoveredMatchId.value) ?? []))
+  }
+  if (hoveredRefKey.value) {
+    const matchId = teamRefToMatchId.value.get(hoveredRefKey.value)
+    if (matchId) ids.push(matchId)
+  }
   return ids
+})
+
+// Origin ref keys highlighted (from hovering an R32 match or an origin row).
+const highlightedRefKeys = computed((): string[] => {
+  const keys: string[] = []
+  if (hoveredMatchId.value) {
+    keys.push(...(matchToRefKeys.value.get(hoveredMatchId.value) ?? []))
+  }
+  if (hoveredRefKey.value) {
+    keys.push(hoveredRefKey.value)
+  }
+  return keys
 })
 
 function makePath(fromId: string, toId: string): string | null {
@@ -118,6 +166,31 @@ function makePath(fromId: string, toId: string): string | null {
   return `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`
 }
 
+function makeOriginPath(refKey: string, matchId: string): string | null {
+  if (!roundsEl.value || !bracketViewEl.value) return null
+  const rounds = roundsEl.value
+  const cRect = rounds.getBoundingClientRect()
+  const sl = bracketViewEl.value.scrollLeft
+  const st = bracketViewEl.value.scrollTop
+
+  const fromEl = rounds.querySelector<HTMLElement>(`[data-ref-key="${refKey}"]`)
+  const toGroup = rounds.querySelector<HTMLElement>(`[data-match-id="${matchId}"]`)
+  if (!fromEl || !toGroup) return null
+
+  const toEl = toGroup.querySelector<HTMLElement>('.match-card') ?? toGroup
+
+  const sR = fromEl.getBoundingClientRect()
+  const tR = toEl.getBoundingClientRect()
+
+  const x1 = sR.right - cRect.left + sl
+  const y1 = sR.top + sR.height / 2 - cRect.top + st
+  const x2 = tR.left - cRect.left + sl
+  const y2 = tR.top + tR.height / 2 - cRect.top + st
+  const cx = (x1 + x2) / 2
+
+  return `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`
+}
+
 function buildAllPaths(matchId: string): string[] {
   const paths: string[] = []
   // forward: hovered → next round
@@ -126,9 +199,14 @@ function buildAllPaths(matchId: string): string[] {
     const p = makePath(matchId, targetId)
     if (p) paths.push(p)
   }
-  // backward: previous-round sources → hovered
+  // backward KO: previous-round sources → hovered
   for (const prevId of prevMatchMap.value.get(matchId) ?? []) {
     const p = makePath(prevId, matchId)
+    if (p) paths.push(p)
+  }
+  // backward origin: group-stage refs → this R32 match
+  for (const refKey of matchToRefKeys.value.get(matchId) ?? []) {
+    const p = makeOriginPath(refKey, matchId)
     if (p) paths.push(p)
   }
   return paths
@@ -136,10 +214,30 @@ function buildAllPaths(matchId: string): string[] {
 
 function onMatchHover(matchId: string) {
   hoveredMatchId.value = matchId
+  hoveredRefKey.value = null
   connectorPaths.value = buildAllPaths(matchId)
 }
 
 function onMatchHoverEnd() {
+  hoveredMatchId.value = null
+  hoveredRefKey.value = null
+  connectorPaths.value = []
+}
+
+function onTeamRefHover(refKey: string) {
+  hoveredRefKey.value = refKey
+  hoveredMatchId.value = null
+  const matchId = teamRefToMatchId.value.get(refKey)
+  if (matchId) {
+    const p = makeOriginPath(refKey, matchId)
+    connectorPaths.value = p ? [p] : []
+  } else {
+    connectorPaths.value = []
+  }
+}
+
+function onTeamRefHoverEnd() {
+  hoveredRefKey.value = null
   hoveredMatchId.value = null
   connectorPaths.value = []
 }
@@ -154,6 +252,11 @@ function onMatchHoverEnd() {
     tabindex="0"
   >
     <div ref="roundsEl" class="bracket-view__rounds">
+      <OriginColumn
+        :highlighted-refs="highlightedRefKeys"
+        @team-ref-hover="onTeamRefHover"
+        @team-ref-hover-end="onTeamRefHoverEnd"
+      />
       <BracketRound
         v-for="round in rounds"
         :key="round.title"

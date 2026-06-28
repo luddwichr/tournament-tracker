@@ -142,7 +142,7 @@ function handleClear(): void {
   padding: 0;
   max-width: min(90vw, 28rem);
   width: 100%;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .score-dialog::backdrop {

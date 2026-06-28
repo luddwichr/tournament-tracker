@@ -77,7 +77,7 @@ function handleClose(): void {
   padding: 0;
   max-width: min(90vw, 24rem);
   width: 100%;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .confirm-dialog::backdrop {

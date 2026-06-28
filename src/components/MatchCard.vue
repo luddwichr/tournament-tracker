@@ -12,7 +12,7 @@ const props = defineProps<{
   awayPlaceholder?: string
 }>()
 
-const emit = defineEmits<{ click: [] }>()
+const emit = defineEmits<{ click: []; placeholderClick: [] }>()
 
 const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
 
@@ -58,7 +58,12 @@ function ariaLabel(): string {
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
-        <span v-else class="match-card__placeholder">{{ homePlaceholder ?? '?' }}</span>
+        <button
+          v-else
+          type="button"
+          class="match-card__placeholder"
+          @click.stop="emit('placeholderClick')"
+        >{{ homePlaceholder ?? '?' }}</button>
       </span>
 
       <span class="match-card__score" aria-hidden="true">
@@ -74,7 +79,12 @@ function ariaLabel(): string {
 
       <span class="match-card__team match-card__team--away">
         <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
-        <span v-else class="match-card__placeholder">{{ awayPlaceholder ?? '?' }}</span>
+        <button
+          v-else
+          type="button"
+          class="match-card__placeholder"
+          @click.stop="emit('placeholderClick')"
+        >{{ awayPlaceholder ?? '?' }}</button>
       </span>
     </div>
   </div>
@@ -189,6 +199,10 @@ function ariaLabel(): string {
 }
 
 .match-card__placeholder {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
   color: var(--color-text-muted);
   font-style: italic;
   font-size: var(--font-size-sm);
@@ -196,5 +210,18 @@ function ariaLabel(): string {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.match-card__placeholder:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.match-card__placeholder:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 </style>

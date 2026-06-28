@@ -78,7 +78,7 @@ onMounted(() => {
   max-height: min(90vh, 36rem);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .possible-teams-dialog::backdrop {
