@@ -23,11 +23,6 @@ directly against the source (noted inline as _verified_).
 
 ### Major
 
-- **The stepper/counter widget is copy-pasted six times.** `DisciplineInput.vue:17-111`
-  has four near-identical `−ㅤvalueㅤ+` blocks (~95 lines); `ScoreInput.vue:19-65` has two
-  more. Any change to the stepper must be made in six places. **Fix:** one
-  `<StepperInput v-model :min :label>` component used in all six spots.
-
 - **Unnecessary reactivity over static data.** In `BracketView.vue`, `nextMatchMap` (63),
   `prevMatchMap` (73), `teamRefToMatchId` (91) and `matchToRefKeys` (103) are `computed`
   but depend only on the frozen static import `knockoutMatches`. They set up reactive
@@ -64,10 +59,6 @@ directly against the source (noted inline as _verified_).
   exist as route `path`+`meta.title` in `router.ts`. Derive nav entries from the router.
 - **`MatchCard.vue`**: `kickoffFmt` builds a fresh `Intl.DateTimeFormat` per card instance
   (100+ cards = 100+ formatters). Hoist the formatter to module scope.
-- **Awkward decrement indirection.** `ScoreInput.vue:12-14` / `DisciplineInput.vue:7-9`
-  pass a setter lambda for `−` while `+` is written inline — inconsistent and unnecessary
-  with `defineModel` (`x = Math.max(0, x - 1)`). Moot once the stepper component owns
-  clamping.
 - **`SettingsView.vue`** models one "pending confirmable action" with two always-paired
   refs (`pendingAction` + `pendingImportResults`); a single discriminated-union ref makes
   the invariant unbreakable.
@@ -173,8 +164,8 @@ directly against the source (noted inline as _verified_).
   `showModal()` is redundant (`ConfirmDialog.vue:47`, `ScoreDialog.vue:77`, etc.);
   `SettingsView.vue:98` nests a `role="group"` directly inside a `<fieldset>`.
 - **Counter live regions announce bare numbers** ("1", "2") with no team/card context
-  (`ScoreInput.vue:30,55`, `DisciplineInput.vue:30,52,78,100`) — six live regions risk
-  announcement pile-ups. Rely on the buttons' own `aria-label`s instead.
+  (`StepperInput.vue`) — six live regions risk announcement pile-ups. Rely on the buttons'
+  own `aria-label`s instead.
 - **`DisciplineInput` card block is not a labelled group** (a `<p>` + `<span>`s), unlike
   `ScoreInput`'s `role="group" aria-label="Tore"` — inconsistent. Use `<fieldset>`/`role=group`.
 
@@ -216,11 +207,6 @@ directly against the source (noted inline as _verified_).
   `.score-dialog__btn`, `.settings-view__btn` each re-declare the same base button, and the
   `--danger` variant is written independently three times. **Fix:** `.btn` +
   `.btn--primary/secondary/danger` or a `BaseButton.vue`.
-- **Two counter widgets with divergent, sub-spec sizing.** `ScoreInput` step buttons use
-  `--tap-target` (44px); `DisciplineInput.vue:167` hardcodes `2.25rem` (36px) — below the
-  project's own token *and* MD's 48px minimum; `MatchCard.vue:203` placeholder has no
-  minimum at all. **Fix:** one `Stepper` component sized to `--tap-target` (consider raising
-  it to 48px).
 - **Elevation doesn't follow MD and is applied inconsistently.** Resting cards use
   `shadow-md` (`0 4px 12px`, an MD elevation-3+ shadow) on static content; the sticky
   header uses `shadow-sm` and never elevates on scroll; there's no semantic
