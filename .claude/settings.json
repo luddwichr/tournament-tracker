@@ -3,7 +3,15 @@
   "plansDirectory": ".claude/plans",
   "permissions": {
     "defaultMode": "acceptEdits",
-    "allow": ["Bash(npm run *)"]
+    "allow": [
+      "Bash(npm run typecheck)",
+      "Bash(npm run test:unit)",
+      "Bash(npm run test:e2e)",
+      "Bash(npm run lint)",
+      "Bash(npm run format)",
+      "Bash(npm run dev)"
+
+    ]
   },
   "statusLine": {
     "type": "command",
