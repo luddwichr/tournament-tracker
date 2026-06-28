@@ -1,0 +1,1 @@
+import{E as e,i as t}from"./index-Dz-jtSox.js";var n=t(`tournament`,()=>{let t=e({});function n(e){t.value[e.matchId]=e}function r(e){delete t.value[e]}function i(){t.value={}}function a(e){t.value={...e}}return{results:t,enterResult:n,clearResult:r,reset:i,importResults:a}},{persist:{key:`wc2026:results:v1`}});export{n as t};
