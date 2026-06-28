@@ -138,10 +138,19 @@ function ariaLabel(): string {
   overflow: hidden;
 }
 
+.match-card__team :deep(.team-label) {
+  min-width: 0;
+}
+
 .match-card__team :deep(.team-label__name) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.match-card__team--away :deep(.team-label) {
+  flex-direction: row-reverse;
 }
 
 .match-card__team--away {

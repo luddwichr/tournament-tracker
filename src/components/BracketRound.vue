@@ -16,9 +16,14 @@ export interface MatchRow {
 defineProps<{
   title: string
   matches: MatchRow[]
+  highlightedMatchIds?: readonly string[]
 }>()
 
-const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
+const emit = defineEmits<{
+  matchClick: [match: MatchSlot]
+  matchHover: [matchId: string]
+  matchHoverEnd: []
+}>()
 </script>
 
 <template>
@@ -31,16 +36,24 @@ const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
         <p v-if="row.sectionLabel" class="bracket-round__section-label">
           {{ row.sectionLabel }}
         </p>
-        <MatchCard
-          :match="row.match"
-          :home-team="row.homeTeam"
-          :away-team="row.awayTeam"
-          :result="row.result"
-          :home-placeholder="row.homePlaceholder"
-          :away-placeholder="row.awayPlaceholder"
-          @click="emit('matchClick', row.match)"
-        />
-        <PossibleTeamsButton v-if="!row.homeTeam || !row.awayTeam" :match="row.match" />
+        <div
+          class="bracket-round__match-group"
+          :class="{ 'bracket-round__match-group--target': highlightedMatchIds?.includes(row.match.id) }"
+          :data-match-id="row.match.id"
+          @mouseenter="emit('matchHover', row.match.id)"
+          @mouseleave="emit('matchHoverEnd')"
+        >
+          <MatchCard
+            :match="row.match"
+            :home-team="row.homeTeam"
+            :away-team="row.awayTeam"
+            :result="row.result"
+            :home-placeholder="row.homePlaceholder"
+            :away-placeholder="row.awayPlaceholder"
+            @click="emit('matchClick', row.match)"
+          />
+          <PossibleTeamsButton v-if="!row.homeTeam || !row.awayTeam" :match="row.match" />
+        </div>
       </template>
     </div>
   </section>
@@ -48,11 +61,12 @@ const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
 
 <style scoped>
 .bracket-round {
-  width: 18rem;
+  width: 26rem;
   flex-shrink: 0;
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -77,7 +91,18 @@ const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
   padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bracket-round__match-group {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
+}
+
+.bracket-round__match-group--target :deep(.match-card) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 .bracket-round__section-label {
