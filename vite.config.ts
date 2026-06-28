@@ -20,7 +20,6 @@ export default defineConfig({
         short_name: 'WM 2026',
         description: 'Offline-Tracker für die FIFA Weltmeisterschaft 2026',
         lang: 'de',
-        start_url: '/',
         display: 'standalone',
         background_color: '#0f172a',
         theme_color: '#0f172a',

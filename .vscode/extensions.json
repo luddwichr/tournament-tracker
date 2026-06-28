@@ -4,6 +4,7 @@
     "anthropic.claude-code",
     "oxc.oxc-vscode",
     "ms-playwright.playwright",
-    "vitest.explorer"
+    "vitest.explorer",
+    "github.vscode-github-actions"
   ]
 }
