@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import type { Team, Player } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadList from './SquadList.vue'
+import { useScrollLock } from '../composables/use-scroll-lock'
 
 defineProps<{
   team: Team
@@ -11,6 +12,8 @@ defineProps<{
 
 const emit = defineEmits<{ close: [] }>()
 const dialogEl = ref<HTMLDialogElement | null>(null)
+
+useScrollLock()
 
 onMounted(() => {
   dialogEl.value?.showModal()
@@ -60,7 +63,7 @@ onMounted(() => {
 }
 
 .squad-dialog::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: var(--color-scrim);
 }
 
 .squad-dialog__inner {

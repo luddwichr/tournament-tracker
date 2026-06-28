@@ -44,6 +44,18 @@ body {
   }
 }
 
+/*
+ * Shared surface-card recipe — used by GroupTable, BracketRound, OriginColumn,
+ * RankingView. Components apply this class instead of copy-pasting the recipe.
+ */
+.surface-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
 /* Screen-reader-only utility */
 .visually-hidden {
   position: absolute;

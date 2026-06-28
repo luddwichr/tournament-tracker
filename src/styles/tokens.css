@@ -22,6 +22,9 @@
   /* Focus ring */
   --color-focus: #2563eb;
 
+  /* Dialog/overlay scrim (MD-spec ~32 %; kept at 50 % for contrast on light bg) */
+  --color-scrim: rgb(0 0 0 / 0.5);
+
   /* Spacing scale — geometric-ish, 4px → 64px */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
@@ -72,6 +75,7 @@
     --color-loss: #f87171;
 
     --color-focus: #93c5fd;
+    --color-scrim: rgb(0 0 0 / 0.65);
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5);
@@ -115,6 +119,7 @@
   --color-loss: #f87171;
 
   --color-focus: #93c5fd;
+  --color-scrim: rgb(0 0 0 / 0.65);
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5);

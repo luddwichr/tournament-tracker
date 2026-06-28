@@ -27,7 +27,7 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
 </script>
 
 <template>
-  <article class="group-table" :aria-label="`Gruppe ${groupId}`">
+  <article class="group-table surface-card" :aria-label="`Gruppe ${groupId}`">
     <header class="group-table__header">
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
@@ -82,14 +82,6 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
 </template>
 
 <style scoped>
-.group-table {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
 .group-table__header {
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-primary);

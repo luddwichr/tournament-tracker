@@ -31,10 +31,11 @@ import { resolveThirdPlaceSlot } from './third-place'
 // Adaptive score range — fewer remaining matches → wider range → more precise
 // ---------------------------------------------------------------------------
 
-function maxGoalsPerSide(remainingCount: number): number {
-  if (remainingCount <= 3) return 7 // 0–6 → 49 combos/match, ≤117 k total
-  if (remainingCount <= 5) return 4 // 0–3 → 16 combos/match, ≤1 M total
-  return 3 // 0–2 → 9 combos/match, ≤531 k total
+// Base caps per remaining-match count; gdSpread lifts them so a team can
+// always overcome the worst current GD deficit in the simulated scenarios.
+function maxGoalsPerSide(remainingCount: number, gdSpread: number): number {
+  const base = remainingCount <= 3 ? 7 : remainingCount <= 5 ? 4 : 3
+  return Math.max(base, gdSpread + 1)
 }
 
 // ---------------------------------------------------------------------------
@@ -48,7 +49,12 @@ function groupResultFingerprint(group: GroupId, results: Record<string, Result>)
     .filter((m) => m.group === group)
     .map((m) => {
       const r = results[m.id]
-      return r ? `${r.homeGoals}:${r.awayGoals}` : '_'
+      // Include discipline counts: fair-play (yellow/red cards) breaks ties and
+      // must be part of the cache key, otherwise two identical-score results with
+      // different cards would collide and return a stale cached set.
+      return r
+        ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}`
+        : '_'
     })
     .join(',')
 }
@@ -73,7 +79,19 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
     const t = standings[rank - 1]?.team
     if (t) possible.add(t.id)
   } else {
-    const maxGoals = maxGoalsPerSide(remaining.length)
+    // Compute GD spread from played results so the cap covers any deficit a
+    // team needs to overcome; avoids silently under-approximating large swings.
+    const gdByTeam = new Map<string, number>()
+    for (const m of gMatches) {
+      const r = results[m.id]
+      if (!r || m.homeRef.kind !== 'team' || m.awayRef.kind !== 'team') continue
+      const diff = r.homeGoals - r.awayGoals
+      gdByTeam.set(m.homeRef.teamId, (gdByTeam.get(m.homeRef.teamId) ?? 0) + diff)
+      gdByTeam.set(m.awayRef.teamId, (gdByTeam.get(m.awayRef.teamId) ?? 0) - diff)
+    }
+    const gds = [...gdByTeam.values()]
+    const gdSpread = gds.length >= 2 ? Math.max(...gds) - Math.min(...gds) : 0
+    const maxGoals = maxGoalsPerSide(remaining.length, gdSpread)
     const partial: Record<string, Result> = { ...results }
 
     const enumerate = (i: number) => {

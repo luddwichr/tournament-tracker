@@ -28,36 +28,20 @@ function formatKickoff(iso: string): string {
   return kickoffFmt.format(new Date(iso))
 }
 
-function ariaLabel(): string {
+const ariaLabel = computed(() => {
   const home = props.homeTeam?.name ?? 'Heim'
   const away = props.awayTeam?.name ?? 'Gast'
   if (props.result) {
     return `${home} ${props.result.homeGoals} : ${props.result.awayGoals} ${away} – Ergebnis bearbeiten`
   }
   return `${home} – ${away}: Ergebnis eingeben`
-}
-
-// Only fire card activation when the card div itself has focus, not when a
-// child button (TeamLabel, placeholder) bubbles its keydown event up here.
-function onCardKeydown(e: KeyboardEvent) {
-  if (e.target !== e.currentTarget) return
-  if (blocked.value) return
-  e.preventDefault()
-  emit('click')
-}
+})
 </script>
 
 <template>
   <div
-    role="button"
-    :tabindex="blocked ? -1 : 0"
     class="match-card"
     :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
-    :aria-label="ariaLabel()"
-    :aria-disabled="blocked ? 'true' : undefined"
-    @click="!blocked && emit('click')"
-    @keydown.enter="onCardKeydown"
-    @keydown.space="onCardKeydown"
   >
     <div class="match-card__meta">
       <time class="match-card__kickoff" :datetime="match.kickoff">
@@ -65,14 +49,21 @@ function onCardKeydown(e: KeyboardEvent) {
       </time>
     </div>
     <div class="match-card__body">
-      <span class="match-card__team match-card__team--home" @click.stop>
+      <span class="match-card__team match-card__team--home">
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
         <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
           {{ homePlaceholder ?? '?' }}
         </button>
       </span>
 
-      <span class="match-card__score" aria-hidden="true">
+      <!-- Score area is the edit button — a sibling of the team buttons, never a wrapper -->
+      <button
+        type="button"
+        class="match-card__score-btn"
+        :aria-label="ariaLabel"
+        :disabled="blocked ? true : undefined"
+        @click="emit('click')"
+      >
         <template v-if="result">
           <span class="match-card__score-value">{{ result.homeGoals }}</span>
           <span class="match-card__score-sep">:</span>
@@ -81,9 +72,9 @@ function onCardKeydown(e: KeyboardEvent) {
         <template v-else>
           <span class="match-card__score-dash">–</span>
         </template>
-      </span>
+      </button>
 
-      <span class="match-card__team match-card__team--away" @click.stop>
+      <span class="match-card__team match-card__team--away">
         <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
         <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
           {{ awayPlaceholder ?? '?' }}
@@ -104,20 +95,8 @@ function onCardKeydown(e: KeyboardEvent) {
   /* Upcoming matches get a faint border so they're visually distinct from the
      surface background; played matches use full border-color opacity. */
   border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
-  cursor: pointer;
   font-size: inherit;
   user-select: none;
-}
-
-.match-card:hover,
-.match-card:focus-visible {
-  border-color: var(--color-primary);
-  outline: 2px solid var(--color-focus);
-  outline-offset: 1px;
-}
-
-.match-card:hover {
-  outline: none;
 }
 
 .match-card--played {
@@ -125,7 +104,6 @@ function onCardKeydown(e: KeyboardEvent) {
 }
 
 .match-card--blocked {
-  cursor: not-allowed;
   border-color: var(--color-border);
   border-style: dashed;
 }
@@ -174,12 +152,33 @@ function onCardKeydown(e: KeyboardEvent) {
   justify-content: flex-end;
 }
 
-.match-card__score {
+.match-card__score-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.2em;
   min-width: 2.5rem;
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+
+.match-card__score-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.match-card__score-btn:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.match-card__score-btn:disabled {
+  cursor: not-allowed;
 }
 
 .match-card__score-value {
@@ -223,7 +222,7 @@ function onCardKeydown(e: KeyboardEvent) {
 }
 
 .match-card__placeholder:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 </style>

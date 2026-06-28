@@ -146,7 +146,7 @@ function handleClear(): void {
 }
 
 .score-dialog::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: var(--color-scrim);
 }
 
 .score-dialog__inner {

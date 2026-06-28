@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadDialog from './SquadDialog.vue'
@@ -14,21 +14,6 @@ const props = defineProps<{
 
 const squadOpen = ref(false)
 const players = squads[props.team.id] ?? []
-
-let savedScrollY = 0
-watch(squadOpen, (open) => {
-  if (open) {
-    savedScrollY = window.scrollY
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${savedScrollY}px`
-    document.body.style.width = '100%'
-  } else {
-    document.body.style.position = ''
-    document.body.style.top = ''
-    document.body.style.width = ''
-    window.scrollTo(0, savedScrollY)
-  }
-})
 
 function handleClick(e: MouseEvent): void {
   if (!props.clickable) return

@@ -76,7 +76,7 @@ const groupData = computed(() =>
 </script>
 
 <template>
-  <section class="origin-column" aria-label="Gruppenphase">
+  <section class="origin-column surface-card" aria-label="Gruppenphase">
     <header class="origin-column__header">
       <h2 class="origin-column__title">Gruppen</h2>
     </header>
@@ -110,11 +110,7 @@ const groupData = computed(() =>
 .origin-column {
   width: 17rem;
   flex-shrink: 0;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  /* surface-card applied via shared class in base.css */
   display: flex;
   flex-direction: column;
 }

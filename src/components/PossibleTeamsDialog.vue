@@ -82,7 +82,7 @@ onMounted(() => {
 }
 
 .possible-teams-dialog::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: var(--color-scrim);
 }
 
 .possible-teams-dialog__inner {

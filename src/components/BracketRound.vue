@@ -58,7 +58,7 @@ const awayLabel = computed(() =>
 </script>
 
 <template>
-  <section class="bracket-round" :aria-label="title">
+  <section class="bracket-round surface-card" :aria-label="title">
     <header class="bracket-round__header">
       <h2 class="bracket-round__title">{{ title }}</h2>
     </header>
@@ -105,11 +105,7 @@ const awayLabel = computed(() =>
 .bracket-round {
   width: 26rem;
   flex-shrink: 0;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  /* surface-card applied via shared class in base.css */
   display: flex;
   flex-direction: column;
 }

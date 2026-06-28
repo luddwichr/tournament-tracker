@@ -19,6 +19,7 @@ const selectedAway = computed(() =>
 
 <template>
   <div class="knockout-view">
+    <h1 class="knockout-view__heading">K.-o.-Runde</h1>
     <BracketView @match-click="selectedMatch = $event" />
     <ScoreDialog
       v-if="selectedMatch"
@@ -29,3 +30,11 @@ const selectedAway = computed(() =>
     />
   </div>
 </template>
+
+<style scoped>
+.knockout-view__heading {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+</style>

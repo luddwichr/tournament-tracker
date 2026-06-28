@@ -81,7 +81,7 @@ function handleClose(): void {
 }
 
 .confirm-dialog::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: var(--color-scrim);
 }
 
 .confirm-dialog__inner {

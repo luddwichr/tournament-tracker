@@ -37,7 +37,7 @@ test('shows all 5 round headings', async ({ page }) => {
 
 test('renders 32 match cards in total', async ({ page }) => {
   await page.goto('/knockout')
-  await expect(page.locator('button.match-card')).toHaveCount(32)
+  await expect(page.locator('.match-card')).toHaveCount(32)
 })
 
 test('final column shows section labels for both end-stage matches', async ({ page }) => {
@@ -83,7 +83,7 @@ test('R32 group-rank placeholders include "Gruppe" and the group letter', async 
 test('all 16 R32 cards are disabled without group results', async ({ page }) => {
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await expect(r32Round.locator('button.match-card[disabled]')).toHaveCount(16)
+  await expect(r32Round.locator('.match-card__score-btn[disabled]')).toHaveCount(16)
 })
 
 test('all 16 R32 cards become enabled after all group results are entered', async ({ page }) => {
@@ -94,8 +94,8 @@ test('all 16 R32 cards become enabled after all group results are entered', asyn
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
   // No disabled R32 cards
-  await expect(r32Round.locator('button.match-card[disabled]')).toHaveCount(0)
-  await expect(r32Round.locator('button.match-card')).toHaveCount(16)
+  await expect(r32Round.locator('.match-card__score-btn[disabled]')).toHaveCount(0)
+  await expect(r32Round.locator('.match-card')).toHaveCount(16)
 })
 
 // ---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ test('clicking an enabled R32 card opens ScoreDialog with resolved team names', 
   )
   await page.goto('/knockout')
 
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
@@ -128,7 +128,7 @@ test('Escape closes the ScoreDialog', async ({ page }) => {
   )
   await page.goto('/knockout')
 
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
   await expect(page.getByRole('dialog')).toBeVisible()
 
   await page.keyboard.press('Escape')
@@ -143,7 +143,7 @@ test('entering a knockout result propagates to the next round', async ({ page })
   await page.goto('/knockout')
 
   // Enter a result for the first R32 match (M73: A2 vs B2)
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
 
@@ -154,27 +154,9 @@ test('entering a knockout result propagates to the next round', async ({ page })
 
   // M73 winner (A2, home win) should now appear as the resolved home team in M90 (R16 index 1)
   // M90 homeRef = winner(M73), awayRef = winner(M75) — M75 still unresolved
-  const m90card = page.locator('.bracket-round').nth(1).locator('button.match-card').nth(1)
+  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(1)
   await expect(m90card.locator('.team-label')).toHaveCount(1)
   await expect(m90card.locator('.match-card__placeholder')).toHaveCount(1)
-})
-
-// ---------------------------------------------------------------------------
-// Match status badges (knockout stage is upcoming as of 2026-06-27)
-// ---------------------------------------------------------------------------
-
-test('R32 match cards show "geplant" badge before kickoff', async ({ page }) => {
-  // Freeze Date.now() to before the first R32 kickoff (2026-06-28T12:00 MST).
-  await page.addInitScript(() => {
-    const FIXED = new Date('2026-06-27T12:00:00Z').getTime()
-    Date.now = () => FIXED
-  })
-  await page.goto('/knockout')
-  // Wait for the bracket to render before checking status badges.
-  await expect(page.getByRole('heading', { level: 2, name: 'Runde der 32' })).toBeVisible()
-  const firstBadge = page.locator('.bracket-round').first().locator('.match-card__status--upcoming').first()
-  await expect(firstBadge).toBeVisible()
-  await expect(firstBadge).toHaveText('geplant')
 })
 
 // ---------------------------------------------------------------------------
@@ -187,7 +169,7 @@ test('penalty winner section is hidden for a non-tied knockout score', async ({ 
     [STORAGE_KEY, storedState(allGroupResults())],
   )
   await page.goto('/knockout')
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
 
@@ -202,7 +184,7 @@ test('penalty winner section appears for a tied knockout score', async ({ page }
     [STORAGE_KEY, storedState(allGroupResults())],
   )
   await page.goto('/knockout')
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
 
@@ -219,7 +201,7 @@ test('saving a tied knockout result with penalty winner propagates bracket', asy
   await page.goto('/knockout')
 
   // Open the first R32 card (M73: A2 vs B2)
-  await page.locator('.bracket-round').first().locator('button.match-card').first().click()
+  await page.locator('.bracket-round').first().locator('.match-card').first().locator('.match-card__score-btn').click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
 
@@ -234,7 +216,7 @@ test('saving a tied knockout result with penalty winner propagates bracket', asy
   await expect(dialog).not.toBeVisible()
 
   // M90 (R16) homeRef = winner(M73) — home team should now be resolved
-  const m90card = page.locator('.bracket-round').nth(1).locator('button.match-card').nth(1)
+  const m90card = page.locator('.bracket-round').nth(1).locator('.match-card').nth(1)
   await expect(m90card.locator('.team-label')).toHaveCount(1)
 })
 

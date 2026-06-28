@@ -35,7 +35,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
       </p>
     </header>
 
-    <section class="ranking-view__table-wrap" aria-label="FIFA-Weltrangliste" tabindex="0">
+    <section class="ranking-view__table-wrap surface-card" aria-label="FIFA-Weltrangliste" tabindex="0">
       <table class="ranking-table">
         <thead>
           <tr>
@@ -101,11 +101,7 @@ h1 {
 }
 
 .ranking-view__table-wrap {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  /* surface-card applied via shared class in base.css */
 }
 
 .ranking-table {
