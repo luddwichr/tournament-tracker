@@ -9,42 +9,9 @@ directly against the source (noted inline as _verified_).
 
 ---
 
-## 0. Highlights — fix these first
-
-These have the highest payoff or represent active breakage:
-
-1. **`possible-teams.ts` has two silent correctness bugs** (under-approximation of
-   reachable ranks; memo cache ignores cards). For an app whose entire reason to exist
-   is "compute the standings correctly," these are the worst findings. → §2 Critical
-2. **The e2e suite is broken against the current source and almost certainly not run in
-   CI.** Three tests assert removed status-badge markup; ~10 tests assert an `<h1>` that
-   doesn't exist on two views. _verified_ → §5 Critical / §3 Critical
-3. **`computeGroupStandings` — the core aggregation — is never directly tested.** Its
-   spec re-implements the production loop and asserts against the copy. → §5 Critical
-4. **`MatchCard` is a `role="button"` containing real buttons** — invalid ARIA nesting
-   that hides controls from assistive tech. → §3 Critical
-5. **Two divergent scroll-lock mechanisms** coexist (a composable + a hand-rolled
-   `position:fixed` watcher), a latent body-style-clobbering bug. → §1 Critical
-6. **The design system is half-wired**: Card/Dialog/Button surfaces are copy-pasted
-   across 8+ components; the token file's "components never hardcode raw values" claim is
-   false. → §4 Critical
-
----
-
 ## 1. Vue Components & Composables
 
 ### Critical
-
-- **Two competing, divergent scroll-lock implementations.**
-  `composables/use-scroll-lock.ts` locks via `overflow:hidden` with a ref count and is
-  used by `ConfirmDialog`/`ScoreDialog`/`PossibleTeamsDialog`. But `TeamLabel.vue:18-31`
-  hand-rolls a *different* lock (`body.position:fixed` + `top` + `scrollTo`) in a
-  `watch`, and `SquadDialog` (which it opens) calls neither. The two strategies mutate
-  overlapping body styles with no shared counter; if a squad dialog ever opens while an
-  `overflow:hidden` lock is active they clobber each other's inline styles on teardown,
-  leaving the page stuck-locked or mis-scrolled. **Fix:** delete the `TeamLabel` watcher;
-  have `SquadDialog` use `useScrollLock`; fold the preserve-scroll behaviour into the one
-  composable if it's actually wanted.
 
 - **`BracketView.vue` is a god component** (306 lines) mixing two unrelated
   responsibilities: tournament data assembly (`toRow`, `rounds`, four lookup maps,
@@ -95,10 +62,8 @@ These have the highest payoff or represent active breakage:
   add test/CSS surface for nothing — delete them.
 - **`AppNav.vue:8-13` duplicates router metadata** — hard-codes `to`+`label` that already
   exist as route `path`+`meta.title` in `router.ts`. Derive nav entries from the router.
-- **`MatchCard.vue`**: `:aria-label="ariaLabel()"` (57) calls a function every render
-  instead of a `computed`; `kickoffFmt` (19-25) builds a fresh `Intl.DateTimeFormat` per
-  card instance (100+ cards = 100+ formatters). Make `ariaLabel` a computed; hoist the
-  formatter to module scope.
+- **`MatchCard.vue`**: `kickoffFmt` builds a fresh `Intl.DateTimeFormat` per card instance
+  (100+ cards = 100+ formatters). Hoist the formatter to module scope.
 - **Awkward decrement indirection.** `ScoreInput.vue:12-14` / `DisciplineInput.vue:7-9`
   pass a setter lambda for `−` while `+` is written inline — inconsistent and unnecessary
   with `defineModel` (`x = Math.max(0, x - 1)`). Moot once the stepper component owns
@@ -113,28 +78,6 @@ These have the highest payoff or represent active breakage:
 ---
 
 ## 2. TypeScript, Business Logic & Architecture
-
-### Critical
-
-- **`possible-teams.ts` silently *under*-approximates reachable ranks.**
-  `maxGoalsPerSide` (34-38) caps simulated scorelines at 0–6/0–3/0–2 depending on matches
-  remaining, but the file header (4-7) promises it "collects *every* team that can achieve
-  the target rank in at least one scenario." A team that can only reach rank 1/2/3 via a
-  large goal-difference swing (e.g. a 7-0 win) is **wrongly excluded** → the UI declares a
-  still-alive team eliminated. Worse, `possibleThirdPlaceTeamIds` calls
-  `possibleGroupRankTeamIds(group, 3, …)`, so the false-negative leaks into third-place
-  chips too. Note the `thirdPlace` path explicitly *over*-approximates (the safe
-  direction); this path does the opposite without admitting it. **Fix:** size the goal cap
-  from the actual max GD any team must overturn (small for a 4-team group), or at minimum
-  be honest in the docstring.
-
-- **`possible-teams.ts` memo fingerprint ignores cards → stale wrong results.**
-  `groupResultFingerprint` (44-54) encodes only `${homeGoals}:${awayGoals}` per match, but
-  `sortTeams` breaks ties on `fairPlayScore` (yellow/red cards). Two result maps with
-  identical goals but different cards collide on the same cache key; the first computed
-  result is served to the second. Silent correctness bug whenever fair-play decides.
-  **Fix:** include discipline counts in the fingerprint (and decide deliberately how
-  enumerated hypothetical matches — which zero out cards at 90-97 — interact with this).
 
 ### Major
 
@@ -193,25 +136,6 @@ These have the highest payoff or represent active breakage:
 
 ## 3. HTML Semantics & Accessibility (ARIA / a11y)
 
-### Critical
-
-- **Two of four views have no `<h1>`** (_verified_). `GroupsView.vue` and
-  `KnockoutView.vue` render no `<h1>`; the first heading is an `<h2>`
-  ("Gruppe A" / round labels). Only `RankingView` and `SettingsView` have one.
-  WCAG 1.3.1 / 2.4.6 — heading navigation lands on a page with no top-level identity and
-  the hierarchy jumps to h2. **The route-change live announcement is not a substitute for
-  a persistent heading.** This *also* makes ~10 e2e assertions
-  (`getByRole('heading', {level:1, name:'Gruppen'|'K.-o.-Runde'})`) currently fail
-  (_verified_). **Fix:** add a per-view `<h1>` (visually-hidden if the design has no room).
-
-- **`MatchCard` is a `role="button"` containing real buttons.** `MatchCard.vue:51-93` is
-  `<div role="button" tabindex="0">` wrapping the team `<button>`s (`TeamLabel.vue:41-49`,
-  "Kader anzeigen") and the placeholder `<button>` (70, 88). A button must not contain
-  interactive descendants (WCAG 4.1.2) — AT behaviour is undefined; some screen readers
-  collapse the children into the button name and never expose them. The `@click.stop`
-  patches the mouse path only. **Fix:** make the card a plain container with a dedicated
-  "Ergebnis bearbeiten" `<button>` as a *sibling* of the team buttons.
-
 ### Major
 
 - **Qualification status is conveyed by colour alone.** `StandingsRow.vue:12-81` maps a
@@ -234,11 +158,6 @@ These have the highest payoff or represent active breakage:
   `<section aria-label="Tabelle">` and `<section aria-label="Spiele">`; ×12 groups = 24
   identically-named `region` landmarks. WCAG 1.3.1 / 2.4.1. **Fix:** use plain `<div>` (the
   surrounding `<article aria-label="Gruppe A">` already names it) or make labels unique.
-
-- **Kickoff time dropped from the match card's accessible name.** `MatchCard.vue:31-38`
-  builds `aria-label` from teams + score only; the visible `<time>` (63-65) sits inside
-  the `role=button` and is overridden, so AT users can't disambiguate fixtures. (Resolves
-  naturally once the card stops being a button.)
 
 ### Minor
 
@@ -269,17 +188,6 @@ These have the highest payoff or represent active breakage:
 
 ### Critical
 
-- **Card/Dialog surface recipes copy-pasted across 8+ components.** The identical
-  card elevation block (`surface` bg + `radius-lg` + `1px border` + `shadow-md` +
-  `overflow:hidden`) is hand-written in `BracketRound.vue:105`, `GroupTable.vue:85`,
-  `OriginColumn.vue:110`, `RankingView.vue:103`; the dialog recipe is duplicated verbatim
-  in all four dialogs. There is no "Card" or "Dialog" abstraction. **Fix:** a shared
-  `.surface-card`/`.dialog` class (or wrapper) / `--elevation-*` aliases.
-
-- **Dialog backdrop is a hardcoded magic value, duplicated 4×.** `rgb(0 0 0 / 0.5)` is
-  hand-typed in all four dialogs and bypasses theming entirely. **Fix:** add a
-  `--color-scrim` token (MD scrim is typically ~32%, not 50%).
-
 - **No motion system.** `tokens.css` has no duration/easing tokens; only two elements
   animate (both hardcoded `0.15s`), `ScoreDialog.vue:230` sets `transition:none`, and every
   other hover/active state snaps instantly. MD treats motion as first-class
@@ -300,11 +208,10 @@ These have the highest payoff or represent active breakage:
   nav, cards, counter steps and table rows. MD specifies a fixed ladder (hover 8 / focus
   12 / pressed 12 / dragged 16). **Fix:** `--state-hover/-focus/-pressed` tokens aligned to
   MD.
-- **Focus-ring spec contradicted by half the components.** `base.css:16` sets
-  `3px`/offset `2px`; `MatchCard.vue:115`, `TeamLabel.vue:88`,
-  `PossibleTeamsDialog.vue:135` redefine it as `2px` with varying offsets.
-  `MatchCard.vue:112-121` even sets then removes an outline. **Fix:** one tokenized
-  definition; let global `:focus-visible` do the work.
+- **Focus-ring spec contradicted by several components.** `base.css:16` sets
+  `3px`/offset `2px`; `TeamLabel.vue:88`, `PossibleTeamsDialog.vue:135` redefine it as
+  `2px` with varying offsets. **Fix:** one tokenized definition; let global `:focus-visible`
+  do the work.
 - **Three buttons, three reimplementations.** `.confirm-dialog__btn`,
   `.score-dialog__btn`, `.settings-view__btn` each re-declare the same base button, and the
   `--danger` variant is written independently three times. **Fix:** `.btn` +
@@ -349,25 +256,6 @@ These have the highest payoff or represent active breakage:
 
 ### Critical
 
-- **The e2e suite is broken against current source — and almost certainly not run in CI.**
-  - Three tests assert status-badge markup deleted ~10 commits ago (`.match-card__status--*`
-    no longer exists in `src/`, _verified_): `groups.spec.ts:51,67`, `knockout.spec.ts:166`.
-    They will hang to timeout and fail.
-  - ~10 tests assert `getByRole('heading', {level:1, name:'Gruppen'|'K.-o.-Runde'})`
-    across `smoke`, `groups`, `pwa-offline`, `squads` — but those `<h1>`s don't exist
-    (_verified_; see §3 Critical). That a removed feature's tests still ship "green" is
-    strong evidence e2e isn't gating anything. **Fix:** delete/repair the badge tests, add
-    the missing `<h1>`s, and get e2e into CI.
-
-- **`computeGroupStandings` — the core aggregation — is never directly tested, and its
-  spec lies.** `standings.spec.ts` header claims to test `computeGroupStandings` but imports
-  `sortTeams` directly and **re-implements the production aggregation loop in a local
-  `buildStats` (51-83)**, then asserts `sortTeams` against that copy. So
-  `played`/`wins`/`form`/`goalsAgainst`/card aggregation/`fairPlayScore` are never asserted,
-  and bugs common to both copies are invisible. **Fix:** test `computeGroupStandings`
-  directly with hand-built `Result` maps; give `tiebreakers.ts` its own spec fed pre-built
-  stats.
-
 - **The UI layer is essentially untested.** Only `AppNav` and `ConfirmDialog` have specs.
   17/19 components and all 4 views have none — including logic-bearing
   `ScoreDialog`/`DisciplineInput` (card entry, penalty gating), `GroupTable`/`StandingsRow`,
@@ -397,13 +285,8 @@ These have the highest payoff or represent active breakage:
 
 ### Minor
 
-- Dead commented-out arithmetic scratchpads litter `standings.spec.ts` (e.g. 109-135,
-  203-221); one `it` comment describes a different scenario than it asserts.
 - Pervasive brittle CSS-class + positional selectors in e2e (`.bracket-round').nth(1)…`)
   couple tests to layout.
-- Fixture-shape inconsistency: `groups.spec.ts:81` seeds the *export* shape
-  `{version,results}` while every other e2e uses the persist shape `{results}` — works only
-  because the persist plugin ignores the extra key.
 - Tautological assertions (`size.toBeGreaterThan(0)`, `typeof id === 'string'`,
   `home!.id !== away!.id`) instead of exact membership.
 - `knockout.ts:47` unknown-`matchId` branch untested; `ConfirmDialog.spec`/`AppNav.spec`
@@ -418,8 +301,8 @@ These have the highest payoff or represent active breakage:
 
 | Module | Tested? | Notes |
 |---|---|---|
-| `lib/tiebreakers.ts` | Indirect only | No own spec; only via a spec that re-implements its inputs |
-| `lib/standings.ts` (`computeGroupStandings`) | **No direct test** | played/form/cards/GA never asserted |
+| `lib/tiebreakers.ts` | Indirect only | No own spec; exercised via `computeGroupStandings` |
+| `lib/standings.ts` (`computeGroupStandings`) | Yes | played/wins/GF/GA/cards/form/ordering all covered |
 | `lib/third-place.ts` | Partial | fair-play / FIFA-rank / null-allocation paths untested |
 | `lib/possible-teams.ts` | Decent | Memoization not actually tested; weak assertions |
 | `lib/persistence.ts` | Partial | `parseImport` solid; `exportJson` untested |
@@ -435,23 +318,18 @@ These have the highest payoff or represent active breakage:
 
 ## 6. Cross-cutting & Process
 
-- **Documentation/code drift.** Several docstrings make promises the code breaks: the
-  `possible-teams.ts` "every team in at least one scenario" header (§2), the `tokens.css`
-  "never hardcode raw values" claim (§4), and the `standings.spec.ts` "tests
-  computeGroupStandings" header (§5). Self-documenting code is undermined when comments
-  assert invariants the implementation doesn't hold — prefer fewer comments that are true.
-- **Dead code accumulating.** `OutcomeBadge.vue`, `PagePlaceholder.vue`, a committed stale
-  `coverage/` report referencing a deleted module, and e2e tests for removed features all
-  point to a missing "delete it when it dies" discipline.
-- **CI gap (inferred).** The combination of red e2e tests shipping unnoticed and no
-  coverage threshold strongly suggests the test suites aren't gating merges. Wiring
-  `test:unit` + `test:e2e` + `typecheck` + `lint` into CI would have caught the majority of
-  the §3/§5 Critical items automatically.
+- **Documentation/code drift.** The `tokens.css` "components never hardcode raw values"
+  claim (§4) is still false. Self-documenting code is undermined when comments assert
+  invariants the implementation doesn't hold — prefer fewer comments that are true.
+- **Dead code accumulating.** `OutcomeBadge.vue`, `PagePlaceholder.vue`, and a committed
+  stale `coverage/` report referencing a deleted module point to a missing "delete it when
+  it dies" discipline.
+- **CI gap (inferred).** No coverage threshold and no evidence the e2e suite gates merges.
+  Wiring `test:unit` + `test:e2e` + `typecheck` + `lint` into CI is the highest-leverage
+  process change available.
 - **Recurring duplication theme.** The same anti-pattern repeats at every layer: the stepper
-  (×6 components), card/dialog/button CSS (×8), cluster-by-criteria logic (×3),
-  `isGroupComplete` (×2), theme tokens (×4). A pass to extract shared
-  components/utilities/tokens would shrink the codebase meaningfully and remove whole classes
-  of drift bugs.
+  (×6 components), button CSS (×3), cluster-by-criteria logic (×3), `isGroupComplete` (×2),
+  theme tokens (×4). Card surface is now extracted; the rest still need a pass.
 
 ---
 
