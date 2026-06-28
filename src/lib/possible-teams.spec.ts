@@ -29,11 +29,7 @@ import { possibleTeamsFor } from './possible-teams'
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeResult(
-  matchId: string,
-  homeGoals: number,
-  awayGoals: number,
-): Result {
+function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
   return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
 }
 
@@ -122,12 +118,8 @@ describe('possibleTeamsFor — groupRank, 1 match remaining', () => {
     // then cze and rsa are confined to ranks 3 and 4 (not directly testable
     // via TeamRef since groupRank only exposes rank 1 and 2).
     const results = groupAFiveMatchResults()
-    const rank1ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 1 }, results)].map(
-      (t) => t.id,
-    )
-    const rank2ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 2 }, results)].map(
-      (t) => t.id,
-    )
+    const rank1ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 1 }, results)].map((t) => t.id)
+    const rank2ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 2 }, results)].map((t) => t.id)
     const combined = new Set([...rank1ids, ...rank2ids])
     expect(combined.has('mex')).toBe(true)
     expect(combined.has('kor')).toBe(true)

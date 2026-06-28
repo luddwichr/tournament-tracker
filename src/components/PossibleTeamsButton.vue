@@ -23,22 +23,12 @@ const possibleAway = computed((): Team[] =>
   awayTeam.value ? [] : [...possibleTeamsFor(props.match.awayRef, store.results)],
 )
 
-const homeLabel = computed(() =>
-  homeTeam.value ? homeTeam.value.name : teamRefLabel(props.match.homeRef),
-)
-const awayLabel = computed(() =>
-  awayTeam.value ? awayTeam.value.name : teamRefLabel(props.match.awayRef),
-)
+const homeLabel = computed(() => (homeTeam.value ? homeTeam.value.name : teamRefLabel(props.match.homeRef)))
+const awayLabel = computed(() => (awayTeam.value ? awayTeam.value.name : teamRefLabel(props.match.awayRef)))
 </script>
 
 <template>
-  <button
-    type="button"
-    class="possible-teams-btn"
-    @click="dialogOpen = true"
-  >
-    Mögliche Teams anzeigen
-  </button>
+  <button type="button" class="possible-teams-btn" @click="dialogOpen = true">Mögliche Teams anzeigen</button>
 
   <Teleport to="body">
     <PossibleTeamsDialog

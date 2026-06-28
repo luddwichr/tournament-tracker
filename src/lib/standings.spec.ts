@@ -48,11 +48,7 @@ function makeResult(
 }
 
 // Build a stats map from raw match results for use with sortTeams.
-function buildStats(
-  teams: Team[],
-  matches: MatchSlot[],
-  resultList: Result[],
-): Map<string, TiebreakerStat> {
+function buildStats(teams: Team[], matches: MatchSlot[], resultList: Result[]): Map<string, TiebreakerStat> {
   const results: Record<string, Result> = Object.fromEntries(resultList.map((r) => [r.matchId, r]))
   const map = new Map<string, TiebreakerStat>(
     teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0, fairPlayScore: 0 }]),
@@ -86,11 +82,7 @@ function buildStats(
   return map
 }
 
-function rank(
-  teams: Team[],
-  matches: MatchSlot[],
-  resultList: Result[],
-): string[] {
+function rank(teams: Team[], matches: MatchSlot[], resultList: Result[]): string[] {
   const results: Record<string, Result> = Object.fromEntries(resultList.map((r) => [r.matchId, r]))
   const stats = buildStats(teams, matches, resultList)
   return sortTeams(teams, matches, results, stats).map((t) => t.id)

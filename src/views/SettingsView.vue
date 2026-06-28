@@ -85,17 +85,9 @@ function handleCancel(): void {
       <h2>Daten</h2>
 
       <div class="settings-view__actions">
-        <button type="button" class="settings-view__btn" @click="handleExport">
-          Exportieren
-        </button>
-        <button type="button" class="settings-view__btn" @click="handleImportClick">
-          Importieren
-        </button>
-        <button
-          type="button"
-          class="settings-view__btn settings-view__btn--danger"
-          @click="handleReset"
-        >
+        <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
+        <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
+        <button type="button" class="settings-view__btn settings-view__btn--danger" @click="handleReset">
           Zurücksetzen
         </button>
       </div>

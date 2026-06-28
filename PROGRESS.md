@@ -3,19 +3,19 @@
 Tracks milestone status against [`IMPL_PLAN.md`](./IMPL_PLAN.md). Each milestone
 ends with a runnable app + green tests.
 
-| Milestone                                  | Status         | Notes                                                      |
-| ------------------------------------------ | -------------- | ---------------------------------------------------------- |
-| M1 — Scaffold                              | ✅ Done        | Vite + Vue 3 + TS shell, 3 routes, tooling, smoke tests    |
-| M2 — Domain + fixture data                 | ✅ Done        | Types, 48 teams, 104 fixtures, Annex C table, sanity tests |
-| M3 — Group view (read-only)                | ✅ Done        | 12 group cards, flags, matches, sticky header              |
-| M4 — Result entry + standings              | ✅ Done        | Pinia store, full FIFA tiebreakers, ScoreDialog, standings |
-| M5 — Persistence + export/import           | ✅ Done        | localStorage persist, JSON export/import, SettingsView     |
-| M6 — Knockout deduction                    | ✅ Done        | third-place ranking, resolveTeamRef, canEnterResult, tests |
-| M7 — Knockout bracket view                 | ✅ Done        | BracketView + BracketRound + placeholder labels, ScoreDialog wired |
-| M8 — PWA                                   | ✅ Done        | vite-plugin-pwa Workbox precache, icons, offline e2e tests |
-| M9 — Polish                                | ✅ Done        | Status badges, penalty winner, aria-label fix, contrast fix |
-| M10 — Squad viewer                         | ✅ Done        | squads.ts (48×26), SquadDialog, SquadList, TeamLabel clickable |
-| M11 — Possible matchups (headline feature) | ✅ Done        | possible-teams.ts, PossibleTeamsButton/Dialog, BracketRound wired |
+| Milestone                                  | Status  | Notes                                                              |
+| ------------------------------------------ | ------- | ------------------------------------------------------------------ |
+| M1 — Scaffold                              | ✅ Done | Vite + Vue 3 + TS shell, 3 routes, tooling, smoke tests            |
+| M2 — Domain + fixture data                 | ✅ Done | Types, 48 teams, 104 fixtures, Annex C table, sanity tests         |
+| M3 — Group view (read-only)                | ✅ Done | 12 group cards, flags, matches, sticky header                      |
+| M4 — Result entry + standings              | ✅ Done | Pinia store, full FIFA tiebreakers, ScoreDialog, standings         |
+| M5 — Persistence + export/import           | ✅ Done | localStorage persist, JSON export/import, SettingsView             |
+| M6 — Knockout deduction                    | ✅ Done | third-place ranking, resolveTeamRef, canEnterResult, tests         |
+| M7 — Knockout bracket view                 | ✅ Done | BracketView + BracketRound + placeholder labels, ScoreDialog wired |
+| M8 — PWA                                   | ✅ Done | vite-plugin-pwa Workbox precache, icons, offline e2e tests         |
+| M9 — Polish                                | ✅ Done | Status badges, penalty winner, aria-label fix, contrast fix        |
+| M10 — Squad viewer                         | ✅ Done | squads.ts (48×26), SquadDialog, SquadList, TeamLabel clickable     |
+| M11 — Possible matchups (headline feature) | ✅ Done | possible-teams.ts, PossibleTeamsButton/Dialog, BracketRound wired  |
 
 ## M11 — Possible matchups (completed 2026-06-28)
 
@@ -171,7 +171,7 @@ Delivered:
   (`#0f172a`), white ball with blue center pentagon, "2026" label.
 - `vite.config.ts` — fleshed out `VitePWA` config: `workbox.globPatterns` precaches
   all JS, CSS, HTML, PNG, SVG, and font assets (162 entries, ~4.3 MB); `navigateFallback:
-  'index.html'` ensures all deep-links are served from cache offline. Full manifest
+'index.html'` ensures all deep-links are served from cache offline. Full manifest
   with `description`, `icons` array (192, 512, maskable 512).
 - `playwright.pwa.config.ts` — separate Playwright config pointing at `vite preview`
   (port 4173), matching only `pwa-offline.spec.ts`.
@@ -232,7 +232,7 @@ Delivered:
   full TeamRef chain (`team` / `groupRank` / `thirdPlace` / `matchWinner` / `matchLoser`),
   returning null at any unresolvable step. Draws in knockout matches return null for
   winner/loser (current model has no penalty field). `canEnterResult(match, results) →
-  boolean`: convenience predicate used to block result entry on unresolved knockout slots.
+boolean`: convenience predicate used to block result entry on unresolved knockout slots.
 - `src/lib/third-place.spec.ts` — 11 unit tests: null until complete, 12 teams, one per
   group, sorted by pts/GD, slot tests (non-null, distinct, from top-8 groups).
 - `src/lib/knockout.spec.ts` — 20 unit tests covering all TeamRef kinds, draw handling,

@@ -71,41 +71,18 @@ function handleClear(): void {
 </script>
 
 <template>
-  <dialog
-    ref="dialogEl"
-    class="score-dialog"
-    aria-modal="true"
-    :aria-label="title"
-    @close="emit('close')"
-  >
+  <dialog ref="dialogEl" class="score-dialog" aria-modal="true" :aria-label="title" @close="emit('close')">
     <div class="score-dialog__inner">
       <header class="score-dialog__header">
         <h2 class="score-dialog__title">{{ title }}</h2>
-        <button
-          type="button"
-          class="score-dialog__close"
-          aria-label="Schließen"
-          @click="dialogEl?.close()"
-        >✕</button>
+        <button type="button" class="score-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
       </header>
 
       <div class="score-dialog__body">
-        <ScoreInput
-          v-model:home="homeGoals"
-          v-model:away="awayGoals"
-          :home-team="homeTeam"
-          :away-team="awayTeam"
-        />
+        <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
 
-        <div
-          v-if="showPenaltyPicker"
-          class="score-dialog__penalties"
-          role="group"
-          aria-labelledby="penalty-label"
-        >
-          <p id="penalty-label" class="score-dialog__penalty-label">
-            Elfmeterschießen — Sieger
-          </p>
+        <div v-if="showPenaltyPicker" class="score-dialog__penalties" role="group" aria-labelledby="penalty-label">
+          <p id="penalty-label" class="score-dialog__penalty-label">Elfmeterschießen — Sieger</p>
           <div class="score-dialog__penalty-btns">
             <button
               type="button"
@@ -113,14 +90,18 @@ function handleClear(): void {
               :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'home' }"
               :aria-pressed="penaltyWinner === 'home'"
               @click="penaltyWinner = penaltyWinner === 'home' ? null : 'home'"
-            >{{ homeTeam?.name ?? 'Heim' }}</button>
+            >
+              {{ homeTeam?.name ?? 'Heim' }}
+            </button>
             <button
               type="button"
               class="score-dialog__penalty-btn"
               :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'away' }"
               :aria-pressed="penaltyWinner === 'away'"
               @click="penaltyWinner = penaltyWinner === 'away' ? null : 'away'"
-            >{{ awayTeam?.name ?? 'Gast' }}</button>
+            >
+              {{ awayTeam?.name ?? 'Gast' }}
+            </button>
           </div>
         </div>
 
@@ -133,23 +114,16 @@ function handleClear(): void {
       </div>
 
       <footer class="score-dialog__footer">
-        <button
-          v-if="initial"
-          type="button"
-          class="score-dialog__btn score-dialog__btn--danger"
-          @click="handleClear"
-        >Löschen</button>
+        <button v-if="initial" type="button" class="score-dialog__btn score-dialog__btn--danger" @click="handleClear">
+          Löschen
+        </button>
         <div class="score-dialog__footer-actions">
-          <button
-            type="button"
-            class="score-dialog__btn score-dialog__btn--secondary"
-            @click="dialogEl?.close()"
-          >Abbrechen</button>
-          <button
-            type="button"
-            class="score-dialog__btn score-dialog__btn--primary"
-            @click="handleSave"
-          >Speichern</button>
+          <button type="button" class="score-dialog__btn score-dialog__btn--secondary" @click="dialogEl?.close()">
+            Abbrechen
+          </button>
+          <button type="button" class="score-dialog__btn score-dialog__btn--primary" @click="handleSave">
+            Speichern
+          </button>
         </div>
       </footer>
     </div>

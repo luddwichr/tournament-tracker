@@ -21,12 +21,7 @@
  */
 
 import type { Team, TeamRef, GroupId, Result, ThirdPlaceSlot } from '../types/tournament'
-import {
-  groupMatches,
-  knockoutMatches,
-  THIRD_PLACE_ALLOCATION,
-  THIRD_PLACE_SLOT_HOST,
-} from '../data/fixtures-2026'
+import { groupMatches, knockoutMatches, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import { teamsById, teamsInGroup } from '../data/teams'
 import { computeGroupStandings } from './standings'
 import { resolveTeamRef } from './knockout'
@@ -62,11 +57,7 @@ function groupResultFingerprint(group: GroupId, results: Record<string, Result>)
 // Core: possible teams at a specific group rank
 // ---------------------------------------------------------------------------
 
-function possibleGroupRankTeamIds(
-  group: GroupId,
-  rank: 1 | 2 | 3,
-  results: Record<string, Result>,
-): Set<string> {
+function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Record<string, Result>): Set<string> {
   const fp = groupResultFingerprint(group, results)
   const cacheKey = `${group}:${rank}:${fp}`
   const cached = cache.get(cacheKey)
@@ -136,10 +127,7 @@ function possibleSourceGroupsForSlot(slot: ThirdPlaceSlot): Set<GroupId> {
   return groups
 }
 
-function possibleThirdPlaceTeamIds(
-  slot: ThirdPlaceSlot,
-  results: Record<string, Result>,
-): Set<string> {
+function possibleThirdPlaceTeamIds(slot: ThirdPlaceSlot, results: Record<string, Result>): Set<string> {
   // When all groups are complete the slot is deterministic — use exact resolution.
   const resolved = resolveThirdPlaceSlot(slot, results)
   if (resolved) return new Set([resolved.id])

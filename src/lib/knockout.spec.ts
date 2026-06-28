@@ -12,11 +12,7 @@ import { resolveTeamRef, canEnterResult } from './knockout'
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeResult(
-  matchId: string,
-  homeGoals: number,
-  awayGoals: number,
-): Result {
+function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
   return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
 }
 

@@ -3,9 +3,7 @@
   "plansDirectory": ".claude/plans",
   "permissions": {
     "defaultMode": "acceptEdits",
-    "allow": [
-       "Bash(npm run *)"
-    ]
+    "allow": ["Bash(npm run *)"]
   },
   "statusLine": {
     "type": "command",

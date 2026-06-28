@@ -13,7 +13,8 @@ const ARIA: Record<MatchOutcome, string> = { W: 'Sieg', D: 'Unentschieden', L: '
     :class="`outcome-badge--${props.outcome.toLowerCase()}`"
     :aria-label="ARIA[props.outcome]"
     role="img"
-  >{{ LABELS[props.outcome] }}</span>
+    >{{ LABELS[props.outcome] }}</span
+  >
 </template>
 
 <style scoped>

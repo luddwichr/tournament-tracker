@@ -27,10 +27,7 @@ export interface TeamStat {
  * Compute the sorted group standings for `groupId` given the current `results`
  * map. Teams with no results played appear last, ordered by FIFA ranking.
  */
-export function computeGroupStandings(
-  groupId: GroupId,
-  results: Record<string, Result>,
-): TeamStat[] {
+export function computeGroupStandings(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
   const gTeams = teamsInGroup(groupId)
   const gMatches = groupMatches.filter((m) => m.group === groupId)
 

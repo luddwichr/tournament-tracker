@@ -31,12 +31,7 @@ const players = squads[props.team.id] ?? []
   </component>
 
   <Teleport to="body">
-    <SquadDialog
-      v-if="squadOpen"
-      :team="team"
-      :players="players"
-      @close="squadOpen = false"
-    />
+    <SquadDialog v-if="squadOpen" :team="team" :players="players" @close="squadOpen = false" />
   </Teleport>
 </template>
 

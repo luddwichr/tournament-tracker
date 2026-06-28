@@ -39,9 +39,7 @@ test('each group has exactly 4 team rows and 6 match buttons', async ({ page }) 
 })
 
 test('groups view has no detectable accessibility violations', async ({ page }) => {
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
 
   expect(results.violations).toEqual([])
 })
@@ -50,9 +48,7 @@ test('groups view has no detectable accessibility violations', async ({ page }) 
 // Match status badges
 // ---------------------------------------------------------------------------
 
-test('unresolved group matches show the "läuft" status badge (tournament is underway)', async ({
-  page,
-}) => {
+test('unresolved group matches show the "läuft" status badge (tournament is underway)', async ({ page }) => {
   // Freeze Date.now() to mid-tournament so all group kickoffs are in the past.
   // addInitScript runs before page scripts on each navigation.
   await page.addInitScript(() => {

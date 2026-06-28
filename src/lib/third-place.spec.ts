@@ -131,9 +131,7 @@ describe('resolveThirdPlaceSlot', () => {
 
   it('fills each slot with a distinct team', () => {
     const results = allGroupResults(1, 0)
-    const teams = ([1, 2, 3, 4, 5, 6, 7, 8] as const).map((slot) =>
-      resolveThirdPlaceSlot(slot, results),
-    )
+    const teams = ([1, 2, 3, 4, 5, 6, 7, 8] as const).map((slot) => resolveThirdPlaceSlot(slot, results))
     const ids = teams.map((t) => t!.id)
     expect(new Set(ids).size).toBe(8)
   })

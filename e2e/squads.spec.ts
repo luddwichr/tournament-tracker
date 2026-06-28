@@ -58,8 +58,6 @@ test('squad dialog has no accessibility violations', async ({ page }) => {
 
   await expect(page.getByRole('dialog')).toBeVisible()
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   expect(results.violations).toEqual([])
 })

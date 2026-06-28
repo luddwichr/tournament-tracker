@@ -102,9 +102,7 @@ test('all 16 R32 cards become enabled after all group results are entered', asyn
 // ScoreDialog interaction
 // ---------------------------------------------------------------------------
 
-test('clicking an enabled R32 card opens ScoreDialog with resolved team names', async ({
-  page,
-}) => {
+test('clicking an enabled R32 card opens ScoreDialog with resolved team names', async ({ page }) => {
   await page.evaluate(
     ([key, value]) => localStorage.setItem(key, value as string),
     [STORAGE_KEY, storedState(allGroupResults())],
@@ -246,22 +244,16 @@ test('saving a tied knockout result with penalty winner propagates bracket', asy
 
 test('knockout view has no detectable accessibility violations', async ({ page }) => {
   await page.goto('/knockout')
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   expect(results.violations).toEqual([])
 })
 
-test('knockout view with group results has no detectable accessibility violations', async ({
-  page,
-}) => {
+test('knockout view with group results has no detectable accessibility violations', async ({ page }) => {
   await page.evaluate(
     ([key, value]) => localStorage.setItem(key, value as string),
     [STORAGE_KEY, storedState(allGroupResults())],
   )
   await page.goto('/knockout')
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   expect(results.violations).toEqual([])
 })

@@ -38,9 +38,7 @@ test('each R32 card has a "Mögliche Teams" button when no results entered', asy
   await expect(buttons).toHaveCount(16)
 })
 
-test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({
-  page,
-}) => {
+test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({ page }) => {
   await page.evaluate(
     ([key, value]) => localStorage.setItem(key, value as string),
     [STORAGE_KEY, storedState(allGroupResults())],
@@ -59,7 +57,10 @@ test('clicking "Mögliche Teams" opens a dialog listing possible teams', async (
   await page.goto('/knockout')
   // Click the first "Mögliche Teams" button in the R32 round
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
@@ -68,7 +69,10 @@ test('clicking "Mögliche Teams" opens a dialog listing possible teams', async (
 test('the possible-teams dialog lists team names with flags', async ({ page }) => {
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
@@ -83,13 +87,14 @@ test('the possible-teams dialog lists team names with flags', async ({ page }) =
   await expect(firstItem.locator('.possible-teams-dialog__team-name')).not.toBeEmpty()
 })
 
-test('dialog shows teams from both group-rank upstream refs (groups A and B for M73)', async ({
-  page,
-}) => {
+test('dialog shows teams from both group-rank upstream refs (groups A and B for M73)', async ({ page }) => {
   // M73 is A2 vs B2. With no group results, all 4 teams from A and 4 from B are possible.
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
@@ -105,7 +110,10 @@ test('dialog shows teams from both group-rank upstream refs (groups A and B for 
 test('Escape closes the possible-teams dialog', async ({ page }) => {
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
@@ -116,7 +124,10 @@ test('Escape closes the possible-teams dialog', async ({ page }) => {
 test('close button (✕) closes the possible-teams dialog', async ({ page }) => {
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
   await expect(dialog).toBeVisible()
@@ -128,9 +139,7 @@ test('close button (✕) closes the possible-teams dialog', async ({ page }) => 
 // Partial results: partially-played bracket shows narrowed-down possible teams
 // ---------------------------------------------------------------------------
 
-test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches', async ({
-  page,
-}) => {
+test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches', async ({ page }) => {
   // Seed all group results so R32 is populated. Leave R32 unplayed so R16 slots
   // are still unresolved.
   await page.evaluate(
@@ -161,22 +170,19 @@ test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches
 test('possible-teams dialog has no accessibility violations', async ({ page }) => {
   await page.goto('/knockout')
   const r32Round = page.locator('.bracket-round').first()
-  await r32Round.getByRole('button', { name: /Mögliche Teams/ }).first().click()
+  await r32Round
+    .getByRole('button', { name: /Mögliche Teams/ })
+    .first()
+    .click()
 
   await expect(page.getByRole('dialog', { name: /Mögliche Teams/ })).toBeVisible()
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   expect(results.violations).toEqual([])
 })
 
-test('knockout view with possible-teams buttons has no accessibility violations', async ({
-  page,
-}) => {
+test('knockout view with possible-teams buttons has no accessibility violations', async ({ page }) => {
   await page.goto('/knockout')
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   expect(results.violations).toEqual([])
 })

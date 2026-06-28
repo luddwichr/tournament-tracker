@@ -47,12 +47,7 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
           </tr>
         </thead>
         <tbody>
-          <StandingsRow
-            v-for="(stat, idx) in standings"
-            :key="stat.team.id"
-            :stat="stat"
-            :rank="idx + 1"
-          />
+          <StandingsRow v-for="(stat, idx) in standings" :key="stat.team.id" :stat="stat" :rank="idx + 1" />
         </tbody>
       </table>
     </section>

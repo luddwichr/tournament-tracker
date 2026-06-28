@@ -33,12 +33,7 @@ onMounted(() => {
     <div class="possible-teams-dialog__inner">
       <header class="possible-teams-dialog__header">
         <h2 class="possible-teams-dialog__title">Mögliche Teams</h2>
-        <button
-          type="button"
-          class="possible-teams-dialog__close"
-          aria-label="Schließen"
-          @click="dialogEl?.close()"
-        >
+        <button type="button" class="possible-teams-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">
           &#x2715;
         </button>
       </header>
@@ -47,11 +42,7 @@ onMounted(() => {
         <section v-if="possibleHome.length > 0" class="possible-teams-dialog__section">
           <h3 class="possible-teams-dialog__section-title">{{ homeLabel }}</h3>
           <ul class="possible-teams-dialog__list" role="list">
-            <li
-              v-for="team in possibleHome"
-              :key="team.id"
-              class="possible-teams-dialog__item"
-            >
+            <li v-for="team in possibleHome" :key="team.id" class="possible-teams-dialog__item">
               <TeamFlag :flag-code="team.flagCode" :name="team.name" />
               <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
             </li>
@@ -61,11 +52,7 @@ onMounted(() => {
         <section v-if="possibleAway.length > 0" class="possible-teams-dialog__section">
           <h3 class="possible-teams-dialog__section-title">{{ awayLabel }}</h3>
           <ul class="possible-teams-dialog__list" role="list">
-            <li
-              v-for="team in possibleAway"
-              :key="team.id"
-              class="possible-teams-dialog__item"
-            >
+            <li v-for="team in possibleAway" :key="team.id" class="possible-teams-dialog__item">
               <TeamFlag :flag-code="team.flagCode" :name="team.name" />
               <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
             </li>

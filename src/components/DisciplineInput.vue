@@ -24,14 +24,18 @@ function dec(current: number, setter: (v: number) => void): void {
               class="discipline-input__step"
               aria-label="Gelbe Karte Heim abziehen"
               @click="dec(homeYellow, (v) => (homeYellow = v))"
-            >−</button>
+            >
+              −
+            </button>
             <span class="discipline-input__value" aria-live="polite">{{ homeYellow }}</span>
             <button
               type="button"
               class="discipline-input__step"
               aria-label="Gelbe Karte Heim hinzufügen"
               @click="homeYellow = homeYellow + 1"
-            >+</button>
+            >
+              +
+            </button>
           </div>
         </div>
         <div class="discipline-input__row">
@@ -42,14 +46,18 @@ function dec(current: number, setter: (v: number) => void): void {
               class="discipline-input__step"
               aria-label="Rote Karte Heim abziehen"
               @click="dec(homeRed, (v) => (homeRed = v))"
-            >−</button>
+            >
+              −
+            </button>
             <span class="discipline-input__value" aria-live="polite">{{ homeRed }}</span>
             <button
               type="button"
               class="discipline-input__step"
               aria-label="Rote Karte Heim hinzufügen"
               @click="homeRed = homeRed + 1"
-            >+</button>
+            >
+              +
+            </button>
           </div>
         </div>
       </div>
@@ -64,14 +72,18 @@ function dec(current: number, setter: (v: number) => void): void {
               class="discipline-input__step"
               aria-label="Gelbe Karte Gast abziehen"
               @click="dec(awayYellow, (v) => (awayYellow = v))"
-            >−</button>
+            >
+              −
+            </button>
             <span class="discipline-input__value" aria-live="polite">{{ awayYellow }}</span>
             <button
               type="button"
               class="discipline-input__step"
               aria-label="Gelbe Karte Gast hinzufügen"
               @click="awayYellow = awayYellow + 1"
-            >+</button>
+            >
+              +
+            </button>
           </div>
         </div>
         <div class="discipline-input__row">
@@ -82,14 +94,18 @@ function dec(current: number, setter: (v: number) => void): void {
               class="discipline-input__step"
               aria-label="Rote Karte Gast abziehen"
               @click="dec(awayRed, (v) => (awayRed = v))"
-            >−</button>
+            >
+              −
+            </button>
             <span class="discipline-input__value" aria-live="polite">{{ awayRed }}</span>
             <button
               type="button"
               class="discipline-input__step"
               aria-label="Rote Karte Gast hinzufügen"
               @click="awayRed = awayRed + 1"
-            >+</button>
+            >
+              +
+            </button>
           </div>
         </div>
       </div>

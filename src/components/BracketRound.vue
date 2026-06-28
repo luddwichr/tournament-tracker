@@ -40,10 +40,7 @@ const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
           :away-placeholder="row.awayPlaceholder"
           @click="emit('matchClick', row.match)"
         />
-        <PossibleTeamsButton
-          v-if="!row.homeTeam || !row.awayTeam"
-          :match="row.match"
-        />
+        <PossibleTeamsButton v-if="!row.homeTeam || !row.awayTeam" :match="row.match" />
       </template>
     </div>
   </section>

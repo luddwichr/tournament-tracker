@@ -32,14 +32,10 @@ test('results persist across page reload', async ({ page }) => {
   )
 
   await page.goto('/groups')
-  await expect(
-    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
 
   await page.reload()
-  await expect(
-    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
 })
 
 test('Exportieren downloads a valid JSON file', async ({ page }) => {
@@ -86,9 +82,7 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
 
   // Verify reset cleared results
   await page.goto('/groups')
-  await expect(
-    page.getByRole('button', { name: 'Mexiko – Südafrika: Ergebnis eingeben' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko – Südafrika: Ergebnis eingeben' })).toBeVisible()
 
   // Step 3: Import — upload file, then confirm in the custom dialog
   await page.goto('/settings')
@@ -112,9 +106,7 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
 
   // Verify results are restored
   await page.goto('/groups')
-  await expect(
-    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
 })
 
 test('Abbrechen on reset dialog leaves results intact', async ({ page }) => {
@@ -128,9 +120,7 @@ test('Abbrechen on reset dialog leaves results intact', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
 
   await page.goto('/groups')
-  await expect(
-    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
 })
 
 test('Abbrechen on import dialog leaves results intact', async ({ page }) => {
@@ -149,9 +139,7 @@ test('Abbrechen on import dialog leaves results intact', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
 
   await page.goto('/groups')
-  await expect(
-    page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
 })
 
 test('confirm dialog has no detectable accessibility violations', async ({ page }) => {
@@ -159,9 +147,7 @@ test('confirm dialog has no detectable accessibility violations', async ({ page 
   await page.getByRole('button', { name: 'Zurücksetzen' }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
 
   expect(results.violations).toEqual([])
 })
@@ -196,9 +182,7 @@ test('Importieren with wrong version shows error', async ({ page }) => {
 test('settings page has no detectable accessibility violations', async ({ page }) => {
   await page.goto('/settings')
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze()
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
 
   expect(results.violations).toEqual([])
 })

@@ -31,12 +31,7 @@ onMounted(() => {
           <TeamFlag :flag-code="team.flagCode" :name="team.name" />
           <h2 class="squad-dialog__title">{{ team.name }}</h2>
         </div>
-        <button
-          type="button"
-          class="squad-dialog__close"
-          aria-label="Schließen"
-          @click="dialogEl?.close()"
-        >✕</button>
+        <button type="button" class="squad-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
       </header>
 
       <div class="squad-dialog__body" tabindex="0">

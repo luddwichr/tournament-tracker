@@ -4,9 +4,7 @@ import ConfirmDialog from './ConfirmDialog.vue'
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (
-    this: HTMLDialogElement,
-  ) {
+  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
     this.dispatchEvent(new Event('close'))
   })
 })

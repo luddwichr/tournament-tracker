@@ -32,10 +32,7 @@ function h2hMatchesBetween(teams: readonly Team[], matches: readonly MatchSlot[]
   const ids = new Set(teams.map((t) => t.id))
   return matches.filter(
     (m) =>
-      m.homeRef.kind === 'team' &&
-      m.awayRef.kind === 'team' &&
-      ids.has(m.homeRef.teamId) &&
-      ids.has(m.awayRef.teamId),
+      m.homeRef.kind === 'team' && m.awayRef.kind === 'team' && ids.has(m.homeRef.teamId) && ids.has(m.awayRef.teamId),
   )
 }
 
@@ -44,9 +41,7 @@ function computeH2HStats(
   h2hMatches: readonly MatchSlot[],
   results: Record<string, Result>,
 ): Map<string, H2HStat> {
-  const map = new Map<string, H2HStat>(
-    teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]),
-  )
+  const map = new Map<string, H2HStat>(teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]))
 
   for (const match of h2hMatches) {
     const result = results[match.id]
