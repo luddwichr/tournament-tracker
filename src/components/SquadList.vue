@@ -14,7 +14,7 @@ const POSITION_LABEL: Record<string, string> = {
 const POSITION_ORDER: Record<string, number> = { GK: 0, DF: 1, MF: 2, FW: 3 }
 
 const sorted = computed(() =>
-  [...props.players].sort((a, b) => {
+  props.players.toSorted((a, b) => {
     const pa = POSITION_ORDER[a.position ?? ''] ?? 99
     const pb = POSITION_ORDER[b.position ?? ''] ?? 99
     return pa !== pb ? pa - pb : a.number - b.number

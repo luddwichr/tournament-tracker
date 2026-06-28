@@ -36,6 +36,15 @@ function ariaLabel(): string {
   }
   return `${home} – ${away}: Ergebnis eingeben`
 }
+
+// Only fire card activation when the card div itself has focus, not when a
+// child button (TeamLabel, placeholder) bubbles its keydown event up here.
+function onCardKeydown(e: KeyboardEvent) {
+  if (e.target !== e.currentTarget) return
+  if (blocked.value) return
+  e.preventDefault()
+  emit('click')
+}
 </script>
 
 <template>
@@ -47,8 +56,8 @@ function ariaLabel(): string {
     :aria-label="ariaLabel()"
     :aria-disabled="blocked ? 'true' : undefined"
     @click="!blocked && emit('click')"
-    @keydown.enter.prevent="!blocked && emit('click')"
-    @keydown.space.prevent="!blocked && emit('click')"
+    @keydown.enter="onCardKeydown"
+    @keydown.space="onCardKeydown"
   >
     <div class="match-card__meta">
       <time class="match-card__kickoff" :datetime="match.kickoff">
@@ -56,14 +65,11 @@ function ariaLabel(): string {
       </time>
     </div>
     <div class="match-card__body">
-      <span class="match-card__team match-card__team--home">
+      <span class="match-card__team match-card__team--home" @click.stop>
         <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
-        <button
-          v-else
-          type="button"
-          class="match-card__placeholder"
-          @click.stop="emit('placeholderClick')"
-        >{{ homePlaceholder ?? '?' }}</button>
+        <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
+          {{ homePlaceholder ?? '?' }}
+        </button>
       </span>
 
       <span class="match-card__score" aria-hidden="true">
@@ -77,14 +83,11 @@ function ariaLabel(): string {
         </template>
       </span>
 
-      <span class="match-card__team match-card__team--away">
+      <span class="match-card__team match-card__team--away" @click.stop>
         <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
-        <button
-          v-else
-          type="button"
-          class="match-card__placeholder"
-          @click.stop="emit('placeholderClick')"
-        >{{ awayPlaceholder ?? '?' }}</button>
+        <button v-else type="button" class="match-card__placeholder" @click="emit('placeholderClick')">
+          {{ awayPlaceholder ?? '?' }}
+        </button>
       </span>
     </div>
   </div>
@@ -150,7 +153,6 @@ function ariaLabel(): string {
   display: flex;
   align-items: center;
   min-width: 0;
-  overflow: hidden;
 }
 
 .match-card__team :deep(.team-label) {

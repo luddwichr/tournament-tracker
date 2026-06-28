@@ -90,57 +90,51 @@ function handleCancel(): void {
     <h1>Einstellungen</h1>
 
     <div class="settings-view__sections">
-    <section class="settings-view__section">
-      <h2>Erscheinungsbild</h2>
+      <section class="settings-view__section">
+        <h2>Erscheinungsbild</h2>
 
-      <fieldset class="settings-view__theme-picker">
-        <legend class="visually-hidden">Design</legend>
-        <div class="settings-view__theme-options" role="group">
-          <label
-            v-for="t in themes"
-            :key="t.value"
-            class="settings-view__theme-option"
-            :class="{ 'settings-view__theme-option--active': settings.theme === t.value }"
-          >
-            <input
-              type="radio"
-              name="theme"
-              :value="t.value"
-              v-model="settings.theme"
-              class="visually-hidden"
-            />
-            <span aria-hidden="true">{{ t.icon }}</span>
-            {{ t.label }}
-          </label>
+        <fieldset class="settings-view__theme-picker">
+          <legend class="visually-hidden">Design</legend>
+          <div class="settings-view__theme-options" role="group">
+            <label
+              v-for="t in themes"
+              :key="t.value"
+              class="settings-view__theme-option"
+              :class="{ 'settings-view__theme-option--active': settings.theme === t.value }"
+            >
+              <input type="radio" name="theme" :value="t.value" v-model="settings.theme" class="visually-hidden" />
+              <span aria-hidden="true">{{ t.icon }}</span>
+              {{ t.label }}
+            </label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="settings-view__section">
+        <h2>Daten</h2>
+
+        <div class="settings-view__actions">
+          <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
+          <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
+          <button type="button" class="settings-view__btn settings-view__btn--danger" @click="handleReset">
+            Zurücksetzen
+          </button>
         </div>
-      </fieldset>
-    </section>
 
-    <section class="settings-view__section">
-      <h2>Daten</h2>
+        <p v-if="importError" class="settings-view__error" role="alert">
+          {{ importError }}
+        </p>
 
-      <div class="settings-view__actions">
-        <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
-        <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
-        <button type="button" class="settings-view__btn settings-view__btn--danger" @click="handleReset">
-          Zurücksetzen
-        </button>
-      </div>
-
-      <p v-if="importError" class="settings-view__error" role="alert">
-        {{ importError }}
-      </p>
-
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".json,application/json"
-        class="visually-hidden"
-        aria-hidden="true"
-        tabindex="-1"
-        @change="handleFileChange"
-      />
-    </section>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".json,application/json"
+          class="visually-hidden"
+          aria-hidden="true"
+          tabindex="-1"
+          @change="handleFileChange"
+        />
+      </section>
     </div>
   </main>
 

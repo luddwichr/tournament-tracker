@@ -29,12 +29,15 @@ onMounted(() => {
       <header class="squad-dialog__header">
         <div class="squad-dialog__team-heading">
           <TeamFlag :flag-code="team.flagCode" :name="team.name" />
-          <h2 class="squad-dialog__title">{{ team.name }}</h2>
+          <div>
+            <h2 class="squad-dialog__title">{{ team.name }}</h2>
+            <p class="squad-dialog__ranking">FIFA-Ranking: {{ team.fifaRanking }}</p>
+          </div>
         </div>
         <button type="button" class="squad-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
       </header>
 
-      <div class="squad-dialog__body" tabindex="0">
+      <div class="squad-dialog__body">
         <SquadList :players="players" />
       </div>
     </div>
@@ -88,6 +91,12 @@ onMounted(() => {
   font-size: var(--font-size-lg);
   font-weight: 700;
   line-height: 1.2;
+}
+
+.squad-dialog__ranking {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .squad-dialog__close {

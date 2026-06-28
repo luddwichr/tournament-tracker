@@ -42,7 +42,10 @@ const rounds = computed((): Round[] => {
 
   const groups: Round[] = stageRounds.map(({ title, stage }) => ({
     title,
-    matches: knockoutMatches.filter((m) => m.stage === stage).map((m) => toRow(m)),
+    matches: knockoutMatches
+      .filter((m) => m.stage === stage)
+      .toSorted((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+      .map((m) => toRow(m)),
   }))
 
   const thirdMatch = knockoutMatches.find((m) => m.stage === 'third')!
@@ -244,13 +247,7 @@ function onTeamRefHoverEnd() {
 </script>
 
 <template>
-  <div
-    ref="bracketViewEl"
-    class="bracket-view"
-    role="region"
-    aria-label="K.-o.-Runde"
-    tabindex="0"
-  >
+  <div ref="bracketViewEl" class="bracket-view" role="region" aria-label="K.-o.-Runde" tabindex="0">
     <div ref="roundsEl" class="bracket-view__rounds">
       <OriginColumn
         :highlighted-refs="highlightedRefKeys"
@@ -268,12 +265,7 @@ function onTeamRefHoverEnd() {
         @match-hover-end="onMatchHoverEnd"
       />
       <svg class="bracket-view__connectors" aria-hidden="true">
-        <path
-          v-for="(path, i) in connectorPaths"
-          :key="i"
-          :d="path"
-          class="bracket-view__connector"
-        />
+        <path v-for="(path, i) in connectorPaths" :key="i" :d="path" class="bracket-view__connector" />
       </svg>
     </div>
   </div>

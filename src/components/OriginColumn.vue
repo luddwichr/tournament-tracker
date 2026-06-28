@@ -89,8 +89,7 @@ const groupData = computed(() =>
           class="origin-column__team-row"
           :class="{
             'origin-column__team-row--third': row.rank === 3,
-            'origin-column__team-row--highlighted':
-              row.refKey !== null && highlightedRefs?.includes(row.refKey),
+            'origin-column__team-row--highlighted': row.refKey !== null && highlightedRefs?.includes(row.refKey),
             'origin-column__team-row--eliminated': row.eliminated,
             'origin-column__team-row--no-link': !row.refKey,
           }"
