@@ -52,9 +52,6 @@ directly against the source (noted inline as _verified_).
 
 ### Minor
 
-- **Dead components (YAGNI).** `OutcomeBadge.vue` and `PagePlaceholder.vue` are imported
-  nowhere (_verified_; `PagePlaceholder`'s own comment says "Temporary scaffold"). They
-  add test/CSS surface for nothing — delete them.
 - **`AppNav.vue:8-13` duplicates router metadata** — hard-codes `to`+`label` that already
   exist as route `path`+`meta.title` in `router.ts`. Derive nav entries from the router.
 - **`MatchCard.vue`**: `kickoffFmt` builds a fresh `Intl.DateTimeFormat` per card instance
@@ -223,15 +220,10 @@ directly against the source (noted inline as _verified_).
 
 ### Minor
 
-- **Dead CSS** ships with the unused `OutcomeBadge.vue`/`PagePlaceholder.vue` (the latter
-  is the only consumer of `--font-size-xl`).
-- **Unused tokens:** `--radius-full`, `--font-size-2xl`, `--space-8` are referenced by zero
-  components.
 - **`!important` to dodge specificity** in `GroupTable.vue:128-129`, `RankingView.vue:132,136`.
 - **Fragile alignment hack:** `ScoreInput.vue:137 padding-top:1.8rem` to nudge the `:`
   separator — use baseline alignment.
-- **Off-scale typography:** `OutcomeBadge.vue:28 font-size:0.75rem` (below the smallest
-  token); raw `line-height:1.2` overrides and raw weights (`500/600/700`, 38×) with no
+- **Off-scale typography:** raw `line-height:1.2` overrides and raw weights (`500/600/700`, 38×) with no
   weight tokens.
 - **Unscaled `z-index` magic numbers** (`1`, `10`, `100`) — add a `--z-*` scale before a
   4th layer appears.
@@ -242,8 +234,8 @@ directly against the source (noted inline as _verified_).
 
 ### Critical
 
-- **The UI layer is essentially untested.** Only `AppNav` and `ConfirmDialog` have specs.
-  17/19 components and all 4 views have none — including logic-bearing
+- **The UI layer is essentially untested.** Only `AppNav`, `ConfirmDialog`, and `StepperInput` have specs.
+  14/17 components and all 4 views have none — including logic-bearing
   `ScoreDialog`/`DisciplineInput` (card entry, penalty gating), `GroupTable`/`StandingsRow`,
   `PossibleTeamsDialog`, `BracketView`. Both stores and both composables have zero unit
   tests. All UI confidence rests on the (apparently unrun) e2e.
@@ -298,7 +290,7 @@ directly against the source (noted inline as _verified_).
 | `stores/tournament.ts` | e2e only | …which may not run |
 | `stores/settings.ts` | None | Theme untested |
 | `composables/*` | None | scroll-lock ref-counting & announce untested |
-| 17 components + 4 views | Mostly none | Only AppNav/ConfirmDialog have specs |
+| 15 components + 4 views | Mostly none | Only AppNav/ConfirmDialog/StepperInput have specs |
 
 ---
 
@@ -307,15 +299,11 @@ directly against the source (noted inline as _verified_).
 - **Documentation/code drift.** The `tokens.css` "components never hardcode raw values"
   claim (§4) is still false. Self-documenting code is undermined when comments assert
   invariants the implementation doesn't hold — prefer fewer comments that are true.
-- **Dead code accumulating.** `OutcomeBadge.vue`, `PagePlaceholder.vue`, and a committed
-  stale `coverage/` report referencing a deleted module point to a missing "delete it when
-  it dies" discipline.
+- **Dead code accumulating.** A stale `coverage/` report was committed alongside deleted modules — enforce a "delete it when it dies" discipline going forward.
 - **CI gap (inferred).** No coverage threshold and no evidence the e2e suite gates merges.
   Wiring `test:unit` + `test:e2e` + `typecheck` + `lint` into CI is the highest-leverage
   process change available.
-- **Recurring duplication theme.** The same anti-pattern repeats at every layer: the stepper
-  (×6 components), button CSS (×3), cluster-by-criteria logic (×3), `isGroupComplete` (×2),
-  theme tokens (×4). Card surface is now extracted; the rest still need a pass.
+- **Recurring duplication theme.** The same anti-pattern repeats at every layer: button CSS (×3), cluster-by-criteria logic (×3), `isGroupComplete` (×2), theme tokens (×4). The rest still need a pass.
 
 ---
 
