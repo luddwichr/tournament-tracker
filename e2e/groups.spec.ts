@@ -3,8 +3,6 @@ import AxeBuilder from '@axe-core/playwright'
 import { teams } from '../src/data/teams'
 import { GROUP_IDS } from '../src/types/tournament'
 
-const STORAGE_KEY = 'wc2026:results:v1'
-
 test.beforeEach(async ({ page }) => {
   await page.goto('/groups')
   await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
