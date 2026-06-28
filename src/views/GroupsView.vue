@@ -20,7 +20,9 @@ import GroupTable from '../components/GroupTable.vue'
 
 .groups-view__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  /* min(360px,100%) prevents the column from exceeding the container width on
+     narrow viewports, avoiding a page-level horizontal scrollbar. */
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   gap: var(--space-4);
 }
 </style>

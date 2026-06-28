@@ -85,7 +85,9 @@ function ariaLabel(): string {
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   background-color: var(--color-bg);
-  border: 2px solid transparent;
+  /* Upcoming matches get a faint border so they're visually distinct from the
+     surface background; played matches use full border-color opacity. */
+  border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
   cursor: pointer;
   text-align: left;
   width: 100%;
