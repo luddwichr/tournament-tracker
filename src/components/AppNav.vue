@@ -50,6 +50,7 @@ const links: NavLink[] = [
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   font-weight: 600;
+  background-color: var(--color-bg);
 }
 
 .app-nav__icon {
