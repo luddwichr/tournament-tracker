@@ -8,6 +8,7 @@ interface NavLink {
 const links: NavLink[] = [
   { to: '/groups', label: 'Gruppen', icon: '🏟️' },
   { to: '/knockout', label: 'K.-o.-Runde', icon: '🏆' },
+  { to: '/ranking', label: 'Weltrangliste', icon: '🌍' },
   { to: '/settings', label: 'Einstellungen', icon: '⚙️' },
 ]
 </script>

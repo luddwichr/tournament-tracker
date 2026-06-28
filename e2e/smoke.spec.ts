@@ -7,12 +7,16 @@ test('app shell loads and redirects to the groups view', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
 })
 
-test('main navigation reaches all three routes', async ({ page }) => {
+test('main navigation reaches all routes', async ({ page }) => {
   await page.goto('/')
 
   await page.getByRole('link', { name: 'K.-o.-Runde' }).click()
   await expect(page).toHaveURL(/\/knockout$/)
   await expect(page.getByRole('heading', { level: 1, name: 'K.-o.-Runde' })).toBeVisible()
+
+  await page.getByRole('link', { name: 'Weltrangliste' }).click()
+  await expect(page).toHaveURL(/\/ranking$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'FIFA-Weltrangliste' })).toBeVisible()
 
   await page.getByRole('link', { name: 'Einstellungen' }).click()
   await expect(page).toHaveURL(/\/settings$/)

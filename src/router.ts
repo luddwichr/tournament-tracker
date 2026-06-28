@@ -24,6 +24,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'K.-o.-Runde' },
   },
   {
+    path: '/ranking',
+    name: 'ranking',
+    component: () => import('./views/RankingView.vue'),
+    meta: { title: 'Weltrangliste' },
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('./views/SettingsView.vue'),
