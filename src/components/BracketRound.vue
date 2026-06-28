@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { resolveTeamRef } from '../lib/knockout'
-import { possibleTeamsFor } from '../lib/possible-teams'
-import { teamRefLabel } from '../lib/bracket-labels'
 import MatchCard from './MatchCard.vue'
-import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 
 export interface MatchRow {
   match: MatchSlot
@@ -28,44 +22,8 @@ const emit = defineEmits<{
   matchClick: [match: MatchSlot]
   matchHover: [matchId: string]
   matchHoverEnd: []
+  placeholderClick: [match: MatchSlot, slot: 'home' | 'away']
 }>()
-
-const store = useTournamentStore()
-const possibleTeamsMatch = ref<MatchSlot | null>(null)
-const possibleTeamsSlot = ref<'home' | 'away' | null>(null)
-
-const ptHomeTeam = computed(() =>
-  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.homeRef, store.results) : null,
-)
-const ptAwayTeam = computed(() =>
-  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.awayRef, store.results) : null,
-)
-const possibleHome = computed((): Team[] =>
-  possibleTeamsMatch.value && possibleTeamsSlot.value === 'home' && !ptHomeTeam.value
-    ? [...possibleTeamsFor(possibleTeamsMatch.value.homeRef, store.results)]
-    : [],
-)
-const possibleAway = computed((): Team[] =>
-  possibleTeamsMatch.value && possibleTeamsSlot.value === 'away' && !ptAwayTeam.value
-    ? [...possibleTeamsFor(possibleTeamsMatch.value.awayRef, store.results)]
-    : [],
-)
-const homeLabel = computed(() =>
-  possibleTeamsMatch.value ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef)) : '',
-)
-const awayLabel = computed(() =>
-  possibleTeamsMatch.value ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef)) : '',
-)
-
-function openPossibleTeams(match: MatchSlot, slot: 'home' | 'away'): void {
-  possibleTeamsMatch.value = match
-  possibleTeamsSlot.value = slot
-}
-
-function closePossibleTeams(): void {
-  possibleTeamsMatch.value = null
-  possibleTeamsSlot.value = null
-}
 </script>
 
 <template>
@@ -93,23 +51,12 @@ function closePossibleTeams(): void {
             :home-placeholder="row.homePlaceholder"
             :away-placeholder="row.awayPlaceholder"
             @click="emit('matchClick', row.match)"
-            @placeholder-click="(slot) => openPossibleTeams(row.match, slot)"
+            @placeholder-click="(slot) => emit('placeholderClick', row.match, slot)"
           />
         </div>
       </template>
     </div>
   </section>
-
-  <Teleport to="body">
-    <PossibleTeamsDialog
-      v-if="possibleTeamsMatch"
-      :home-label="homeLabel"
-      :away-label="awayLabel"
-      :possible-home="possibleHome"
-      :possible-away="possibleAway"
-      @close="closePossibleTeams"
-    />
-  </Teleport>
 </template>
 
 <style scoped>

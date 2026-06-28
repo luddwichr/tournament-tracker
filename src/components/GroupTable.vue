@@ -20,8 +20,8 @@ const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
 const selectedMatch = ref<MatchSlot | null>(null)
 
-function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
-  if (ref.kind === 'team') return teamsById.get(ref.teamId) ?? null
+function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
+  if (teamRef.kind === 'team') return teamsById.get(teamRef.teamId) ?? null
   return null
 }
 </script>

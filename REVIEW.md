@@ -11,45 +11,6 @@ directly against the source (noted inline as _verified_).
 
 ## 1. Vue Components & Composables
 
-### Critical
-
-- **`BracketView.vue` is a god component** (306 lines) mixing two unrelated
-  responsibilities: tournament data assembly (`toRow`, `rounds`, four lookup maps,
-  highlight derivation) **and** raw DOM geometry (`getBoundingClientRect`/`scrollLeft`
-  SVG path math in `makePath`/`makeOriginPath`/`buildAllPaths`, lines 146-216). The data
-  half can't be unit-tested without a DOM; the geometry half can't be reused. **Fix:**
-  extract a `useBracketConnectors(roundsEl, viewEl)` composable for the geometry; leave
-  `BracketView` to wire rounds + events.
-
-### Major
-
-- **Unnecessary reactivity over static data.** In `BracketView.vue`, `nextMatchMap` (63),
-  `prevMatchMap` (73), `teamRefToMatchId` (91) and `matchToRefKeys` (103) are `computed`
-  but depend only on the frozen static import `knockoutMatches`. They set up reactive
-  effects that can never re-fire. **Fix:** make them plain module-level constants computed
-  once.
-
-- **Cargo-cult reactivity hack.** `BracketView.vue:33-34`:
-  `const r = store.results; void r // ensure reactivity`. `toRow` already reads
-  `store.results[match.id]` synchronously in the same computed, so the dependency is
-  tracked. Delete both lines and the comment.
-
-- **Name shadowing.** `BracketView.vue:149,175` declare a local DOM element `const rounds`
-  that shadows the module-level `rounds` _data_ computed (line 32) — same identifier, two
-  meanings in one file. Several functions also name a `TeamRef` parameter `ref`
-  (`r32RefKey`, `GroupTable.vue:23 resolveTeam`), shadowing Vue's imported `ref`. Rename
-  to `roundsContainer` / `teamRef`.
-
-- **Duplicated path builders.** `makePath` (146) and `makeOriginPath` (172) in
-  `BracketView.vue` are ~95% identical, differing only in how `fromEl` is located.
-  Collapse to one `connectorBetween(fromEl, toEl)` helper.
-
-- **`BracketRound.vue` re-derives data it was handed.** Each `MatchRow` already carries
-  resolved teams/placeholders, yet `BracketRound:36-57` re-imports the store and re-runs
-  `resolveTeamRef`/`teamRefLabel`, and owns the possible-teams dialog + business logic. A
-  presentational "round column" reaching into the store. **Fix:** lift the dialog to
-  `BracketView` (which owns the store) and emit a `placeholderClick`.
-
 ### Minor
 
 - **`AppNav.vue:8-13` duplicates router metadata** — hard-codes `to`+`label` that already
@@ -299,11 +260,10 @@ directly against the source (noted inline as _verified_).
 - **Documentation/code drift.** The `tokens.css` "components never hardcode raw values"
   claim (§4) is still false. Self-documenting code is undermined when comments assert
   invariants the implementation doesn't hold — prefer fewer comments that are true.
-- **Dead code accumulating.** A stale `coverage/` report was committed alongside deleted modules — enforce a "delete it when it dies" discipline going forward.
 - **CI gap (inferred).** No coverage threshold and no evidence the e2e suite gates merges.
   Wiring `test:unit` + `test:e2e` + `typecheck` + `lint` into CI is the highest-leverage
   process change available.
-- **Recurring duplication theme.** The same anti-pattern repeats at every layer: button CSS (×3), cluster-by-criteria logic (×3), `isGroupComplete` (×2), theme tokens (×4). The rest still need a pass.
+- **Recurring duplication theme.** The same anti-pattern repeats at every layer: button CSS (×3), cluster-by-criteria logic (×3), `isGroupComplete` (×2), theme tokens (×4).
 
 ---
 
