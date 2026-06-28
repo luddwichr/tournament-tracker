@@ -20,25 +20,7 @@ import GroupTable from '../components/GroupTable.vue'
 
 .groups-view__grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: var(--space-4);
-}
-
-@media (min-width: 640px) {
-  .groups-view__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 960px) {
-  .groups-view__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .groups-view__grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 </style>

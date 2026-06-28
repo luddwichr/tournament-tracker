@@ -155,20 +155,20 @@ function ariaLabel(): string {
 }
 
 .match-card__score-value {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .match-card__score-sep {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   line-height: 1;
 }
 
 .match-card__score-dash {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 

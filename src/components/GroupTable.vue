@@ -16,6 +16,7 @@ const store = useTournamentStore()
 const matches = groupMatches.filter((m) => m.group === props.groupId)
 
 const standings = computed(() => computeGroupStandings(props.groupId, store.results))
+const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
 const selectedMatch = ref<MatchSlot | null>(null)
 
@@ -47,7 +48,13 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
           </tr>
         </thead>
         <tbody>
-          <StandingsRow v-for="(stat, idx) in standings" :key="stat.team.id" :stat="stat" :rank="idx + 1" />
+          <StandingsRow
+            v-for="(stat, idx) in standings"
+            :key="stat.team.id"
+            :stat="stat"
+            :rank="idx + 1"
+            :group-done="groupDone"
+          />
         </tbody>
       </table>
     </section>
@@ -78,7 +85,8 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
 .group-table {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
@@ -122,7 +130,7 @@ function resolveTeam(ref: MatchSlot['homeRef']): Team | null {
 }
 
 .standings-table__num-col {
-  min-width: 2rem;
+  min-width: 1.25rem;
 }
 
 .group-table__matches {
