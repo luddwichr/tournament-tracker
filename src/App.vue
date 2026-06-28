@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, provide } from 'vue'
+import { ref, watch, watchEffect, nextTick, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import { announceKey } from './composables/use-announce'
+import { useSettingsStore } from './stores/settings'
+
+const settings = useSettingsStore()
+watchEffect(() => {
+  document.documentElement.dataset.theme = settings.theme
+})
 
 const route = useRoute()
 const mainRef = ref<HTMLElement | null>(null)

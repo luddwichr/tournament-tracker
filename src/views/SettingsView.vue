@@ -2,10 +2,18 @@
 import { ref, computed } from 'vue'
 import type { Result } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
+import { useSettingsStore } from '../stores/settings'
+import type { Theme } from '../stores/settings'
 import { exportJson, parseImport } from '../lib/persistence'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const store = useTournamentStore()
+const settings = useSettingsStore()
+
+const themes: { value: Theme; label: string; icon: string }[] = [
+  { value: 'light', label: 'Hell', icon: '☀️' },
+  { value: 'dark', label: 'Dunkel', icon: '🌙' },
+]
 const fileInput = ref<HTMLInputElement | null>(null)
 const importError = ref<string | null>(null)
 const pendingAction = ref<'import' | 'reset' | null>(null)
@@ -81,6 +89,33 @@ function handleCancel(): void {
   <main class="settings-view">
     <h1>Einstellungen</h1>
 
+    <div class="settings-view__sections">
+    <section class="settings-view__section">
+      <h2>Erscheinungsbild</h2>
+
+      <fieldset class="settings-view__theme-picker">
+        <legend class="visually-hidden">Design</legend>
+        <div class="settings-view__theme-options" role="group">
+          <label
+            v-for="t in themes"
+            :key="t.value"
+            class="settings-view__theme-option"
+            :class="{ 'settings-view__theme-option--active': settings.theme === t.value }"
+          >
+            <input
+              type="radio"
+              name="theme"
+              :value="t.value"
+              v-model="settings.theme"
+              class="visually-hidden"
+            />
+            <span aria-hidden="true">{{ t.icon }}</span>
+            {{ t.label }}
+          </label>
+        </div>
+      </fieldset>
+    </section>
+
     <section class="settings-view__section">
       <h2>Daten</h2>
 
@@ -106,6 +141,7 @@ function handleCancel(): void {
         @change="handleFileChange"
       />
     </section>
+    </div>
   </main>
 
   <ConfirmDialog
@@ -127,6 +163,12 @@ function handleCancel(): void {
 
 h1 {
   margin-block-end: var(--space-6);
+}
+
+.settings-view__sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
 }
 
 .settings-view__section {
@@ -176,5 +218,52 @@ h2 {
 
 .settings-view__btn--danger:hover {
   background: color-mix(in srgb, var(--color-loss) 10%, transparent);
+}
+
+.settings-view__theme-picker {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settings-view__theme-options {
+  display: flex;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.settings-view__theme-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  border-inline-end: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.settings-view__theme-option:last-child {
+  border-inline-end: none;
+}
+
+.settings-view__theme-option--active {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.settings-view__theme-option:hover:not(.settings-view__theme-option--active) {
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 </style>
