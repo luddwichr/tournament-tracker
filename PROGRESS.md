@@ -15,7 +15,64 @@ ends with a runnable app + green tests.
 | M8 — PWA                                   | ✅ Done        | vite-plugin-pwa Workbox precache, icons, offline e2e tests |
 | M9 — Polish                                | ✅ Done        | Status badges, penalty winner, aria-label fix, contrast fix |
 | M10 — Squad viewer                         | ✅ Done        | squads.ts (48×26), SquadDialog, SquadList, TeamLabel clickable |
-| M11 — Possible matchups (headline feature) | ⏳ Not started |                                                            |
+| M11 — Possible matchups (headline feature) | ✅ Done        | possible-teams.ts, PossibleTeamsButton/Dialog, BracketRound wired |
+
+## M11 — Possible matchups (completed 2026-06-28)
+
+Delivered:
+
+- `src/lib/possible-teams.ts` — `possibleTeamsFor(ref, results): Set<Team>` enumerates
+  every team that could still fill an unresolved `TeamRef`.
+
+  - **`groupRank`**: iterates plausible score combos for remaining group matches,
+    collecting every team that can achieve the target rank in at least one scenario.
+    Score range is adaptive: 0–6 per side for ≤3 remaining matches (≤117k combos),
+    narrowing to 0–2 per side for 6 remaining (≤531k combos). Early-exit as soon as
+    all teams in the group have been found at the target rank. Memoized per
+    `(group, rank, result-fingerprint)` — subsequent calls with same inputs are O(1).
+  - **`thirdPlace`**: when all groups complete, delegates to `resolveThirdPlaceSlot`
+    for exact resolution (1 team). When some groups are incomplete, approximates by
+    scanning the 495-entry Annex C allocation table for all groups that could be source
+    groups for the slot, then collecting rank-3 candidates from those groups.
+  - **`matchWinner` / `matchLoser`**: if the match is played, delegates to `resolveTeamRef`
+    for an exact answer. If unplayed, returns the union of possible home and away teams
+    (either could win or lose).
+  - **`team`**: singleton set with the concrete team (or empty for unknown ids).
+
+- `src/components/PossibleTeamsButton.vue` — compact block button shown below each
+  unresolved bracket match card (`v-if="!row.homeTeam || !row.awayTeam"` in
+  BracketRound). Computes possible home/away team lists reactively from the Pinia store,
+  labels each side using `teamRefLabel`, and opens `PossibleTeamsDialog` via Teleport.
+
+- `src/components/PossibleTeamsDialog.vue` — native `<dialog>` with `showModal()`. Shows
+  a "Heim" section and/or "Gast" section (only for unresolved slots), each listing teams
+  as flag + name (`--flag-size: 1.5rem`). Close button and Esc to dismiss.
+
+- `src/components/BracketRound.vue` — one line added: `<PossibleTeamsButton v-if="!row.homeTeam || !row.awayTeam" :match="row.match" />` after each `<MatchCard>`.
+
+- `src/lib/possible-teams.spec.ts` — 18 Vitest unit tests:
+  - Deterministic group (all played): returns exactly the team at that rank.
+  - 1 match remaining: exactly 2 teams reachable for rank 1 (constructed Group A
+    scenario with mex+kor on 6 pts each, cze+rsa on 1 pt with no remaining matches).
+  - No matches played: all 4 group teams are possible rank-1 candidates.
+  - thirdPlace: non-empty with some or all group results; different slots return
+    different team sets.
+  - matchWinner unplayed: union of upstream possibilities (8 teams when neither group
+    has results); played: exactly 1 team (or 0 for unresolved draw).
+  - team kind: singleton or empty.
+  - Memoization: same inputs → same content on second call.
+  - Deep chain: R16 matchWinner-of-matchWinner returns ≥2 teams.
+
+- `e2e/possible-teams.spec.ts` — 10 Playwright tests:
+  - 16 "Mögliche Teams" buttons appear in R32 when no group results entered.
+  - Buttons vanish from R32 once all group results are seeded.
+  - Dialog opens, shows team names + flags, close button and Esc work.
+  - M73 (A2 vs B2) shows 8 items (4 from group A + 4 from group B) with no results.
+  - R16 slot shows 4 items (2 per side) when group results are seeded but R32 unplayed.
+  - axe-core a11y scan passes for both the open dialog and the knockout view.
+
+**Verify:** `npm run typecheck` clean, `npm run lint` clean,
+`npm run test:unit` (113 pass), `npm run test:e2e` (49 pass — all axe checks green).
 
 ## M10 — Squad viewer (completed 2026-06-28)
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MatchSlot, Team, Result } from '../types/tournament'
 import MatchCard from './MatchCard.vue'
+import PossibleTeamsButton from './PossibleTeamsButton.vue'
 
 export interface MatchRow {
   match: MatchSlot
@@ -38,6 +39,10 @@ const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
           :home-placeholder="row.homePlaceholder"
           :away-placeholder="row.awayPlaceholder"
           @click="emit('matchClick', row.match)"
+        />
+        <PossibleTeamsButton
+          v-if="!row.homeTeam || !row.awayTeam"
+          :match="row.match"
         />
       </template>
     </div>
