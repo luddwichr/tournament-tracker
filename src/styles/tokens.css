@@ -50,9 +50,8 @@
   --breakpoint-sm: 640px;
 }
 
-/* Light palette — applied by default and when the user explicitly picks light */
-:root,
-[data-theme='light'] {
+/* Light palette — default */
+:root {
   --color-bg: #f8fafc;
   --color-surface: #ffffff;
   --color-text: #0f172a;
@@ -77,7 +76,7 @@
   --shadow-lg: 0 8px 32px rgb(15 23 42 / 0.22), 0 2px 8px rgb(15 23 42 / 0.1);
 }
 
-/* Dark palette — system preference */
+/* Dark palette — system preference (no explicit user choice yet) */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg: #0f172a;
@@ -101,7 +100,29 @@
   }
 }
 
-/* Dark palette — explicit user override (applies regardless of system preference) */
+/* Explicit user overrides — declared after the media query so they win via
+   source order (same specificity as :root, which is a pseudo-class at 0,1,0) */
+[data-theme='light'] {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-border: #cbd5e1;
+  --color-primary: #1d4ed8;
+  --color-primary-contrast: #ffffff;
+
+  --color-win: #15803d;
+  --color-draw: #b45309;
+  --color-loss: #b91c1c;
+
+  --color-focus: #2563eb;
+  --color-scrim: rgb(0 0 0 / 0.5);
+
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.08);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.12);
+  --shadow-lg: 0 8px 32px rgb(15 23 42 / 0.22), 0 2px 8px rgb(15 23 42 / 0.1);
+}
+
 [data-theme='dark'] {
   --color-bg: #0f172a;
   --color-surface: #1e293b;
