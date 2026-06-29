@@ -59,6 +59,11 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
       if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam
       return homeWon ? awayTeam : homeTeam
     }
+
+    default: {
+      const _exhaustive: never = ref
+      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(_exhaustive)}`)
+    }
   }
 }
 

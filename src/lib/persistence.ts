@@ -46,6 +46,10 @@ function isValidPersistedState(value: unknown): value is PersistedState {
   return Object.values(obj['results'] as Record<string, unknown>).every(isValidResult)
 }
 
+function isNonNegativeInteger(n: number): boolean {
+  return Number.isFinite(n) && Number.isInteger(n) && n >= 0
+}
+
 function isValidResult(value: unknown): value is Result {
   if (typeof value !== 'object' || value === null) return false
   const r = value as Record<string, unknown>
@@ -57,6 +61,16 @@ function isValidResult(value: unknown): value is Result {
     typeof r['homeRed'] !== 'number' ||
     typeof r['awayYellow'] !== 'number' ||
     typeof r['awayRed'] !== 'number'
+  ) {
+    return false
+  }
+  if (
+    !isNonNegativeInteger(r['homeGoals'] as number) ||
+    !isNonNegativeInteger(r['awayGoals'] as number) ||
+    !isNonNegativeInteger(r['homeYellow'] as number) ||
+    !isNonNegativeInteger(r['homeRed'] as number) ||
+    !isNonNegativeInteger(r['awayYellow'] as number) ||
+    !isNonNegativeInteger(r['awayRed'] as number)
   ) {
     return false
   }

@@ -48,6 +48,19 @@ export interface Player {
 export type ThirdPlaceSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
 /**
+ * A branded string key for `THIRD_PLACE_ALLOCATION` — the eight qualifying
+ * group letters sorted and joined (e.g. `'ABCEFGHI'`). Branding prevents
+ * unsorted or otherwise malformed strings from indexing the table silently.
+ * Construct via `toThirdPlaceKey(groups)`.
+ */
+export type ThirdPlaceKey = string & { readonly _thirdPlaceKeyBrand: never }
+
+/** Build a valid `ThirdPlaceKey` from an array of group ids. */
+export function toThirdPlaceKey(groups: GroupId[]): ThirdPlaceKey {
+  return groups.toSorted().join('') as ThirdPlaceKey
+}
+
+/**
  * A reference to a team that may not be known yet. Group matches reference
  * concrete teams (`team`); knockout matches reference the outcome of the group
  * stage or of earlier knockout matches and are resolved on demand.

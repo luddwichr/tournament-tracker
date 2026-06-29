@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { GROUP_IDS } from '../types/tournament'
 import type { GroupId, ThirdPlaceSlot } from '../types/tournament'
+import { toThirdPlaceKey } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { computeGroupStandings } from '../lib/standings'
-import { rankThirdPlaced } from '../lib/third-place'
+import { rankThirdPlaced, QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import TeamFlag from './TeamFlag.vue'
 
@@ -24,11 +25,8 @@ const thirdPlaceGroupToSlot = computed((): Map<GroupId, ThirdPlaceSlot> => {
   const ranked = rankThirdPlaced(store.results)
   if (!ranked) return new Map()
 
-  const top8 = ranked.slice(0, 8)
-  const qualifyingGroups = top8
-    .map((s) => s.team.group)
-    .toSorted()
-    .join('')
+  const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
+  const qualifyingGroups = toThirdPlaceKey(top8.map((s) => s.team.group))
   const allocation = THIRD_PLACE_ALLOCATION[qualifyingGroups]
   if (!allocation) return new Map()
 

@@ -20,5 +20,10 @@ export function teamRefLabel(ref: TeamRef): string {
       const n = ref.matchId.replace('M', '')
       return `Verlierer Sp. ${n}`
     }
+
+    default: {
+      const _exhaustive: never = ref
+      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(_exhaustive)}`)
+    }
   }
 }

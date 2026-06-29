@@ -42,7 +42,13 @@ function maxGoalsPerSide(remainingCount: number, gdSpread: number): number {
 // Memoization — keyed by (group, rank, result fingerprint)
 // ---------------------------------------------------------------------------
 
+const MAX_CACHE_SIZE = 500
 const cache = new Map<string, Set<string>>()
+
+/** Clear the memoization cache — call after resetting or importing results. */
+export function clearPossibleTeamsCache(): void {
+  cache.clear()
+}
 
 function groupResultFingerprint(group: GroupId, results: Record<string, Result>): string {
   return groupMatches
@@ -125,6 +131,7 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
     enumerate(0)
   }
 
+  if (cache.size >= MAX_CACHE_SIZE) cache.clear()
   cache.set(cacheKey, possible)
   return possible
 }
@@ -195,6 +202,11 @@ function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<
       for (const id of homeIds) union.add(id)
       for (const id of awayIds) union.add(id)
       return union
+    }
+
+    default: {
+      const _exhaustive: never = ref
+      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(_exhaustive)}`)
     }
   }
 }

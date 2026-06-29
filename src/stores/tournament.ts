@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Result } from '../types/tournament'
 import { SCHEMA_VERSION } from '../lib/persistence'
+import { clearPossibleTeamsCache } from '../lib/possible-teams'
 
 export const useTournamentStore = defineStore(
   'tournament',
@@ -18,10 +19,12 @@ export const useTournamentStore = defineStore(
 
     function reset(): void {
       results.value = {}
+      clearPossibleTeamsCache()
     }
 
     function importResults(newResults: Record<string, Result>): void {
       results.value = { ...newResults }
+      clearPossibleTeamsCache()
     }
 
     return { results, enterResult, clearResult, reset, importResults }

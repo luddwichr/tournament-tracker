@@ -9,39 +9,6 @@ directly against the source (noted inline as _verified_).
 
 ---
 
-## 2. TypeScript, Business Logic & Architecture
-
-### Major
-
-- **Magic topology constants with non-null assertions.** `third-place.ts:42`
-  `standings[2]!` ("third-placed team") assumes every group has ≥3 teams; `:55`
-  `ranked.slice(0, 8)` hard-codes "8 best thirds advance"; same pattern in
-  `standings.ts:105`. The `!` turns a structural assumption into an unchecked runtime
-  `undefined`. **Fix:** named constants (`THIRD_PLACE_INDEX`, `QUALIFYING_THIRDS`) with a
-  rationale; prefer `.at(2)` + explicit guard over `[2]!`.
-
-- **Module-level mutable cache in a "pure" lib.** `possible-teams.ts:44`
-  `const cache = new Map(...)` is never cleared, grows for every board state explored in a
-  session, and makes the function impure (harder to test/reason about — see the memo bug
-  above). **Fix:** bound it (LRU/size cap) and reset on store `reset()`/`importResults()`,
-  or scope it per-call.
-
-### Minor
-
-- **`persistence.ts:49-65` accepts garbage numbers.** `isValidResult` checks
-  `typeof === 'number'` but not finite/integer/sign, so `{homeGoals:-3.5, awayGoals:NaN}`
-  passes the _untrusted import boundary_ and `NaN` poisons all downstream comparisons.
-  Reject non-finite / negative / non-integer.
-- **`THIRD_PLACE_ALLOCATION` keyed as bare `string`** (`fixtures-2026.ts:853`); the
-  load-bearing `if (!allocation) return null` guard (`third-place.ts:62`) is easy to
-  forget. A branded `ThirdPlaceKey` would localize the contract.
-- **No exhaustiveness guards.** `switch (ref.kind)` in `knockout.ts:29`,
-  `possible-teams.ts:152`, `bracket-labels.ts:5` rely on every case returning. Add
-  `default: { const _x: never = ref; throw … }` so a new `TeamRef` variant fails loudly at
-  the right spot.
-
----
-
 ## 3. HTML Semantics & Accessibility (ARIA / a11y)
 
 ### Major

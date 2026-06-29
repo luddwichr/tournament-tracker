@@ -10,11 +10,16 @@
  */
 
 import type { Result, Team, ThirdPlaceSlot } from '../types/tournament'
-import { GROUP_IDS } from '../types/tournament'
+import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import type { TeamStat } from './standings'
 import { computeGroupStandings, isGroupComplete } from './standings'
 import { compareByPointsGdGf } from './tiebreakers'
+
+// 0-indexed position of the third-placed team in sorted group standings.
+const THIRD_PLACE_RANK = 2
+// FIFA Annex C: exactly 8 of the 12 third-placed teams advance to the R32.
+export const QUALIFYING_THIRDS_COUNT = 8
 
 function compareThirdPlaced(a: TeamStat, b: TeamStat): number {
   const byPGF = compareByPointsGdGf(a, b)
@@ -34,7 +39,9 @@ export function rankThirdPlaced(results: Record<string, Result>): TeamStat[] | n
 
   const thirds = GROUP_IDS.map((groupId) => {
     const standings = computeGroupStandings(groupId, results)
-    return standings[2]!
+    const third = standings.at(THIRD_PLACE_RANK)
+    if (!third) throw new Error(`Group ${groupId} has fewer than ${THIRD_PLACE_RANK + 1} teams`)
+    return third
   })
 
   return thirds.toSorted(compareThirdPlaced)
@@ -48,11 +55,8 @@ export function resolveThirdPlaceSlot(slot: ThirdPlaceSlot, results: Record<stri
   const ranked = rankThirdPlaced(results)
   if (!ranked) return null
 
-  const top8 = ranked.slice(0, 8)
-  const qualifyingGroups = top8
-    .map((stat) => stat.team.group)
-    .toSorted()
-    .join('')
+  const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
+  const qualifyingGroups = toThirdPlaceKey(top8.map((stat) => stat.team.group))
 
   const allocation = THIRD_PLACE_ALLOCATION[qualifyingGroups]
   if (!allocation) return null

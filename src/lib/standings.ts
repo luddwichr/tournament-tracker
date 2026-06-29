@@ -106,5 +106,8 @@ export function computeGroupStandings(groupId: GroupId, results: Record<string, 
   }
 
   const sorted = sortTeams(gTeams, gMatches, results, statsMap)
-  return sorted.map((team) => statsMap.get(team.id)!)
+  return sorted.flatMap((team) => {
+    const s = statsMap.get(team.id)
+    return s ? [s] : []
+  })
 }
