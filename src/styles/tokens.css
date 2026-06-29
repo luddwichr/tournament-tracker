@@ -20,6 +20,7 @@
   --radius-lg: 1rem;
 
   /* Font sizes — base ≥ 18px on mobile, large numerals for scores */
+  --font-size-xs: 0.75rem; /* 12px — very small, low-importance metadata */
   --font-size-sm: 0.9375rem; /* 15px */
   --font-size-base: 1.125rem; /* 18px */
   --font-size-lg: 1.375rem; /* 22px */

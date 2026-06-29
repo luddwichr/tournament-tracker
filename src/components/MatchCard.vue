@@ -124,14 +124,14 @@ const ariaLabel = computed(() => {
 }
 
 .match-card__kickoff {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
 .match-card__body {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-2);
   font-size: var(--font-size-sm);
 }
@@ -139,6 +139,7 @@ const ariaLabel = computed(() => {
 .match-card__team {
   display: flex;
   align-items: center;
+  align-self: center;
   min-width: 0;
 }
 
@@ -167,6 +168,7 @@ const ariaLabel = computed(() => {
   justify-content: center;
   gap: 0.2em;
   min-width: 2.5rem;
+  min-height: var(--tap-target);
   padding: var(--space-1) var(--space-2);
   background: none;
   border: 1px solid transparent;
@@ -174,11 +176,12 @@ const ariaLabel = computed(() => {
   cursor: pointer;
   font-family: inherit;
   color: inherit;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background-color 0.15s;
 }
 
 .match-card__score-btn:hover:not(:disabled) {
   border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .match-card__score-btn:focus-visible {
