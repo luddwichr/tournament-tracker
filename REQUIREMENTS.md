@@ -253,7 +253,7 @@ Import errors shown as German messages.
 - Semantic HTML (`<nav>`, `<main>`, `<table>`, `<button>`, `<dialog>`).
 - Visible focus rings; focus managed on route change and dialog open/close.
 - Contrast ≥ 4.5:1 body, ≥ 3:1 large/UI.
-- State never conveyed by color alone** — W/D/L use color and glyph/letter.
+- State never conveyed by color alone\*\* — W/D/L use color and glyph/letter.
 - Form labels properly associated.
 - ARIA live region for score + dialog announcements.
 - Full keyboard support (Tab / Enter / Space / Esc).
