@@ -123,6 +123,44 @@ describe('computeGroupStandings — basic aggregation', () => {
   })
 })
 
+describe('computeGroupStandings — partial group (unplayed matches)', () => {
+  it('handles partial results: only 2 of 6 matches played', () => {
+    // M01 mex 2-1 rsa, M02 kor 1-0 cze — remaining 4 matches unplayed
+    const standings = computeGroupStandings(
+      'A',
+      resultsMap(
+        makeResult(0, 2, 1), // M01  mex 2-1 rsa
+        makeResult(1, 1, 0), // M02  kor 1-0 cze
+      ),
+    )
+    expect(standings).toHaveLength(4)
+    const mex = standings.find((s) => s.team.id === 'mex')!
+    expect(mex.played).toBe(1)
+    expect(mex.points).toBe(3)
+    const cze = standings.find((s) => s.team.id === 'cze')!
+    expect(cze.played).toBe(1)
+    expect(cze.points).toBe(0)
+  })
+
+  it('uses criterion 3 (goals scored) when points and GD are equal — partial group', () => {
+    // M01 mex 2-1 rsa: mex 3pts +1GD 2GF, rsa 0pts -1GD 1GF
+    // M02 kor 1-0 cze: kor 3pts +1GD 1GF, cze 0pts -1GD 0GF
+    // mex vs kor: same pts (3) same GD (+1), mex 2GF > kor 1GF → mex first
+    // rsa vs cze: same pts (0) same GD (-1), rsa 1GF > cze 0GF → rsa before cze
+    const standings = computeGroupStandings(
+      'A',
+      resultsMap(
+        makeResult(0, 2, 1), // M01 mex(h) 2-1 rsa(a)
+        makeResult(1, 1, 0), // M02 kor(h) 1-0 cze(a)
+      ),
+    )
+    expect(standings[0]!.team.id).toBe('mex') // 3pts +1GD 2GF
+    expect(standings[1]!.team.id).toBe('kor') // 3pts +1GD 1GF — loses by criterion 3
+    expect(standings[2]!.team.id).toBe('rsa') // 0pts -1GD 1GF — wins criterion 3 vs cze
+    expect(standings[3]!.team.id).toBe('cze') // 0pts -1GD 0GF
+  })
+})
+
 describe('computeGroupStandings — correct ordering', () => {
   it('orders teams by points descending', () => {
     // mex wins all → 9pts; kor/cze each 4pts (D+L+W); rsa loses all → 0pts
@@ -165,5 +203,31 @@ describe('computeGroupStandings — correct ordering', () => {
     expect(standings[1]!.team.id).toBe('kor') // rank 25
     expect(standings[2]!.team.id).toBe('cze') // rank 40
     expect(standings[3]!.team.id).toBe('rsa') // rank 60
+  })
+
+  it('red card is weighted ×3 vs ×1 for yellow — 1 red beats 2 yellows in fair-play', () => {
+    // All 1-1 draws → same pts/GD/GF for all; H2H also all 1-1 draws → no H2H progress.
+    // mex gets 1 red card in M01 (home): fairPlay = -3
+    // cze gets 2 yellow cards in M25 (home): fairPlay = -2
+    // kor and rsa: no cards, fairPlay = 0
+    //
+    // Fair-play decides: kor=rsa=0 > cze=-2 > mex=-3.
+    // kor vs rsa (same fair-play): FIFA rank: kor(25) > rsa(60) → kor first.
+    // Expected order: kor, rsa, cze, mex
+    const standings = computeGroupStandings(
+      'A',
+      resultsMap(
+        makeResult(0, 1, 1, { homeRed: 1 }), // M01 mex(h) 1-1 rsa  — mex gets 1 red
+        makeResult(1, 1, 1), //                  M02 kor(h) 1-1 cze
+        makeResult(2, 1, 1, { homeYellow: 2 }), // M25 cze(h) 1-1 rsa — cze gets 2 yellows
+        makeResult(3, 1, 1), //                  M28 mex(h) 1-1 kor
+        makeResult(4, 1, 1), //                  M53 cze(h) 1-1 mex
+        makeResult(5, 1, 1), //                  M54 rsa(h) 1-1 kor
+      ),
+    )
+    expect(standings[0]!.team.id).toBe('kor') // 0 cards
+    expect(standings[1]!.team.id).toBe('rsa') // 0 cards, worse FIFA rank than kor
+    expect(standings[2]!.team.id).toBe('cze') // -2 fair-play (2 yellows)
+    expect(standings[3]!.team.id).toBe('mex') // -3 fair-play (1 red × 3)
   })
 })

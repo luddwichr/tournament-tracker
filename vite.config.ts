@@ -53,5 +53,16 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.spec.ts'],
     css: true,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts', 'src/**/*.vue'],
+      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router.ts'],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 60,
+        statements: 70,
+      },
+    },
   },
 })

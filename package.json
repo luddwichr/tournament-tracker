@@ -18,6 +18,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check"
   },
+  "packageManager": "npm@11.16.0",
   "dependencies": {
     "flag-icons": "7.5.0",
     "pinia": "3.0.4",

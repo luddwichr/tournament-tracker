@@ -22,7 +22,7 @@ const model = defineModel<number>({ required: true })
     >
       −
     </button>
-    <span class="stepper__value">{{ model }}</span>
+    <span class="stepper__value" aria-live="polite" aria-atomic="true">{{ model }}</span>
     <button type="button" class="stepper__step" :aria-label="props.incLabel" @click="model = model + 1">+</button>
   </div>
 </template>

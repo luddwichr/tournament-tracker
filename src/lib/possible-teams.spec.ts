@@ -20,10 +20,14 @@
  *   Therefore only mex and kor can reach rank 1.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
-import { possibleTeamsFor } from './possible-teams'
+import { possibleTeamsFor, clearPossibleTeamsCache } from './possible-teams'
+
+beforeEach(() => {
+  clearPossibleTeamsCache()
+})
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -146,18 +150,24 @@ describe('possibleTeamsFor — groupRank, no matches played', () => {
 // ---------------------------------------------------------------------------
 
 describe('possibleTeamsFor — thirdPlace', () => {
-  it('returns a non-empty set of teams for slot 1 when some group results exist', () => {
+  it('returns exactly one team for slot 1 when all groups are complete', () => {
+    // All groups complete → slot resolves exactly to one team via resolveThirdPlaceSlot.
     const results = allGroupResults(1, 0)
     const ref: TeamRef = { kind: 'thirdPlace', slot: 1 }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBeGreaterThan(0)
-    for (const t of teams) expect(typeof t.id).toBe('string')
+    expect(teams.size).toBe(1)
+    const [team] = teams
+    expect(typeof team!.id).toBe('string')
+    expect(team!.id.length).toBeGreaterThan(0)
   })
 
-  it('returns a non-empty set for slot 1 even with no results', () => {
+  it('returns multiple candidate teams for slot 1 when no results exist', () => {
+    // Incomplete groups → approximation from the allocation table yields multiple teams.
     const ref: TeamRef = { kind: 'thirdPlace', slot: 1 }
     const teams = possibleTeamsFor(ref, {})
-    expect(teams.size).toBeGreaterThan(0)
+    // Must have at least 2 possible candidates; exact count depends on allocation table
+    expect(teams.size).toBeGreaterThanOrEqual(2)
+    for (const t of teams) expect(t.group).toBeDefined()
   })
 
   it('returns different team sets for different slots (slots draw from different source groups)', () => {
@@ -242,12 +252,25 @@ describe('possibleTeamsFor — team ref', () => {
 // ---------------------------------------------------------------------------
 
 describe('possibleTeamsFor — memoization', () => {
-  it('returns the same Set for identical inputs', () => {
+  it('returns Team object singletons across calls (same Team reference in both results)', () => {
+    const results = groupAFiveMatchResults()
+    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const first = [...possibleTeamsFor(ref, results)]
+    const second = [...possibleTeamsFor(ref, results)]
+    // Team objects come from a singleton map; verify the exact same references are returned
+    expect(first.map((t) => t.id).toSorted()).toEqual(second.map((t) => t.id).toSorted())
+    for (const team of first) {
+      expect(second).toContain(team) // same object reference, not a copy
+    }
+  })
+
+  it('clearPossibleTeamsCache resets state so fresh enumeration runs again', () => {
     const results = groupAFiveMatchResults()
     const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
     const first = possibleTeamsFor(ref, results)
+    clearPossibleTeamsCache()
     const second = possibleTeamsFor(ref, results)
-    // Same team ids (content equality)
+    // Content should be identical after a cache clear + re-run
     expect([...first].map((t) => t.id).toSorted()).toEqual([...second].map((t) => t.id).toSorted())
   })
 })

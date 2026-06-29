@@ -25,26 +25,26 @@ describe('ConfirmDialog', () => {
 
   it('uses default confirm label when none provided', () => {
     const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
-    expect(wrapper.findAll('button')[1]!.text()).toBe('Bestätigen')
+    expect(wrapper.find('.btn--danger').text()).toBe('Bestätigen')
   })
 
   it('uses custom confirm label', () => {
     const wrapper = mount(ConfirmDialog, {
       props: { title: 'T', message: 'M', confirmLabel: 'Ersetzen' },
     })
-    expect(wrapper.findAll('button')[1]!.text()).toBe('Ersetzen')
+    expect(wrapper.find('.btn--danger').text()).toBe('Ersetzen')
   })
 
   it('emits confirm (only) when confirm button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
-    await wrapper.findAll('button')[1]!.trigger('click')
+    await wrapper.find('.btn--danger').trigger('click')
     expect(wrapper.emitted('confirm')).toHaveLength(1)
     expect(wrapper.emitted('cancel')).toBeUndefined()
   })
 
   it('emits cancel (only) when cancel button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
-    await wrapper.findAll('button')[0]!.trigger('click')
+    await wrapper.find('.btn--secondary').trigger('click')
     expect(wrapper.emitted('cancel')).toHaveLength(1)
     expect(wrapper.emitted('confirm')).toBeUndefined()
   })

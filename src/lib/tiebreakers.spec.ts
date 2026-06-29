@@ -1,0 +1,146 @@
+/**
+ * Isolated tests for the sortTeams tiebreaker chain.
+ *
+ * Tests here call sortTeams directly with crafted overallStats so each
+ * criterion can be exercised in isolation without having to construct a
+ * full 6-match group scenario for every edge case.
+ *
+ * Group A (real teams and match slots from fixtures-2026.ts):
+ *   mex (FIFA rank 14), kor (25), cze (40), rsa (60)
+ *   H2H matches among mex/kor/cze:
+ *     M28: mex(h) vs kor(a)
+ *     M02: kor(h) vs cze(a)
+ *     M53: cze(h) vs mex(a)
+ */
+
+import { describe, it, expect } from 'vitest'
+import type { Result } from '../types/tournament'
+import { groupMatches } from '../data/fixtures-2026'
+import { teamsInGroup } from '../data/teams'
+import { sortTeams } from './tiebreakers'
+import type { TiebreakerStat } from './tiebreakers'
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const groupATeams = teamsInGroup('A') // mex(14), rsa(60), kor(25), cze(40)
+const groupAMatches = groupMatches.filter((m) => m.group === 'A')
+
+function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
+  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
+}
+
+/** Build an overallStats map that ties mex/kor/cze (same pts/GD/GF) and puts rsa last. */
+function tiedStats(): Map<string, TiebreakerStat> {
+  return new Map([
+    ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+    ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+    ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+    ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+  ])
+}
+
+// ---------------------------------------------------------------------------
+// H2H goal difference as tiebreaker
+// ---------------------------------------------------------------------------
+
+describe('sortTeams — H2H goal difference as tiebreaker', () => {
+  it('uses H2H GD when H2H pts are tied among three teams', () => {
+    // H2H cycle (all wins by margin, so H2H pts each = 3):
+    //   M28 mex(h) 3-0 kor(a) → mex H2H GD +3, kor -3
+    //   M02 kor(h) 1-0 cze(a) → kor H2H GD +1, cze -1
+    //   M53 cze(h) 1-0 mex(a) → cze H2H GD +1, mex -1
+    //
+    // H2H pts: mex=3, kor=3, cze=3 (tied)
+    // H2H GD: mex=+3−1=+2, kor=−3+1=−2, cze=−1+1=0 → mex > cze > kor
+    const results: Record<string, Result> = {
+      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a)
+      M02: makeResult('M02', 1, 0), // kor(h) 1-0 cze(a)
+      M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
+    }
+
+    const sorted = sortTeams(groupATeams, groupAMatches, results, tiedStats())
+    const ids = sorted.map((t) => t.id)
+
+    expect(ids.indexOf('mex')).toBeLessThan(ids.indexOf('cze'))
+    expect(ids.indexOf('cze')).toBeLessThan(ids.indexOf('kor'))
+    expect(ids[3]).toBe('rsa') // rsa is in the 0-pts cluster, always last
+  })
+})
+
+// ---------------------------------------------------------------------------
+// H2H goals for as tiebreaker
+// ---------------------------------------------------------------------------
+
+describe('sortTeams — H2H goals scored as tiebreaker', () => {
+  it('uses H2H GF when H2H pts AND H2H GD are tied among three teams', () => {
+    // Symmetric H2H cycle (each win by exactly 1 goal, so H2H GD cancels):
+    //   M28 mex(h) 3-2 kor(a) → mex GD+1, mex GF=3; kor GD-1, kor GF=2
+    //   M02 kor(h) 2-1 cze(a) → kor GD+1, kor GF=2; cze GD-1, cze GF=1
+    //   M53 cze(h) 1-0 mex(a) → cze GD+1, cze GF=1; mex GD-1, mex GF=0
+    //
+    // H2H pts: mex=3, kor=3, cze=3 (tied)
+    // H2H GD: mex=+1−1=0, kor=−1+1=0, cze=−1+1=0 (tied)
+    // H2H GF: mex=3+0=3, kor=2+2=4, cze=1+1=2 → kor > mex > cze
+    const results: Record<string, Result> = {
+      M28: makeResult('M28', 3, 2), // mex(h) 3-2 kor(a)
+      M02: makeResult('M02', 2, 1), // kor(h) 2-1 cze(a)
+      M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
+    }
+
+    const sorted = sortTeams(groupATeams, groupAMatches, results, tiedStats())
+    const ids = sorted.map((t) => t.id)
+
+    expect(ids.indexOf('kor')).toBeLessThan(ids.indexOf('mex'))
+    expect(ids.indexOf('mex')).toBeLessThan(ids.indexOf('cze'))
+    expect(ids[3]).toBe('rsa')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// H2H recursion — narrows but does not fully resolve
+// ---------------------------------------------------------------------------
+
+describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
+  it('recurses on remaining tied sub-cluster after H2H splits one team off', () => {
+    // All 4 teams tied on overall stats.
+    // H2H: mex beats kor by large margin (M28 mex 3-0 kor), all other matches 0-0 draws.
+    // First H2H pass clusters: {mex} separate (best H2H pts), {cze, rsa} still tied (1pt each, 0GD),
+    // {kor} separate (0pts from H2H loss to mex, 1pt from ties = tied with cze/rsa?).
+    //
+    // Actually: kor loses M28 but draws M02 and M54 → kor H2H pts = 0+1+1 = 2.
+    // mex wins M28 but draws M01 and M53 → mex H2H pts = 3+1+1 = 5.
+    // cze draws M02, M25, M53 → cze H2H pts = 1+1+1 = 3.
+    // rsa draws M01, M25, M54 → rsa H2H pts = 1+1+1 = 3.
+    //
+    // clusterByStats on H2H: mex(5pts) | cze=rsa(3pts) | kor(2pts).
+    // cze/rsa sub-cluster (length 2 < teams.length 4) → recurse on {cze, rsa}.
+    // H2H between {cze, rsa}: M25 cze(h) 0-0 rsa(a) → 1pt each, 0GD, 0GF → no progress.
+    // Falls through to fair-play (both 0) then FIFA rank: cze(40) < rsa(60) → cze before rsa.
+    //
+    // Final order: mex, cze, rsa, kor.
+    const allTied: Map<string, TiebreakerStat> = new Map([
+      ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['rsa', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+    ])
+    const results: Record<string, Result> = {
+      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a) — the one decisive H2H match
+      M01: makeResult('M01', 0, 0), // mex(h) 0-0 rsa(a)
+      M02: makeResult('M02', 0, 0), // kor(h) 0-0 cze(a)
+      M25: makeResult('M25', 0, 0), // cze(h) 0-0 rsa(a)
+      M53: makeResult('M53', 0, 0), // cze(h) 0-0 mex(a)
+      M54: makeResult('M54', 0, 0), // rsa(h) 0-0 kor(a)
+    }
+
+    const sorted = sortTeams(groupATeams, groupAMatches, results, allTied)
+    const ids = sorted.map((t) => t.id)
+
+    expect(ids[0]).toBe('mex') // best H2H pts
+    expect(ids[1]).toBe('cze') // tied with rsa; beaten by FIFA rank (40 < 60)
+    expect(ids[2]).toBe('rsa')
+    expect(ids[3]).toBe('kor') // worst H2H pts
+  })
+})

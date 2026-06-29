@@ -119,6 +119,12 @@ describe("resolveTeamRef — kind 'thirdPlace'", () => {
 // ---------------------------------------------------------------------------
 
 describe("resolveTeamRef — kind 'matchWinner'", () => {
+  it('returns null for an unknown matchId', () => {
+    const ref: TeamRef = { kind: 'matchWinner', matchId: 'UNKNOWN_999' }
+    // fixtures.find returns undefined → the branch returns null
+    expect(resolveTeamRef(ref, { UNKNOWN_999: makeResult('UNKNOWN_999', 1, 0) })).toBeNull()
+  })
+
   it('returns null when the referenced match has no result yet', () => {
     // M73 is A2 vs B2 in R32; group A and B must be complete to know A2/B2.
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
