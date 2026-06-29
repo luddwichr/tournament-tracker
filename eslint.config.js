@@ -47,6 +47,11 @@ export default tseslint.config(
       // Catch template refs that are declared but never read in <script setup>.
       'vue/no-unused-refs': 'error',
 
+      // oxfmt owns HTML formatting; disable conflicting vue layout rules.
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
+      'vue/html-self-closing': 'off',
+
       // Block-size caps — thresholds are set ~15 lines above the post-refactor
       // maxima (script 84, template 116, style 134) to actively flag regressions
       // without requiring a change for every new line added.
