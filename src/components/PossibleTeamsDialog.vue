@@ -26,7 +26,7 @@ const emit = defineEmits<{ close: [] }>()
         </h3>
         <ul class="possible-teams-dialog__list" role="list">
           <li v-for="team in possibleHome" :key="team.id" class="possible-teams-dialog__item">
-            <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+            <TeamFlag :flag-code="team.flagCode" :name="team.name" />
             <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
           </li>
         </ul>
@@ -38,7 +38,7 @@ const emit = defineEmits<{ close: [] }>()
         </h3>
         <ul class="possible-teams-dialog__list" role="list">
           <li v-for="team in possibleAway" :key="team.id" class="possible-teams-dialog__item">
-            <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+            <TeamFlag :flag-code="team.flagCode" :name="team.name" />
             <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
           </li>
         </ul>
