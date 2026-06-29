@@ -7,6 +7,7 @@ import AppNav from './AppNav.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    { path: '/', redirect: '/groups' },
     { path: '/groups', meta: { title: 'Gruppen', navIcon: '🏟️' }, component: { template: '<div />' } },
     { path: '/knockout', meta: { title: 'K.-o.-Runde', navIcon: '🏆' }, component: { template: '<div />' } },
     { path: '/ranking', meta: { title: 'Weltrangliste', navIcon: '🌍' }, component: { template: '<div />' } },

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useScrollLock } from './use-scroll-lock'
@@ -12,6 +12,7 @@ const LockComponent = defineComponent({
 
 describe('useScrollLock', () => {
   beforeEach(() => {
+    vi.stubGlobal('scrollTo', vi.fn())
     // Reset any lingering body styles from a previous test
     document.body.style.position = ''
     document.body.style.top = ''
@@ -19,6 +20,7 @@ describe('useScrollLock', () => {
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     document.body.style.position = ''
     document.body.style.top = ''
     document.body.style.width = ''
