@@ -7,7 +7,7 @@ import { router } from './router'
 
 // Note: the ~28 KB `flag-icons` stylesheet is intentionally NOT imported here.
 // It is imported by the flag-rendering component (M3) so it rides that route's
-// lazy chunk instead of bloating the entry bundle. See docs/styling.md.
+// lazy chunk instead of bloating the entry bundle.
 import './styles/reset.css'
 import './styles/tokens.css'
 import './styles/base.css'

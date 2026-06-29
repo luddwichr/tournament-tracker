@@ -253,13 +253,13 @@ Import errors shown as German messages.
 - Semantic HTML (`<nav>`, `<main>`, `<table>`, `<button>`, `<dialog>`).
 - Visible focus rings; focus managed on route change and dialog open/close.
 - Contrast ≥ 4.5:1 body, ≥ 3:1 large/UI.
-- **State never conveyed by color alone** — W/D/L use color **and** glyph/letter.
+- State never conveyed by color alone** — W/D/L use color and glyph/letter.
 - Form labels properly associated.
 - ARIA live region for score + dialog announcements.
 - Full keyboard support (Tab / Enter / Space / Esc).
 - `prefers-reduced-motion` honored.
 
-### Design for age-6 readers
+### Design for young readers
 
 - Big flags as the primary identifier.
 - Large score numerals (≥ 32 px mobile).
@@ -272,7 +272,7 @@ Import errors shown as German messages.
 - Mobile-first — design at 360 px, scale up with `min-width` queries.
 - CSS Grid for 2-D layouts, Flexbox for 1-D.
 - Tap targets ≥ 44×44 px.
-- **Components set padding only; margins are the parent's job.**
+- Components set padding only; margins are the parent's job.
 - Logic stays out of components (lives in `src/lib/`).
 - Small, single-responsibility components.
 
@@ -283,7 +283,7 @@ Import errors shown as German messages.
   `lang: 'de'`, theme color `#0f172a`.
 - Icons: 192, 512, maskable-512.
 - Workbox precaches the built shell + assets; `navigateFallback` to `index.html`.
-- **Fully functional offline** (verified by an offline Playwright context).
+- Fully functional off (verified by an offline Playwright context).
 
 ### Verification gates
 

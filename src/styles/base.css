@@ -1,7 +1,7 @@
 /*
  * Global base styles — applies design tokens to document-level elements and
  * sets the project-wide focus ring. Component-specific styling stays scoped to
- * each component. See docs/styling.md.
+ * each component.
  */
 
 body {

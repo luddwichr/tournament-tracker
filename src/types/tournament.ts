@@ -1,7 +1,7 @@
 // Domain model for the World Cup 2026 result tracker.
 //
 // All identifiers and comments are English; only user-facing strings (team
-// names in `src/data/teams.ts`) are German. See IMPL_PLAN.md → "Domain model".
+// names in `src/data/teams.ts`) are German.
 //
 // Everything in the app is *derived* from two static inputs (`teams.ts`,
 // `fixtures-2026.ts`) plus one piece of mutable state: a map of match results.
@@ -89,7 +89,7 @@ export interface Result {
   homeGoals: number
   awayGoals: number
   // Discipline counts feed the FIFA fair-play tiebreaker.
-  // See docs/tiebreakers.md (and docs/tournament-rules.md) for the rule.
+  // See docs/tournament-rules.md for the rule.
   homeYellow: number
   homeRed: number // includes second-yellow send-offs
   awayYellow: number

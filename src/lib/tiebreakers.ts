@@ -9,7 +9,7 @@
  *  7. Fair-play points: -1 × yellow - 3 × red (all matches; higher = better)
  *  8. FIFA World Ranking (lower position = better; always resolves)
  *
- * See docs/tournament-rules.md and docs/tiebreakers.md for the regulatory source.
+ * See docs/tournament-rules.md for the regulatory source.
  */
 
 import type { Team, MatchSlot, Result } from '../types/tournament'
