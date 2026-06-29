@@ -2,9 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TeamLabel from './TeamLabel.vue'
 import { squadViewerKey } from '../composables/use-squad-viewer'
-import type { Team } from '../types/tournament'
+import { makeTeam } from '../test-support/teams'
 
-const team: Team = { id: 'ger', name: 'Deutschland', flagCode: 'de', group: 'A', fifaRanking: 12 }
+const team = makeTeam({ id: 'ger', name: 'Deutschland' })
 
 describe('TeamLabel – non-clickable', () => {
   it('renders as a span', () => {

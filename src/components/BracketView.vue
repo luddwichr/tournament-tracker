@@ -61,10 +61,8 @@ const rounds = computed((): Round[] => {
 
 const {
   possibleTeamsMatch,
-  possibleHome,
-  possibleAway,
-  homeLabel,
-  awayLabel,
+  possibleTeams,
+  label: possibleTeamsLabel,
   open: openPossibleTeams,
   close: closePossibleTeams,
 } = usePossibleTeamsDialog()
@@ -111,10 +109,8 @@ const {
   <Teleport to="body">
     <PossibleTeamsDialog
       v-if="possibleTeamsMatch"
-      :home-label="homeLabel"
-      :away-label="awayLabel"
-      :possible-home="possibleHome"
-      :possible-away="possibleAway"
+      :label="possibleTeamsLabel"
+      :possible-teams="possibleTeams"
       @close="closePossibleTeams"
     />
   </Teleport>

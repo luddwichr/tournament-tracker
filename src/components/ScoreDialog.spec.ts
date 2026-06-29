@@ -3,10 +3,11 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ScoreDialog from './ScoreDialog.vue'
 import { useTournamentStore } from '../stores/tournament'
-import type { MatchSlot, Team } from '../types/tournament'
+import type { MatchSlot } from '../types/tournament'
+import { makeTeam } from '../test-support/teams'
 
-const homeTeam: Team = { id: 'ger', name: 'Deutschland', flagCode: 'de', group: 'A', fifaRanking: 12 }
-const awayTeam: Team = { id: 'fra', name: 'Frankreich', flagCode: 'fr', group: 'A', fifaRanking: 2 }
+const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
+const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
 const groupMatch: MatchSlot = {
   id: 'M01',

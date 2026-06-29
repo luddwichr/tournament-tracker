@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ScoreInput from './ScoreInput.vue'
-import type { Team } from '../types/tournament'
+import { makeTeam } from '../test-support/teams'
 
-const homeTeam: Team = { id: 'ger', name: 'Deutschland', flagCode: 'de', group: 'A', fifaRanking: 12 }
-const awayTeam: Team = { id: 'fra', name: 'Frankreich', flagCode: 'fr', group: 'A', fifaRanking: 2 }
+const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
+const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
 function mountScoreInput(home = 0, away = 0) {
   return mount(ScoreInput, {

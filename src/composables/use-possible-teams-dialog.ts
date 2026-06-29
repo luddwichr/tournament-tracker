@@ -11,29 +11,21 @@ export function usePossibleTeamsDialog() {
   const possibleTeamsMatch = ref<MatchSlot | null>(null)
   const possibleTeamsSlot = ref<'home' | 'away' | null>(null)
 
-  const ptHomeTeam = computed(() =>
-    possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.homeRef, store.results) : null,
-  )
-  const ptAwayTeam = computed(() =>
-    possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.awayRef, store.results) : null,
-  )
+  const teamRef = computed(() => {
+    if (!possibleTeamsMatch.value || !possibleTeamsSlot.value) return null
+    return possibleTeamsSlot.value === 'home' ? possibleTeamsMatch.value.homeRef : possibleTeamsMatch.value.awayRef
+  })
 
-  const possibleHome = computed((): Team[] =>
-    possibleTeamsMatch.value && possibleTeamsSlot.value === 'home' && !ptHomeTeam.value
-      ? [...possibleTeamsFor(possibleTeamsMatch.value.homeRef, store.results)]
-      : [],
-  )
-  const possibleAway = computed((): Team[] =>
-    possibleTeamsMatch.value && possibleTeamsSlot.value === 'away' && !ptAwayTeam.value
-      ? [...possibleTeamsFor(possibleTeamsMatch.value.awayRef, store.results)]
-      : [],
-  )
+  const label = computed((): string => {
+    if (!teamRef.value) return ''
+    const resolved = resolveTeamRef(teamRef.value, store.results)
+    return resolved?.name ?? teamRefLabel(teamRef.value)
+  })
 
-  const homeLabel = computed(() =>
-    possibleTeamsMatch.value ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef)) : '',
-  )
-  const awayLabel = computed(() =>
-    possibleTeamsMatch.value ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef)) : '',
+  const possibleTeams = computed((): Team[] =>
+    teamRef.value && !resolveTeamRef(teamRef.value, store.results)
+      ? [...possibleTeamsFor(teamRef.value, store.results)]
+      : [],
   )
 
   function open(match: MatchSlot, slot: 'home' | 'away'): void {
@@ -46,5 +38,5 @@ export function usePossibleTeamsDialog() {
     possibleTeamsSlot.value = null
   }
 
-  return { possibleTeamsMatch, possibleHome, possibleAway, homeLabel, awayLabel, open, close }
+  return { possibleTeamsMatch, possibleTeams, label, open, close }
 }

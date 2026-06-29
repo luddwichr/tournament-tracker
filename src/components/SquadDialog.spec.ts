@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SquadDialog from './SquadDialog.vue'
 import type { Team, Player } from '../types/tournament'
+import { makeTeam } from '../test-support/teams'
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn()
@@ -10,13 +11,7 @@ beforeEach(() => {
   })
 })
 
-const team: Team = {
-  id: 'ger',
-  name: 'Deutschland',
-  flagCode: 'de',
-  group: 'A',
-  fifaRanking: 14,
-}
+const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
 
 const players: Player[] = [
   { number: 1, name: 'Manuel Neuer', position: 'GK' },
