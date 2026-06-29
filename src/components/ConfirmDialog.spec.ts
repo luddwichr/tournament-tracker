@@ -19,7 +19,7 @@ describe('ConfirmDialog', () => {
     const wrapper = mount(ConfirmDialog, {
       props: { title: 'Daten importieren', message: 'Ergebnisse werden ersetzt.' },
     })
-    expect(wrapper.find('#confirm-dialog-title').text()).toBe('Daten importieren')
+    expect(wrapper.find('.base-dialog__title').text()).toBe('Daten importieren')
     expect(wrapper.find('#confirm-dialog-desc').text()).toBe('Ergebnisse werden ersetzt.')
   })
 

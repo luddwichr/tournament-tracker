@@ -40,26 +40,31 @@ enforced by the existing axe-core Playwright scans (robust + tech-agnostic),
 
 ---
 
-## Workstream A — `BaseDialog` wrapper (highest impact)
+## Workstream A — `BaseDialog` wrapper (highest impact) ✅ DONE
 
-Create **`src/components/BaseDialog.vue`**: owns the `<dialog>` ref,
-`onMounted(() => showModal())`, `useScrollLock()`, native Esc, `@close → emit('close')`,
-the shared shell CSS (border/radius/surface/shadow, `::backdrop` scrim, `__inner`
-flex-column, `__header`, built-in `✕` close button with `aria-label="Schließen"`),
-and a `max-width` variant prop. Slots: a `title` slot/prop, default slot (body),
-optional `footer` slot.
+`src/components/BaseDialog.vue` created: owns `<dialog>` ref, `showModal()` on
+mount, `useScrollLock()`, native Esc, `@close → emit('close')`, shared shell CSS
+(`::backdrop`, `__inner`, `__header`, `__close` button `aria-label="Schließen"`),
+scrollable variant via `maxHeight` prop, `maxWidth` prop, `showCloseButton` prop
+(default `true`, uses `withDefaults` to prevent Vue boolean-casting to `false`).
+Slots: `title` (replaces h2), default (body), `footer`. Exposes `close()`.
+`src/components/BaseDialog.spec.ts` added (19 tests).
 
-Refactor the four dialogs to render their **content only** inside `BaseDialog`:
+All four dialogs refactored to render content only inside `BaseDialog`:
 
-- `src/components/SquadDialog.vue`, `src/components/PossibleTeamsDialog.vue` —
-  trivial: header heading + body list move into slots; delete wrapper script/CSS.
-- `src/components/ConfirmDialog.vue` — keep its `wasConfirmed` confirm/cancel
-  semantics in the content wrapper; footer buttons go in the `footer` slot
-  (already use the shared `.btn` classes).
-- `src/components/ScoreDialog.vue` — wrap with `BaseDialog`; combine with B/C.
+- `SquadDialog.vue` — title slot for flag+name heading; body = `<SquadList>`.
+- `PossibleTeamsDialog.vue` — `title` prop; body content in styled wrapper div.
+- `ConfirmDialog.vue` — `showCloseButton=false`; footer slot for cancel/confirm;
+  calls `baseDialog.value?.close()` via template ref.
+- `ScoreDialog.vue` — `title` prop; body + footer slots; delete btn uses
+  `margin-right: auto` to stay left inside `flex-end` footer.
 
-Net: removes the lifecycle boilerplate and ~90 lines of CSS ×4. Keep
-`use-scroll-lock.ts` (now called once, inside `BaseDialog`).
+Net: 814 → 652 lines across the dialog layer (−162 lines). `use-scroll-lock.ts`
+now called once, inside `BaseDialog`.
+
+Also enforced zero ESLint warnings: added `--max-warnings 0` to the lint script
+and turned off `vue/require-default-prop` for Vue files (TypeScript `?` handles
+optionality; `withDefaults` covers the boolean-casting edge case).
 
 ## Workstream B — Decouple `TeamLabel` (full decouple)
 

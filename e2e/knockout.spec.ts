@@ -113,7 +113,7 @@ test('clicking an enabled R32 card opens ScoreDialog with resolved team names', 
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
-  const title = dialog.locator('.score-dialog__title')
+  const title = dialog.locator('.base-dialog__title')
   const text = await title.textContent()
   // Title must name two real teams, not generic fallback strings
   expect(text).toMatch(/Ergebnis: .+ – .+/)

@@ -27,6 +27,12 @@ export default tseslint.config(
         parser: tseslint.parser,
       },
     },
+    rules: {
+      // TypeScript's `?` already communicates optionality; explicit defaults are
+      // only needed when Vue's boolean-casting behaviour requires one (handled
+      // case-by-case with withDefaults).
+      'vue/require-default-prop': 'off',
+    },
   },
   {
     files: ['**/*.spec.ts'],
