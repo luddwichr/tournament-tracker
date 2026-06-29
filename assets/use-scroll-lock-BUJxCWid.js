@@ -1,1 +1,0 @@
-import{_ as e,v as t}from"./index-Dz-jtSox.js";var n=0,r=0;function i(){e(()=>{n++,n===1&&(r=window.scrollY,document.body.style.position=`fixed`,document.body.style.top=`-${r}px`,document.body.style.width=`100%`)}),t(()=>{n--,n===0&&(document.body.style.position=``,document.body.style.top=``,document.body.style.width=``,window.scrollTo(0,r))})}export{i as t};
