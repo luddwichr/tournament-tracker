@@ -36,7 +36,7 @@ const statusLabel: Record<string, string> = {
     <th scope="row" class="standings-row__team">
       <div class="standings-row__team-inner">
         <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
-        <TeamLabel :team="stat.team" flag-size="1.5rem" :clickable="true" />
+        <TeamLabel :team="stat.team" clickable />
         <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
       </div>
     </th>

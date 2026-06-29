@@ -100,7 +100,7 @@ const groupData = computed(() =>
           @focusout="emit('teamRefHoverEnd')"
         >
           <span class="origin-column__rank" aria-hidden="true">{{ row.rank }}</span>
-          <TeamFlag :flag-code="row.team.flagCode" :name="row.team.name" :decorative="true" />
+          <TeamFlag :flag-code="row.team.flagCode" :name="row.team.name" decorative size="1.25rem" />
           <span class="origin-column__name">{{ row.team.name }}</span>
           <span v-if="row.eliminated" class="visually-hidden">(ausgeschieden)</span>
         </div>
@@ -146,7 +146,6 @@ const groupData = computed(() =>
 }
 
 .origin-column__team-row {
-  --flag-size: 1.25rem;
   display: flex;
   align-items: center;
   gap: var(--space-2);

@@ -5,7 +5,6 @@ import { useSquadViewer } from '../composables/use-squad-viewer'
 
 const props = defineProps<{
   team: Team
-  flagSize?: string
   /** When true, renders as a button that opens the squad viewer dialog. */
   clickable?: boolean
 }>()
@@ -26,10 +25,9 @@ function handleClick(e: MouseEvent): void {
     :class="{ 'team-label--btn': clickable }"
     :type="clickable ? 'button' : undefined"
     :aria-label="clickable ? `${team.name} – Kader anzeigen` : undefined"
-    :style="flagSize ? { '--flag-size': flagSize } : {}"
     @click="handleClick"
   >
-    <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+    <TeamFlag :flag-code="team.flagCode" :name="team.name" decorative size="1.5rem" />
     <span class="team-label__name">{{ team.name }}</span>
   </component>
 </template>

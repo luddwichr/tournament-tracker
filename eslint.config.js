@@ -52,6 +52,8 @@ export default tseslint.config(
       'vue/singleline-html-element-content-newline': 'off',
       'vue/html-self-closing': 'off',
 
+      'vue/prefer-true-attribute-shorthand': 'error',
+
       // Block-size caps — thresholds are set ~15 lines above the post-refactor
       // maxima (script 84, template 116, style 134) to actively flag regressions
       // without requiring a change for every new line added.

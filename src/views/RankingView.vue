@@ -58,9 +58,9 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
               {{ entry.rank }}
             </td>
             <td class="ranking-row__team">
-              <TeamLabel v-if="team" :team="team" flag-size="1.5rem" :clickable="true" />
+              <TeamLabel v-if="team" :team="team" clickable />
               <span v-else class="ranking-row__name">
-                <TeamFlag :flag-code="entry.flagCode" :name="entry.name" :decorative="true" />
+                <TeamFlag :flag-code="entry.flagCode" :name="entry.name" decorative size="1.5rem" />
                 {{ entry.name }}
               </span>
             </td>

@@ -4,7 +4,7 @@ import type { Team } from '../types/tournament'
 
 type OpenFn = (team: Team) => void
 
-const squadViewerKey: InjectionKey<OpenFn> = Symbol('squad-viewer')
+export const squadViewerKey: InjectionKey<OpenFn> = Symbol('squad-viewer')
 
 export interface SquadViewerState {
   team: Ref<Team | null>

@@ -53,7 +53,7 @@ const ariaLabel = computed(() => {
     </div>
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
-        <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
+        <TeamLabel v-if="homeTeam" :team="homeTeam" clickable />
         <button
           v-else
           type="button"
@@ -84,7 +84,7 @@ const ariaLabel = computed(() => {
       </button>
 
       <span class="match-card__team match-card__team--away">
-        <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
+        <TeamLabel v-if="awayTeam" :team="awayTeam" clickable />
         <button
           v-else
           type="button"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Team } from '../types/tournament'
-import TeamFlag from './TeamFlag.vue'
+import TeamLabel from './TeamLabel.vue'
 import BaseDialog from './BaseDialog.vue'
 
 defineProps<{
@@ -26,8 +26,7 @@ const emit = defineEmits<{ close: [] }>()
         </h3>
         <ul class="possible-teams-dialog__list" role="list">
           <li v-for="team in possibleHome" :key="team.id" class="possible-teams-dialog__item">
-            <TeamFlag :flag-code="team.flagCode" :name="team.name" />
-            <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
+            <TeamLabel :team="team" />
           </li>
         </ul>
       </section>
@@ -38,8 +37,7 @@ const emit = defineEmits<{ close: [] }>()
         </h3>
         <ul class="possible-teams-dialog__list" role="list">
           <li v-for="team in possibleAway" :key="team.id" class="possible-teams-dialog__item">
-            <TeamFlag :flag-code="team.flagCode" :name="team.name" />
-            <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
+            <TeamLabel :team="team" />
           </li>
         </ul>
       </section>
@@ -74,18 +72,11 @@ const emit = defineEmits<{ close: [] }>()
 }
 
 .possible-teams-dialog__item {
-  --flag-size: 1.5rem;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   background: var(--color-bg);
   min-height: var(--tap-target);
-}
-
-.possible-teams-dialog__team-name {
-  font-weight: 600;
-  font-size: var(--font-size-base);
 }
 </style>

@@ -21,7 +21,7 @@ const emit = defineEmits<{ close: [] }>()
   >
     <template #title>
       <div class="squad-dialog__team-heading">
-        <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+        <TeamFlag :flag-code="team.flagCode" :name="team.name" decorative size="2rem" />
         <div>
           <h2 class="squad-dialog__title">
             {{ team.name }}
