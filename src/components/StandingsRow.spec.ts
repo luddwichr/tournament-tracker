@@ -25,16 +25,23 @@ function makeStat(overrides: Partial<TeamStat> = {}): TeamStat {
 }
 
 describe('StandingsRow', () => {
-  it('renders all stat columns', () => {
+  it('renders all stat columns in order', () => {
     const wrapper = mount(StandingsRow, { props: { stat: makeStat(), rank: 1, groupDone: false } })
-    expect(wrapper.text()).toContain('5') // goalsFor
-    expect(wrapper.text()).toContain('2') // goalsAgainst
-    expect(wrapper.text()).toContain('7') // points
+    const [played, wins, draws, losses, goalsFor, goalsAgainst, goalDiff, points] = wrapper.findAll('td')
+    expect(played!.text()).toBe('3')
+    expect(wins!.text()).toBe('2')
+    expect(draws!.text()).toBe('1')
+    expect(losses!.text()).toBe('0')
+    expect(goalsFor!.text()).toBe('5')
+    expect(goalsAgainst!.text()).toBe('2')
+    expect(goalDiff!.text()).toBe('+3')
+    expect(points!.text()).toBe('7')
   })
 
-  it('renders +3 with plus sign for positive goal difference', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ goalDiff: 3 }), rank: 1, groupDone: false } })
-    expect(wrapper.text()).toContain('+3')
+  it('renders negative goal difference without a plus sign', () => {
+    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ goalDiff: -2 }), rank: 1, groupDone: false } })
+    const [, , , , , , goalDiff] = wrapper.findAll('td')
+    expect(goalDiff!.text()).toBe('-2')
   })
 
   it('shows "qualified" status class for rank ≤ 2 when group is done', () => {
