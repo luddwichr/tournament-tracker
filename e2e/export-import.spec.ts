@@ -1,40 +1,43 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
 import { readFile } from 'fs/promises'
-import { STORAGE_KEY, storedState, makeResult } from './support/results'
+import {
+  GroupsPage,
+  STORAGE_KEY,
+  SettingsPage,
+  clearResults,
+  expectNoA11yViolations,
+  makeResult,
+  seedResults,
+} from './support'
 
 // M01: Mexiko vs Südafrika (Group A, 2026-06-11)
 const SEED_RESULT = makeResult('M01', 2, 1)
 
+let settings: SettingsPage
+let groups: GroupsPage
+
 test.beforeEach(async ({ page }) => {
-  await page.goto('/settings')
-  await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY)
+  settings = new SettingsPage(page)
+  groups = new GroupsPage(page)
+  await settings.goto()
+  await clearResults(page)
 })
 
 test('results persist across page reload', async ({ page }) => {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
-  )
+  await seedResults(page, { M01: SEED_RESULT })
 
-  await page.goto('/groups')
-  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
+  await groups.goto()
+  await expect(groups.scoredMatchButton('Mexiko', 2, 1, 'Südafrika')).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
+  await expect(groups.scoredMatchButton('Mexiko', 2, 1, 'Südafrika')).toBeVisible()
 })
 
 test('Exportieren downloads a valid JSON file', async ({ page }) => {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
-  )
+  await seedResults(page, { M01: SEED_RESULT })
+  await settings.goto()
 
-  await page.goto('/settings')
-
-  const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Exportieren' }).click()
-  const download = await downloadPromise
+  const download = await settings.export()
 
   expect(download.suggestedFilename()).toMatch(/^wc2026-results-\d{4}-\d{2}-\d{2}\.json$/)
 
@@ -49,35 +52,28 @@ test('Exportieren downloads a valid JSON file', async ({ page }) => {
 
 test('export → Zurücksetzen → Importieren restores state', async ({ page }) => {
   // Seed state and load the page so the store picks it up
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
-  )
-  await page.goto('/settings')
+  await seedResults(page, { M01: SEED_RESULT })
+  await settings.goto()
 
   // Step 1: Export
-  const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Exportieren' }).click()
-  const download = await downloadPromise
+  const download = await settings.export()
   const filePath = await download.path()
   const fileContent = await readFile(filePath!, 'utf-8')
 
   // Step 2: Reset — click settings button, then confirm in the custom dialog
-  await page.getByRole('button', { name: 'Zurücksetzen' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Zurücksetzen' }).click()
+  await settings.resetAndConfirm()
 
   // Verify reset cleared results
-  await page.goto('/groups')
-  await expect(page.getByRole('button', { name: 'Mexiko – Südafrika: Ergebnis eingeben' })).toBeVisible()
+  await groups.goto()
+  await expect(groups.emptyMatchButton('Mexiko', 'Südafrika')).toBeVisible()
 
   // Step 3: Import — upload file, then confirm in the custom dialog
-  await page.goto('/settings')
-  await page.locator('input[type="file"]').setInputFiles({
+  await settings.goto()
+  await settings.importAndReplace({
     name: 'wc2026-results.json',
     mimeType: 'application/json',
     buffer: Buffer.from(fileContent),
   })
-  await page.getByRole('dialog').getByRole('button', { name: 'Ersetzen' }).click()
 
   // Wait for the store to persist the imported state
   await page.waitForFunction(
@@ -91,84 +87,73 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   )
 
   // Verify results are restored
-  await page.goto('/groups')
-  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
+  await groups.goto()
+  await expect(groups.scoredMatchButton('Mexiko', 2, 1, 'Südafrika')).toBeVisible()
 })
 
 test('Abbrechen on reset dialog leaves results intact', async ({ page }) => {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
-  )
-  await page.goto('/settings')
+  await seedResults(page, { M01: SEED_RESULT })
+  await settings.goto()
 
-  await page.getByRole('button', { name: 'Zurücksetzen' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
+  const dialog = await settings.openResetDialog()
+  await dialog.click('Abbrechen')
 
-  await page.goto('/groups')
-  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
+  await groups.goto()
+  await expect(groups.scoredMatchButton('Mexiko', 2, 1, 'Südafrika')).toBeVisible()
 })
 
 test('Abbrechen on import dialog leaves results intact', async ({ page }) => {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState({ M01: SEED_RESULT })],
-  )
-  await page.goto('/settings')
+  await seedResults(page, { M01: SEED_RESULT })
+  await settings.goto()
 
   const emptyResults = JSON.stringify({ version: 1, results: {} })
-  await page.locator('input[type="file"]').setInputFiles({
+  const dialog = await settings.chooseImportFile({
     name: 'empty.json',
     mimeType: 'application/json',
     buffer: Buffer.from(emptyResults),
   })
-  await page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click()
+  await dialog.click('Abbrechen')
 
-  await page.goto('/groups')
-  await expect(page.getByRole('button', { name: 'Mexiko 2 : 1 Südafrika – Ergebnis bearbeiten' })).toBeVisible()
+  await groups.goto()
+  await expect(groups.scoredMatchButton('Mexiko', 2, 1, 'Südafrika')).toBeVisible()
 })
 
 test('confirm dialog has no detectable accessibility violations', async ({ page }) => {
-  await page.goto('/settings')
-  await page.getByRole('button', { name: 'Zurücksetzen' }).click()
-  await expect(page.getByRole('dialog')).toBeVisible()
+  await settings.goto()
+  await settings.openResetDialog()
 
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-
-  expect(results.violations).toEqual([])
+  await expectNoA11yViolations(page)
 })
 
-test('Importieren with invalid JSON shows error', async ({ page }) => {
-  await page.goto('/settings')
+test('Importieren with invalid JSON shows error', async () => {
+  await settings.goto()
 
-  await page.locator('input[type="file"]').setInputFiles({
+  await settings.chooseImportFile({
     name: 'invalid.json',
     mimeType: 'application/json',
     buffer: Buffer.from('not-valid-json'),
   })
 
-  await expect(page.getByRole('alert')).toBeVisible()
-  await expect(page.getByRole('alert')).toContainText('Ungültiges JSON-Format')
+  await expect(settings.alert()).toBeVisible()
+  await expect(settings.alert()).toContainText('Ungültiges JSON-Format')
 })
 
-test('Importieren with wrong version shows error', async ({ page }) => {
-  await page.goto('/settings')
+test('Importieren with wrong version shows error', async () => {
+  await settings.goto()
 
   const wrongVersion = JSON.stringify({ version: 99, results: {} })
-  await page.locator('input[type="file"]').setInputFiles({
+  await settings.chooseImportFile({
     name: 'wrong-version.json',
     mimeType: 'application/json',
     buffer: Buffer.from(wrongVersion),
   })
 
-  await expect(page.getByRole('alert')).toBeVisible()
-  await expect(page.getByRole('alert')).toContainText('Unbekanntes Dateiformat')
+  await expect(settings.alert()).toBeVisible()
+  await expect(settings.alert()).toContainText('Unbekanntes Dateiformat')
 })
 
 test('settings page has no detectable accessibility violations', async ({ page }) => {
-  await page.goto('/settings')
+  await settings.goto()
 
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-
-  expect(results.violations).toEqual([])
+  await expectNoA11yViolations(page)
 })

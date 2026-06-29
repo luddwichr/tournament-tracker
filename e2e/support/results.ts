@@ -16,6 +16,10 @@ export async function seedResults(page: Page, results: Record<string, Result>): 
   await page.evaluate(([key, value]) => localStorage.setItem(key, value as string), [STORAGE_KEY, storedState(results)])
 }
 
+export async function clearResults(page: Page): Promise<void> {
+  await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY)
+}
+
 export function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {
   const results: Record<string, Result> = {}
   for (const m of groupMatches) results[m.id] = makeResult(m.id, homeGoals, awayGoals)

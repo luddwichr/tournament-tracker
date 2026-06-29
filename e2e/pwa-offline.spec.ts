@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { AppNav, GroupsPage, KnockoutPage, SettingsPage } from './support'
 
 /**
  * PWA offline tests — run against the production build via `npm run preview`.
@@ -13,13 +14,18 @@ import { test, expect } from '@playwright/test'
 test('app loads from the production build', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/groups$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
+  await new GroupsPage(page).expectLoaded()
 })
 
 test('app works fully offline after first visit', async ({ context, page }) => {
+  const nav = new AppNav(page)
+  const groups = new GroupsPage(page)
+  const knockout = new KnockoutPage(page)
+  const settings = new SettingsPage(page)
+
   // --- Phase 1: prime the SW cache (online) ---
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
+  await groups.expectLoaded()
 
   // Wait for networkidle so Workbox precaching has time to complete.
   await page.waitForLoadState('networkidle')
@@ -39,16 +45,16 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   await context.setOffline(true)
 
   // In-page (Vue Router) navigation never hits the network — always works offline.
-  await page.getByRole('link', { name: 'K.-o.-Runde' }).click()
+  await nav.goToKnockout()
   await expect(page).toHaveURL(/\/knockout$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'K.-o.-Runde' })).toBeVisible()
+  await knockout.expectLoaded()
 
-  await page.getByRole('link', { name: 'Einstellungen' }).click()
+  await nav.goToSettings()
   await expect(page).toHaveURL(/\/settings$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible()
+  await settings.expectLoaded()
 
   // Full navigation while offline — SW serves index.html from cache via navigateFallback.
   await page.goto('/')
   await expect(page).toHaveURL(/\/groups$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
+  await groups.expectLoaded()
 })

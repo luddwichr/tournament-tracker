@@ -1,121 +1,80 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-import { STORAGE_KEY, storedState, allGroupResults } from './support/results'
+import { KnockoutPage, allGroupResults, clearResults, expectNoA11yViolations, seedResults } from './support'
+
+const { R32, R16 } = KnockoutPage
+
+let knockout: KnockoutPage
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
-  await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY)
+  await clearResults(page)
+  knockout = new KnockoutPage(page)
 })
 
 // ---------------------------------------------------------------------------
 // Button visibility
 // ---------------------------------------------------------------------------
 
-test('each R32 card has a "Mögliche Teams" button when no results entered', async ({ page }) => {
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  // Wait for the round to render
-  await r32Round.waitFor()
-  const buttons = r32Round.getByRole('button', { name: /Mögliche Teams/ })
+test('each R32 card has a "Mögliche Teams" button when no results entered', async () => {
+  await knockout.goto()
+  await knockout.waitForRound(R32)
   // 16 R32 matches × 2 unresolved team slots each = 32 buttons
-  await expect(buttons).toHaveCount(32)
+  await expect(knockout.possibleTeamsButtons(R32)).toHaveCount(32)
 })
 
 test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({ page }) => {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState(allGroupResults())],
-  )
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
+  await seedResults(page, allGroupResults())
+  await knockout.goto()
   // All R32 participants now known — buttons should be gone
-  await expect(r32Round.getByRole('button', { name: /Mögliche Teams/ })).toHaveCount(0)
+  await expect(knockout.possibleTeamsButtons(R32)).toHaveCount(0)
 })
 
 // ---------------------------------------------------------------------------
 // Dialog opens and shows teams
 // ---------------------------------------------------------------------------
 
-test('clicking "Mögliche Teams" opens a dialog listing possible teams', async ({ page }) => {
-  await page.goto('/knockout')
-  // Click the first "Mögliche Teams" button in the R32 round
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
+test('clicking "Mögliche Teams" opens a dialog listing possible teams', async () => {
+  await knockout.goto()
+  await knockout.openPossibleTeamsDialog(R32)
 })
 
-test('the possible-teams dialog lists team names with flags', async ({ page }) => {
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
+test('the possible-teams dialog lists team names with flags', async () => {
+  await knockout.goto()
+  const dialog = await knockout.openPossibleTeamsDialog(R32)
 
   // The dialog must contain at least one team name (non-empty list)
-  const items = dialog.locator('.possible-teams-dialog__item')
-  await expect(items.first()).toBeVisible()
+  const firstItem = dialog.items().first()
+  await expect(firstItem).toBeVisible()
 
   // Each item has a flag (role="img") and a team name
-  const firstItem = items.first()
   await expect(firstItem.getByRole('img')).toBeVisible()
-  await expect(firstItem.locator('.possible-teams-dialog__team-name')).not.toBeEmpty()
+  await expect(dialog.teamName(firstItem)).not.toBeEmpty()
 })
 
-test('dialog shows only the possible teams for the clicked slot (home side of M73)', async ({ page }) => {
+test('dialog shows only the possible teams for the clicked slot (home side of M73)', async () => {
   // M73 is A2 vs B2. Clicking the home-slot button shows only the 4 possible home teams (group A).
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
+  await knockout.goto()
+  const dialog = await knockout.openPossibleTeamsDialog(R32)
   // First button = home placeholder → 4 possible teams from group A only
-  const items = dialog.locator('.possible-teams-dialog__item')
-  await expect(items).toHaveCount(4)
+  await expect(dialog.items()).toHaveCount(4)
 })
 
 // ---------------------------------------------------------------------------
 // Dialog close
 // ---------------------------------------------------------------------------
 
-test('Escape closes the possible-teams dialog', async ({ page }) => {
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(dialog).not.toBeVisible()
+test('Escape closes the possible-teams dialog', async () => {
+  await knockout.goto()
+  const dialog = await knockout.openPossibleTeamsDialog(R32)
+  await dialog.closeWithEscape()
+  await dialog.expectHidden()
 })
 
-test('close button (✕) closes the possible-teams dialog', async ({ page }) => {
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
-  await dialog.getByRole('button', { name: 'Schließen' }).click()
-  await expect(dialog).not.toBeVisible()
+test('close button (✕) closes the possible-teams dialog', async () => {
+  await knockout.goto()
+  const dialog = await knockout.openPossibleTeamsDialog(R32)
+  await dialog.closeWithButton()
+  await dialog.expectHidden()
 })
 
 // ---------------------------------------------------------------------------
@@ -125,25 +84,14 @@ test('close button (✕) closes the possible-teams dialog', async ({ page }) => 
 test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches', async ({ page }) => {
   // Seed all group results so R32 is populated. Leave R32 unplayed so R16 slots
   // are still unresolved.
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState(allGroupResults())],
-  )
-  await page.goto('/knockout')
+  await seedResults(page, allGroupResults())
+  await knockout.goto()
 
-  // R16 round is the second .bracket-round column
-  const r16Round = page.locator('.bracket-round').nth(1)
-  const firstBtn = r16Round.getByRole('button', { name: /Mögliche Teams/ }).first()
-  await expect(firstBtn).toBeVisible()
-  await firstBtn.click()
-
-  const dialog = page.getByRole('dialog', { name: /Mögliche Teams/ })
-  await expect(dialog).toBeVisible()
+  const dialog = await knockout.openPossibleTeamsDialog(R16)
 
   // Clicking the home-slot button of M90 shows only 2 possible teams:
   // the winner of M73 (A2 or B2) — both R32 participants are known but M73 is unplayed.
-  const items = dialog.locator('.possible-teams-dialog__item')
-  await expect(items).toHaveCount(2)
+  await expect(dialog.items()).toHaveCount(2)
 })
 
 // ---------------------------------------------------------------------------
@@ -151,21 +99,12 @@ test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches
 // ---------------------------------------------------------------------------
 
 test('possible-teams dialog has no accessibility violations', async ({ page }) => {
-  await page.goto('/knockout')
-  const r32Round = page.locator('.bracket-round').first()
-  await r32Round
-    .getByRole('button', { name: /Mögliche Teams/ })
-    .first()
-    .click()
-
-  await expect(page.getByRole('dialog', { name: /Mögliche Teams/ })).toBeVisible()
-
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-  expect(results.violations).toEqual([])
+  await knockout.goto()
+  await knockout.openPossibleTeamsDialog(R32)
+  await expectNoA11yViolations(page)
 })
 
 test('knockout view with possible-teams buttons has no accessibility violations', async ({ page }) => {
-  await page.goto('/knockout')
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-  expect(results.violations).toEqual([])
+  await knockout.goto()
+  await expectNoA11yViolations(page)
 })

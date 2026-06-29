@@ -1,33 +1,32 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
+import { AppNav, GroupsPage, KnockoutPage, SettingsPage, expectNoA11yViolations } from './support'
 
 test('app shell loads and redirects to the groups view', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/groups$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Gruppen' })).toBeVisible()
+  await new GroupsPage(page).expectLoaded()
 })
 
 test('main navigation reaches all routes', async ({ page }) => {
   await page.goto('/')
+  const nav = new AppNav(page)
 
-  await page.getByRole('link', { name: 'K.-o.-Runde' }).click()
+  await nav.goToKnockout()
   await expect(page).toHaveURL(/\/knockout$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'K.-o.-Runde' })).toBeVisible()
+  await new KnockoutPage(page).expectLoaded()
 
-  await page.getByRole('link', { name: 'Weltrangliste' }).click()
+  await nav.goToRanking()
   await expect(page).toHaveURL(/\/ranking$/)
   await expect(page.getByRole('heading', { level: 1, name: 'FIFA-Weltrangliste' })).toBeVisible()
 
-  await page.getByRole('link', { name: 'Einstellungen' }).click()
+  await nav.goToSettings()
   await expect(page).toHaveURL(/\/settings$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible()
+  await new SettingsPage(page).expectLoaded()
 })
 
 test('home route has no detectable accessibility violations', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-
-  expect(results.violations).toEqual([])
+  await expectNoA11yViolations(page)
 })
