@@ -37,12 +37,26 @@ watch(
 </script>
 
 <template>
-  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <a
+    class="skip-link"
+    href="#main"
+  >Zum Inhalt springen</a>
   <AppHeader />
-  <main id="main" ref="mainRef" class="app-main" tabindex="-1">
+  <main
+    id="main"
+    ref="mainRef"
+    class="app-main"
+    tabindex="-1"
+  >
     <RouterView />
   </main>
-  <div class="visually-hidden" role="status" aria-live="polite">{{ announcement }}</div>
+  <div
+    class="visually-hidden"
+    role="status"
+    aria-live="polite"
+  >
+    {{ announcement }}
+  </div>
 </template>
 
 <style scoped>

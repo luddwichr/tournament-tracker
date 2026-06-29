@@ -74,18 +74,47 @@ function handleClear(): void {
 </script>
 
 <template>
-  <dialog ref="dialogEl" class="score-dialog" :aria-label="title" @close="emit('close')">
+  <dialog
+    ref="dialogEl"
+    class="score-dialog"
+    :aria-label="title"
+    @close="emit('close')"
+  >
     <div class="score-dialog__inner">
       <header class="score-dialog__header">
-        <h2 class="score-dialog__title">{{ title }}</h2>
-        <button type="button" class="score-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
+        <h2 class="score-dialog__title">
+          {{ title }}
+        </h2>
+        <button
+          type="button"
+          class="score-dialog__close"
+          aria-label="Schließen"
+          @click="dialogEl?.close()"
+        >
+          ✕
+        </button>
       </header>
 
       <div class="score-dialog__body">
-        <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
+        <ScoreInput
+          v-model:home="homeGoals"
+          v-model:away="awayGoals"
+          :home-team="homeTeam"
+          :away-team="awayTeam"
+        />
 
-        <div v-if="showPenaltyPicker" class="score-dialog__penalties" role="group" aria-labelledby="penalty-label">
-          <p id="penalty-label" class="score-dialog__penalty-label">Elfmeterschießen — Sieger</p>
+        <div
+          v-if="showPenaltyPicker"
+          class="score-dialog__penalties"
+          role="group"
+          aria-labelledby="penalty-label"
+        >
+          <p
+            id="penalty-label"
+            class="score-dialog__penalty-label"
+          >
+            Elfmeterschießen — Sieger
+          </p>
           <div class="score-dialog__penalty-btns">
             <button
               type="button"
@@ -117,14 +146,27 @@ function handleClear(): void {
       </div>
 
       <footer class="score-dialog__footer">
-        <button v-if="initial" type="button" class="btn btn--danger" @click="handleClear">
+        <button
+          v-if="initial"
+          type="button"
+          class="btn btn--danger"
+          @click="handleClear"
+        >
           Löschen
         </button>
         <div class="score-dialog__footer-actions">
-          <button type="button" class="btn btn--secondary" @click="dialogEl?.close()">
+          <button
+            type="button"
+            class="btn btn--secondary"
+            @click="dialogEl?.close()"
+          >
             Abbrechen
           </button>
-          <button type="button" class="btn btn--primary" @click="handleSave">
+          <button
+            type="button"
+            class="btn btn--primary"
+            @click="handleSave"
+          >
             Speichern
           </button>
         </div>

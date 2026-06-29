@@ -27,13 +27,24 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section class="bracket-round surface-card" :aria-label="title">
+  <section
+    class="bracket-round surface-card"
+    :aria-label="title"
+  >
     <header class="bracket-round__header">
-      <h2 class="bracket-round__title">{{ title }}</h2>
+      <h2 class="bracket-round__title">
+        {{ title }}
+      </h2>
     </header>
     <div class="bracket-round__matches">
-      <template v-for="row in matches" :key="row.match.id">
-        <p v-if="row.sectionLabel" class="bracket-round__section-label">
+      <template
+        v-for="row in matches"
+        :key="row.match.id"
+      >
+        <p
+          v-if="row.sectionLabel"
+          class="bracket-round__section-label"
+        >
           {{ row.sectionLabel }}
         </p>
         <div

@@ -31,16 +31,34 @@ onMounted(() => {
     <div class="squad-dialog__inner">
       <header class="squad-dialog__header">
         <div class="squad-dialog__team-heading">
-          <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+          <TeamFlag
+            :flag-code="team.flagCode"
+            :name="team.name"
+            :decorative="true"
+          />
           <div>
-            <h2 class="squad-dialog__title">{{ team.name }}</h2>
-            <p class="squad-dialog__ranking">FIFA-Ranking: {{ team.fifaRanking }}</p>
+            <h2 class="squad-dialog__title">
+              {{ team.name }}
+            </h2>
+            <p class="squad-dialog__ranking">
+              FIFA-Ranking: {{ team.fifaRanking }}
+            </p>
           </div>
         </div>
-        <button type="button" class="squad-dialog__close" aria-label="Schließen" @click="dialogEl?.close()">✕</button>
+        <button
+          type="button"
+          class="squad-dialog__close"
+          aria-label="Schließen"
+          @click="dialogEl?.close()"
+        >
+          ✕
+        </button>
       </header>
 
-      <div class="squad-dialog__body" tabindex="0">
+      <div
+        class="squad-dialog__body"
+        tabindex="0"
+      >
         <SquadList :players="players" />
       </div>
     </div>

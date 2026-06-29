@@ -12,7 +12,11 @@ const awayGoals = defineModel<number>('away', { required: true })
 </script>
 
 <template>
-  <div class="score-input" role="group" aria-label="Tore">
+  <div
+    class="score-input"
+    role="group"
+    aria-label="Tore"
+  >
     <div class="score-input__side">
       <span class="score-input__team-name">{{ props.homeTeam?.name ?? 'Heim' }}</span>
       <StepperInput
@@ -23,7 +27,10 @@ const awayGoals = defineModel<number>('away', { required: true })
       />
     </div>
 
-    <span class="score-input__sep" aria-hidden="true">:</span>
+    <span
+      class="score-input__sep"
+      aria-hidden="true"
+    >:</span>
 
     <div class="score-input__side">
       <span class="score-input__team-name">{{ props.awayTeam?.name ?? 'Gast' }}</span>

@@ -50,16 +50,34 @@ function handleClose(): void {
   >
     <div class="confirm-dialog__inner">
       <header class="confirm-dialog__header">
-        <h2 id="confirm-dialog-title" class="confirm-dialog__title">{{ title }}</h2>
+        <h2
+          id="confirm-dialog-title"
+          class="confirm-dialog__title"
+        >
+          {{ title }}
+        </h2>
       </header>
       <div class="confirm-dialog__body">
-        <p id="confirm-dialog-desc" class="confirm-dialog__message">{{ message }}</p>
+        <p
+          id="confirm-dialog-desc"
+          class="confirm-dialog__message"
+        >
+          {{ message }}
+        </p>
       </div>
       <footer class="confirm-dialog__footer">
-        <button type="button" class="btn btn--secondary" @click="handleCancel">
+        <button
+          type="button"
+          class="btn btn--secondary"
+          @click="handleCancel"
+        >
           Abbrechen
         </button>
-        <button type="button" class="btn btn--danger" @click="handleConfirm">
+        <button
+          type="button"
+          class="btn btn--danger"
+          @click="handleConfirm"
+        >
           {{ confirmLabel ?? 'Bestätigen' }}
         </button>
       </footer>

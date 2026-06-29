@@ -94,15 +94,26 @@ function handleCancel(): void {
         <h2>Erscheinungsbild</h2>
 
         <fieldset class="settings-view__theme-picker">
-          <legend class="visually-hidden">Design</legend>
-          <div class="settings-view__theme-options" role="group">
+          <legend class="visually-hidden">
+            Design
+          </legend>
+          <div
+            class="settings-view__theme-options"
+            role="group"
+          >
             <label
               v-for="t in themes"
               :key="t.value"
               class="settings-view__theme-option"
               :class="{ 'settings-view__theme-option--active': settings.theme === t.value }"
             >
-              <input type="radio" name="theme" :value="t.value" v-model="settings.theme" class="visually-hidden" />
+              <input
+                v-model="settings.theme"
+                type="radio"
+                name="theme"
+                :value="t.value"
+                class="visually-hidden"
+              >
               <span aria-hidden="true">{{ t.icon }}</span>
               {{ t.label }}
             </label>
@@ -114,14 +125,34 @@ function handleCancel(): void {
         <h2>Daten</h2>
 
         <div class="settings-view__actions">
-          <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
-          <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
-          <button type="button" class="settings-view__btn btn--danger" @click="handleReset">
+          <button
+            type="button"
+            class="settings-view__btn"
+            @click="handleExport"
+          >
+            Exportieren
+          </button>
+          <button
+            type="button"
+            class="settings-view__btn"
+            @click="handleImportClick"
+          >
+            Importieren
+          </button>
+          <button
+            type="button"
+            class="settings-view__btn btn--danger"
+            @click="handleReset"
+          >
             Zurücksetzen
           </button>
         </div>
 
-        <p v-if="importError" class="settings-view__error" role="alert">
+        <p
+          v-if="importError"
+          class="settings-view__error"
+          role="alert"
+        >
           {{ importError }}
         </p>
 
@@ -133,7 +164,7 @@ function handleCancel(): void {
           aria-hidden="true"
           tabindex="-1"
           @change="handleFileChange"
-        />
+        >
       </section>
     </div>
   </main>

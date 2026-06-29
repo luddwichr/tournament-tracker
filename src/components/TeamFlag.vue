@@ -18,7 +18,7 @@ defineProps<{
     :role="decorative ? undefined : 'img'"
     :aria-label="decorative ? undefined : name"
     :aria-hidden="decorative ? 'true' : undefined"
-  ></span>
+  />
 </template>
 
 <style scoped>

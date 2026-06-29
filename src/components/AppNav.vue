@@ -7,11 +7,24 @@ const links = useRouter()
 </script>
 
 <template>
-  <nav class="app-nav" aria-label="Hauptnavigation">
+  <nav
+    class="app-nav"
+    aria-label="Hauptnavigation"
+  >
     <ul class="app-nav__list">
-      <li v-for="link in links" :key="link.path" class="app-nav__item">
-        <RouterLink class="app-nav__link" :to="link.path">
-          <span class="app-nav__icon" aria-hidden="true">{{ link.meta.navIcon }}</span>
+      <li
+        v-for="link in links"
+        :key="link.path"
+        class="app-nav__item"
+      >
+        <RouterLink
+          class="app-nav__link"
+          :to="link.path"
+        >
+          <span
+            class="app-nav__icon"
+            aria-hidden="true"
+          >{{ link.meta.navIcon }}</span>
           <span class="app-nav__label">{{ link.meta.title }}</span>
         </RouterLink>
       </li>

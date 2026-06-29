@@ -184,8 +184,17 @@ function onTeamRefHoverEnd() {
 </script>
 
 <template>
-  <div ref="bracketViewEl" class="bracket-view" role="region" aria-label="K.-o.-Runde" tabindex="0">
-    <div ref="roundsEl" class="bracket-view__rounds">
+  <div
+    ref="bracketViewEl"
+    class="bracket-view"
+    role="region"
+    aria-label="K.-o.-Runde"
+    tabindex="0"
+  >
+    <div
+      ref="roundsEl"
+      class="bracket-view__rounds"
+    >
       <OriginColumn
         :highlighted-refs="highlightedRefKeys"
         @team-ref-hover="onTeamRefHover"
@@ -202,8 +211,16 @@ function onTeamRefHoverEnd() {
         @match-hover-end="onMatchHoverEnd"
         @placeholder-click="openPossibleTeams"
       />
-      <svg class="bracket-view__connectors" aria-hidden="true">
-        <path v-for="(path, i) in connectorPaths" :key="i" :d="path" class="bracket-view__connector" />
+      <svg
+        class="bracket-view__connectors"
+        aria-hidden="true"
+      >
+        <path
+          v-for="(path, i) in connectorPaths"
+          :key="i"
+          :d="path"
+          class="bracket-view__connector"
+        />
       </svg>
     </div>
   </div>

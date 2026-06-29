@@ -19,7 +19,9 @@ const selectedAway = computed(() =>
 
 <template>
   <div class="knockout-view">
-    <h1 class="knockout-view__heading">K.-o.-Runde</h1>
+    <h1 class="knockout-view__heading">
+      K.-o.-Runde
+    </h1>
     <BracketView @match-click="selectedMatch = $event" />
     <ScoreDialog
       v-if="selectedMatch"

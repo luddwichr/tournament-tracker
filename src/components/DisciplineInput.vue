@@ -9,11 +9,20 @@ const awayRed = defineModel<number>('awayRed', { required: true })
 
 <template>
   <fieldset class="discipline-input">
-    <legend class="discipline-input__heading">Karten</legend>
+    <legend class="discipline-input__heading">
+      Karten
+    </legend>
 
     <div class="discipline-input__grid">
-      <div class="discipline-input__group" role="group" aria-labelledby="discipline-home-label">
-        <span id="discipline-home-label" class="discipline-input__side-label">Heim</span>
+      <div
+        class="discipline-input__group"
+        role="group"
+        aria-labelledby="discipline-home-label"
+      >
+        <span
+          id="discipline-home-label"
+          class="discipline-input__side-label"
+        >Heim</span>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Gelb</span>
           <StepperInput
@@ -24,12 +33,23 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Rot</span>
-          <StepperInput v-model="homeRed" dec-label="Rote Karte Heim abziehen" inc-label="Rote Karte Heim hinzufügen" />
+          <StepperInput
+            v-model="homeRed"
+            dec-label="Rote Karte Heim abziehen"
+            inc-label="Rote Karte Heim hinzufügen"
+          />
         </div>
       </div>
 
-      <div class="discipline-input__group" role="group" aria-labelledby="discipline-away-label">
-        <span id="discipline-away-label" class="discipline-input__side-label">Gast</span>
+      <div
+        class="discipline-input__group"
+        role="group"
+        aria-labelledby="discipline-away-label"
+      >
+        <span
+          id="discipline-away-label"
+          class="discipline-input__side-label"
+        >Gast</span>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Gelb</span>
           <StepperInput
@@ -40,7 +60,11 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Rot</span>
-          <StepperInput v-model="awayRed" dec-label="Rote Karte Gast abziehen" inc-label="Rote Karte Gast hinzufügen" />
+          <StepperInput
+            v-model="awayRed"
+            dec-label="Rote Karte Gast abziehen"
+            inc-label="Rote Karte Gast hinzufügen"
+          />
         </div>
       </div>
     </div>

@@ -32,12 +32,21 @@ function handleClick(e: MouseEvent): void {
     :style="flagSize ? { '--flag-size': flagSize } : {}"
     @click="handleClick"
   >
-    <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
+    <TeamFlag
+      :flag-code="team.flagCode"
+      :name="team.name"
+      :decorative="true"
+    />
     <span class="team-label__name">{{ team.name }}</span>
   </component>
 
   <Teleport to="body">
-    <SquadDialog v-if="squadOpen" :team="team" :players="players" @close="squadOpen = false" />
+    <SquadDialog
+      v-if="squadOpen"
+      :team="team"
+      :players="players"
+      @close="squadOpen = false"
+    />
   </Teleport>
 </template>
 

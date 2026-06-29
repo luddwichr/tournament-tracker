@@ -41,15 +41,26 @@ const ariaLabel = computed(() => {
 </script>
 
 <template>
-  <div class="match-card" :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }">
+  <div
+    class="match-card"
+    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
+  >
     <div class="match-card__meta">
-      <time class="match-card__kickoff" :datetime="match.kickoff">
+      <time
+        class="match-card__kickoff"
+        :datetime="match.kickoff"
+      >
         {{ formatKickoff(match.kickoff) }}
       </time>
     </div>
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
-        <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
+        <TeamLabel
+          v-if="homeTeam"
+          :team="homeTeam"
+          flag-size="1.5rem"
+          :clickable="true"
+        />
         <button
           v-else
           type="button"
@@ -80,7 +91,12 @@ const ariaLabel = computed(() => {
       </button>
 
       <span class="match-card__team match-card__team--away">
-        <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
+        <TeamLabel
+          v-if="awayTeam"
+          :team="awayTeam"
+          flag-size="1.5rem"
+          :clickable="true"
+        />
         <button
           v-else
           type="button"

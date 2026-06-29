@@ -30,19 +30,43 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
       <h1>FIFA-Weltrangliste</h1>
       <p class="ranking-view__subtitle">
         Stand 11. Juni 2026 · {{ fifaRanking.length }} Mannschaften ·
-        <span class="ranking-view__legend-swatch" aria-hidden="true"></span>
+        <span
+          class="ranking-view__legend-swatch"
+          aria-hidden="true"
+        />
         {{ teams.length }} davon bei der WM 2026
       </p>
     </header>
 
-    <section class="ranking-view__table-wrap surface-card" aria-label="FIFA-Weltrangliste" tabindex="0">
+    <section
+      class="ranking-view__table-wrap surface-card"
+      aria-label="FIFA-Weltrangliste"
+      tabindex="0"
+    >
       <table class="ranking-table">
-        <caption class="visually-hidden">FIFA-Weltrangliste</caption>
+        <caption class="visually-hidden">
+          FIFA-Weltrangliste
+        </caption>
         <thead>
           <tr>
-            <th scope="col" class="ranking-table__rank-col">Rang</th>
-            <th scope="col" class="ranking-table__team-col">Mannschaft</th>
-            <th scope="col" class="ranking-table__pts-col">Punkte</th>
+            <th
+              scope="col"
+              class="ranking-table__rank-col"
+            >
+              Rang
+            </th>
+            <th
+              scope="col"
+              class="ranking-table__team-col"
+            >
+              Mannschaft
+            </th>
+            <th
+              scope="col"
+              class="ranking-table__pts-col"
+            >
+              Punkte
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -56,13 +80,27 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
               {{ entry.rank }}
             </td>
             <td class="ranking-row__team">
-              <TeamLabel v-if="team" :team="team" flag-size="1.5rem" :clickable="true" />
-              <span v-else class="ranking-row__name">
-                <TeamFlag :flag-code="entry.flagCode" :name="entry.name" :decorative="true" />
+              <TeamLabel
+                v-if="team"
+                :team="team"
+                flag-size="1.5rem"
+                :clickable="true"
+              />
+              <span
+                v-else
+                class="ranking-row__name"
+              >
+                <TeamFlag
+                  :flag-code="entry.flagCode"
+                  :name="entry.name"
+                  :decorative="true"
+                />
                 {{ entry.name }}
               </span>
             </td>
-            <td class="ranking-row__pts">{{ numberFormat.format(entry.points) }}</td>
+            <td class="ranking-row__pts">
+              {{ numberFormat.format(entry.points) }}
+            </td>
           </tr>
         </tbody>
       </table>
