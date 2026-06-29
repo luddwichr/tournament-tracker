@@ -36,7 +36,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
     </header>
 
     <section class="ranking-view__table-wrap surface-card" aria-label="FIFA-Weltrangliste" tabindex="0">
-      <table class="ranking-table tinted-header">
+      <table class="ranking-table">
         <caption class="visually-hidden">
           FIFA-Weltrangliste
         </caption>
@@ -113,6 +113,11 @@ h1 {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-base);
+  table-layout: fixed;
+}
+
+.ranking-table thead tr {
+  background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
 .ranking-table th {
@@ -125,11 +130,12 @@ h1 {
 }
 
 .ranking-table thead .ranking-table__rank-col {
-  width: 3rem;
+  width: 3.5rem;
   text-align: right;
 }
 
 .ranking-table thead .ranking-table__pts-col {
+  width: 5.5rem;
   text-align: right;
 }
 
@@ -148,6 +154,8 @@ h1 {
 .ranking-row__team {
   padding: var(--space-2) var(--space-3);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ranking-row__name {
