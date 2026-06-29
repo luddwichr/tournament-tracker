@@ -7,27 +7,11 @@ import type { Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
 import { rankThirdPlaced, resolveThirdPlaceSlot } from './third-place'
+import { makeResult } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function makeResult(
-  matchId: string,
-  homeGoals: number,
-  awayGoals: number,
-  opts: { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number } = {},
-): Result {
-  return {
-    matchId,
-    homeGoals,
-    awayGoals,
-    homeYellow: opts.homeYellow ?? 0,
-    homeRed: opts.homeRed ?? 0,
-    awayYellow: opts.awayYellow ?? 0,
-    awayRed: opts.awayRed ?? 0,
-  }
-}
 
 type CardOverrides = Record<
   string,

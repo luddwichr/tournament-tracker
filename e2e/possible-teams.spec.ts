@@ -1,23 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { groupMatches } from '../src/data/fixtures-2026'
-import type { Result } from '../src/types/tournament'
-
-const STORAGE_KEY = 'wc2026:results:v1'
-
-function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
-  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-}
-
-function storedState(results: Record<string, Result>): string {
-  return JSON.stringify({ results })
-}
-
-function allGroupResults(): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const m of groupMatches) results[m.id] = makeResult(m.id)
-  return results
-}
+import { STORAGE_KEY, storedState, allGroupResults } from './support/results'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')

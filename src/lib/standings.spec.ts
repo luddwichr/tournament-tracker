@@ -8,9 +8,9 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import type { Result } from '../types/tournament'
 import { computeGroupStandings } from './standings'
 import { groupMatches } from '../data/fixtures-2026'
+import { makeResult, resultsMap } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // Group A fixtures (real IDs from fixtures-2026.ts, chronological order)
@@ -25,29 +25,8 @@ import { groupMatches } from '../data/fixtures-2026'
 
 const groupAMatches = groupMatches.filter((m) => m.group === 'A')
 
-function matchId(i: number): string {
+function mid(i: number): string {
   return groupAMatches[i]!.id
-}
-
-function makeResult(
-  matchIdx: number,
-  homeGoals: number,
-  awayGoals: number,
-  opts: { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number } = {},
-): Result {
-  return {
-    matchId: matchId(matchIdx),
-    homeGoals,
-    awayGoals,
-    homeYellow: opts.homeYellow ?? 0,
-    homeRed: opts.homeRed ?? 0,
-    awayYellow: opts.awayYellow ?? 0,
-    awayRed: opts.awayRed ?? 0,
-  }
-}
-
-function resultsMap(...results: Result[]): Record<string, Result> {
-  return Object.fromEntries(results.map((r) => [r.matchId, r]))
 }
 
 // ---------------------------------------------------------------------------
@@ -56,7 +35,7 @@ describe('computeGroupStandings — basic aggregation', () => {
   it('accumulates played, wins, draws, losses, GF, GA, GD, points correctly', () => {
     // M01 mex 2-0 rsa  → mex: W(3pts,+2,2GF)  rsa: L(0pts,-2,0GF)
     // M02 kor 1-1 cze  → kor: D(1pt,0,1GF)    cze: D(1pt,0,1GF)
-    const standings = computeGroupStandings('A', resultsMap(makeResult(0, 2, 0), makeResult(1, 1, 1)))
+    const standings = computeGroupStandings('A', resultsMap(makeResult(mid(0), 2, 0), makeResult(mid(1), 1, 1)))
 
     const mex = standings.find((s) => s.team.id === 'mex')!
     expect(mex.played).toBe(1)
@@ -89,9 +68,9 @@ describe('computeGroupStandings — basic aggregation', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 2, 0), // M01 mex 2-0 rsa → mex W
-        makeResult(3, 1, 1), // M28 mex 1-1 kor → mex D (mex home)
-        makeResult(4, 1, 0), // M53 cze 1-0 mex → mex L (mex away)
+        makeResult(mid(0), 2, 0), // M01 mex 2-0 rsa → mex W
+        makeResult(mid(3), 1, 1), // M28 mex 1-1 kor → mex D (mex home)
+        makeResult(mid(4), 1, 0), // M53 cze 1-0 mex → mex L (mex away)
       ),
     )
     const mex = standings.find((s) => s.team.id === 'mex')!
@@ -100,7 +79,7 @@ describe('computeGroupStandings — basic aggregation', () => {
 
   it('accumulates yellow and red cards and computes fairPlayScore', () => {
     // M01 mex 1-0 rsa; mex gets 2 yellows (home), rsa gets 1 red (away)
-    const standings = computeGroupStandings('A', resultsMap(makeResult(0, 1, 0, { homeYellow: 2, awayRed: 1 })))
+    const standings = computeGroupStandings('A', resultsMap(makeResult(mid(0), 1, 0, { homeYellow: 2, awayRed: 1 })))
     const mex = standings.find((s) => s.team.id === 'mex')!
     expect(mex.yellowCards).toBe(2)
     expect(mex.redCards).toBe(0)
@@ -129,8 +108,8 @@ describe('computeGroupStandings — partial group (unplayed matches)', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 2, 1), // M01  mex 2-1 rsa
-        makeResult(1, 1, 0), // M02  kor 1-0 cze
+        makeResult(mid(0), 2, 1), // M01  mex 2-1 rsa
+        makeResult(mid(1), 1, 0), // M02  kor 1-0 cze
       ),
     )
     expect(standings).toHaveLength(4)
@@ -150,8 +129,8 @@ describe('computeGroupStandings — partial group (unplayed matches)', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 2, 1), // M01 mex(h) 2-1 rsa(a)
-        makeResult(1, 1, 0), // M02 kor(h) 1-0 cze(a)
+        makeResult(mid(0), 2, 1), // M01 mex(h) 2-1 rsa(a)
+        makeResult(mid(1), 1, 0), // M02 kor(h) 1-0 cze(a)
       ),
     )
     expect(standings[0]!.team.id).toBe('mex') // 3pts +1GD 2GF
@@ -169,12 +148,12 @@ describe('computeGroupStandings — correct ordering', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 1, 0), // M01  mex 1-0 rsa  → mex W, rsa L
-        makeResult(1, 1, 1), // M02  kor 1-1 cze  → both D
-        makeResult(2, 1, 0), // M25  cze 1-0 rsa  → cze W, rsa L
-        makeResult(3, 1, 0), // M28  mex 1-0 kor  → mex W, kor L
-        makeResult(4, 0, 1), // M53  cze 0-1 mex  → mex W(away), cze L
-        makeResult(5, 0, 1), // M54  rsa 0-1 kor  → kor W, rsa L
+        makeResult(mid(0), 1, 0), // M01  mex 1-0 rsa  → mex W, rsa L
+        makeResult(mid(1), 1, 1), // M02  kor 1-1 cze  → both D
+        makeResult(mid(2), 1, 0), // M25  cze 1-0 rsa  → cze W, rsa L
+        makeResult(mid(3), 1, 0), // M28  mex 1-0 kor  → mex W, kor L
+        makeResult(mid(4), 0, 1), // M53  cze 0-1 mex  → mex W(away), cze L
+        makeResult(mid(5), 0, 1), // M54  rsa 0-1 kor  → kor W, rsa L
       ),
     )
     // mex: 9pts | kor: 4pts (D+L+W) GD=0 GF=2 | cze: 4pts (D+W+L) GD=0 GF=2 | rsa: 0pts
@@ -191,12 +170,12 @@ describe('computeGroupStandings — correct ordering', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 0, 0), // M01
-        makeResult(1, 0, 0), // M02
-        makeResult(2, 0, 0), // M25
-        makeResult(3, 0, 0), // M28
-        makeResult(4, 0, 0), // M53
-        makeResult(5, 0, 0), // M54
+        makeResult(mid(0), 0, 0), // M01
+        makeResult(mid(1), 0, 0), // M02
+        makeResult(mid(2), 0, 0), // M25
+        makeResult(mid(3), 0, 0), // M28
+        makeResult(mid(4), 0, 0), // M53
+        makeResult(mid(5), 0, 0), // M54
       ),
     )
     expect(standings[0]!.team.id).toBe('mex') // rank 14
@@ -217,12 +196,12 @@ describe('computeGroupStandings — correct ordering', () => {
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(0, 1, 1, { homeRed: 1 }), // M01 mex(h) 1-1 rsa  — mex gets 1 red
-        makeResult(1, 1, 1), //                  M02 kor(h) 1-1 cze
-        makeResult(2, 1, 1, { homeYellow: 2 }), // M25 cze(h) 1-1 rsa — cze gets 2 yellows
-        makeResult(3, 1, 1), //                  M28 mex(h) 1-1 kor
-        makeResult(4, 1, 1), //                  M53 cze(h) 1-1 mex
-        makeResult(5, 1, 1), //                  M54 rsa(h) 1-1 kor
+        makeResult(mid(0), 1, 1, { homeRed: 1 }), // M01 mex(h) 1-1 rsa  — mex gets 1 red
+        makeResult(mid(1), 1, 1), //                  M02 kor(h) 1-1 cze
+        makeResult(mid(2), 1, 1, { homeYellow: 2 }), // M25 cze(h) 1-1 rsa — cze gets 2 yellows
+        makeResult(mid(3), 1, 1), //                  M28 mex(h) 1-1 kor
+        makeResult(mid(4), 1, 1), //                  M53 cze(h) 1-1 mex
+        makeResult(mid(5), 1, 1), //                  M54 rsa(h) 1-1 kor
       ),
     )
     expect(standings[0]!.team.id).toBe('kor') // 0 cards

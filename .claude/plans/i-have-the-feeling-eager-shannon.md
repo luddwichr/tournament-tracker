@@ -93,14 +93,15 @@ knowledge of `SquadDialog` or the `squads` dataset.
   state. `BracketView` becomes an orchestrator of `BracketRound`/`OriginColumn` +
   Teleported dialog.
 
-## Workstream D — Move pure logic into `src/lib`
+## Workstream D — Move pure logic into `src/lib` ✅ DONE
 
-- **`src/lib/bracket-graph.ts`** — move the static maps (`nextMatchMap`,
-  `prevMatchMap`, `teamRefToMatchId`, `matchToRefKeys`) out of
-  `use-bracket-connectors.ts`; the composable keeps only DOM querying + bezier
-  math. Add a unit spec for the maps.
-- **`src/lib/squad.ts`** — move `POSITION_ORDER`/`POSITION_LABEL` +
-  `sortBySquadPosition(players)` out of `SquadList.vue`; component just renders.
+`src/lib/bracket-graph.ts` created: 4 static topology maps (`nextMatchMap`,
+`prevMatchMap`, `teamRefToMatchId`, `matchToRefKeys`) extracted from
+`use-bracket-connectors.ts`; composable now re-exports them and keeps only
+bezier geometry. `src/lib/bracket-graph.spec.ts` added (map tests moved from
+composable spec). `src/lib/squad.ts` created: `POSITION_LABEL`,
+`POSITION_ORDER`, `sortBySquadPosition()` extracted from `SquadList.vue`;
+component `<script setup>` reduced to 3 lines.
 
 ## Workstream E — CSS consolidation & token cleanup
 
@@ -119,16 +120,18 @@ Most dialog CSS is removed by A. Remaining, in `src/styles/base.css`:
   `--state-drag`, `--breakpoint-md`, `--breakpoint-lg`, `--elevation-2`,
   `--elevation-3`.
 
-## Workstream F — Test infrastructure
+## Workstream F — Test infrastructure ✅ DONE
 
-- **`src/test-support/results.ts`** — shared `makeResult()`, `allGroupResults()`,
-  `resultsMap()`. Update the 6 lib specs (`standings`, `knockout`, `third-place`,
-  `tiebreakers`, `possible-teams`, `persistence`) to import. (File is non-`*.spec`
-  so vitest's `src/**/*.spec.ts` include won't execute it; add to coverage
-  `exclude`.)
-- **`e2e/support/results.ts`** — shared `STORAGE_KEY`, `makeResult()`,
-  `storedState()`, `seedResults(page, results)`, `allGroupResults()`. Update
-  `knockout`, `possible-teams`, `export-import` specs.
+`src/test-support/results.ts` created: shared `makeResult()`,
+`allGroupResults()`, `resultsMap()`; coverage `exclude` updated for
+`src/test-support/**`. `e2e/support/results.ts` created: shared `STORAGE_KEY`,
+`makeResult()`, `storedState()`, `seedResults()`, `allGroupResults()`. All 6
+lib specs (`standings`, `knockout`, `third-place`, `tiebreakers`,
+`possible-teams`, `persistence`) and 3 e2e specs (`knockout`, `possible-teams`,
+`export-import`) updated to import from the shared factories, removing ~340
+lines of duplicated helper code.
+
+Remaining F items (not yet done):
 - Reduce brittle bracket navigation: select by the existing `data-match-id`
   attribute (add stable `data-testid`s where missing) instead of
   `.bracket-round nth(...).match-card nth(...)`.
@@ -154,9 +157,9 @@ Extend **`eslint.config.js`** (no new a11y plugin):
 
 ## Suggested sequencing (independent, reviewable steps)
 
-1. **D** (lib extraction) + **F** (test fixtures) — pure, low-risk, unblocks
+1. ✅ **D** (lib extraction) + **F** (test fixtures) — pure, low-risk, unblocks
    confident refactoring.
-2. **A** (`BaseDialog`) — biggest structural + CSS win.
+2. ✅ **A** (`BaseDialog`) — biggest structural + CSS win.
 3. **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
 4. **C** (composable extraction for `ScoreDialog`/`BracketView`).
 5. **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.

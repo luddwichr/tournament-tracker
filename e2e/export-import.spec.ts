@@ -1,24 +1,10 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFile } from 'fs/promises'
+import { STORAGE_KEY, storedState, makeResult } from './support/results'
 
 // M01: Mexiko vs Südafrika (Group A, 2026-06-11)
-const SEED_RESULT = {
-  matchId: 'M01',
-  homeGoals: 2,
-  awayGoals: 1,
-  homeYellow: 0,
-  homeRed: 0,
-  awayYellow: 0,
-  awayRed: 0,
-}
-
-const STORAGE_KEY = 'wc2026:results:v1'
-
-// pinia-plugin-persistedstate format: { results: { ... } }
-function storedState(results: Record<string, unknown>): string {
-  return JSON.stringify({ results })
-}
+const SEED_RESULT = makeResult('M01', 2, 1)
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/settings')

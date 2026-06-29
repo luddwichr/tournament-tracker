@@ -1,18 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Result } from '../types/tournament'
 import { parseImport, exportJson } from './persistence'
+import { makeResult } from '../test-support/results'
 
 function validResult(matchId: string, extra: Partial<Result> = {}): Result {
-  return {
-    matchId,
-    homeGoals: 1,
-    awayGoals: 0,
-    homeYellow: 0,
-    homeRed: 0,
-    awayYellow: 0,
-    awayRed: 0,
-    ...extra,
-  }
+  return makeResult(matchId, 1, 0, extra)
 }
 
 function serialise(results: Record<string, Result>): string {
