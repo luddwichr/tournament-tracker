@@ -29,14 +29,14 @@ const homeYellow = ref(initial.value?.homeYellow ?? 0)
 const homeRed = ref(initial.value?.homeRed ?? 0)
 const awayYellow = ref(initial.value?.awayYellow ?? 0)
 const awayRed = ref(initial.value?.awayRed ?? 0)
-const penaltyWinner = ref<'home' | 'away' | null>(initial.value?.penaltyWinner ?? null)
+const penaltyWinner = ref<'home' | 'away' | undefined>(initial.value?.penaltyWinner)
 
 const isKnockout = computed(() => props.match.stage !== 'group')
 const showPenaltyPicker = computed(() => isKnockout.value && homeGoals.value === awayGoals.value)
 
 // Clear penalty winner whenever scores diverge
 watch(showPenaltyPicker, (show) => {
-  if (!show) penaltyWinner.value = null
+  if (!show) penaltyWinner.value = undefined
 })
 
 const title = computed(() => {
@@ -58,7 +58,7 @@ function handleSave(): void {
     homeRed: homeRed.value,
     awayYellow: awayYellow.value,
     awayRed: awayRed.value,
-    penaltyWinner: showPenaltyPicker.value ? penaltyWinner.value : null,
+    ...(showPenaltyPicker.value && penaltyWinner.value ? { penaltyWinner: penaltyWinner.value } : {}),
   })
   const home = props.homeTeam?.name ?? 'Heim'
   const away = props.awayTeam?.name ?? 'Gast'
@@ -74,7 +74,7 @@ function handleClear(): void {
 </script>
 
 <template>
-  <dialog ref="dialogEl" class="score-dialog" aria-modal="true" :aria-label="title" @close="emit('close')">
+  <dialog ref="dialogEl" class="score-dialog" :aria-label="title" @close="emit('close')">
     <div class="score-dialog__inner">
       <header class="score-dialog__header">
         <h2 class="score-dialog__title">{{ title }}</h2>
@@ -92,7 +92,7 @@ function handleClear(): void {
               class="score-dialog__penalty-btn"
               :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'home' }"
               :aria-pressed="penaltyWinner === 'home'"
-              @click="penaltyWinner = penaltyWinner === 'home' ? null : 'home'"
+              @click="penaltyWinner = penaltyWinner === 'home' ? undefined : 'home'"
             >
               {{ homeTeam?.name ?? 'Heim' }}
             </button>
@@ -101,7 +101,7 @@ function handleClear(): void {
               class="score-dialog__penalty-btn"
               :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'away' }"
               :aria-pressed="penaltyWinner === 'away'"
-              @click="penaltyWinner = penaltyWinner === 'away' ? null : 'away'"
+              @click="penaltyWinner = penaltyWinner === 'away' ? undefined : 'away'"
             >
               {{ awayTeam?.name ?? 'Gast' }}
             </button>
@@ -117,14 +117,14 @@ function handleClear(): void {
       </div>
 
       <footer class="score-dialog__footer">
-        <button v-if="initial" type="button" class="score-dialog__btn score-dialog__btn--danger" @click="handleClear">
+        <button v-if="initial" type="button" class="btn btn--danger" @click="handleClear">
           Löschen
         </button>
         <div class="score-dialog__footer-actions">
-          <button type="button" class="score-dialog__btn score-dialog__btn--secondary" @click="dialogEl?.close()">
+          <button type="button" class="btn btn--secondary" @click="dialogEl?.close()">
             Abbrechen
           </button>
-          <button type="button" class="score-dialog__btn score-dialog__btn--primary" @click="handleSave">
+          <button type="button" class="btn btn--primary" @click="handleSave">
             Speichern
           </button>
         </div>
@@ -254,44 +254,5 @@ function handleClear(): void {
   display: flex;
   gap: var(--space-2);
   margin-left: auto;
-}
-
-.score-dialog__btn {
-  padding: var(--space-2) var(--space-4);
-  min-height: var(--tap-target);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.score-dialog__btn--primary {
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-
-.score-dialog__btn--primary:hover {
-  opacity: 0.9;
-}
-
-.score-dialog__btn--secondary {
-  background: transparent;
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.score-dialog__btn--secondary:hover {
-  background: var(--color-bg);
-}
-
-.score-dialog__btn--danger {
-  background: transparent;
-  border-color: var(--color-loss);
-  color: var(--color-loss);
-}
-
-.score-dialog__btn--danger:hover {
-  background: color-mix(in srgb, var(--color-loss) 10%, transparent);
 }
 </style>

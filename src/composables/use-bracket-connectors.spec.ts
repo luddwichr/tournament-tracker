@@ -148,7 +148,7 @@ describe('useBracketConnectors', () => {
     it('returns null when the from-match element is not in the container', () => {
       const container = document.createElement('div')
       const toGroup = document.createElement('div')
-      toGroup.dataset.matchId = 'M90'
+      toGroup.dataset['matchId'] = 'M90'
       container.appendChild(toGroup)
       const { matchConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
       expect(matchConnector('M73', 'M90')).toBeNull()
@@ -157,7 +157,7 @@ describe('useBracketConnectors', () => {
     it('returns null when the to-match element is not in the container', () => {
       const container = document.createElement('div')
       const fromGroup = document.createElement('div')
-      fromGroup.dataset.matchId = 'M73'
+      fromGroup.dataset['matchId'] = 'M73'
       container.appendChild(fromGroup)
       const { matchConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
       expect(matchConnector('M73', 'M90')).toBeNull()
@@ -169,7 +169,7 @@ describe('useBracketConnectors', () => {
       mockRect(container, { left: 0, top: 0 })
 
       const fromGroup = document.createElement('div')
-      fromGroup.dataset.matchId = 'M73'
+      fromGroup.dataset['matchId'] = 'M73'
       const fromCard = document.createElement('div')
       fromCard.className = 'match-card'
       mockRect(fromCard, { right: 50, top: 20, height: 20 })
@@ -177,7 +177,7 @@ describe('useBracketConnectors', () => {
       container.appendChild(fromGroup)
 
       const toGroup = document.createElement('div')
-      toGroup.dataset.matchId = 'M90'
+      toGroup.dataset['matchId'] = 'M90'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
       mockRect(toCard, { left: 60, top: 30, height: 20 })
@@ -203,7 +203,7 @@ describe('useBracketConnectors', () => {
       mockRect(container, { left: 10, top: 5 })
 
       const fromGroup = document.createElement('div')
-      fromGroup.dataset.matchId = 'M73'
+      fromGroup.dataset['matchId'] = 'M73'
       const fromCard = document.createElement('div')
       fromCard.className = 'match-card'
       mockRect(fromCard, { right: 50, top: 20, height: 20 })
@@ -211,7 +211,7 @@ describe('useBracketConnectors', () => {
       container.appendChild(fromGroup)
 
       const toGroup = document.createElement('div')
-      toGroup.dataset.matchId = 'M90'
+      toGroup.dataset['matchId'] = 'M90'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
       mockRect(toCard, { left: 60, top: 30, height: 20 })
@@ -243,7 +243,7 @@ describe('useBracketConnectors', () => {
     it('returns null when the ref-key element is not in the container', () => {
       const container = document.createElement('div')
       const toGroup = document.createElement('div')
-      toGroup.dataset.matchId = 'M73'
+      toGroup.dataset['matchId'] = 'M73'
       container.appendChild(toGroup)
       const { originConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
       expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
@@ -252,7 +252,7 @@ describe('useBracketConnectors', () => {
     it('returns null when the match element is not in the container', () => {
       const container = document.createElement('div')
       const fromEl = document.createElement('div')
-      fromEl.dataset.refKey = 'groupRank:A:2'
+      fromEl.dataset['refKey'] = 'groupRank:A:2'
       container.appendChild(fromEl)
       const { originConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
       expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
@@ -264,12 +264,12 @@ describe('useBracketConnectors', () => {
       mockRect(container, { left: 0, top: 0 })
 
       const fromEl = document.createElement('div')
-      fromEl.dataset.refKey = 'groupRank:A:2'
+      fromEl.dataset['refKey'] = 'groupRank:A:2'
       mockRect(fromEl, { right: 30, top: 15, height: 10 })
       container.appendChild(fromEl)
 
       const toGroup = document.createElement('div')
-      toGroup.dataset.matchId = 'M73'
+      toGroup.dataset['matchId'] = 'M73'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
       mockRect(toCard, { left: 60, top: 30, height: 20 })

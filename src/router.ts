@@ -6,6 +6,8 @@ declare module 'vue-router' {
   interface RouteMeta {
     /** Page title — drives both the document title and the a11y announcement. */
     title?: string
+    /** Emoji icon shown in the bottom nav; omit to exclude the route from nav. */
+    navIcon?: string
   }
 }
 
@@ -15,25 +17,25 @@ const routes: RouteRecordRaw[] = [
     path: '/groups',
     name: 'groups',
     component: () => import('./views/GroupsView.vue'),
-    meta: { title: 'Gruppen' },
+    meta: { title: 'Gruppen', navIcon: '🏟️' },
   },
   {
     path: '/knockout',
     name: 'knockout',
     component: () => import('./views/KnockoutView.vue'),
-    meta: { title: 'K.-o.-Runde' },
+    meta: { title: 'K.-o.-Runde', navIcon: '🏆' },
   },
   {
     path: '/ranking',
     name: 'ranking',
     component: () => import('./views/RankingView.vue'),
-    meta: { title: 'Weltrangliste' },
+    meta: { title: 'Weltrangliste', navIcon: '🌍' },
   },
   {
     path: '/settings',
     name: 'settings',
     component: () => import('./views/SettingsView.vue'),
-    meta: { title: 'Einstellungen' },
+    meta: { title: 'Einstellungen', navIcon: '⚙️' },
   },
 ]
 

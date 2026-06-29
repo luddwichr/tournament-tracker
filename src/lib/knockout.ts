@@ -11,15 +11,11 @@
  * the decisive goal was in extra time).
  */
 
-import type { MatchSlot, TeamRef, Team, GroupId, Result } from '../types/tournament'
-import { fixtures, groupMatches } from '../data/fixtures-2026'
+import type { MatchSlot, TeamRef, Team, Result } from '../types/tournament'
+import { fixtures } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
-import { computeGroupStandings } from './standings'
+import { computeGroupStandings, isGroupComplete } from './standings'
 import { resolveThirdPlaceSlot } from './third-place'
-
-function isGroupComplete(groupId: GroupId, results: Record<string, Result>): boolean {
-  return groupMatches.filter((m) => m.group === groupId).every((m) => results[m.id] != null)
-}
 
 /**
  * Resolve a TeamRef to a concrete Team given current results.

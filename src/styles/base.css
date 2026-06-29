@@ -56,6 +56,47 @@ body {
   overflow: hidden;
 }
 
+/* Shared button base and variants */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  min-height: var(--tap-target);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  font-family: inherit;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+.btn--primary:hover {
+  opacity: 0.9;
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.btn--secondary:hover {
+  background: var(--color-bg);
+}
+
+.btn--danger {
+  background: transparent;
+  border-color: var(--color-loss);
+  color: var(--color-loss);
+}
+.btn--danger:hover {
+  background: color-mix(in srgb, var(--color-loss) 10%, transparent);
+}
+
 /* Screen-reader-only utility */
 .visually-hidden {
   position: absolute;

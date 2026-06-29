@@ -9,20 +9,16 @@
  * table (THIRD_PLACE_ALLOCATION in fixtures-2026.ts).
  */
 
-import type { GroupId, Result, Team, ThirdPlaceSlot } from '../types/tournament'
+import type { Result, Team, ThirdPlaceSlot } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
-import { groupMatches, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
+import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import type { TeamStat } from './standings'
-import { computeGroupStandings } from './standings'
-
-function isGroupComplete(groupId: GroupId, results: Record<string, Result>): boolean {
-  return groupMatches.filter((m) => m.group === groupId).every((m) => results[m.id] != null)
-}
+import { computeGroupStandings, isGroupComplete } from './standings'
+import { compareByPointsGdGf } from './tiebreakers'
 
 function compareThirdPlaced(a: TeamStat, b: TeamStat): number {
-  if (a.points !== b.points) return b.points - a.points
-  if (a.goalDiff !== b.goalDiff) return b.goalDiff - a.goalDiff
-  if (a.goalsFor !== b.goalsFor) return b.goalsFor - a.goalsFor
+  const byPGF = compareByPointsGdGf(a, b)
+  if (byPGF !== 0) return byPGF
   if (a.fairPlayScore !== b.fairPlayScore) return b.fairPlayScore - a.fairPlayScore
   return a.team.fifaRanking - b.team.fifaRanking
 }

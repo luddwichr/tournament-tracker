@@ -116,7 +116,7 @@ function handleCancel(): void {
         <div class="settings-view__actions">
           <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
           <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
-          <button type="button" class="settings-view__btn settings-view__btn--danger" @click="handleReset">
+          <button type="button" class="settings-view__btn btn--danger" @click="handleReset">
             Zurücksetzen
           </button>
         </div>
@@ -203,15 +203,6 @@ h2 {
   color: var(--color-loss);
   margin: 0;
   font-size: var(--font-size-sm);
-}
-
-.settings-view__btn--danger {
-  border-color: var(--color-loss);
-  color: var(--color-loss);
-}
-
-.settings-view__btn--danger:hover {
-  background: color-mix(in srgb, var(--color-loss) 10%, transparent);
 }
 
 .settings-view__theme-picker {

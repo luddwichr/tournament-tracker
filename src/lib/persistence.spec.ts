@@ -67,8 +67,8 @@ describe('parseImport', () => {
     expect(() => parseImport(json)).not.toThrow()
   })
 
-  it('accepts penaltyWinner: null', () => {
-    const json = serialise({ M73: validResult('M73', { penaltyWinner: null }) })
+  it('accepts penaltyWinner: null (legacy import boundary)', () => {
+    const json = JSON.stringify({ version: 1, results: { M73: { ...validResult('M73'), penaltyWinner: null } } })
     expect(() => parseImport(json)).not.toThrow()
   })
 

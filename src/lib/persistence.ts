@@ -1,13 +1,13 @@
 import type { Result, PersistedState } from '../types/tournament'
 
-const CURRENT_VERSION = 1
+export const SCHEMA_VERSION = 1
 
 /**
  * Trigger a browser download of the results as a JSON file.
  * Exported format: `{ version, results }` — see PersistedState.
  */
 export function exportJson(results: Record<string, Result>): void {
-  const payload: PersistedState = { version: CURRENT_VERSION, results }
+  const payload: PersistedState = { version: SCHEMA_VERSION, results }
   const json = JSON.stringify(payload, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
@@ -41,7 +41,7 @@ export function parseImport(text: string): Record<string, Result> {
 function isValidPersistedState(value: unknown): value is PersistedState {
   if (typeof value !== 'object' || value === null) return false
   const obj = value as Record<string, unknown>
-  if (obj['version'] !== CURRENT_VERSION) return false
+  if (obj['version'] !== SCHEMA_VERSION) return false
   if (typeof obj['results'] !== 'object' || obj['results'] === null) return false
   return Object.values(obj['results'] as Record<string, unknown>).every(isValidResult)
 }

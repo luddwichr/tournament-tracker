@@ -138,7 +138,7 @@ function possibleSourceGroupsForSlot(slot: ThirdPlaceSlot): Set<GroupId> {
   const groups = new Set<GroupId>()
   for (const alloc of Object.values(THIRD_PLACE_ALLOCATION)) {
     const src = alloc[hostGroup]
-    if (src) groups.add(src as GroupId)
+    if (src) groups.add(src)
   }
   return groups
 }

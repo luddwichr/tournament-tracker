@@ -13,8 +13,6 @@ directly against the source (noted inline as _verified_).
 
 ### Minor
 
-- **`AppNav.vue:8-13` duplicates router metadata** — hard-codes `to`+`label` that already
-  exist as route `path`+`meta.title` in `router.ts`. Derive nav entries from the router.
 - **`MatchCard.vue`**: `kickoffFmt` builds a fresh `Intl.DateTimeFormat` per card instance
   (100+ cards = 100+ formatters). Hoist the formatter to module scope.
 - **`SettingsView.vue`** models one "pending confirmable action" with two always-paired
@@ -29,18 +27,6 @@ directly against the source (noted inline as _verified_).
 ## 2. TypeScript, Business Logic & Architecture
 
 ### Major
-
-- **Cluster-by-3-criteria logic is copy-pasted ~20 lines.** `tiebreakers.ts:74-104`
-  (`clusterByH2H`) vs `145-178` (`sortTeams`) implement the same "sort by
-  (points, GD, GF) then group equal-key runs" loop almost verbatim, including the same
-  `current[current.length-1]!` trick and comment. The `(points, GD, GF)` comparator
-  appears a _third_ time in `third-place.ts:23-27`. **Fix:** one generic
-  `clusterBy<T>(items, keyFns)` + a shared `compareByPointsGdGf`.
-
-- **`isGroupComplete` defined twice, byte-for-byte** (`third-place.ts:18-20`,
-  `knockout.ts:20-22`). Both also re-filter `groupMatches` by group on every call (also
-  done in `standings.ts:32`, `possible-teams.ts:66`) — O(72) repeated work on hot paths.
-  **Fix:** export one predicate + a memoized `matchesByGroup` map.
 
 - **Magic topology constants with non-null assertions.** `third-place.ts:42`
   `standings[2]!` ("third-placed team") assumes every group has ≥3 teams; `:55`
@@ -61,18 +47,6 @@ directly against the source (noted inline as _verified_).
   `typeof === 'number'` but not finite/integer/sign, so `{homeGoals:-3.5, awayGoals:NaN}`
   passes the _untrusted import boundary_ and `NaN` poisons all downstream comparisons.
   Reject non-finite / negative / non-integer.
-- **Redundant `| null` on an optional field.** `types/tournament.ts:89`
-  `penaltyWinner?: 'home'|'away'|null` — `?` already admits `undefined`; consumers
-  (`knockout.ts:56`, `persistence.ts:64`) treat both identically. Drop `| null`.
-- **Dead type assertion.** `possible-teams.ts:125` `as GroupId` is unnecessary
-  (`alloc[hostGroup]` is already `GroupId|undefined`, narrowed by the preceding `if`) and
-  would mask a real error if the table type changed.
-- **Convoluted type for `Team`.** `standings.ts:9`
-  `team: ReturnType<typeof teamsInGroup>[number]` spells `Team` the hard way and couples
-  `TeamStat` to a data-function signature. Just `team: Team`.
-- **Version coupling.** `persistence.ts:3 CURRENT_VERSION = 1` and
-  `stores/tournament.ts:31 key: 'wc2026:results:v1'` independently encode "schema v1" and
-  must change together with no shared constant.
 - **`THIRD_PLACE_ALLOCATION` keyed as bare `string`** (`fixtures-2026.ts:853`); the
   load-bearing `if (!allocation) return null` guard (`third-place.ts:62`) is easy to
   forget. A branded `ThirdPlaceKey` would localize the contract.
@@ -118,9 +92,6 @@ directly against the source (noted inline as _verified_).
   where a flag sits beside the visible country name (`OriginColumn.vue:101`,
   `PossibleTeamsDialog.vue:49`, `RankingView.vue:60`, `SquadDialog.vue:31`) AT reads the
   name twice. WCAG 1.1.1 — add a "decorative"/`aria-hidden` mode for those cases.
-- **Redundant ARIA.** `aria-modal="true"` on every native `<dialog>` opened via
-  `showModal()` is redundant (`ConfirmDialog.vue:47`, `ScoreDialog.vue:77`, etc.);
-  `SettingsView.vue:98` nests a `role="group"` directly inside a `<fieldset>`.
 - **Counter live regions announce bare numbers** ("1", "2") with no team/card context
   (`StepperInput.vue`) — six live regions risk announcement pile-ups. Rely on the buttons'
   own `aria-label`s instead.
@@ -161,10 +132,6 @@ directly against the source (noted inline as _verified_).
   `3px`/offset `2px`; `TeamLabel.vue:88`, `PossibleTeamsDialog.vue:135` redefine it as
   `2px` with varying offsets. **Fix:** one tokenized definition; let global `:focus-visible`
   do the work.
-- **Three buttons, three reimplementations.** `.confirm-dialog__btn`,
-  `.score-dialog__btn`, `.settings-view__btn` each re-declare the same base button, and the
-  `--danger` variant is written independently three times. **Fix:** `.btn` +
-  `.btn--primary/secondary/danger` or a `BaseButton.vue`.
 - **Elevation doesn't follow MD and is applied inconsistently.** Resting cards use
   `shadow-md` (`0 4px 12px`, an MD elevation-3+ shadow) on static content; the sticky
   header uses `shadow-sm` and never elevates on scroll; there's no semantic
@@ -174,10 +141,6 @@ directly against the source (noted inline as _verified_).
   two places; the bracket is a fixed `26rem`/`17rem` horizontal scroller, content columns
   cap and never reflow, the type scale never adapts. **Fix:** a small breakpoint set; scale
   bracket/card widths at md/lg.
-- **Dark-mode tokens quadruplicated.** `tokens.css` defines the light palette in `:root`
-  _and_ `[data-theme='light']`, and dark in `@media(dark)` _and_ `[data-theme='dark']` —
-  four blocks, two value sets, a maintenance trap. **Fix:** define each palette once and
-  share via selector lists.
 
 ### Minor
 

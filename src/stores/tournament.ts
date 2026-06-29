@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Result } from '../types/tournament'
+import { SCHEMA_VERSION } from '../lib/persistence'
 
 export const useTournamentStore = defineStore(
   'tournament',
@@ -27,7 +28,7 @@ export const useTournamentStore = defineStore(
   },
   {
     persist: {
-      key: 'wc2026:results:v1',
+      key: `wc2026:results:v${SCHEMA_VERSION}`,
     },
   },
 )

@@ -86,7 +86,7 @@ export interface Result {
    * extra time. Absent (undefined) on group-stage results and knockout results
    * that were decided in regular / extra time.
    */
-  penaltyWinner?: 'home' | 'away' | null
+  penaltyWinner?: 'home' | 'away'
 }
 
 /** Persisted state: results keyed by match id, plus a schema version. */

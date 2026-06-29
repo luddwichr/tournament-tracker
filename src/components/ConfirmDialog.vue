@@ -44,7 +44,6 @@ function handleClose(): void {
   <dialog
     ref="dialogEl"
     class="confirm-dialog"
-    aria-modal="true"
     aria-labelledby="confirm-dialog-title"
     aria-describedby="confirm-dialog-desc"
     @close="handleClose"
@@ -57,10 +56,10 @@ function handleClose(): void {
         <p id="confirm-dialog-desc" class="confirm-dialog__message">{{ message }}</p>
       </div>
       <footer class="confirm-dialog__footer">
-        <button type="button" class="confirm-dialog__btn confirm-dialog__btn--secondary" @click="handleCancel">
+        <button type="button" class="btn btn--secondary" @click="handleCancel">
           Abbrechen
         </button>
-        <button type="button" class="confirm-dialog__btn confirm-dialog__btn--danger" @click="handleConfirm">
+        <button type="button" class="btn btn--danger" @click="handleConfirm">
           {{ confirmLabel ?? 'Bestätigen' }}
         </button>
       </footer>
@@ -117,36 +116,5 @@ function handleClose(): void {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4) var(--space-4);
   border-top: 1px solid var(--color-border);
-}
-
-.confirm-dialog__btn {
-  padding: var(--space-2) var(--space-4);
-  min-height: var(--tap-target);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid transparent;
-  font-family: inherit;
-}
-
-.confirm-dialog__btn--secondary {
-  background: transparent;
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.confirm-dialog__btn--secondary:hover {
-  background: var(--color-bg);
-}
-
-.confirm-dialog__btn--danger {
-  background: transparent;
-  border-color: var(--color-loss);
-  color: var(--color-loss);
-}
-
-.confirm-dialog__btn--danger:hover {
-  background: color-mix(in srgb, var(--color-loss) 10%, transparent);
 }
 </style>

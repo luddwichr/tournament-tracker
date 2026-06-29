@@ -1,12 +1,16 @@
-import type { GroupId, Result } from '../types/tournament'
+import type { GroupId, Result, Team } from '../types/tournament'
 import { teamsInGroup } from '../data/teams'
 import { groupMatches } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
 
+export function isGroupComplete(groupId: GroupId, results: Record<string, Result>): boolean {
+  return groupMatches.filter((m) => m.group === groupId).every((m) => results[m.id] != null)
+}
+
 export type MatchOutcome = 'W' | 'D' | 'L'
 
 export interface TeamStat {
-  team: ReturnType<typeof teamsInGroup>[number]
+  team: Team
   played: number
   wins: number
   draws: number

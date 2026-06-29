@@ -1,25 +1,18 @@
 <script setup lang="ts">
-interface NavLink {
-  to: string
-  label: string
-  icon: string
-}
+import { useRouter } from 'vue-router'
 
-const links: NavLink[] = [
-  { to: '/groups', label: 'Gruppen', icon: '🏟️' },
-  { to: '/knockout', label: 'K.-o.-Runde', icon: '🏆' },
-  { to: '/ranking', label: 'Weltrangliste', icon: '🌍' },
-  { to: '/settings', label: 'Einstellungen', icon: '⚙️' },
-]
+const links = useRouter()
+  .getRoutes()
+  .filter((r) => r.meta.navIcon)
 </script>
 
 <template>
   <nav class="app-nav" aria-label="Hauptnavigation">
     <ul class="app-nav__list">
-      <li v-for="link in links" :key="link.to" class="app-nav__item">
-        <RouterLink class="app-nav__link" :to="link.to">
-          <span class="app-nav__icon" aria-hidden="true">{{ link.icon }}</span>
-          <span class="app-nav__label">{{ link.label }}</span>
+      <li v-for="link in links" :key="link.path" class="app-nav__item">
+        <RouterLink class="app-nav__link" :to="link.path">
+          <span class="app-nav__icon" aria-hidden="true">{{ link.meta.navIcon }}</span>
+          <span class="app-nav__label">{{ link.meta.title }}</span>
         </RouterLink>
       </li>
     </ul>

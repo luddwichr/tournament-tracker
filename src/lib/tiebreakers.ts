@@ -28,6 +28,40 @@ interface H2HStat {
   goalsFor: number
 }
 
+type PointGDGF = { points: number; goalDiff: number; goalsFor: number }
+
+export function compareByPointsGdGf(a: PointGDGF, b: PointGDGF): number {
+  if (b.points !== a.points) return b.points - a.points
+  if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff
+  return b.goalsFor - a.goalsFor
+}
+
+function clusterByStats<T extends { id: string }>(
+  teams: readonly T[],
+  statsMap: Map<string, PointGDGF>,
+): T[][] {
+  const sorted = teams.toSorted((a, b) =>
+    compareByPointsGdGf(statsMap.get(a.id)!, statsMap.get(b.id)!),
+  )
+  const clusters: T[][] = []
+  let current: T[] = []
+  for (const team of sorted) {
+    if (!current.length) {
+      current.push(team)
+      continue
+    }
+    const prev = current[current.length - 1]!
+    if (compareByPointsGdGf(statsMap.get(prev.id)!, statsMap.get(team.id)!) === 0) {
+      current.push(team)
+    } else {
+      clusters.push(current)
+      current = [team]
+    }
+  }
+  if (current.length) clusters.push(current)
+  return clusters
+}
+
 function h2hMatchesBetween(teams: readonly Team[], matches: readonly MatchSlot[]): MatchSlot[] {
   const ids = new Set(teams.map((t) => t.id))
   return matches.filter(
@@ -71,38 +105,6 @@ function computeH2HStats(
   return map
 }
 
-function clusterByH2H(teams: Team[], h2hStats: Map<string, H2HStat>): Team[][] {
-  const sorted = teams.toSorted((a, b) => {
-    const sa = h2hStats.get(a.id)!
-    const sb = h2hStats.get(b.id)!
-    if (sb.points !== sa.points) return sb.points - sa.points
-    if (sb.goalDiff !== sa.goalDiff) return sb.goalDiff - sa.goalDiff
-    if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor
-    return 0
-  })
-
-  const clusters: Team[][] = []
-  let current: Team[] = []
-  for (const team of sorted) {
-    if (!current.length) {
-      current.push(team)
-      continue
-    }
-    // current is non-empty (checked above), so this is always defined.
-    const prev = current[current.length - 1]!
-    const sp = h2hStats.get(prev.id)!
-    const st = h2hStats.get(team.id)!
-    if (sp.points === st.points && sp.goalDiff === st.goalDiff && sp.goalsFor === st.goalsFor) {
-      current.push(team)
-    } else {
-      clusters.push(current)
-      current = [team]
-    }
-  }
-  if (current.length) clusters.push(current)
-  return clusters
-}
-
 /**
  * Recursively resolve a tied group of teams using H2H criteria.
  * Falls through to fair-play then FIFA ranking when H2H makes no progress.
@@ -115,7 +117,7 @@ function resolveH2H<S extends TiebreakerStat>(
 ): Team[] {
   const h2hMatches = h2hMatchesBetween(teams, allGroupMatches)
   const h2hStats = computeH2HStats(teams, h2hMatches, results)
-  const clusters = clusterByH2H(teams, h2hStats)
+  const clusters = clusterByStats(teams, h2hStats)
 
   return clusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster
@@ -148,34 +150,7 @@ export function sortTeams<S extends TiebreakerStat>(
   results: Record<string, Result>,
   overallStats: Map<string, S>,
 ): Team[] {
-  const byOverall = teams.toSorted((a, b) => {
-    const sa = overallStats.get(a.id)!
-    const sb = overallStats.get(b.id)!
-    if (sb.points !== sa.points) return sb.points - sa.points
-    if (sb.goalDiff !== sa.goalDiff) return sb.goalDiff - sa.goalDiff
-    if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor
-    return 0
-  })
-
-  const overallClusters: Team[][] = []
-  let current: Team[] = []
-  for (const team of byOverall) {
-    if (!current.length) {
-      current.push(team)
-      continue
-    }
-    // current is non-empty (checked above), so this is always defined.
-    const prev = current[current.length - 1]!
-    const sp = overallStats.get(prev.id)!
-    const st = overallStats.get(team.id)!
-    if (sp.points === st.points && sp.goalDiff === st.goalDiff && sp.goalsFor === st.goalsFor) {
-      current.push(team)
-    } else {
-      overallClusters.push(current)
-      current = [team]
-    }
-  }
-  if (current.length) overallClusters.push(current)
+  const overallClusters = clusterByStats(teams, overallStats)
 
   return overallClusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster
