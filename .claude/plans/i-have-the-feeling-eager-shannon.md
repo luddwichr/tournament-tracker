@@ -140,7 +140,7 @@ Remaining F items (not yet done):
   state (e.g. an open `ScoreDialog` scan). Do **not** add a static a11y lint
   plugin.
 
-## Workstream G — Lint signals for component design
+## Workstream G — Lint signals for component design ✅ DONE
 
 Extend **`eslint.config.js`** (no new a11y plugin):
 
@@ -163,7 +163,7 @@ Extend **`eslint.config.js`** (no new a11y plugin):
 3. ✅ **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
 4. ✅ **C** (composable extraction for `ScoreDialog`/`BracketView`).
 5. ✅ **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.
-6. **G** (lint rules) — last, with thresholds tuned to the refactored tree.
+6. ✅ **G** (lint rules) — last, with thresholds tuned to the refactored tree.
 
 ## Critical files
 
