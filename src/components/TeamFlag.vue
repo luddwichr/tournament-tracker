@@ -4,13 +4,21 @@ import 'flag-icons/css/flag-icons.min.css'
 
 defineProps<{
   flagCode: string
-  /** German team name — used as accessible label. */
+  /** German team name — used as accessible label when not decorative. */
   name: string
+  /** Pass true when the flag sits beside a visible team name so AT skips the duplicate. */
+  decorative?: boolean
 }>()
 </script>
 
 <template>
-  <span class="team-flag fi" :class="`fi-${flagCode}`" role="img" :aria-label="name"></span>
+  <span
+    class="team-flag fi"
+    :class="`fi-${flagCode}`"
+    :role="decorative ? undefined : 'img'"
+    :aria-label="decorative ? undefined : name"
+    :aria-hidden="decorative ? 'true' : undefined"
+  ></span>
 </template>
 
 <style scoped>

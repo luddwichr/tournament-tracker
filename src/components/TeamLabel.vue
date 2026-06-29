@@ -32,7 +32,7 @@ function handleClick(e: MouseEvent): void {
     :style="flagSize ? { '--flag-size': flagSize } : {}"
     @click="handleClick"
   >
-    <TeamFlag :flag-code="team.flagCode" :name="team.name" />
+    <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
     <span class="team-label__name">{{ team.name }}</span>
   </component>
 
@@ -69,10 +69,6 @@ function handleClick(e: MouseEvent): void {
   text-decoration-color: var(--color-primary);
 }
 
-.team-label--btn:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
 
 .team-label__name {
   font-weight: 600;

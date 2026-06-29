@@ -24,13 +24,13 @@ body {
   position: absolute;
   inset-inline-start: var(--space-2);
   inset-block-start: var(--space-2);
-  z-index: 100;
+  z-index: var(--z-modal);
   padding: var(--space-2) var(--space-4);
   background-color: var(--color-primary);
   color: var(--color-primary-contrast);
   border-radius: var(--radius-md);
   transform: translateY(-150%);
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-duration-base) var(--motion-easing-standard);
 }
 
 .skip-link:focus {
@@ -38,9 +38,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skip-link {
-    transition: none;
-    /* Keep the element off-screen; translateY is still applied when focused */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 
@@ -52,7 +54,7 @@ body {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-1);
   overflow: hidden;
 }
 
@@ -94,7 +96,7 @@ body {
   color: var(--color-loss);
 }
 .btn--danger:hover {
-  background: color-mix(in srgb, var(--color-loss) 10%, transparent);
+  background: color-mix(in srgb, var(--color-loss) var(--state-hover), transparent);
 }
 
 /* Screen-reader-only utility */

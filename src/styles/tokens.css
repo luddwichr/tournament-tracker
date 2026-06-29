@@ -1,8 +1,4 @@
-/*
- * Design tokens — single source of truth for colors, spacing, radii, shadows
- * and typography. Components pull from these custom properties; they never
- * hardcode raw values. See docs/styling.md.
- */
+/* Design tokens — single source of truth for colors, spacing, radii, shadows, typography, and motion. */
 
 :root {
   /* Spacing scale — geometric-ish, 4px → 64px */
@@ -31,6 +27,32 @@
   --tap-target: 2.75rem; /* 44px */
 
   --font-family-base: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Motion — apply via transition shorthand; guard interactive use with prefers-reduced-motion */
+  --motion-duration-short: 0.1s;
+  --motion-duration-base: 0.15s;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* State-layer opacities — MD spec: hover 8 / focus 12 / pressed 12 / drag 16 */
+  --state-hover: 8%;
+  --state-focus: 12%;
+  --state-pressed: 12%;
+  --state-drag: 16%;
+
+  /* Z-index scale */
+  --z-sticky: 1;
+  --z-overlay: 10;
+  --z-modal: 100;
+
+  /* Elevation aliases — map semantic levels to shadow tokens */
+  --elevation-1: var(--shadow-sm);
+  --elevation-2: var(--shadow-md);
+  --elevation-3: var(--shadow-lg);
+
+  /* Responsive breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
 }
 
 /* Light palette — applied by default and when the user explicitly picks light */

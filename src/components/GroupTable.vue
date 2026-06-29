@@ -32,8 +32,9 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <section class="group-table__standings" aria-label="Tabelle" tabindex="0">
+    <div class="group-table__standings" tabindex="0">
       <table class="standings-table">
+        <caption class="visually-hidden">Gruppe {{ groupId }} – Tabelle</caption>
         <thead>
           <tr>
             <th scope="col" class="standings-table__team-col">Team</th>
@@ -57,9 +58,9 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
           />
         </tbody>
       </table>
-    </section>
+    </div>
 
-    <section class="group-table__matches" aria-label="Spiele">
+    <div class="group-table__matches">
       <MatchCard
         v-for="match in matches"
         :key="match.id"
@@ -69,7 +70,7 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
         :result="store.results[match.id] ?? null"
         @click="selectedMatch = match"
       />
-    </section>
+    </div>
 
     <ScoreDialog
       v-if="selectedMatch"
@@ -116,9 +117,9 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
   white-space: nowrap;
 }
 
-.standings-table__team-col {
-  text-align: left !important;
-  padding-left: var(--space-3) !important;
+.standings-table thead .standings-table__team-col {
+  text-align: left;
+  padding-left: var(--space-3);
 }
 
 .standings-table__num-col {

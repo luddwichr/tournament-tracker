@@ -40,7 +40,7 @@ const awayGoals = defineModel<number>('away', { required: true })
 <style scoped>
 .score-input {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   gap: var(--space-3);
 }
@@ -64,6 +64,6 @@ const awayGoals = defineModel<number>('away', { required: true })
   font-size: var(--font-size-score);
   font-weight: 700;
   flex-shrink: 0;
-  padding-top: 1.8rem;
+  padding-bottom: calc((var(--tap-target) - 1lh) / 2);
 }
 </style>

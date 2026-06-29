@@ -20,16 +20,26 @@ const status = computed(() => {
   if (props.rank === 3) return 'potential'
   return 'danger'
 })
+
+const statusLabel: Record<string, string> = {
+  qualified: 'qualifiziert',
+  safe: 'sicher',
+  third: 'Dritter',
+  potential: 'möglicher Dritter',
+  eliminated: 'ausgeschieden',
+  danger: 'gefährdet',
+}
 </script>
 
 <template>
   <tr class="standings-row" :class="`standings-row--${status}`">
-    <td class="standings-row__team">
+    <th scope="row" class="standings-row__team">
       <div class="standings-row__team-inner">
         <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
         <TeamLabel :team="stat.team" flag-size="1.5rem" :clickable="true" />
+        <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
       </div>
-    </td>
+    </th>
     <td class="standings-row__num">{{ stat.played }}</td>
     <td class="standings-row__num">{{ stat.wins }}</td>
     <td class="standings-row__num">{{ stat.draws }}</td>
@@ -81,12 +91,14 @@ const status = computed(() => {
 }
 
 /*
- * The <td> itself must stay as display:table-cell so the browser's table
+ * The <th> itself must stay as display:table-cell so the browser's table
  * layout stretches it to the full row height and the background fills
  * correctly. Flex layout goes on the inner wrapper instead.
  */
 .standings-row__team {
   white-space: nowrap;
+  font-weight: inherit;
+  text-align: left;
 }
 
 .standings-row__team-inner {

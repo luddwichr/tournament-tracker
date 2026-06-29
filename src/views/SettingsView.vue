@@ -234,8 +234,8 @@ h2 {
   background: var(--color-surface);
   color: var(--color-text-muted);
   transition:
-    background 0.15s,
-    color 0.15s;
+    background var(--motion-duration-base) var(--motion-easing-standard),
+    color var(--motion-duration-base) var(--motion-easing-standard);
 }
 
 .settings-view__theme-option:last-child {
@@ -245,6 +245,11 @@ h2 {
 .settings-view__theme-option--active {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
+}
+
+.settings-view__theme-option:has(:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
 }
 
 .settings-view__theme-option:hover:not(.settings-view__theme-option--active) {

@@ -227,7 +227,9 @@ function handleClear(): void {
   background: transparent;
   color: var(--color-text);
   font-family: inherit;
-  transition: none;
+  transition:
+    background var(--motion-duration-base) var(--motion-easing-standard),
+    border-color var(--motion-duration-base) var(--motion-easing-standard);
 }
 
 .score-dialog__penalty-btn:hover {

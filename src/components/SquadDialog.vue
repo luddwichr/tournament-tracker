@@ -31,7 +31,7 @@ onMounted(() => {
     <div class="squad-dialog__inner">
       <header class="squad-dialog__header">
         <div class="squad-dialog__team-heading">
-          <TeamFlag :flag-code="team.flagCode" :name="team.name" />
+          <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
           <div>
             <h2 class="squad-dialog__title">{{ team.name }}</h2>
             <p class="squad-dialog__ranking">FIFA-Ranking: {{ team.fifaRanking }}</p>

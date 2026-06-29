@@ -9,103 +9,6 @@ directly against the source (noted inline as _verified_).
 
 ---
 
-## 3. HTML Semantics & Accessibility (ARIA / a11y)
-
-### Major
-
-- **Qualification status is conveyed by colour alone.** `StandingsRow.vue:12-81` maps a
-  `status` (qualified/safe/third/eliminated/…) to only a coloured border + tint; nothing
-  reaches AT. WCAG 1.4.1 / 1.3.1. Same for `OriginColumn.vue` eliminated rows
-  (`opacity:0.4` only). **Fix:** surface status as a visually-hidden cell or `aria-label`.
-
-- **Theme radios have no visible focus indicator.** `SettingsView.vue:99-108` uses
-  `<input type="radio" class="visually-hidden">` in a `<label>` with no
-  `:focus-within`/`:focus-visible` rule, so keyboard focus is invisible. WCAG 2.4.7.
-  **Fix:** `.theme-option:has(:focus-visible){ outline … }`.
-
-- **Bracket hover-highlighting is mouse-only.** Connector highlighting is driven solely by
-  `@mouseenter`/`@mouseleave` (`OriginColumn.vue:86-99` rows are plain `<div>`s with no
-  tabindex/role/key handler; `BracketRound.vue:70-76`; `BracketView.vue:264-265`).
-  WCAG 2.1.1 — keyboard/touch users never get the "which match feeds which" affordance.
-  **Fix:** mirror with `@focusin`/`@focusout` and make rows focusable.
-
-- **Landmark spam with duplicate names.** `GroupTable.vue:35,62` wrap each group in
-  `<section aria-label="Tabelle">` and `<section aria-label="Spiele">`; ×12 groups = 24
-  identically-named `region` landmarks. WCAG 1.3.1 / 2.4.1. **Fix:** use plain `<div>` (the
-  surrounding `<article aria-label="Gruppe A">` already names it) or make labels unique.
-
-### Minor
-
-- **Tables lack `<caption>` and row headers.** `GroupTable.vue:36`, `SquadList.vue:26`,
-  `RankingView.vue:39` have no `<caption>`; the team-name cell is `<td>` not
-  `<th scope="row">` (`StandingsRow.vue:27` etc.). Add a visually-hidden caption and
-  promote the team cell.
-- **Flags announced redundantly.** `TeamFlag.vue:13` is `role="img" :aria-label="name"`;
-  where a flag sits beside the visible country name (`OriginColumn.vue:101`,
-  `PossibleTeamsDialog.vue:49`, `RankingView.vue:60`, `SquadDialog.vue:31`) AT reads the
-  name twice. WCAG 1.1.1 — add a "decorative"/`aria-hidden` mode for those cases.
-- **Counter live regions announce bare numbers** ("1", "2") with no team/card context
-  (`StepperInput.vue`) — six live regions risk announcement pile-ups. Rely on the buttons'
-  own `aria-label`s instead.
-- **`DisciplineInput` card block is not a labelled group** (a `<p>` + `<span>`s), unlike
-  `ScoreInput`'s `role="group" aria-label="Tore"` — inconsistent. Use `<fieldset>`/`role=group`.
-
----
-
-## 4. CSS & Material-Design Alignment
-
-> The token file's header claims _"Components pull from these custom properties; they
-> never hardcode raw values."_ That claim is false; most findings below are the gap between
-> that aspiration and the code.
-
-### Critical
-
-- **No motion system.** `tokens.css` has no duration/easing tokens; only two elements
-  animate (both hardcoded `0.15s`), `ScoreDialog.vue:230` sets `transition:none`, and every
-  other hover/active state snaps instantly. MD treats motion as first-class
-  (standard easing, 100–300ms, state-layer cross-fades). **Fix:** add `--motion-*` /
-  `--ease-standard` tokens and apply uniform transitions (guarded by the existing
-  `prefers-reduced-motion`).
-
-- **"No hardcoded values" is violated pervasively.** Fixed widths (`26rem`, `17rem`,
-  `7rem`, `6rem`, `10rem`), border widths (`2px`/`4px`), outline widths, `letter-spacing`,
-  `opacity`, `font-size:0.75rem`, and an 11-value `color-mix` opacity ladder are all raw.
-  **Fix:** tokenize border/outline width and sizing steps, or delete the misleading
-  comment.
-
-### Major
-
-- **State-layer opacities are an 11-value free-for-all.** `color-mix(... X%, transparent)`
-  uses X ∈ {4,6,7,8,10,12,15,18,20,25,45}% across components; hover tint differs between
-  nav, cards, counter steps and table rows. MD specifies a fixed ladder (hover 8 / focus
-  12 / pressed 12 / dragged 16). **Fix:** `--state-hover/-focus/-pressed` tokens aligned to
-  MD.
-- **Focus-ring spec contradicted by several components.** `base.css:16` sets
-  `3px`/offset `2px`; `TeamLabel.vue:88`, `PossibleTeamsDialog.vue:135` redefine it as
-  `2px` with varying offsets. **Fix:** one tokenized definition; let global `:focus-visible`
-  do the work.
-- **Elevation doesn't follow MD and is applied inconsistently.** Resting cards use
-  `shadow-md` (`0 4px 12px`, an MD elevation-3+ shadow) on static content; the sticky
-  header uses `shadow-sm` and never elevates on scroll; there's no semantic
-  card/menu/dialog/FAB mapping. **Fix:** a real `--elevation-1..5` scale; lighten resting
-  cards.
-- **Responsive design is single-breakpoint.** Exactly one `min-width:640px` query, used in
-  two places; the bracket is a fixed `26rem`/`17rem` horizontal scroller, content columns
-  cap and never reflow, the type scale never adapts. **Fix:** a small breakpoint set; scale
-  bracket/card widths at md/lg.
-
-### Minor
-
-- **`!important` to dodge specificity** in `GroupTable.vue:128-129`, `RankingView.vue:132,136`.
-- **Fragile alignment hack:** `ScoreInput.vue:137 padding-top:1.8rem` to nudge the `:`
-  separator — use baseline alignment.
-- **Off-scale typography:** raw `line-height:1.2` overrides and raw weights (`500/600/700`, 38×) with no
-  weight tokens.
-- **Unscaled `z-index` magic numbers** (`1`, `10`, `100`) — add a `--z-*` scale before a
-  4th layer appears.
-
----
-
 ## 5. Test Coverage & Quality
 
 ### Critical
@@ -172,9 +75,6 @@ directly against the source (noted inline as _verified_).
 
 ## 6. Cross-cutting & Process
 
-- **Documentation/code drift.** The `tokens.css` "components never hardcode raw values"
-  claim (§4) is still false. Self-documenting code is undermined when comments assert
-  invariants the implementation doesn't hold — prefer fewer comments that are true.
 - **CI gap (inferred).** No coverage threshold and no evidence the e2e suite gates merges.
   Wiring `test:unit` + `test:e2e` + `typecheck` + `lint` into CI is the highest-leverage
   process change available.

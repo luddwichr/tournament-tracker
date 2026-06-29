@@ -57,7 +57,7 @@ const links = useRouter()
 
 .app-nav__link.router-link-active {
   color: var(--color-primary);
-  background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) var(--state-focus), transparent);
 }
 
 @media (min-width: 640px) {

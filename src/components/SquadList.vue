@@ -26,6 +26,7 @@ const sorted = computed(() =>
 
 <template>
   <table class="squad-list">
+    <caption class="visually-hidden">Kader</caption>
     <thead>
       <tr>
         <th scope="col" class="squad-list__col--num">#</th>
@@ -39,7 +40,7 @@ const sorted = computed(() =>
         <td class="squad-list__pos">
           {{ player.position ? (POSITION_LABEL[player.position] ?? player.position) : '—' }}
         </td>
-        <td class="squad-list__name">{{ player.name }}</td>
+        <th scope="row" class="squad-list__name">{{ player.name }}</th>
       </tr>
     </tbody>
   </table>
@@ -78,7 +79,7 @@ const sorted = computed(() =>
 }
 
 .squad-list__row:hover {
-  background-color: color-mix(in srgb, var(--color-primary) 4%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) var(--state-hover), transparent);
 }
 
 .squad-list__num {
@@ -98,5 +99,6 @@ const sorted = computed(() =>
 .squad-list__name {
   padding: var(--space-2) var(--space-3);
   font-weight: 500;
+  text-align: left;
 }
 </style>

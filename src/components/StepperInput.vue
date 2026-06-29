@@ -22,7 +22,7 @@ const model = defineModel<number>({ required: true })
     >
       −
     </button>
-    <span class="stepper__value" aria-live="polite" aria-atomic="true">{{ model }}</span>
+    <span class="stepper__value">{{ model }}</span>
     <button type="button" class="stepper__step" :aria-label="props.incLabel" @click="model = model + 1">+</button>
   </div>
 </template>
@@ -63,12 +63,12 @@ const model = defineModel<number>({ required: true })
 }
 
 .stepper__step:hover {
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  background: color-mix(in srgb, var(--color-primary) var(--state-hover), transparent);
   border-color: var(--color-primary);
 }
 
 .stepper__step:active {
-  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--color-primary) var(--state-pressed), transparent);
 }
 
 .stepper__value {

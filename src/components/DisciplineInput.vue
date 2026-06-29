@@ -8,12 +8,12 @@ const awayRed = defineModel<number>('awayRed', { required: true })
 </script>
 
 <template>
-  <div class="discipline-input">
-    <p class="discipline-input__heading">Karten</p>
+  <fieldset class="discipline-input">
+    <legend class="discipline-input__heading">Karten</legend>
 
     <div class="discipline-input__grid">
-      <div class="discipline-input__group">
-        <span class="discipline-input__side-label">Heim</span>
+      <div class="discipline-input__group" role="group" aria-labelledby="discipline-home-label">
+        <span id="discipline-home-label" class="discipline-input__side-label">Heim</span>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Gelb</span>
           <StepperInput
@@ -28,8 +28,8 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
       </div>
 
-      <div class="discipline-input__group">
-        <span class="discipline-input__side-label">Gast</span>
+      <div class="discipline-input__group" role="group" aria-labelledby="discipline-away-label">
+        <span id="discipline-away-label" class="discipline-input__side-label">Gast</span>
         <div class="discipline-input__row">
           <span class="discipline-input__card-label">Gelb</span>
           <StepperInput
@@ -44,18 +44,20 @@ const awayRed = defineModel<number>('awayRed', { required: true })
         </div>
       </div>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <style scoped>
 .discipline-input {
+  border: none;
   border-top: 1px solid var(--color-border);
   margin-top: var(--space-3);
-  padding-top: var(--space-3);
+  padding: var(--space-3) 0 0;
 }
 
 .discipline-input__heading {
   margin: 0 0 var(--space-3);
+  padding: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   font-weight: 600;

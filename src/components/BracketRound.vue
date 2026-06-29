@@ -42,6 +42,8 @@ const emit = defineEmits<{
           :data-match-id="row.match.id"
           @mouseenter="emit('matchHover', row.match.id)"
           @mouseleave="emit('matchHoverEnd')"
+          @focusin="emit('matchHover', row.match.id)"
+          @focusout="emit('matchHoverEnd')"
         >
           <MatchCard
             :match="row.match"
@@ -71,7 +73,7 @@ const emit = defineEmits<{
 .bracket-round__header {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: var(--z-sticky);
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-primary);
   color: var(--color-primary-contrast);

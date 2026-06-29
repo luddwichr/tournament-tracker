@@ -46,7 +46,7 @@ onMounted(() => {
           <h3 class="possible-teams-dialog__section-title">{{ homeLabel }}</h3>
           <ul class="possible-teams-dialog__list" role="list">
             <li v-for="team in possibleHome" :key="team.id" class="possible-teams-dialog__item">
-              <TeamFlag :flag-code="team.flagCode" :name="team.name" />
+              <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
               <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
             </li>
           </ul>
@@ -56,7 +56,7 @@ onMounted(() => {
           <h3 class="possible-teams-dialog__section-title">{{ awayLabel }}</h3>
           <ul class="possible-teams-dialog__list" role="list">
             <li v-for="team in possibleAway" :key="team.id" class="possible-teams-dialog__item">
-              <TeamFlag :flag-code="team.flagCode" :name="team.name" />
+              <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
               <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
             </li>
           </ul>
@@ -131,10 +131,6 @@ onMounted(() => {
   background: var(--color-bg);
 }
 
-.possible-teams-dialog__close:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
 
 .possible-teams-dialog__body {
   overflow-y: auto;

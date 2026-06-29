@@ -92,12 +92,16 @@ const groupData = computed(() =>
             'origin-column__team-row--no-link': !row.refKey,
           }"
           :data-ref-key="row.refKey"
+          :tabindex="row.refKey ? 0 : undefined"
           @mouseenter="row.refKey && emit('teamRefHover', row.refKey)"
           @mouseleave="emit('teamRefHoverEnd')"
+          @focusin="row.refKey && emit('teamRefHover', row.refKey)"
+          @focusout="emit('teamRefHoverEnd')"
         >
           <span class="origin-column__rank" aria-hidden="true">{{ row.rank }}</span>
-          <TeamFlag :flag-code="row.team.flagCode" :name="row.team.name" />
+          <TeamFlag :flag-code="row.team.flagCode" :name="row.team.name" :decorative="true" />
           <span class="origin-column__name">{{ row.team.name }}</span>
+          <span v-if="row.eliminated" class="visually-hidden">(ausgeschieden)</span>
         </div>
       </div>
     </div>
@@ -116,7 +120,7 @@ const groupData = computed(() =>
 .origin-column__header {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: var(--z-sticky);
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-primary);
   color: var(--color-primary-contrast);
@@ -162,7 +166,7 @@ const groupData = computed(() =>
 }
 
 .origin-column__team-row:hover {
-  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  background: color-mix(in srgb, var(--color-primary) var(--state-hover), transparent);
   border-color: var(--color-border);
 }
 
