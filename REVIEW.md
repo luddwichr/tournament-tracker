@@ -9,21 +9,6 @@ directly against the source (noted inline as _verified_).
 
 ---
 
-## 1. Vue Components & Composables
-
-### Minor
-
-- **`MatchCard.vue`**: `kickoffFmt` builds a fresh `Intl.DateTimeFormat` per card instance
-  (100+ cards = 100+ formatters). Hoist the formatter to module scope.
-- **`SettingsView.vue`** models one "pending confirmable action" with two always-paired
-  refs (`pendingAction` + `pendingImportResults`); a single discriminated-union ref makes
-  the invariant unbreakable.
-- **Weak lookup typing.** `SquadList.vue:7,14` types `POSITION_LABEL`/`POSITION_ORDER` as
-  `Record<string, …>` with `?? 99` fallbacks, when `Player.position` is a finite union —
-  `Record<Position, …>` would catch gaps at compile time.
-
----
-
 ## 2. TypeScript, Business Logic & Architecture
 
 ### Major

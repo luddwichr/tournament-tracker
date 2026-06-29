@@ -1,3 +1,13 @@
+<script lang="ts">
+const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
+  weekday: 'short',
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+</script>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
@@ -15,14 +25,6 @@ const props = defineProps<{
 const emit = defineEmits<{ click: []; placeholderClick: [slot: 'home' | 'away'] }>()
 
 const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
-
-const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
-  weekday: 'short',
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-})
 
 function formatKickoff(iso: string): string {
   return kickoffFmt.format(new Date(iso))

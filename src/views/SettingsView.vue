@@ -14,20 +14,23 @@ const themes: { value: Theme; label: string; icon: string }[] = [
   { value: 'light', label: 'Hell', icon: '☀️' },
   { value: 'dark', label: 'Dunkel', icon: '🌙' },
 ]
+type PendingAction =
+  | { kind: 'reset' }
+  | { kind: 'import'; results: Record<string, Result> }
+
 const fileInput = ref<HTMLInputElement | null>(null)
 const importError = ref<string | null>(null)
-const pendingAction = ref<'import' | 'reset' | null>(null)
-const pendingImportResults = ref<Record<string, Result> | null>(null)
+const pending = ref<PendingAction | null>(null)
 
 const confirmConfig = computed(() => {
-  if (pendingAction.value === 'import') {
+  if (pending.value?.kind === 'import') {
     return {
       title: 'Daten importieren',
       message: 'Alle vorhandenen Ergebnisse werden durch die importierten Daten ersetzt.',
       confirmLabel: 'Ersetzen',
     }
   }
-  if (pendingAction.value === 'reset') {
+  if (pending.value?.kind === 'reset') {
     return {
       title: 'Zurücksetzen',
       message: 'Alle eingegebenen Ergebnisse werden unwiderruflich gelöscht.',
@@ -54,8 +57,7 @@ function handleFileChange(event: Event): void {
   reader.onload = () => {
     try {
       const newResults = parseImport(reader.result as string)
-      pendingImportResults.value = newResults
-      pendingAction.value = 'import'
+      pending.value = { kind: 'import', results: newResults }
     } catch (e) {
       importError.value = e instanceof Error ? e.message : 'Fehler beim Importieren.'
     } finally {
@@ -66,22 +68,20 @@ function handleFileChange(event: Event): void {
 }
 
 function handleReset(): void {
-  pendingAction.value = 'reset'
+  pending.value = { kind: 'reset' }
 }
 
 function handleConfirm(): void {
-  if (pendingAction.value === 'import' && pendingImportResults.value) {
-    store.importResults(pendingImportResults.value)
-  } else if (pendingAction.value === 'reset') {
+  if (pending.value?.kind === 'import') {
+    store.importResults(pending.value.results)
+  } else if (pending.value?.kind === 'reset') {
     store.reset()
   }
-  pendingAction.value = null
-  pendingImportResults.value = null
+  pending.value = null
 }
 
 function handleCancel(): void {
-  pendingAction.value = null
-  pendingImportResults.value = null
+  pending.value = null
 }
 </script>
 
