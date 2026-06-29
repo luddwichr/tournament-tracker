@@ -41,7 +41,7 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
       class="group-table__standings"
       tabindex="0"
     >
-      <table class="standings-table">
+      <table class="standings-table tinted-header">
         <caption class="visually-hidden">
           Gruppe {{ groupId }} – Tabelle
         </caption>
@@ -166,10 +166,6 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-}
-
-.standings-table thead tr {
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .standings-table th {

@@ -103,7 +103,7 @@ composable spec). `src/lib/squad.ts` created: `POSITION_LABEL`,
 `POSITION_ORDER`, `sortBySquadPosition()` extracted from `SquadList.vue`;
 component `<script setup>` reduced to 3 lines.
 
-## Workstream E — CSS consolidation & token cleanup
+## Workstream E — CSS consolidation & token cleanup ✅ DONE
 
 Most dialog CSS is removed by A. Remaining, in `src/styles/base.css`:
 
@@ -162,7 +162,7 @@ Extend **`eslint.config.js`** (no new a11y plugin):
 2. ✅ **A** (`BaseDialog`) — biggest structural + CSS win.
 3. ✅ **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
 4. ✅ **C** (composable extraction for `ScoreDialog`/`BracketView`).
-5. **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.
+5. ✅ **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.
 6. **G** (lint rules) — last, with thresholds tuned to the refactored tree.
 
 ## Critical files

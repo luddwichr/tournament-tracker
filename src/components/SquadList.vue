@@ -9,7 +9,7 @@ const sorted = computed(() => sortBySquadPosition(props.players))
 </script>
 
 <template>
-  <table class="squad-list">
+  <table class="squad-list tinted-header">
     <caption class="visually-hidden">
       Kader
     </caption>
@@ -63,10 +63,6 @@ const sorted = computed(() => sortBySquadPosition(props.players))
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-}
-
-.squad-list thead tr {
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .squad-list th {

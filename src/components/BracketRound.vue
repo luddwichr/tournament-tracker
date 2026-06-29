@@ -31,7 +31,7 @@ const emit = defineEmits<{
     class="bracket-round surface-card"
     :aria-label="title"
   >
-    <header class="bracket-round__header">
+    <header class="bracket-round__header sticky-card-header">
       <h2 class="bracket-round__title">
         {{ title }}
       </h2>
@@ -49,7 +49,6 @@ const emit = defineEmits<{
         </p>
         <div
           class="bracket-round__match-group"
-          :class="{ 'bracket-round__match-group--target': highlightedMatchIds?.includes(row.match.id) }"
           :data-match-id="row.match.id"
           @mouseenter="emit('matchHover', row.match.id)"
           @mouseleave="emit('matchHoverEnd')"
@@ -63,6 +62,7 @@ const emit = defineEmits<{
             :result="row.result"
             :home-placeholder="row.homePlaceholder"
             :away-placeholder="row.awayPlaceholder"
+            :highlighted="!!highlightedMatchIds?.includes(row.match.id)"
             @click="emit('matchClick', row.match)"
             @placeholder-click="(slot) => emit('placeholderClick', row.match, slot)"
           />
@@ -79,15 +79,6 @@ const emit = defineEmits<{
   /* surface-card applied via shared class in base.css */
   display: flex;
   flex-direction: column;
-}
-
-.bracket-round__header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
 }
 
 .bracket-round__title {
@@ -109,13 +100,8 @@ const emit = defineEmits<{
   gap: var(--space-2);
 }
 
-.bracket-round__match-group--target :deep(.match-card) {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
-}
-
 .bracket-round__section-label {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   padding: var(--space-1) 0;
   font-size: var(--font-size-sm);
   font-weight: 600;

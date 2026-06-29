@@ -78,7 +78,7 @@ const groupData = computed(() =>
     class="origin-column surface-card"
     aria-label="Gruppenphase"
   >
-    <header class="origin-column__header">
+    <header class="origin-column__header sticky-card-header">
       <h2 class="origin-column__title">
         Gruppen
       </h2>
@@ -99,6 +99,7 @@ const groupData = computed(() =>
           :class="{
             'origin-column__team-row--third': row.rank === 3,
             'origin-column__team-row--highlighted': row.refKey !== null && highlightedRefs?.includes(row.refKey),
+            'highlight-ring': row.refKey !== null && highlightedRefs?.includes(row.refKey),
             'origin-column__team-row--eliminated': row.eliminated,
             'origin-column__team-row--no-link': !row.refKey,
           }"
@@ -136,15 +137,6 @@ const groupData = computed(() =>
   /* surface-card applied via shared class in base.css */
   display: flex;
   flex-direction: column;
-}
-
-.origin-column__header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
 }
 
 .origin-column__title {
@@ -189,11 +181,6 @@ const groupData = computed(() =>
 .origin-column__team-row:hover {
   background: color-mix(in srgb, var(--color-primary) var(--state-hover), transparent);
   border-color: var(--color-border);
-}
-
-.origin-column__team-row--highlighted {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 /* Rank-3 rows: separated by a dashed top border so the qualification cut is visible */
