@@ -47,21 +47,13 @@ const ariaLabel = computed(() => {
     :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked, 'highlight-ring': highlighted }"
   >
     <div class="match-card__meta">
-      <time
-        class="match-card__kickoff"
-        :datetime="match.kickoff"
-      >
+      <time class="match-card__kickoff" :datetime="match.kickoff">
         {{ formatKickoff(match.kickoff) }}
       </time>
     </div>
     <div class="match-card__body">
       <span class="match-card__team match-card__team--home">
-        <TeamLabel
-          v-if="homeTeam"
-          :team="homeTeam"
-          flag-size="1.5rem"
-          :clickable="true"
-        />
+        <TeamLabel v-if="homeTeam" :team="homeTeam" flag-size="1.5rem" :clickable="true" />
         <button
           v-else
           type="button"
@@ -92,12 +84,7 @@ const ariaLabel = computed(() => {
       </button>
 
       <span class="match-card__team match-card__team--away">
-        <TeamLabel
-          v-if="awayTeam"
-          :team="awayTeam"
-          flag-size="1.5rem"
-          :clickable="true"
-        />
+        <TeamLabel v-if="awayTeam" :team="awayTeam" flag-size="1.5rem" :clickable="true" />
         <button
           v-else
           type="button"
@@ -195,7 +182,9 @@ const ariaLabel = computed(() => {
   cursor: pointer;
   font-family: inherit;
   color: inherit;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
 .match-card__score-btn:hover:not(:disabled) {
@@ -246,5 +235,4 @@ const ariaLabel = computed(() => {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-
 </style>

@@ -15,42 +15,20 @@ const sorted = computed(() => sortBySquadPosition(props.players))
     </caption>
     <thead>
       <tr>
-        <th
-          scope="col"
-          class="squad-list__col--num"
-        >
-          #
-        </th>
-        <th
-          scope="col"
-          class="squad-list__col--pos"
-        >
-          Position
-        </th>
-        <th
-          scope="col"
-          class="squad-list__col--name"
-        >
-          Name
-        </th>
+        <th scope="col" class="squad-list__col--num">#</th>
+        <th scope="col" class="squad-list__col--pos">Position</th>
+        <th scope="col" class="squad-list__col--name">Name</th>
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="player in sorted"
-        :key="player.number"
-        class="squad-list__row"
-      >
+      <tr v-for="player in sorted" :key="player.number" class="squad-list__row">
         <td class="squad-list__num">
           {{ player.number }}
         </td>
         <td class="squad-list__pos">
           {{ player.position ? (POSITION_LABEL[player.position] ?? player.position) : '—' }}
         </td>
-        <th
-          scope="row"
-          class="squad-list__name"
-        >
+        <th scope="row" class="squad-list__name">
           {{ player.name }}
         </th>
       </tr>

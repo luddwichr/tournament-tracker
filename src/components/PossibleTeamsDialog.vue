@@ -18,60 +18,27 @@ const emit = defineEmits<{ close: [] }>()
 </script>
 
 <template>
-  <BaseDialog
-    title="Mögliche Teams"
-    max-width="min(92vw, 28rem)"
-    max-height="min(90vh, 36rem)"
-    @close="emit('close')"
-  >
+  <BaseDialog title="Mögliche Teams" max-width="min(92vw, 28rem)" max-height="min(90vh, 36rem)" @close="emit('close')">
     <div class="possible-teams-dialog__content">
-      <section
-        v-if="possibleHome.length > 0"
-        class="possible-teams-dialog__section"
-      >
+      <section v-if="possibleHome.length > 0" class="possible-teams-dialog__section">
         <h3 class="possible-teams-dialog__section-title">
           {{ homeLabel }}
         </h3>
-        <ul
-          class="possible-teams-dialog__list"
-          role="list"
-        >
-          <li
-            v-for="team in possibleHome"
-            :key="team.id"
-            class="possible-teams-dialog__item"
-          >
-            <TeamFlag
-              :flag-code="team.flagCode"
-              :name="team.name"
-              :decorative="true"
-            />
+        <ul class="possible-teams-dialog__list" role="list">
+          <li v-for="team in possibleHome" :key="team.id" class="possible-teams-dialog__item">
+            <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
             <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
           </li>
         </ul>
       </section>
 
-      <section
-        v-if="possibleAway.length > 0"
-        class="possible-teams-dialog__section"
-      >
+      <section v-if="possibleAway.length > 0" class="possible-teams-dialog__section">
         <h3 class="possible-teams-dialog__section-title">
           {{ awayLabel }}
         </h3>
-        <ul
-          class="possible-teams-dialog__list"
-          role="list"
-        >
-          <li
-            v-for="team in possibleAway"
-            :key="team.id"
-            class="possible-teams-dialog__item"
-          >
-            <TeamFlag
-              :flag-code="team.flagCode"
-              :name="team.name"
-              :decorative="true"
-            />
+        <ul class="possible-teams-dialog__list" role="list">
+          <li v-for="team in possibleAway" :key="team.id" class="possible-teams-dialog__item">
+            <TeamFlag :flag-code="team.flagCode" :name="team.name" :decorative="true" />
             <span class="possible-teams-dialog__team-name">{{ team.name }}</span>
           </li>
         </ul>

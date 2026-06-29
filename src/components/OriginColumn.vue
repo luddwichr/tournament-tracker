@@ -74,24 +74,13 @@ const groupData = computed(() =>
 </script>
 
 <template>
-  <section
-    class="origin-column surface-card"
-    aria-label="Gruppenphase"
-  >
+  <section class="origin-column surface-card" aria-label="Gruppenphase">
     <header class="origin-column__header sticky-card-header">
-      <h2 class="origin-column__title">
-        Gruppen
-      </h2>
+      <h2 class="origin-column__title">Gruppen</h2>
     </header>
     <div class="origin-column__groups">
-      <div
-        v-for="group in groupData"
-        :key="group.id"
-        class="origin-column__group"
-      >
-        <div class="origin-column__group-label">
-          Gruppe {{ group.id }}
-        </div>
+      <div v-for="group in groupData" :key="group.id" class="origin-column__group">
+        <div class="origin-column__group-label">Gruppe {{ group.id }}</div>
         <div
           v-for="row in group.teams"
           :key="row.rank"
@@ -110,20 +99,10 @@ const groupData = computed(() =>
           @focusin="row.refKey && emit('teamRefHover', row.refKey)"
           @focusout="emit('teamRefHoverEnd')"
         >
-          <span
-            class="origin-column__rank"
-            aria-hidden="true"
-          >{{ row.rank }}</span>
-          <TeamFlag
-            :flag-code="row.team.flagCode"
-            :name="row.team.name"
-            :decorative="true"
-          />
+          <span class="origin-column__rank" aria-hidden="true">{{ row.rank }}</span>
+          <TeamFlag :flag-code="row.team.flagCode" :name="row.team.name" :decorative="true" />
           <span class="origin-column__name">{{ row.team.name }}</span>
-          <span
-            v-if="row.eliminated"
-            class="visually-hidden"
-          >(ausgeschieden)</span>
+          <span v-if="row.eliminated" class="visually-hidden">(ausgeschieden)</span>
         </div>
       </div>
     </div>

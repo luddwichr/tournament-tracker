@@ -17,37 +17,29 @@ const emit = defineEmits<{ close: [] }>()
 const baseDialog = ref<InstanceType<typeof BaseDialog> | null>(null)
 const close = () => baseDialog.value?.close()
 
-const { homeGoals, awayGoals, homeYellow, homeRed, awayYellow, awayRed, penaltyWinner, showPenaltyPicker, title, initial, save, clear } =
-  useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
+const {
+  homeGoals,
+  awayGoals,
+  homeYellow,
+  homeRed,
+  awayYellow,
+  awayRed,
+  penaltyWinner,
+  showPenaltyPicker,
+  title,
+  initial,
+  save,
+  clear,
+} = useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
 </script>
 
 <template>
-  <BaseDialog
-    ref="baseDialog"
-    :title="title"
-    max-width="min(90vw, 28rem)"
-    @close="emit('close')"
-  >
+  <BaseDialog ref="baseDialog" :title="title" max-width="min(90vw, 28rem)" @close="emit('close')">
     <div class="score-dialog__body">
-      <ScoreInput
-        v-model:home="homeGoals"
-        v-model:away="awayGoals"
-        :home-team="homeTeam"
-        :away-team="awayTeam"
-      />
+      <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
 
-      <div
-        v-if="showPenaltyPicker"
-        class="score-dialog__penalties"
-        role="group"
-        aria-labelledby="penalty-label"
-      >
-        <p
-          id="penalty-label"
-          class="score-dialog__penalty-label"
-        >
-          Elfmeterschießen — Sieger
-        </p>
+      <div v-if="showPenaltyPicker" class="score-dialog__penalties" role="group" aria-labelledby="penalty-label">
+        <p id="penalty-label" class="score-dialog__penalty-label">Elfmeterschießen — Sieger</p>
         <div class="score-dialog__penalty-btns">
           <button
             type="button"
@@ -79,29 +71,12 @@ const { homeGoals, awayGoals, homeYellow, homeRed, awayYellow, awayRed, penaltyW
     </div>
 
     <template #footer>
-      <button
-        v-if="initial"
-        type="button"
-        class="btn btn--danger score-dialog__delete"
-        @click="clear(close)"
-      >
+      <button v-if="initial" type="button" class="btn btn--danger score-dialog__delete" @click="clear(close)">
         Löschen
       </button>
       <div class="score-dialog__footer-actions">
-        <button
-          type="button"
-          class="btn btn--secondary"
-          @click="baseDialog?.close()"
-        >
-          Abbrechen
-        </button>
-        <button
-          type="button"
-          class="btn btn--primary"
-          @click="save(close)"
-        >
-          Speichern
-        </button>
+        <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">Abbrechen</button>
+        <button type="button" class="btn btn--primary" @click="save(close)">Speichern</button>
       </div>
     </template>
   </BaseDialog>

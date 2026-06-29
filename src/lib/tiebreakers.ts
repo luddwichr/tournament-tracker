@@ -36,13 +36,8 @@ export function compareByPointsGdGf(a: PointGDGF, b: PointGDGF): number {
   return b.goalsFor - a.goalsFor
 }
 
-function clusterByStats<T extends { id: string }>(
-  teams: readonly T[],
-  statsMap: Map<string, PointGDGF>,
-): T[][] {
-  const sorted = teams.toSorted((a, b) =>
-    compareByPointsGdGf(statsMap.get(a.id)!, statsMap.get(b.id)!),
-  )
+function clusterByStats<T extends { id: string }>(teams: readonly T[], statsMap: Map<string, PointGDGF>): T[][] {
+  const sorted = teams.toSorted((a, b) => compareByPointsGdGf(statsMap.get(a.id)!, statsMap.get(b.id)!))
   const clusters: T[][] = []
   let current: T[] = []
   for (const team of sorted) {

@@ -5,15 +5,9 @@ import GroupTable from '../components/GroupTable.vue'
 
 <template>
   <div class="groups-view">
-    <h1 class="groups-view__heading">
-      Gruppen
-    </h1>
+    <h1 class="groups-view__heading">Gruppen</h1>
     <div class="groups-view__grid">
-      <GroupTable
-        v-for="groupId in GROUP_IDS"
-        :key="groupId"
-        :group-id="groupId"
-      />
+      <GroupTable v-for="groupId in GROUP_IDS" :key="groupId" :group-id="groupId" />
     </div>
   </div>
 </template>

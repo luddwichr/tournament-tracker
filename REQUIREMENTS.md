@@ -28,7 +28,7 @@ disagree, the **code is authoritative** and the gap is listed in
 - Live score auto-fetch
 - UI languages other than German
 - Manual override of deduced knockout matchups
-- Extra-time/penalty *scores* as data (only the penalty winner is recorded)
+- Extra-time/penalty _scores_ as data (only the penalty winner is recorded)
 - Disciplinary suspensions
 - Squad changes
 
@@ -46,8 +46,8 @@ disagree, the **code is authoritative** and the gap is listed in
   (`src/styles/tokens.css`), Andy Bell modern reset (`reset.css`), shared base
   styles (`base.css`).
 - **Vitest** + `@vue/test-utils` (unit, co-located `*.spec.ts`); **Playwright**
-  + `@axe-core/playwright` (e2e in `/e2e`). Separate Playwright config for the
-  offline PWA test.
+  - `@axe-core/playwright` (e2e in `/e2e`). Separate Playwright config for the
+    offline PWA test.
 - **oxlint** + **oxfmt** for lint/format.
 - **All npm dependencies pinned to exact versions** — no `^`/`~` (enforced by
   convention/CI). `docs/` keeps one note file per significant dependency.
@@ -186,12 +186,12 @@ Cache cleared on any result change/reset/import (`clearPossibleTeamsCache`).
 Bottom navigation derived from router meta (`navIcon` + German `title`); browser
 tab title synced to route. Four routes:
 
-| Route       | Title (DE)      | Content                                              |
-| ----------- | --------------- | ---------------------------------------------------- |
-| `/groups`   | Gruppen         | 12 group cards (standings table + 6 match cards)     |
-| `/knockout` | K.-o.-Runde     | Knockout bracket + group-origin column               |
-| `/ranking`  | Weltrangliste   | Full FIFA ranking, WC participants highlighted       |
-| `/settings` | Einstellungen   | Theme picker + export / import / reset               |
+| Route       | Title (DE)    | Content                                          |
+| ----------- | ------------- | ------------------------------------------------ |
+| `/groups`   | Gruppen       | 12 group cards (standings table + 6 match cards) |
+| `/knockout` | K.-o.-Runde   | Knockout bracket + group-origin column           |
+| `/ranking`  | Weltrangliste | Full FIFA ranking, WC participants highlighted   |
+| `/settings` | Einstellungen | Theme picker + export / import / reset           |
 
 `/` redirects to `/groups`.
 

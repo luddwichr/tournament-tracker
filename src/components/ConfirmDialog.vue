@@ -43,26 +43,13 @@ function handleClose(): void {
     :show-close-button="false"
     @close="handleClose"
   >
-    <p
-      id="confirm-dialog-desc"
-      class="confirm-dialog__message"
-    >
+    <p id="confirm-dialog-desc" class="confirm-dialog__message">
       {{ message }}
     </p>
 
     <template #footer>
-      <button
-        type="button"
-        class="btn btn--secondary"
-        @click="handleCancel"
-      >
-        Abbrechen
-      </button>
-      <button
-        type="button"
-        class="btn btn--danger"
-        @click="handleConfirm"
-      >
+      <button type="button" class="btn btn--secondary" @click="handleCancel">Abbrechen</button>
+      <button type="button" class="btn btn--danger" @click="handleConfirm">
         {{ confirmLabel ?? 'Bestätigen' }}
       </button>
     </template>

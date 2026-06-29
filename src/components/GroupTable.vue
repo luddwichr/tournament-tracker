@@ -27,88 +27,31 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
 </script>
 
 <template>
-  <article
-    class="group-table surface-card"
-    :aria-label="`Gruppe ${groupId}`"
-  >
+  <article class="group-table surface-card" :aria-label="`Gruppe ${groupId}`">
     <header class="group-table__header">
-      <h2 class="group-table__title">
-        Gruppe {{ groupId }}
-      </h2>
+      <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <div
-      class="group-table__standings"
-      tabindex="0"
-    >
+    <div class="group-table__standings" tabindex="0">
       <table class="standings-table tinted-header">
         <caption class="visually-hidden">
-          Gruppe {{ groupId }} – Tabelle
+          Gruppe
+          {{
+            groupId
+          }}
+          – Tabelle
         </caption>
         <thead>
           <tr>
-            <th
-              scope="col"
-              class="standings-table__team-col"
-            >
-              Team
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Spiele"
-            >
-              Sp
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Siege"
-            >
-              S
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Unentschieden"
-            >
-              U
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Niederlagen"
-            >
-              N
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Tore"
-            >
-              T+
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Gegentore"
-            >
-              T-
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Tordifferenz"
-            >
-              TD
-            </th>
-            <th
-              scope="col"
-              class="standings-table__num-col"
-              title="Punkte"
-            >
-              Pkt
-            </th>
+            <th scope="col" class="standings-table__team-col">Team</th>
+            <th scope="col" class="standings-table__num-col" title="Spiele">Sp</th>
+            <th scope="col" class="standings-table__num-col" title="Siege">S</th>
+            <th scope="col" class="standings-table__num-col" title="Unentschieden">U</th>
+            <th scope="col" class="standings-table__num-col" title="Niederlagen">N</th>
+            <th scope="col" class="standings-table__num-col" title="Tore">T+</th>
+            <th scope="col" class="standings-table__num-col" title="Gegentore">T-</th>
+            <th scope="col" class="standings-table__num-col" title="Tordifferenz">TD</th>
+            <th scope="col" class="standings-table__num-col" title="Punkte">Pkt</th>
           </tr>
         </thead>
         <tbody>

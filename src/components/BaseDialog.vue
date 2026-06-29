@@ -2,16 +2,19 @@
 import { ref, onMounted, useId } from 'vue'
 import { useScrollLock } from '../composables/use-scroll-lock'
 
-withDefaults(defineProps<{
-  title?: string
-  ariaLabel?: string
-  ariaDescribedby?: string
-  maxWidth?: string
-  maxHeight?: string
-  showCloseButton?: boolean
-}>(), {
-  showCloseButton: true,
-})
+withDefaults(
+  defineProps<{
+    title?: string
+    ariaLabel?: string
+    ariaDescribedby?: string
+    maxWidth?: string
+    maxHeight?: string
+    showCloseButton?: boolean
+  }>(),
+  {
+    showCloseButton: true,
+  },
+)
 
 const emit = defineEmits<{ close: [] }>()
 const dialogEl = ref<HTMLDialogElement | null>(null)
@@ -48,35 +51,20 @@ defineExpose({ close })
     <div class="base-dialog__inner">
       <header class="base-dialog__header">
         <slot name="title">
-          <h2
-            :id="titleId"
-            class="base-dialog__title"
-          >
+          <h2 :id="titleId" class="base-dialog__title">
             {{ title }}
           </h2>
         </slot>
-        <button
-          v-if="showCloseButton"
-          type="button"
-          class="base-dialog__close"
-          aria-label="Schließen"
-          @click="close()"
-        >
+        <button v-if="showCloseButton" type="button" class="base-dialog__close" aria-label="Schließen" @click="close()">
           ✕
         </button>
       </header>
 
-      <div
-        class="base-dialog__body"
-        :tabindex="maxHeight ? 0 : undefined"
-      >
+      <div class="base-dialog__body" :tabindex="maxHeight ? 0 : undefined">
         <slot />
       </div>
 
-      <footer
-        v-if="$slots['footer']"
-        class="base-dialog__footer"
-      >
+      <footer v-if="$slots['footer']" class="base-dialog__footer">
         <slot name="footer" />
       </footer>
     </div>

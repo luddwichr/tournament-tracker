@@ -132,6 +132,7 @@ lib specs (`standings`, `knockout`, `third-place`, `tiebreakers`,
 lines of duplicated helper code.
 
 Remaining F items (not yet done):
+
 - Reduce brittle bracket navigation: select by the existing `data-match-id`
   attribute (add stable `data-testid`s where missing) instead of
   `.bracket-round nth(...).match-card nth(...)`.

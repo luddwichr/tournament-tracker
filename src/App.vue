@@ -42,33 +42,16 @@ watch(
 </script>
 
 <template>
-  <a
-    class="skip-link"
-    href="#main"
-  >Zum Inhalt springen</a>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
   <AppHeader />
-  <main
-    id="main"
-    ref="mainRef"
-    class="app-main"
-    tabindex="-1"
-  >
+  <main id="main" ref="mainRef" class="app-main" tabindex="-1">
     <RouterView />
   </main>
-  <div
-    class="visually-hidden"
-    role="status"
-    aria-live="polite"
-  >
+  <div class="visually-hidden" role="status" aria-live="polite">
     {{ announcement }}
   </div>
 
-  <SquadDialog
-    v-if="squadTeam"
-    :team="squadTeam"
-    :players="squads[squadTeam.id] ?? []"
-    @close="closeSquad"
-  />
+  <SquadDialog v-if="squadTeam" :team="squadTeam" :players="squads[squadTeam.id] ?? []" @close="closeSquad" />
 </template>
 
 <style scoped>

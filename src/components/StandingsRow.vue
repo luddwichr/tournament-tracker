@@ -32,28 +32,12 @@ const statusLabel: Record<string, string> = {
 </script>
 
 <template>
-  <tr
-    class="standings-row"
-    :class="`standings-row--${status}`"
-  >
-    <th
-      scope="row"
-      class="standings-row__team"
-    >
+  <tr class="standings-row" :class="`standings-row--${status}`">
+    <th scope="row" class="standings-row__team">
       <div class="standings-row__team-inner">
-        <span
-          class="standings-row__rank"
-          aria-hidden="true"
-        >{{ rank }}</span>
-        <TeamLabel
-          :team="stat.team"
-          flag-size="1.5rem"
-          :clickable="true"
-        />
-        <span
-          v-if="status !== 'none'"
-          class="visually-hidden"
-        >({{ statusLabel[status] }})</span>
+        <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
+        <TeamLabel :team="stat.team" flag-size="1.5rem" :clickable="true" />
+        <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
       </div>
     </th>
     <td class="standings-row__num">
@@ -74,9 +58,7 @@ const statusLabel: Record<string, string> = {
     <td class="standings-row__num">
       {{ stat.goalsAgainst }}
     </td>
-    <td class="standings-row__num">
-      {{ stat.goalDiff > 0 ? '+' : '' }}{{ stat.goalDiff }}
-    </td>
+    <td class="standings-row__num">{{ stat.goalDiff > 0 ? '+' : '' }}{{ stat.goalDiff }}</td>
     <td class="standings-row__num standings-row__pts">
       {{ stat.points }}
     </td>

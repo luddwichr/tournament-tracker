@@ -13,10 +13,7 @@ import { makeResult } from '../test-support/results'
 // Helpers
 // ---------------------------------------------------------------------------
 
-type CardOverrides = Record<
-  string,
-  { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number }
->
+type CardOverrides = Record<string, { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number }>
 
 /**
  * Build a results map where every group match plays out as the given score,

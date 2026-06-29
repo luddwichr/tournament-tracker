@@ -13,10 +13,7 @@ export function storedState(results: Record<string, Result>): string {
 }
 
 export async function seedResults(page: Page, results: Record<string, Result>): Promise<void> {
-  await page.evaluate(
-    ([key, value]) => localStorage.setItem(key, value as string),
-    [STORAGE_KEY, storedState(results)],
-  )
+  await page.evaluate(([key, value]) => localStorage.setItem(key, value as string), [STORAGE_KEY, storedState(results)])
 }
 
 export function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {

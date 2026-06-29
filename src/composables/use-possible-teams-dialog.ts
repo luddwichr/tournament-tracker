@@ -30,14 +30,10 @@ export function usePossibleTeamsDialog() {
   )
 
   const homeLabel = computed(() =>
-    possibleTeamsMatch.value
-      ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef))
-      : '',
+    possibleTeamsMatch.value ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef)) : '',
   )
   const awayLabel = computed(() =>
-    possibleTeamsMatch.value
-      ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef))
-      : '',
+    possibleTeamsMatch.value ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef)) : '',
   )
 
   function open(match: MatchSlot, slot: 'home' | 'away'): void {

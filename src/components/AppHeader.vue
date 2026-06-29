@@ -5,9 +5,7 @@ import AppNav from './AppNav.vue'
 <template>
   <header class="app-header">
     <div class="app-header__bar">
-      <p class="app-header__title">
-        ⚽ WM 2026 Tracker
-      </p>
+      <p class="app-header__title">⚽ WM 2026 Tracker</p>
     </div>
     <AppNav />
   </header>
