@@ -1,13 +1,44 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { watch } from 'vue'
 import AppNav from './AppNav.vue'
+
+const isNavOpen = ref(false)
+const route = useRoute()
+
+watch(
+  () => route.path,
+  () => {
+    isNavOpen.value = false
+  },
+)
+
+function handleKeydown(e: KeyboardEvent): void {
+  if (e.key === 'Escape') isNavOpen.value = false
+}
 </script>
 
 <template>
-  <header class="app-header">
+  <header class="app-header" @keydown="handleKeydown">
     <div class="app-header__bar">
       <p class="app-header__title">⚽ WM 2026 Tracker</p>
+      <button
+        class="app-header__burger"
+        type="button"
+        :aria-expanded="isNavOpen"
+        aria-controls="app-nav-list"
+        aria-label="Navigation öffnen"
+        @click="isNavOpen = !isNavOpen"
+      >
+        <span class="app-header__burger-icon" aria-hidden="true">
+          <span class="app-header__burger-line" />
+          <span class="app-header__burger-line" />
+          <span class="app-header__burger-line" />
+        </span>
+      </button>
     </div>
-    <AppNav />
+    <AppNav :open="isNavOpen" />
   </header>
 </template>
 
@@ -30,5 +61,49 @@ import AppNav from './AppNav.vue'
   margin: 0;
   font-size: var(--font-size-lg);
   font-weight: 700;
+}
+
+.app-header__burger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin-inline-start: auto;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.app-header__burger:hover {
+  background-color: color-mix(in srgb, var(--color-text) var(--state-hover), transparent);
+}
+
+.app-header__burger:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app-header__burger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 20px;
+}
+
+.app-header__burger-line {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+@media (min-width: 640px) {
+  .app-header__burger {
+    display: none;
+  }
 }
 </style>
