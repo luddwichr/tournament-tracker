@@ -121,11 +121,12 @@ describe('computeGroupStandings — partial group (unplayed matches)', () => {
     expect(cze.points).toBe(0)
   })
 
-  it('uses criterion 3 (goals scored) when points and GD are equal — partial group', () => {
+  it('uses overall goals scored (Step 2 e) when points and GD are equal — partial group', () => {
     // M01 mex 2-1 rsa: mex 3pts +1GD 2GF, rsa 0pts -1GD 1GF
     // M02 kor 1-0 cze: kor 3pts +1GD 1GF, cze 0pts -1GD 0GF
-    // mex vs kor: same pts (3) same GD (+1), mex 2GF > kor 1GF → mex first
-    // rsa vs cze: same pts (0) same GD (-1), rsa 1GF > cze 0GF → rsa before cze
+    // mex vs kor never met (no head-to-head), so Step 1 makes no progress;
+    // Step 2 d (overall GD) ties at +1, then e (overall goals): mex 2GF > kor 1GF → mex first.
+    // rsa vs cze likewise: overall GD ties at -1, then rsa 1GF > cze 0GF → rsa before cze.
     const standings = computeGroupStandings(
       'A',
       resultsMap(

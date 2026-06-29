@@ -1,15 +1,21 @@
 /**
- * Full FIFA 2026 group-stage tiebreaker chain.
+ * FIFA 2026 group-stage tiebreaker chain (FWC2026 Regulations, Article 13).
  *
- * Chain (in order):
- *  1. Points (all matches)
- *  2. Goal difference (all matches)
- *  3. Goals scored (all matches)
- *  4–6. Repeat 1–3 using only head-to-head matches between tied teams
- *  7. Fair-play points: -1 × yellow - 3 × red (all matches; higher = better)
- *  8. FIFA World Ranking (lower position = better; always resolves)
+ * Teams are first separated by points. Teams level on points are ranked by:
  *
- * See docs/tournament-rules.md for the regulatory source.
+ *  Step 1 — head-to-head among all the tied teams (matches between them only):
+ *    a. points, b. goal difference, c. goals scored
+ *  Step 2 — for teams still tied, re-apply a–c to the matches among only the
+ *    teams that remain tied; if still undecided, apply in order (no restart):
+ *    d. overall goal difference, e. overall goals scored, f. fair-play score
+ *  Step 3:
+ *    g. FIFA World Ranking (lower position = better; always resolves)
+ *
+ * Note the 2026 reordering: head-to-head (Step 1) is applied BEFORE overall goal
+ * difference (Step 2 d). Criterion (g) uses a single stored FIFA ranking — the
+ * regulation's "older editions" fallback (h) is never reached, since rankings
+ * are unique. Fair-play (f) uses this project's simplified score (see
+ * standings.ts). See docs/tournament-rules.md for the regulatory source.
  */
 
 import type { Team, MatchSlot, Result } from '../types/tournament'
@@ -36,17 +42,14 @@ export function compareByPointsGdGf(a: PointGDGF, b: PointGDGF): number {
   return b.goalsFor - a.goalsFor
 }
 
-function clusterByStats<T extends { id: string }>(teams: readonly T[], statsMap: Map<string, PointGDGF>): T[][] {
-  const sorted = teams.toSorted((a, b) => compareByPointsGdGf(statsMap.get(a.id)!, statsMap.get(b.id)!))
+/** Sort `teams` by `compare`, then group runs of teams that compare equal. */
+function clusterBy<T>(teams: readonly T[], compare: (a: T, b: T) => number): T[][] {
+  const sorted = teams.toSorted(compare)
   const clusters: T[][] = []
   let current: T[] = []
   for (const team of sorted) {
-    if (!current.length) {
-      current.push(team)
-      continue
-    }
-    const prev = current[current.length - 1]!
-    if (compareByPointsGdGf(statsMap.get(prev.id)!, statsMap.get(team.id)!) === 0) {
+    const prev = current[current.length - 1]
+    if (prev === undefined || compare(prev, team) === 0) {
       current.push(team)
     } else {
       clusters.push(current)
@@ -101,8 +104,12 @@ function computeH2HStats(
 }
 
 /**
- * Recursively resolve a tied group of teams using H2H criteria.
- * Falls through to fair-play then FIFA ranking when H2H makes no progress.
+ * Resolve a set of teams that are level on points (Article 13).
+ *
+ * Step 1 applies the head-to-head criteria (a–c) among the tied teams. Where
+ * that leaves a smaller still-tied subset, Step 2 re-applies a–c to the matches
+ * among only those remaining teams (the recursion). When head-to-head makes no
+ * further progress, the no-restart sequence d → e → f → g decides the order.
  */
 function resolveH2H<S extends TiebreakerStat>(
   teams: Team[],
@@ -112,22 +119,25 @@ function resolveH2H<S extends TiebreakerStat>(
 ): Team[] {
   const h2hMatches = h2hMatchesBetween(teams, allGroupMatches)
   const h2hStats = computeH2HStats(teams, h2hMatches, results)
-  const clusters = clusterByStats(teams, h2hStats)
+  const clusters = clusterBy(teams, (a, b) => compareByPointsGdGf(h2hStats.get(a.id)!, h2hStats.get(b.id)!))
 
   return clusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster
 
     if (cluster.length < teams.length) {
-      // H2H narrowed the tie — recurse on the smaller subset.
+      // Step 2: head-to-head narrowed the tie — re-apply a–c among the remaining teams.
       return resolveH2H(cluster, allGroupMatches, results, overallStats)
     }
 
-    // H2H made no progress — apply fair-play then FIFA ranking.
+    // Head-to-head made no progress — apply overall GD (d), overall goals (e),
+    // fair-play (f), then FIFA ranking (g) as a single no-restart sequence.
     return cluster.toSorted((a, b) => {
-      const fpA = overallStats.get(a.id)!.fairPlayScore
-      const fpB = overallStats.get(b.id)!.fairPlayScore
-      if (fpA !== fpB) return fpB - fpA // higher (less negative) = better
-      return a.fifaRanking - b.fifaRanking // lower rank number = better
+      const sa = overallStats.get(a.id)!
+      const sb = overallStats.get(b.id)!
+      if (sb.goalDiff !== sa.goalDiff) return sb.goalDiff - sa.goalDiff // d
+      if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor // e
+      if (sb.fairPlayScore !== sa.fairPlayScore) return sb.fairPlayScore - sa.fairPlayScore // f (higher = better)
+      return a.fifaRanking - b.fifaRanking // g (lower rank number = better)
     })
   })
 }
@@ -145,9 +155,11 @@ export function sortTeams<S extends TiebreakerStat>(
   results: Record<string, Result>,
   overallStats: Map<string, S>,
 ): Team[] {
-  const overallClusters = clusterByStats(teams, overallStats)
+  // Teams are first separated by points; only equal-points clusters go through
+  // the Article 13 chain (head-to-head before overall goal difference).
+  const pointClusters = clusterBy(teams, (a, b) => overallStats.get(b.id)!.points - overallStats.get(a.id)!.points)
 
-  return overallClusters.flatMap((cluster) => {
+  return pointClusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster
     return resolveH2H(cluster, allGroupMatches, results, overallStats)
   })

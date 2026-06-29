@@ -29,46 +29,83 @@ reproduce the relevant tables, which is where this project sourced its data.
 The **top two of each group** (24 teams) plus the **eight best third-placed
 teams** (out of 12) advance to the round of 32 — 32 teams total.
 
-### Group ranking — FIFA tiebreakers (in order)
+### Group ranking — FIFA tiebreakers (Article 13)
 
-Applied to decide positions within a group:
+Teams are first ranked by **points** (3 win / 1 draw / 0 loss). If two or more
+teams in a group are level on points, **Article 13** of the regulations applies
+the criteria below, in order. For 2026 FIFA reordered the chain so that
+**head-to-head is applied _before_ overall goal difference** (the reverse of the
+2018/2022 order). The app implements this chain in
+[`src/lib/tiebreakers.ts`](../src/lib/tiebreakers.ts).
 
-1. Points (3 win / 1 draw / 0 loss)
-2. Goal difference across all group matches
-3. Goals scored across all group matches
-4. Points in matches **between the tied teams** (head-to-head)
-5. Goal difference in head-to-head matches
-6. Goals scored in head-to-head matches
-7. **Fair-play points** (see below)
-8. Drawing of lots by FIFA
+**Step 1 — head-to-head, among _all_ the tied teams** (only the matches played
+between the teams concerned count):
 
-> **Subgroup rule (critical):** the head-to-head criteria (4–6) apply only to the
-> matches played among the still-tied teams. If applying them splits a group of
-> N tied teams into a smaller still-tied subset, the **full chain restarts from
-> step 1** on that subset. See [`docs/tiebreakers.md`](./tiebreakers.md).
+1. (a) Points in the matches between the tied teams
+2. (b) Goal difference in those matches
+3. (c) Goals scored in those matches
 
-> **This app's deviation:** step 8 (drawing of lots) is non-deterministic and
-> unsuitable for an offline tracker, so the app replaces it with the team's
-> **FIFA World Ranking position** (`Team.fifaRanking`, lower = better). This
-> makes the chain always resolve deterministically — no unresolved-tie state.
+**Step 2 — for any teams that are _still_ tied after Step 1:**
 
-### Fair-play points (simplified)
+First, criteria (a)–(c) are **re-applied to the matches among only the teams that
+remain tied** (a smaller head-to-head table). If that still does not separate
+them, the following whole-group criteria apply:
 
-The app uses a simplified fair-play score, summed across all of a team's group
-matches, where **higher (less negative) is better**:
+4. (d) Goal difference across all group matches
+5. (e) Goals scored across all group matches
+6. (f) **Team conduct / fair-play score** (see below)
 
-```
-score = (−1 × yellow cards) + (−3 × red cards)
-```
+> **No-restart rule (Step 2):** once (d)–(f) separate _some_ but not all teams,
+> the two or three teams that remain are carried on to the **next** criterion in
+> the list — Step 2 does **not** restart from (d). (This differs from the Step 1
+> → Step 2 transition, where the head-to-head table _is_ recomputed for the
+> reduced set of still-tied teams.)
 
-A red card here includes a second-yellow send-off. (FIFA's official rule has
-finer-grained values for single yellow / indirect red / direct red / yellow+red;
-this project intentionally simplifies — see [`docs/tiebreakers.md`](./tiebreakers.md).)
+**Step 3 — if teams are still level after Steps 1–2:**
+
+7. (g) The **most recent** published FIFA/Coca-Cola Men's World Ranking
+8. (h) Successively **older** editions of that ranking, until a decision is made
+
+> **There is no "drawing of lots."** The 2026 regulations make the **FIFA World
+> Ranking** the definitive final tiebreaker (current edition, then older editions
+> per criterion (h)) — there is no random draw in the group-ranking chain.
+>
+> The app stores a single `Team.fifaRanking` (lower = better) for criterion (g).
+> Because every team has a unique ranking position, (g) always resolves, so the
+> older-edition fallback (h) is never reached and the chain is always
+> deterministic — no unresolved-tie state.
+
+### Fair-play / conduct points
+
+FIFA's official conduct score (Article 13, criterion (f)) sums per-card
+deductions across all of a team's group matches, where **higher (less negative)
+is better**. Only **one** deduction is applied to a given player or official per
+match:
+
+| Card                                       | Points |
+| ------------------------------------------ | ------ |
+| Yellow card                                | −1     |
+| Indirect red card (two yellows in a match) | −3     |
+| Direct red card                            | −4     |
+| Yellow card **and** direct red card        | −5     |
+
+> **Simplified in this app:** the app does not track which kind of red was shown,
+> so it collapses all sending-offs to a single −3 (a second-yellow red and a
+> straight red count the same):
+>
+> ```
+> score = (−1 × yellow cards) + (−3 × red cards)
+> ```
+>
+> This under-counts a direct red (−3 vs FIFA's −4) and a yellow+red (−3 vs −5); in
+> a tracker this rarely changes an outcome.
 
 ### Ranking the third-placed teams
 
-The 12 third-placed teams are ranked by the same criteria (points, GD, goals
-scored, …, then FIFA ranking in this app). The **top eight** advance.
+The 12 third-placed teams come from different groups and never met, so
+**head-to-head does not apply**. They are ranked (Article 13) by: points → goal
+difference (all matches) → goals scored (all matches) → conduct/fair-play score →
+FIFA World Ranking (most recent, then older editions). The **top eight** advance.
 
 ## Knockout stage
 
@@ -133,4 +170,4 @@ implementations of past tournaments frequently get it wrong, so it must never be
   propagation.
 - Does **not** model: extra time / penalty shoot-outs as distinct data (a
   knockout result is simply whoever the user records as the winner), disciplinary
-  suspensions, squad changes, or venues. See `IMPL_PLAN.md` → "Out of scope".
+  suspensions, squad changes, or venues.

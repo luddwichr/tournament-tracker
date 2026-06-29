@@ -39,6 +39,55 @@ function tiedStats(): Map<string, TiebreakerStat> {
 }
 
 // ---------------------------------------------------------------------------
+// 2026 reordering: head-to-head is applied BEFORE overall goal difference
+// ---------------------------------------------------------------------------
+
+describe('sortTeams — Step 1 head-to-head outranks overall goal difference', () => {
+  it('ranks the head-to-head winner above a team with a better overall GD', () => {
+    // mex and kor are level on points. kor has the better OVERALL goal
+    // difference, but mex beat kor head-to-head (M28). Under the 2026 rules
+    // (Article 13), Step 1 head-to-head decides before Step 2's overall GD, so
+    // mex must rank above kor.
+    const stats: Map<string, TiebreakerStat> = new Map([
+      ['mex', { points: 6, goalDiff: 1, goalsFor: 3, fairPlayScore: 0 }], // worse overall GD
+      ['kor', { points: 6, goalDiff: 5, goalsFor: 9, fairPlayScore: 0 }], // better overall GD
+      ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+      ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+    ])
+    const results: Record<string, Result> = {
+      M28: makeResult('M28', 1, 0), // mex(h) 1-0 kor(a) — mex wins the head-to-head
+    }
+
+    const sorted = sortTeams(groupATeams, groupAMatches, results, stats)
+    const ids = sorted.map((t) => t.id)
+
+    expect(ids.indexOf('mex')).toBeLessThan(ids.indexOf('kor'))
+  })
+})
+
+describe('sortTeams — Step 2 overall GD decides when head-to-head is level', () => {
+  it('falls through to overall goal difference when the tied teams drew head-to-head', () => {
+    // Same two teams level on points, but the head-to-head match was a draw, so
+    // Step 1 makes no progress. Step 2 (d) then ranks by overall GD: kor's +5
+    // beats mex's +1.
+    const stats: Map<string, TiebreakerStat> = new Map([
+      ['mex', { points: 6, goalDiff: 1, goalsFor: 3, fairPlayScore: 0 }],
+      ['kor', { points: 6, goalDiff: 5, goalsFor: 9, fairPlayScore: 0 }], // better overall GD
+      ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+      ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+    ])
+    const results: Record<string, Result> = {
+      M28: makeResult('M28', 1, 1), // mex(h) 1-1 kor(a) — head-to-head level
+    }
+
+    const sorted = sortTeams(groupATeams, groupAMatches, results, stats)
+    const ids = sorted.map((t) => t.id)
+
+    expect(ids.indexOf('kor')).toBeLessThan(ids.indexOf('mex'))
+  })
+})
+
+// ---------------------------------------------------------------------------
 // H2H goal difference as tiebreaker
 // ---------------------------------------------------------------------------
 
@@ -114,7 +163,8 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
     // clusterByStats on H2H: mex(5pts) | cze=rsa(3pts) | kor(2pts).
     // cze/rsa sub-cluster (length 2 < teams.length 4) → recurse on {cze, rsa}.
     // H2H between {cze, rsa}: M25 cze(h) 0-0 rsa(a) → 1pt each, 0GD, 0GF → no progress.
-    // Falls through to fair-play (both 0) then FIFA rank: cze(40) < rsa(60) → cze before rsa.
+    // Falls through Step 2 d–f (overall GD/GF/fair-play all equal) then FIFA
+    // rank (g): cze(40) < rsa(60) → cze before rsa.
     //
     // Final order: mex, cze, rsa, kor.
     const allTied: Map<string, TiebreakerStat> = new Map([
