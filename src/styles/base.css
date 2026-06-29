@@ -118,9 +118,9 @@ body {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
-/* Tinted header row — apply to any <table> whose <thead tr> needs the primary tint */
+/* Tinted header row — apply to any <table> whose <thead tr> needs a tinted background */
 .tinted-header thead tr {
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
 /* Screen-reader-only utility */

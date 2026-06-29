@@ -36,7 +36,7 @@ export interface Team {
 export interface Player {
   number: number
   name: string
-  position?: 'GK' | 'DF' | 'MF' | 'FW'
+  position: 'GK' | 'DF' | 'MF' | 'FW'
 }
 
 /**

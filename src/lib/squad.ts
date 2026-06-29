@@ -2,12 +2,12 @@ import type { Player } from '../types/tournament'
 
 type Position = NonNullable<Player['position']>
 
-export const POSITION_LABEL: Record<Position, string> = {
+export const POSITION_LABEL = {
   GK: 'Torwart',
   DF: 'Abwehr',
   MF: 'Mittelfeld',
   FW: 'Sturm',
-}
+} as const
 
 const POSITION_ORDER: Record<Position, number> = { GK: 0, DF: 1, MF: 2, FW: 3 }
 

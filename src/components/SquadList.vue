@@ -26,7 +26,7 @@ const sorted = computed(() => sortBySquadPosition(props.players))
           {{ player.number }}
         </td>
         <td class="squad-list__pos">
-          {{ player.position ? (POSITION_LABEL[player.position] ?? player.position) : '—' }}
+          {{ POSITION_LABEL[player.position] }}
         </td>
         <th scope="row" class="squad-list__name">
           {{ player.name }}
