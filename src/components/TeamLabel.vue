@@ -27,7 +27,7 @@ function handleClick(e: MouseEvent): void {
     :aria-label="clickable ? `${team.name} – Kader anzeigen` : undefined"
     @click="handleClick"
   >
-    <TeamFlag :flag-code="team.flagCode" :name="team.name" decorative size="1.5rem" />
+    <TeamFlag :flag-code="team.flagCode" size="1.5rem" />
     <span class="team-label__name">{{ team.name }}</span>
   </component>
 </template>

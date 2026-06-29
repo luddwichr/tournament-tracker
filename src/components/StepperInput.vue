@@ -1,12 +1,11 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    min?: number
     decLabel: string
     incLabel: string
     size?: 'sm' | 'lg'
   }>(),
-  { min: 0, size: 'sm' },
+  { size: 'sm' },
 )
 
 const model = defineModel<number>({ required: true })
@@ -18,7 +17,7 @@ const model = defineModel<number>({ required: true })
       type="button"
       class="stepper__step"
       :aria-label="props.decLabel"
-      @click="model = Math.max(props.min, model - 1)"
+      @click="model = Math.max(0, model - 1)"
     >
       −
     </button>

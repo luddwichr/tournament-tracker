@@ -26,20 +26,12 @@ describe('StepperInput', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([[1]])
   })
 
-  it('does not go below default min (0)', async () => {
+  it('does not go below 0', async () => {
     const wrapper = mount(StepperInput, {
       props: { modelValue: 0, decLabel: 'dec', incLabel: 'inc' },
     })
     await wrapper.findAll('button')[0]!.trigger('click')
-    // value is already at min — defineModel skips emitting unchanged values
-    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
-  })
-
-  it('does not go below a custom min', async () => {
-    const wrapper = mount(StepperInput, {
-      props: { modelValue: 1, decLabel: 'dec', incLabel: 'inc', min: 1 },
-    })
-    await wrapper.findAll('button')[0]!.trigger('click')
+    // value is already at 0 — defineModel skips emitting unchanged values
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 

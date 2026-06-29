@@ -60,7 +60,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
             <td class="ranking-row__team">
               <TeamLabel v-if="team" :team="team" clickable />
               <span v-else class="ranking-row__name">
-                <TeamFlag :flag-code="entry.flagCode" :name="entry.name" decorative size="1.5rem" />
+                <TeamFlag :flag-code="entry.flagCode" size="1.5rem" />
                 {{ entry.name }}
               </span>
             </td>

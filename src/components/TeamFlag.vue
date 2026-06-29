@@ -4,11 +4,6 @@ import 'flag-icons/css/flag-icons.min.css'
 
 const props = defineProps<{
   flagCode: string
-  /** German team name — used as accessible label when not decorative. */
-  name: string
-  /** Pass true when the flag sits beside a visible team name so AT skips the duplicate. */
-  decorative?: boolean
-  /* Size of the flag icon, e.g. "2rem" or "1.5 */
   size: string
 }>()
 </script>
@@ -18,9 +13,7 @@ const props = defineProps<{
     class="team-flag fi"
     :class="`fi-${flagCode}`"
     :style="{ fontSize: props.size }"
-    :role="decorative ? undefined : 'img'"
-    :aria-label="decorative ? undefined : name"
-    :aria-hidden="decorative ? 'true' : undefined"
+    aria-hidden="true"
   />
 </template>
 
