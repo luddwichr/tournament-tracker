@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
-import SquadDialog from './SquadDialog.vue'
-import { squads } from '../data/squads'
+import { useSquadViewer } from '../composables/use-squad-viewer'
 
 const props = defineProps<{
   team: Team
@@ -12,13 +10,12 @@ const props = defineProps<{
   clickable?: boolean
 }>()
 
-const squadOpen = ref(false)
-const players = squads[props.team.id] ?? []
+const openSquad = useSquadViewer()
 
 function handleClick(e: MouseEvent): void {
   if (!props.clickable) return
   e.stopPropagation()
-  squadOpen.value = true
+  openSquad(props.team)
 }
 </script>
 
@@ -39,15 +36,6 @@ function handleClick(e: MouseEvent): void {
     />
     <span class="team-label__name">{{ team.name }}</span>
   </component>
-
-  <Teleport to="body">
-    <SquadDialog
-      v-if="squadOpen"
-      :team="team"
-      :players="players"
-      @close="squadOpen = false"
-    />
-  </Teleport>
 </template>
 
 <style scoped>

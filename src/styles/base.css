@@ -99,6 +99,30 @@ body {
   background: color-mix(in srgb, var(--color-loss) var(--state-hover), transparent);
 }
 
+/*
+ * Sticky primary-coloured card header — used by BracketRound and OriginColumn.
+ * Apply alongside the component-specific class that controls width/padding overrides.
+ */
+.sticky-card-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+/* Focus-style highlight ring — used by BracketRound match targets and OriginColumn team rows */
+.highlight-ring {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* Tinted header row — apply to any <table> whose <thead tr> needs the primary tint */
+.tinted-header thead tr {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
 /* Screen-reader-only utility */
 .visually-hidden {
   position: absolute;

@@ -22,28 +22,13 @@
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
-import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
+import { knockoutMatches } from '../data/fixtures-2026'
 import { possibleTeamsFor, clearPossibleTeamsCache } from './possible-teams'
+import { makeResult, allGroupResults } from '../test-support/results'
 
 beforeEach(() => {
   clearPossibleTeamsCache()
 })
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
-  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-}
-
-function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const m of groupMatches) {
-    results[m.id] = makeResult(m.id, homeGoals, awayGoals)
-  }
-  return results
-}
 
 /**
  * Build the 5-match Group A scenario where only mex and kor can reach rank 1.

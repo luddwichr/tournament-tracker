@@ -19,6 +19,7 @@ import { groupMatches } from '../data/fixtures-2026'
 import { teamsInGroup } from '../data/teams'
 import { sortTeams } from './tiebreakers'
 import type { TiebreakerStat } from './tiebreakers'
+import { makeResult } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -26,10 +27,6 @@ import type { TiebreakerStat } from './tiebreakers'
 
 const groupATeams = teamsInGroup('A') // mex(14), rsa(60), kor(25), cze(40)
 const groupAMatches = groupMatches.filter((m) => m.group === 'A')
-
-function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
-  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-}
 
 /** Build an overallStats map that ties mex/kor/cze (same pts/GD/GF) and puts rsa last. */
 function tiedStats(): Map<string, TiebreakerStat> {

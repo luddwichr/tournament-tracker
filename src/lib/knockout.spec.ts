@@ -7,23 +7,7 @@ import type { Result, TeamRef } from '../types/tournament'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
 import { resolveTeamRef, canEnterResult } from './knockout'
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function makeResult(matchId: string, homeGoals: number, awayGoals: number): Result {
-  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-}
-
-/** Play every group match with the given score. */
-function allGroupResults(homeGoals: number, awayGoals: number): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const m of groupMatches) {
-    results[m.id] = makeResult(m.id, homeGoals, awayGoals)
-  }
-  return results
-}
+import { makeResult, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // 'team' kind

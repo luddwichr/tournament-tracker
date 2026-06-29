@@ -33,26 +33,21 @@
   --motion-duration-base: 0.15s;
   --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
 
-  /* State-layer opacities — MD spec: hover 8 / focus 12 / pressed 12 / drag 16 */
+  /* State-layer opacities — MD spec: hover 8 / focus 12 / pressed 12 */
   --state-hover: 8%;
   --state-focus: 12%;
   --state-pressed: 12%;
-  --state-drag: 16%;
 
   /* Z-index scale */
   --z-sticky: 1;
   --z-overlay: 10;
   --z-modal: 100;
 
-  /* Elevation aliases — map semantic levels to shadow tokens */
+  /* Elevation alias */
   --elevation-1: var(--shadow-sm);
-  --elevation-2: var(--shadow-md);
-  --elevation-3: var(--shadow-lg);
 
   /* Responsive breakpoints */
   --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
 }
 
 /* Light palette — applied by default and when the user explicitly picks light */

@@ -20,6 +20,7 @@ const props = defineProps<{
   result?: Result | null
   homePlaceholder?: string
   awayPlaceholder?: string
+  highlighted?: boolean
 }>()
 
 const emit = defineEmits<{ click: []; placeholderClick: [slot: 'home' | 'away'] }>()
@@ -43,7 +44,7 @@ const ariaLabel = computed(() => {
 <template>
   <div
     class="match-card"
-    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked }"
+    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked, 'highlight-ring': highlighted }"
   >
     <div class="match-card__meta">
       <time
@@ -202,11 +203,6 @@ const ariaLabel = computed(() => {
   background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
-.match-card__score-btn:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
 .match-card__score-btn:disabled {
   cursor: not-allowed;
 }
@@ -251,8 +247,4 @@ const ariaLabel = computed(() => {
   text-underline-offset: 2px;
 }
 
-.match-card__placeholder:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
 </style>

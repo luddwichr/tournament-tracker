@@ -13,7 +13,7 @@
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:pwa": "playwright test --config playwright.pwa.config.ts",
-    "lint": "eslint . && oxlint",
+    "lint": "eslint . --max-warnings 0 && oxlint",
     "lint:fix": "eslint . --fix && oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check"

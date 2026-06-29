@@ -1,23 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { groupMatches } from '../src/data/fixtures-2026'
-import type { Result } from '../src/types/tournament'
-
-const STORAGE_KEY = 'wc2026:results:v1'
-
-function makeResult(matchId: string): Result {
-  return { matchId, homeGoals: 1, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-}
-
-function storedState(results: Record<string, Result>): string {
-  return JSON.stringify({ results })
-}
-
-function allGroupResults(): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const m of groupMatches) results[m.id] = makeResult(m.id)
-  return results
-}
+import { STORAGE_KEY, storedState, allGroupResults } from './support/results'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
@@ -113,7 +96,7 @@ test('clicking an enabled R32 card opens ScoreDialog with resolved team names', 
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
-  const title = dialog.locator('.score-dialog__title')
+  const title = dialog.locator('.base-dialog__title')
   const text = await title.textContent()
   // Title must name two real teams, not generic fallback strings
   expect(text).toMatch(/Ergebnis: .+ – .+/)
