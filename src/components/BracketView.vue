@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { MatchSlot, Team } from '../types/tournament'
+import type { MatchSlot } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
 import { resolveTeamRef } from '../lib/knockout'
 import { teamRefLabel } from '../lib/bracket-labels'
-import { possibleTeamsFor } from '../lib/possible-teams'
-import {
-  nextMatchMap,
-  prevMatchMap,
-  teamRefToMatchId,
-  matchToRefKeys,
-  useBracketConnectors,
-} from '../composables/use-bracket-connectors'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
 import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
+import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
+import { useBracketHighlight } from '../composables/use-bracket-highlight'
 
 const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
 
@@ -65,122 +59,28 @@ const rounds = computed((): Round[] => {
   return groups
 })
 
-const possibleTeamsMatch = ref<MatchSlot | null>(null)
-const possibleTeamsSlot = ref<'home' | 'away' | null>(null)
-
-const ptHomeTeam = computed(() =>
-  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.homeRef, store.results) : null,
-)
-const ptAwayTeam = computed(() =>
-  possibleTeamsMatch.value ? resolveTeamRef(possibleTeamsMatch.value.awayRef, store.results) : null,
-)
-const possibleHome = computed((): Team[] =>
-  possibleTeamsMatch.value && possibleTeamsSlot.value === 'home' && !ptHomeTeam.value
-    ? [...possibleTeamsFor(possibleTeamsMatch.value.homeRef, store.results)]
-    : [],
-)
-const possibleAway = computed((): Team[] =>
-  possibleTeamsMatch.value && possibleTeamsSlot.value === 'away' && !ptAwayTeam.value
-    ? [...possibleTeamsFor(possibleTeamsMatch.value.awayRef, store.results)]
-    : [],
-)
-const homeLabel = computed(() =>
-  possibleTeamsMatch.value ? (ptHomeTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.homeRef)) : '',
-)
-const awayLabel = computed(() =>
-  possibleTeamsMatch.value ? (ptAwayTeam.value?.name ?? teamRefLabel(possibleTeamsMatch.value.awayRef)) : '',
-)
-
-function openPossibleTeams(match: MatchSlot, slot: 'home' | 'away'): void {
-  possibleTeamsMatch.value = match
-  possibleTeamsSlot.value = slot
-}
-
-function closePossibleTeams(): void {
-  possibleTeamsMatch.value = null
-  possibleTeamsSlot.value = null
-}
+const {
+  possibleTeamsMatch,
+  possibleHome,
+  possibleAway,
+  homeLabel,
+  awayLabel,
+  open: openPossibleTeams,
+  close: closePossibleTeams,
+} = usePossibleTeamsDialog()
 
 const bracketViewEl = ref<HTMLElement | null>(null)
 const roundsEl = ref<HTMLElement | null>(null)
-const hoveredMatchId = ref<string | null>(null)
-const hoveredRefKey = ref<string | null>(null)
-const connectorPaths = ref<string[]>([])
 
-const { matchConnector, originConnector } = useBracketConnectors(roundsEl, bracketViewEl)
-
-const highlightedMatchIds = computed((): string[] => {
-  const ids: string[] = []
-  if (hoveredMatchId.value) {
-    const target = nextMatchMap.get(hoveredMatchId.value)
-    if (target) ids.push(target)
-    ids.push(...(prevMatchMap.get(hoveredMatchId.value) ?? []))
-  }
-  if (hoveredRefKey.value) {
-    const matchId = teamRefToMatchId.get(hoveredRefKey.value)
-    if (matchId) ids.push(matchId)
-  }
-  return ids
-})
-
-const highlightedRefKeys = computed((): string[] => {
-  const keys: string[] = []
-  if (hoveredMatchId.value) {
-    keys.push(...(matchToRefKeys.get(hoveredMatchId.value) ?? []))
-  }
-  if (hoveredRefKey.value) {
-    keys.push(hoveredRefKey.value)
-  }
-  return keys
-})
-
-function buildAllPaths(matchId: string): string[] {
-  const paths: string[] = []
-  const targetId = nextMatchMap.get(matchId)
-  if (targetId) {
-    const p = matchConnector(matchId, targetId)
-    if (p) paths.push(p)
-  }
-  for (const prevId of prevMatchMap.get(matchId) ?? []) {
-    const p = matchConnector(prevId, matchId)
-    if (p) paths.push(p)
-  }
-  for (const refKey of matchToRefKeys.get(matchId) ?? []) {
-    const p = originConnector(refKey, matchId)
-    if (p) paths.push(p)
-  }
-  return paths
-}
-
-function onMatchHover(matchId: string) {
-  hoveredMatchId.value = matchId
-  hoveredRefKey.value = null
-  connectorPaths.value = buildAllPaths(matchId)
-}
-
-function onMatchHoverEnd() {
-  hoveredMatchId.value = null
-  hoveredRefKey.value = null
-  connectorPaths.value = []
-}
-
-function onTeamRefHover(refKey: string) {
-  hoveredRefKey.value = refKey
-  hoveredMatchId.value = null
-  const matchId = teamRefToMatchId.get(refKey)
-  if (matchId) {
-    const p = originConnector(refKey, matchId)
-    connectorPaths.value = p ? [p] : []
-  } else {
-    connectorPaths.value = []
-  }
-}
-
-function onTeamRefHoverEnd() {
-  hoveredRefKey.value = null
-  hoveredMatchId.value = null
-  connectorPaths.value = []
-}
+const {
+  connectorPaths,
+  highlightedMatchIds,
+  highlightedRefKeys,
+  onMatchHover,
+  onMatchHoverEnd,
+  onTeamRefHover,
+  onTeamRefHoverEnd,
+} = useBracketHighlight(roundsEl, bracketViewEl)
 </script>
 
 <template>

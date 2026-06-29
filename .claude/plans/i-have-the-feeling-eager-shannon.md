@@ -81,7 +81,7 @@ knowledge of `SquadDialog` or the `squads` dataset.
   (`StandingsRow`, `RankingView`, `MatchCard`) need no change beyond keeping
   `:clickable`.
 
-## Workstream C — Slim large components via composables
+## Workstream C — Slim large components via composables ✅ DONE
 
 - **`src/composables/use-match-result-form.ts`** — extract from `ScoreDialog` the
   six score/discipline refs, the penalty `computed`+`watch`, and `save`/`clear`
@@ -161,7 +161,7 @@ Extend **`eslint.config.js`** (no new a11y plugin):
    confident refactoring.
 2. ✅ **A** (`BaseDialog`) — biggest structural + CSS win.
 3. ✅ **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
-4. **C** (composable extraction for `ScoreDialog`/`BracketView`).
+4. ✅ **C** (composable extraction for `ScoreDialog`/`BracketView`).
 5. **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.
 6. **G** (lint rules) — last, with thresholds tuned to the refactored tree.
 

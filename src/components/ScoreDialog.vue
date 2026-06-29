@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { useAnnounce } from '../composables/use-announce'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
 import BaseDialog from './BaseDialog.vue'
+import { useMatchResultForm } from '../composables/use-match-result-form'
 
 const props = defineProps<{
   match: MatchSlot
@@ -15,56 +14,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{ close: [] }>()
 
-const store = useTournamentStore()
-const announce = useAnnounce()
 const baseDialog = ref<InstanceType<typeof BaseDialog> | null>(null)
+const close = () => baseDialog.value?.close()
 
-const initial = computed(() => store.results[props.match.id] ?? null)
-
-const homeGoals = ref(initial.value?.homeGoals ?? 0)
-const awayGoals = ref(initial.value?.awayGoals ?? 0)
-const homeYellow = ref(initial.value?.homeYellow ?? 0)
-const homeRed = ref(initial.value?.homeRed ?? 0)
-const awayYellow = ref(initial.value?.awayYellow ?? 0)
-const awayRed = ref(initial.value?.awayRed ?? 0)
-const penaltyWinner = ref<'home' | 'away' | undefined>(initial.value?.penaltyWinner)
-
-const isKnockout = computed(() => props.match.stage !== 'group')
-const showPenaltyPicker = computed(() => isKnockout.value && homeGoals.value === awayGoals.value)
-
-// Clear penalty winner whenever scores diverge
-watch(showPenaltyPicker, (show) => {
-  if (!show) penaltyWinner.value = undefined
-})
-
-const title = computed(() => {
-  const home = props.homeTeam?.name ?? 'Heim'
-  const away = props.awayTeam?.name ?? 'Gast'
-  return `Ergebnis: ${home} – ${away}`
-})
-
-function handleSave(): void {
-  store.enterResult({
-    matchId: props.match.id,
-    homeGoals: homeGoals.value,
-    awayGoals: awayGoals.value,
-    homeYellow: homeYellow.value,
-    homeRed: homeRed.value,
-    awayYellow: awayYellow.value,
-    awayRed: awayRed.value,
-    ...(showPenaltyPicker.value && penaltyWinner.value ? { penaltyWinner: penaltyWinner.value } : {}),
-  })
-  const home = props.homeTeam?.name ?? 'Heim'
-  const away = props.awayTeam?.name ?? 'Gast'
-  announce(`Ergebnis gespeichert: ${home} ${homeGoals.value} : ${awayGoals.value} ${away}`)
-  baseDialog.value?.close()
-}
-
-function handleClear(): void {
-  store.clearResult(props.match.id)
-  announce('Ergebnis gelöscht')
-  baseDialog.value?.close()
-}
+const { homeGoals, awayGoals, homeYellow, homeRed, awayYellow, awayRed, penaltyWinner, showPenaltyPicker, title, initial, save, clear } =
+  useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
 </script>
 
 <template>
@@ -129,7 +83,7 @@ function handleClear(): void {
         v-if="initial"
         type="button"
         class="btn btn--danger score-dialog__delete"
-        @click="handleClear"
+        @click="clear(close)"
       >
         Löschen
       </button>
@@ -144,7 +98,7 @@ function handleClear(): void {
         <button
           type="button"
           class="btn btn--primary"
-          @click="handleSave"
+          @click="save(close)"
         >
           Speichern
         </button>
