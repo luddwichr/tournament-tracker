@@ -109,7 +109,7 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
 }
 
 .standings-table th {
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-1) var(--space-1);
   text-align: center;
   font-weight: 600;
   color: var(--color-text-muted);

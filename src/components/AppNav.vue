@@ -51,6 +51,10 @@ const links = useRouter()
   font-size: var(--font-size-lg);
 }
 
+.app-nav__label {
+  text-wrap: nowrap;
+}
+
 .app-nav__link.router-link-active {
   color: var(--color-primary);
   background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
