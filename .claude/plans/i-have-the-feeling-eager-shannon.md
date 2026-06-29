@@ -66,7 +66,7 @@ Also enforced zero ESLint warnings: added `--max-warnings 0` to the lint script
 and turned off `vue/require-default-prop` for Vue files (TypeScript `?` handles
 optionality; `withDefaults` covers the boolean-casting edge case).
 
-## Workstream B — Decouple `TeamLabel` (full decouple)
+## Workstream B — Decouple `TeamLabel` (full decouple) ✅ DONE
 
 `src/components/TeamLabel.vue` becomes **presentation-only**: render flag+name;
 when `clickable`, render as `<button>` that calls an **injected opener**, with no
@@ -160,7 +160,7 @@ Extend **`eslint.config.js`** (no new a11y plugin):
 1. ✅ **D** (lib extraction) + **F** (test fixtures) — pure, low-risk, unblocks
    confident refactoring.
 2. ✅ **A** (`BaseDialog`) — biggest structural + CSS win.
-3. **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
+3. ✅ **B** (`TeamLabel` decouple) — depends on A’s single SquadDialog host.
 4. **C** (composable extraction for `ScoreDialog`/`BracketView`).
 5. **E** (CSS utilities + token cleanup) — easiest once dialogs are consolidated.
 6. **G** (lint rules) — last, with thresholds tuned to the refactored tree.

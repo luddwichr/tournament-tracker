@@ -1,0 +1,34 @@
+import { ref, provide, inject } from 'vue'
+import type { InjectionKey, Ref } from 'vue'
+import type { Team } from '../types/tournament'
+
+type OpenFn = (team: Team) => void
+
+const squadViewerKey: InjectionKey<OpenFn> = Symbol('squad-viewer')
+
+export interface SquadViewerState {
+  team: Ref<Team | null>
+  close: () => void
+}
+
+export function provideSquadViewer(): SquadViewerState {
+  const team = ref<Team | null>(null)
+
+  function open(t: Team): void {
+    team.value = t
+  }
+
+  function close(): void {
+    team.value = null
+  }
+
+  provide(squadViewerKey, open)
+
+  return { team, close }
+}
+
+const noop: OpenFn = () => undefined
+
+export function useSquadViewer(): OpenFn {
+  return inject(squadViewerKey, noop)
+}
