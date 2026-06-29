@@ -42,33 +42,6 @@ describe('parseImport', () => {
     const json = JSON.stringify({ version: 1, results: { M01: bad } })
     expect(() => parseImport(json)).toThrow()
   })
-
-  it('accepts results without penaltyWinner (legacy data)', () => {
-    const result = { matchId: 'M73', homeGoals: 2, awayGoals: 1, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
-    const json = JSON.stringify({ version: 1, results: { M73: result } })
-    expect(() => parseImport(json)).not.toThrow()
-  })
-
-  it("accepts penaltyWinner: 'home'", () => {
-    const json = serialise({ M73: validResult('M73', { penaltyWinner: 'home' }) })
-    expect(() => parseImport(json)).not.toThrow()
-  })
-
-  it("accepts penaltyWinner: 'away'", () => {
-    const json = serialise({ M73: validResult('M73', { penaltyWinner: 'away' }) })
-    expect(() => parseImport(json)).not.toThrow()
-  })
-
-  it('accepts penaltyWinner: null (legacy import boundary)', () => {
-    const json = JSON.stringify({ version: 1, results: { M73: { ...validResult('M73'), penaltyWinner: null } } })
-    expect(() => parseImport(json)).not.toThrow()
-  })
-
-  it('throws on an invalid penaltyWinner value', () => {
-    const bad = { ...validResult('M73'), penaltyWinner: 'both' }
-    const json = JSON.stringify({ version: 1, results: { M73: bad } })
-    expect(() => parseImport(json)).toThrow()
-  })
 })
 
 // ---------------------------------------------------------------------------
@@ -153,7 +126,7 @@ describe('exportJson', () => {
   })
 
   it('produces output that parseImport can round-trip', () => {
-    const results = { M73: validResult('M73', { penaltyWinner: 'home' }) }
+    const results = { M73: validResult('M73') }
     let capturedBlob: Blob | undefined
     createObjectURLSpy.mockImplementation((blob: Blob) => {
       capturedBlob = blob

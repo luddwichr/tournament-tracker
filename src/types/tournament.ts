@@ -94,12 +94,6 @@ export interface Result {
   homeRed: number // includes second-yellow send-offs
   awayYellow: number
   awayRed: number
-  /**
-   * Penalty shootout winner — set only when a knockout match ends level after
-   * extra time. Absent (undefined) on group-stage results and knockout results
-   * that were decided in regular / extra time.
-   */
-  penaltyWinner?: 'home' | 'away'
 }
 
 /** Persisted state: results keyed by match id, plus a schema version. */

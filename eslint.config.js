@@ -47,6 +47,9 @@ export default tseslint.config(
       // Catch template refs that are declared but never read in <script setup>.
       'vue/no-unused-refs': 'error',
 
+      // Enforce useTemplateRef() over ref<T | null>(null) for template refs.
+      'vue/prefer-use-template-ref': 'error',
+
       // oxfmt owns HTML formatting; disable conflicting vue layout rules.
       'vue/max-attributes-per-line': 'off',
       'vue/singleline-html-element-content-newline': 'off',

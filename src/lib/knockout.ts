@@ -5,10 +5,8 @@
  * matchWinner/matchLoser — returning null at any step that is not yet
  * determinable from current results.
  *
- * A draw result in a knockout match leaves winner/loser unresolvable because
- * the current data model carries no penalty-shootout outcome. Users should
- * enter the score that correctly identifies the winner (e.g. AET score when
- * the decisive goal was in extra time).
+ * A draw result in a knockout match leaves winner/loser unresolvable — users
+ * must enter the decisive score (e.g. the AET score when extra time settled it).
  */
 
 import type { MatchSlot, TeamRef, Team, Result } from '../types/tournament'
@@ -48,12 +46,7 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
       const awayTeam = resolveTeamRef(match.awayRef, results)
       if (!homeTeam || !awayTeam) return null
 
-      if (matchResult.homeGoals === matchResult.awayGoals) {
-        if (!matchResult.penaltyWinner) return null
-        const homeWonPenalty = matchResult.penaltyWinner === 'home'
-        if (ref.kind === 'matchWinner') return homeWonPenalty ? homeTeam : awayTeam
-        return homeWonPenalty ? awayTeam : homeTeam
-      }
+      if (matchResult.homeGoals === matchResult.awayGoals) return null
 
       const homeWon = matchResult.homeGoals > matchResult.awayGoals
       if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useTemplateRef, ref, watch } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
@@ -8,29 +8,22 @@ import { useMatchResultForm } from '../composables/use-match-result-form'
 
 const props = defineProps<{
   match: MatchSlot
-  homeTeam: Team | null
-  awayTeam: Team | null
+  homeTeam: Team
+  awayTeam: Team
 }>()
 
 const emit = defineEmits<{ close: [] }>()
 
-const baseDialog = ref<InstanceType<typeof BaseDialog> | null>(null)
+const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const close = () => baseDialog.value?.close()
 
-const {
-  homeGoals,
-  awayGoals,
-  homeYellow,
-  homeRed,
-  awayYellow,
-  awayRed,
-  penaltyWinner,
-  showPenaltyPicker,
-  title,
-  initial,
-  save,
-  clear,
-} = useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
+const { homeGoals, awayGoals, homeYellow, homeRed, awayYellow, awayRed, knockoutDraw, title, initial, save, clear } =
+  useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
+
+const showDrawError = ref(false)
+watch(knockoutDraw, (isDraw) => {
+  if (!isDraw) showDrawError.value = false
+})
 </script>
 
 <template>
@@ -38,29 +31,9 @@ const {
     <div class="score-dialog__body">
       <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
 
-      <div v-if="showPenaltyPicker" class="score-dialog__penalties" role="group" aria-labelledby="penalty-label">
-        <p id="penalty-label" class="score-dialog__penalty-label">Elfmeterschießen — Sieger</p>
-        <div class="score-dialog__penalty-btns">
-          <button
-            type="button"
-            class="score-dialog__penalty-btn"
-            :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'home' }"
-            :aria-pressed="penaltyWinner === 'home'"
-            @click="penaltyWinner = penaltyWinner === 'home' ? undefined : 'home'"
-          >
-            {{ homeTeam?.name ?? 'Heim' }}
-          </button>
-          <button
-            type="button"
-            class="score-dialog__penalty-btn"
-            :class="{ 'score-dialog__penalty-btn--active': penaltyWinner === 'away' }"
-            :aria-pressed="penaltyWinner === 'away'"
-            @click="penaltyWinner = penaltyWinner === 'away' ? undefined : 'away'"
-          >
-            {{ awayTeam?.name ?? 'Gast' }}
-          </button>
-        </div>
-      </div>
+      <p v-if="showDrawError" class="score-dialog__draw-error" role="alert">
+        Unentschieden geht nicht! Wer hat gewonnen?
+      </p>
 
       <DisciplineInput
         v-model:home-yellow="homeYellow"
@@ -76,7 +49,9 @@ const {
       </button>
       <div class="score-dialog__footer-actions">
         <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">Abbrechen</button>
-        <button type="button" class="btn btn--primary" @click="save(close)">Speichern</button>
+        <button type="button" class="btn btn--primary" @click="knockoutDraw ? (showDrawError = true) : save(close)">
+          Speichern
+        </button>
       </div>
     </template>
   </BaseDialog>
@@ -90,49 +65,15 @@ const {
   gap: var(--space-4);
 }
 
-.score-dialog__penalties {
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-3);
-}
-
-.score-dialog__penalty-label {
-  margin: 0 0 var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-.score-dialog__penalty-btns {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.score-dialog__penalty-btn {
-  flex: 1;
+.score-dialog__draw-error {
+  margin: 0;
   padding: var(--space-2) var(--space-3);
-  min-height: var(--tap-target);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  cursor: pointer;
-  border: 2px solid var(--color-border);
-  background: transparent;
-  color: var(--color-text);
-  font-family: inherit;
-  transition:
-    background var(--motion-duration-base) var(--motion-easing-standard),
-    border-color var(--motion-duration-base) var(--motion-easing-standard);
-}
-
-.score-dialog__penalty-btn:hover {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-}
-
-.score-dialog__penalty-btn--active {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
-  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-draw) 12%, transparent);
+  color: var(--color-draw);
+  border: 2px solid var(--color-draw);
 }
 
 .score-dialog__delete {

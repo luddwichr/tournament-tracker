@@ -1,9 +1,9 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from './use-announce'
 
-export function useMatchResultForm(match: MatchSlot, homeTeam: Team | null, awayTeam: Team | null) {
+export function useMatchResultForm(match: MatchSlot, homeTeam: Team, awayTeam: Team) {
   const store = useTournamentStore()
   const announce = useAnnounce()
 
@@ -15,18 +15,12 @@ export function useMatchResultForm(match: MatchSlot, homeTeam: Team | null, away
   const homeRed = ref(initial.value?.homeRed ?? 0)
   const awayYellow = ref(initial.value?.awayYellow ?? 0)
   const awayRed = ref(initial.value?.awayRed ?? 0)
-  const penaltyWinner = ref<'home' | 'away' | undefined>(initial.value?.penaltyWinner)
+  const knockoutDraw = computed(() => match.stage !== 'group' && homeGoals.value === awayGoals.value)
 
-  const isKnockout = computed(() => match.stage !== 'group')
-  const showPenaltyPicker = computed(() => isKnockout.value && homeGoals.value === awayGoals.value)
-
-  watch(showPenaltyPicker, (show) => {
-    if (!show) penaltyWinner.value = undefined
-  })
-
-  const title = `Ergebnis: ${homeTeam?.name ?? 'Heim'} – ${awayTeam?.name ?? 'Gast'}`
+  const title = `Ergebnis: ${homeTeam.name} – ${awayTeam.name}`
 
   function save(close: () => void): void {
+    if (knockoutDraw.value) return
     store.enterResult({
       matchId: match.id,
       homeGoals: homeGoals.value,
@@ -35,11 +29,8 @@ export function useMatchResultForm(match: MatchSlot, homeTeam: Team | null, away
       homeRed: homeRed.value,
       awayYellow: awayYellow.value,
       awayRed: awayRed.value,
-      ...(showPenaltyPicker.value && penaltyWinner.value ? { penaltyWinner: penaltyWinner.value } : {}),
     })
-    announce(
-      `Ergebnis gespeichert: ${homeTeam?.name ?? 'Heim'} ${homeGoals.value} : ${awayGoals.value} ${awayTeam?.name ?? 'Gast'}`,
-    )
+    announce(`Ergebnis gespeichert: ${homeTeam.name} ${homeGoals.value} : ${awayGoals.value} ${awayTeam.name}`)
     close()
   }
 
@@ -56,8 +47,7 @@ export function useMatchResultForm(match: MatchSlot, homeTeam: Team | null, away
     homeRed,
     awayYellow,
     awayRed,
-    penaltyWinner,
-    showPenaltyPicker,
+    knockoutDraw,
     title,
     initial,
     save,

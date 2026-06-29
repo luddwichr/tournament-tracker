@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 
 defineProps<{
@@ -13,7 +13,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const baseDialog = ref<InstanceType<typeof BaseDialog> | null>(null)
+const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const wasConfirmed = ref(false)
 
 function handleConfirm(): void {

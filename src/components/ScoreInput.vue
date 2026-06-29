@@ -3,8 +3,8 @@ import type { Team } from '../types/tournament'
 import StepperInput from './StepperInput.vue'
 
 const props = defineProps<{
-  homeTeam: Team | null
-  awayTeam: Team | null
+  homeTeam: Team
+  awayTeam: Team
 }>()
 
 const homeGoals = defineModel<number>('home', { required: true })
@@ -14,24 +14,24 @@ const awayGoals = defineModel<number>('away', { required: true })
 <template>
   <div class="score-input" role="group" aria-label="Tore">
     <div class="score-input__side">
-      <span class="score-input__team-name">{{ props.homeTeam?.name ?? 'Heim' }}</span>
+      <span class="score-input__team-name">{{ props.homeTeam.name }}</span>
       <StepperInput
         v-model="homeGoals"
         size="lg"
-        :dec-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} abziehen`"
-        :inc-label="`Tor für ${props.homeTeam?.name ?? 'Heim'} hinzufügen`"
+        :dec-label="`Tor für ${props.homeTeam.name} abziehen`"
+        :inc-label="`Tor für ${props.homeTeam.name} hinzufügen`"
       />
     </div>
 
     <span class="score-input__sep" aria-hidden="true">:</span>
 
     <div class="score-input__side">
-      <span class="score-input__team-name">{{ props.awayTeam?.name ?? 'Gast' }}</span>
+      <span class="score-input__team-name">{{ props.awayTeam.name }}</span>
       <StepperInput
         v-model="awayGoals"
         size="lg"
-        :dec-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} abziehen`"
-        :inc-label="`Tor für ${props.awayTeam?.name ?? 'Gast'} hinzufügen`"
+        :dec-label="`Tor für ${props.awayTeam.name} abziehen`"
+        :inc-label="`Tor für ${props.awayTeam.name} hinzufügen`"
       />
     </div>
   </div>

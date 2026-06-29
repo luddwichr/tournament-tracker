@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, useId } from 'vue'
+import { onMounted, useId, useTemplateRef } from 'vue'
 import { useScrollLock } from '../composables/use-scroll-lock'
 
 withDefaults(
@@ -17,7 +17,7 @@ withDefaults(
 )
 
 const emit = defineEmits<{ close: [] }>()
-const dialogEl = ref<HTMLDialogElement | null>(null)
+const dialogEl = useTemplateRef<HTMLDialogElement>('dialogEl')
 const titleId = useId()
 
 useScrollLock()

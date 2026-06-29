@@ -74,7 +74,5 @@ function isValidResult(value: unknown): value is Result {
   ) {
     return false
   }
-  const pw = r['penaltyWinner']
-  if (pw !== undefined && pw !== null && pw !== 'home' && pw !== 'away') return false
   return true
 }

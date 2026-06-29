@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import type { MatchSlot } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
@@ -69,8 +69,8 @@ const {
   close: closePossibleTeams,
 } = usePossibleTeamsDialog()
 
-const bracketViewEl = ref<HTMLElement | null>(null)
-const roundsEl = ref<HTMLElement | null>(null)
+const bracketViewEl = useTemplateRef<HTMLElement>('bracketViewEl')
+const roundsEl = useTemplateRef<HTMLElement>('roundsEl')
 
 const {
   connectorPaths,

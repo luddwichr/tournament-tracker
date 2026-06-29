@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect, nextTick, provide } from 'vue'
+import { ref, watch, watchEffect, nextTick, provide, useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import SquadDialog from './components/SquadDialog.vue'
@@ -14,7 +14,7 @@ watchEffect(() => {
 })
 
 const route = useRoute()
-const mainRef = ref<HTMLElement | null>(null)
+const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const announcement = ref('')
 
 function announce(msg: string): void {

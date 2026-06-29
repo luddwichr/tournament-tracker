@@ -205,9 +205,9 @@ describe('possibleTeamsFor — matchWinner, played match', () => {
     expect(teams.size).toBe(1)
   })
 
-  it('returns empty set when match result is a draw without penalty winner', () => {
+  it('returns empty set when match result is a draw', () => {
     const results = allGroupResults(1, 0)
-    results['M73'] = makeResult('M73', 1, 1) // draw, no penaltyWinner
+    results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, results)
     expect(teams.size).toBe(0)

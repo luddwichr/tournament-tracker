@@ -22,7 +22,7 @@ const selectedAway = computed(() =>
     <h1 class="knockout-view__heading">K.-o.-Runde</h1>
     <BracketView @match-click="selectedMatch = $event" />
     <ScoreDialog
-      v-if="selectedMatch"
+      v-if="selectedMatch && selectedHome && selectedAway"
       :match="selectedMatch"
       :home-team="selectedHome"
       :away-team="selectedAway"

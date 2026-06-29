@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, useTemplateRef } from 'vue'
 import type { Result } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useSettingsStore } from '../stores/settings'
@@ -16,7 +16,7 @@ const themes: { value: Theme; label: string; icon: string }[] = [
 ]
 type PendingAction = { kind: 'reset' } | { kind: 'import'; results: Record<string, Result> }
 
-const fileInput = ref<HTMLInputElement | null>(null)
+const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 const importError = ref<string | null>(null)
 const pending = ref<PendingAction | null>(null)
 
