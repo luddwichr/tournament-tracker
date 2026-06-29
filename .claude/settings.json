@@ -15,5 +15,20 @@
   "statusLine": {
     "type": "command",
     "command": ".claude/hooks/statusline.js"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-ts-vue.sh",
+            "timeout": 120,
+            "statusMessage": "Typechecking, linting, and running unit tests...",
+            "asyncRewake": true
+          }
+        ]
+      }
+    ]
   }
 }

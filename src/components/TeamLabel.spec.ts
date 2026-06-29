@@ -60,5 +60,4 @@ describe('TeamLabel – clickable', () => {
     expect(openSquad).toHaveBeenCalledOnce()
     expect(openSquad).toHaveBeenCalledWith(team)
   })
-
 })

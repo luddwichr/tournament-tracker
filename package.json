@@ -11,12 +11,14 @@
     "typecheck": "vue-tsc -b --noEmit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
+    "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:pwa": "playwright test --config playwright.pwa.config.ts",
     "lint": "eslint . --max-warnings 0 && oxlint",
     "lint:fix": "eslint . --fix && oxlint --fix",
     "format": "oxfmt",
-    "format:check": "oxfmt --check"
+    "format:check": "oxfmt --check",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "flag-icons": "7.5.0",

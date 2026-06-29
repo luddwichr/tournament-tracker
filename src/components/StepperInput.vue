@@ -13,12 +13,7 @@ const model = defineModel<number>({ required: true })
 
 <template>
   <div class="stepper" :class="`stepper--${props.size}`">
-    <button
-      type="button"
-      class="stepper__step"
-      :aria-label="props.decLabel"
-      @click="model = Math.max(0, model - 1)"
-    >
+    <button type="button" class="stepper__step" :aria-label="props.decLabel" @click="model = Math.max(0, model - 1)">
       −
     </button>
     <span class="stepper__value" aria-live="polite" aria-atomic="true">{{ model }}</span>

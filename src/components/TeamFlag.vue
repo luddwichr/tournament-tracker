@@ -9,12 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <span
-    class="team-flag fi"
-    :class="`fi-${flagCode}`"
-    :style="{ fontSize: props.size }"
-    aria-hidden="true"
-  />
+  <span class="team-flag fi" :class="`fi-${flagCode}`" :style="{ fontSize: props.size }" aria-hidden="true" />
 </template>
 
 <style scoped>
