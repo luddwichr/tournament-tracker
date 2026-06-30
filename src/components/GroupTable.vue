@@ -6,8 +6,8 @@ import { groupMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
 import { computeGroupStandings } from '../lib/standings'
 import MatchCard from './MatchCard.vue'
-import StandingsRow from './StandingsRow.vue'
 import ScoreDialog from './ScoreDialog.vue'
+import GroupStandingsTable from './GroupStandingsTable.vue'
 
 const props = defineProps<{ groupId: GroupId }>()
 
@@ -35,39 +35,7 @@ const selectedAway = computed(() => (selectedMatch.value ? resolveTeam(selectedM
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <section class="group-table__standings" aria-label="Tabelle" tabindex="0">
-      <table class="standings-table tinted-header">
-        <caption class="visually-hidden">
-          Gruppe
-          {{
-            groupId
-          }}
-          – Tabelle
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col" class="standings-table__team-col">Team</th>
-            <th scope="col" class="standings-table__num-col" title="Spiele">Sp</th>
-            <th scope="col" class="standings-table__num-col" title="Siege">S</th>
-            <th scope="col" class="standings-table__num-col" title="Unentschieden">U</th>
-            <th scope="col" class="standings-table__num-col" title="Niederlagen">N</th>
-            <th scope="col" class="standings-table__num-col" title="Tore">T+</th>
-            <th scope="col" class="standings-table__num-col" title="Gegentore">T-</th>
-            <th scope="col" class="standings-table__num-col" title="Tordifferenz">TD</th>
-            <th scope="col" class="standings-table__num-col" title="Punkte">Pkt</th>
-          </tr>
-        </thead>
-        <tbody>
-          <StandingsRow
-            v-for="(stat, idx) in standings"
-            :key="stat.team.id"
-            :stat="stat"
-            :rank="idx + 1"
-            :group-done="groupDone"
-          />
-        </tbody>
-      </table>
-    </section>
+    <GroupStandingsTable :standings="standings" :group-done="groupDone" />
 
     <section class="group-table__matches" aria-label="Spiele">
       <MatchCard
@@ -102,33 +70,6 @@ const selectedAway = computed(() => (selectedMatch.value ? resolveTeam(selectedM
   margin: 0;
   font-size: var(--font-size-lg);
   font-weight: 700;
-}
-
-.group-table__standings {
-  overflow-x: auto;
-}
-
-.standings-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
-.standings-table th {
-  padding: var(--space-1) var(--space-1);
-  text-align: center;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.standings-table thead .standings-table__team-col {
-  text-align: left;
-  padding-left: var(--space-3);
-}
-
-.standings-table__num-col {
-  min-width: 1.25rem;
 }
 
 .group-table__matches {
