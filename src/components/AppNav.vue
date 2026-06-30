@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-
 defineProps<{ open?: boolean }>()
 
-const links = useRouter()
-  .getRoutes()
-  .filter((r) => r.meta.navIcon)
+const links = [
+  { path: '/groups', icon: '🏟️', label: 'Gruppen' },
+  { path: '/knockout', icon: '🏆', label: 'K.-o.-Runde' },
+  { path: '/ranking', icon: '🌍', label: 'Weltrangliste' },
+  { path: '/settings', icon: '⚙️', label: 'Einstellungen' },
+]
 </script>
 
 <template>
@@ -13,8 +14,8 @@ const links = useRouter()
     <ul id="app-nav-list" class="app-nav__list" :class="{ 'app-nav__list--open': open }">
       <li v-for="link in links" :key="link.path" class="app-nav__item">
         <RouterLink class="app-nav__link" :to="link.path">
-          <span class="app-nav__icon" aria-hidden="true">{{ link.meta.navIcon }}</span>
-          <span class="app-nav__label">{{ link.meta.title }}</span>
+          <span class="app-nav__icon" aria-hidden="true">{{ link.icon }}</span>
+          <span class="app-nav__label">{{ link.label }}</span>
         </RouterLink>
       </li>
     </ul>

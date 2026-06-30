@@ -8,10 +8,10 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', redirect: '/groups' },
-    { path: '/groups', meta: { title: 'Gruppen', navIcon: '🏟️' }, component: { template: '<div />' } },
-    { path: '/knockout', meta: { title: 'K.-o.-Runde', navIcon: '🏆' }, component: { template: '<div />' } },
-    { path: '/ranking', meta: { title: 'Weltrangliste', navIcon: '🌍' }, component: { template: '<div />' } },
-    { path: '/settings', meta: { title: 'Einstellungen', navIcon: '⚙️' }, component: { template: '<div />' } },
+    { path: '/groups', component: { template: '<div />' } },
+    { path: '/knockout', component: { template: '<div />' } },
+    { path: '/ranking', component: { template: '<div />' } },
+    { path: '/settings', component: { template: '<div />' } },
   ],
 })
 
