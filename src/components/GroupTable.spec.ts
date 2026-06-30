@@ -7,6 +7,24 @@ import GroupStandingsTable from './GroupStandingsTable.vue'
 import ScoreDialog from './ScoreDialog.vue'
 import { groupMatches } from '../data/fixtures-2026'
 
+vi.mock('../data/fixtures-2026', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../data/fixtures-2026')>()
+  return {
+    ...original,
+    groupMatches: [
+      ...original.groupMatches,
+      {
+        id: 'MOCK_NONTEAM',
+        stage: 'group' as const,
+        group: 'B' as const,
+        kickoff: '2026-06-01T18:00:00+00:00',
+        homeRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 1 as const },
+        awayRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 2 as const },
+      },
+    ],
+  }
+})
+
 beforeEach(() => {
   setActivePinia(createPinia())
   HTMLDialogElement.prototype.showModal = vi.fn()
@@ -69,5 +87,15 @@ describe('GroupTable – score dialog', () => {
     const firstMatch = groupMatches.find((m) => m.group === 'A')!
     await wrapper.find('.match-card__body').trigger('click')
     expect(wrapper.findComponent(ScoreDialog).props('match')).toMatchObject({ id: firstMatch.id })
+  })
+})
+
+describe('GroupTable – resolveTeam null branch', () => {
+  it('does not open the score dialog when match refs are not team-kind', async () => {
+    const wrapper = mount(GroupTable, { props: { groupId: 'B' } })
+    const cards = wrapper.findAllComponents(MatchCard)
+    // the injected non-team-ref match is appended last in group B
+    await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
+    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
   })
 })

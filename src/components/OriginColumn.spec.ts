@@ -95,6 +95,25 @@ describe('OriginColumn', () => {
     expect(wrapper.findAll('.origin-column__team-row')[0]!.classes()).not.toContain('highlight-ring')
   })
 
+  it('focusin on a row with refKey emits teamRefHover with that refKey', async () => {
+    const wrapper = mount(OriginColumn)
+    await wrapper.findAll('.origin-column__team-row')[0]!.trigger('focusin')
+    expect(wrapper.emitted('teamRefHover')).toEqual([['groupRank:A:1']])
+  })
+
+  it('focusin on a row without refKey does not emit teamRefHover', async () => {
+    const wrapper = mount(OriginColumn)
+    // rank-3 row has no refKey when groups are not complete
+    await wrapper.findAll('.origin-column__team-row')[2]!.trigger('focusin')
+    expect(wrapper.emitted('teamRefHover')).toBeUndefined()
+  })
+
+  it('focusout emits teamRefHoverEnd', async () => {
+    const wrapper = mount(OriginColumn)
+    await wrapper.findAll('.origin-column__team-row')[0]!.trigger('focusout')
+    expect(wrapper.emitted('teamRefHoverEnd')).toHaveLength(1)
+  })
+
   it('group labels read "Gruppe A" through "Gruppe L"', () => {
     const wrapper = mount(OriginColumn)
     const labels = wrapper.findAll('.origin-column__group-label').map((el) => el.text())

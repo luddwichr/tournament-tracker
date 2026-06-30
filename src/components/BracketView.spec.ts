@@ -72,6 +72,17 @@ describe('BracketView – round match counts', () => {
   })
 })
 
+describe('BracketView – matchClick forwarding', () => {
+  it('re-emits matchClick when a BracketRound emits it', async () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const firstRound = wrapper.findAllComponents(BracketRound)[0]!
+    const match = (firstRound.props('matches') as Array<{ match: unknown }>)[0]!.match
+    await firstRound.vm.$emit('matchClick', match)
+    expect(wrapper.emitted('matchClick')).toHaveLength(1)
+    expect((wrapper.emitted('matchClick')![0] as unknown[])[0]).toBe(match)
+  })
+})
+
 describe('BracketView – Finale section labels', () => {
   it('first match in Finale has sectionLabel "Spiel um Platz 3"', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
