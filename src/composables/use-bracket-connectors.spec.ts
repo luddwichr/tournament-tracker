@@ -78,19 +78,16 @@ describe('useBracketConnectors', () => {
 
       const { matchConnector } = useBracketConnectors(ref(container), ref(scrollEl))
 
-      // x1 = right(50) - containerLeft(0) + scrollLeft(0) = 50
-      // y1 = top(20) + height/2(10) - containerTop(0) + scrollTop(0) = 30
-      // x2 = left(60) - containerLeft(0) + scrollLeft(0) = 60
-      // y2 = top(30) + height/2(10) - containerTop(0) + scrollTop(0) = 40
+      // x1 = right(50) - containerLeft(0) = 50
+      // y1 = top(20) + height/2(10) - containerTop(0) = 30
+      // x2 = left(60) - containerLeft(0) = 60
+      // y2 = top(30) + height/2(10) - containerTop(0) = 40
       // cx = (50 + 60) / 2 = 55
       expect(matchConnector('M73', 'M90')).toBe('M 50 30 C 55 30, 55 40, 60 40')
     })
 
-    it('accounts for container offset and scroll position', () => {
+    it('accounts for container offset', () => {
       const scrollEl = document.createElement('div')
-      Object.defineProperty(scrollEl, 'scrollLeft', { value: 100 })
-      Object.defineProperty(scrollEl, 'scrollTop', { value: 50 })
-
       const container = document.createElement('div')
       mockRect(container, { left: 10, top: 5 })
 
@@ -112,12 +109,14 @@ describe('useBracketConnectors', () => {
 
       const { matchConnector } = useBracketConnectors(ref(container), ref(scrollEl))
 
-      // x1 = 50 - 10 + 100 = 140
-      // y1 = 20 + 10 - 5 + 50 = 75
-      // x2 = 60 - 10 + 100 = 150
-      // y2 = 30 + 10 - 5 + 50 = 85
-      // cx = (140 + 150) / 2 = 145
-      expect(matchConnector('M73', 'M90')).toBe('M 140 75 C 145 75, 145 85, 150 85')
+      // getBoundingClientRect already reflects scroll, so subtracting container coords
+      // gives scroll-invariant SVG positions.
+      // x1 = 50 - 10 = 40
+      // y1 = 20 + 10 - 5 = 25
+      // x2 = 60 - 10 = 50
+      // y2 = 30 + 10 - 5 = 35
+      // cx = (40 + 50) / 2 = 45
+      expect(matchConnector('M73', 'M90')).toBe('M 40 25 C 45 25, 45 35, 50 35')
     })
   })
 
@@ -170,10 +169,10 @@ describe('useBracketConnectors', () => {
 
       const { originConnector } = useBracketConnectors(ref(container), ref(scrollEl))
 
-      // x1 = right(30) - containerLeft(0) + scrollLeft(0) = 30
-      // y1 = top(15) + height/2(5) - containerTop(0) + scrollTop(0) = 20
-      // x2 = left(60) - containerLeft(0) + scrollLeft(0) = 60
-      // y2 = top(30) + height/2(10) - containerTop(0) + scrollTop(0) = 40
+      // x1 = right(30) - containerLeft(0) = 30
+      // y1 = top(15) + height/2(5) - containerTop(0) = 20
+      // x2 = left(60) - containerLeft(0) = 60
+      // y2 = top(30) + height/2(10) - containerTop(0) = 40
       // cx = (30 + 60) / 2 = 45
       expect(originConnector('groupRank:A:2', 'M73')).toBe('M 30 20 C 45 20, 45 40, 60 40')
     })

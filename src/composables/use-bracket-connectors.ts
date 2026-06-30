@@ -1,21 +1,14 @@
 import type { Ref } from 'vue'
 export { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from '../lib/bracket-graph'
 
-function connectorBetween(
-  fromEl: HTMLElement,
-  toEl: HTMLElement,
-  container: HTMLElement,
-  scrollEl: HTMLElement,
-): string {
+function connectorBetween(fromEl: HTMLElement, toEl: HTMLElement, container: HTMLElement): string {
   const cRect = container.getBoundingClientRect()
-  const sl = scrollEl.scrollLeft
-  const st = scrollEl.scrollTop
   const sR = fromEl.getBoundingClientRect()
   const tR = toEl.getBoundingClientRect()
-  const x1 = sR.right - cRect.left + sl
-  const y1 = sR.top + sR.height / 2 - cRect.top + st
-  const x2 = tR.left - cRect.left + sl
-  const y2 = tR.top + tR.height / 2 - cRect.top + st
+  const x1 = sR.right - cRect.left
+  const y1 = sR.top + sR.height / 2 - cRect.top
+  const x2 = tR.left - cRect.left
+  const y2 = tR.top + tR.height / 2 - cRect.top
   const cx = (x1 + x2) / 2
   return `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`
 }
@@ -29,7 +22,7 @@ export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>, viewEl: 
     if (!fromGroup || !toGroup) return null
     const fromEl = fromGroup.querySelector<HTMLElement>('.match-card') ?? fromGroup
     const toEl = toGroup.querySelector<HTMLElement>('.match-card') ?? toGroup
-    return connectorBetween(fromEl, toEl, container, viewEl.value)
+    return connectorBetween(fromEl, toEl, container)
   }
 
   function originConnector(refKey: string, matchId: string): string | null {
@@ -39,7 +32,7 @@ export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>, viewEl: 
     const toGroup = container.querySelector<HTMLElement>(`[data-match-id="${matchId}"]`)
     if (!fromEl || !toGroup) return null
     const toEl = toGroup.querySelector<HTMLElement>('.match-card') ?? toGroup
-    return connectorBetween(fromEl, toEl, container, viewEl.value)
+    return connectorBetween(fromEl, toEl, container)
   }
 
   return { matchConnector, originConnector }

@@ -104,6 +104,7 @@ watch(knockoutDraw, (isDraw) => {
 
 .score-dialog__delete {
   margin-right: auto;
+  margin-left: var(--space-2);
 }
 
 .score-dialog__footer-actions {
