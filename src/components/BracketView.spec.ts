@@ -1,13 +1,20 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import BracketView from './BracketView.vue'
 import BracketRound from './BracketRound.vue'
 import BracketConnectors from './BracketConnectors.vue'
 import OriginColumn from './OriginColumn.vue'
+import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
+import type { MatchRow } from './BracketRound.vue'
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  HTMLDialogElement.prototype.showModal = vi.fn()
+  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
+    this.dispatchEvent(new Event('close'))
+  })
 })
 
 describe('BracketView – structure', () => {
@@ -80,6 +87,28 @@ describe('BracketView – matchClick forwarding', () => {
     await firstRound.vm.$emit('matchClick', match)
     expect(wrapper.emitted('matchClick')).toHaveLength(1)
     expect((wrapper.emitted('matchClick')![0] as unknown[])[0]).toBe(match)
+  })
+})
+
+describe('BracketView – PossibleTeamsDialog', () => {
+  it('shows PossibleTeamsDialog when a BracketRound emits placeholderClick', async () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const firstRound = wrapper.findAllComponents(BracketRound)[0]!
+    const match = (firstRound.props('matches') as MatchRow[])[0]!.match
+    await firstRound.vm.$emit('placeholderClick', match, 'home')
+    expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(true)
+  })
+
+  it('hides PossibleTeamsDialog when it emits close', async () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const firstRound = wrapper.findAllComponents(BracketRound)[0]!
+    const match = (firstRound.props('matches') as MatchRow[])[0]!.match
+    await firstRound.vm.$emit('placeholderClick', match, 'home')
+    expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(true)
+    // PossibleTeamsDialog is Teleported to body; emit close on the component directly
+    wrapper.findComponent(PossibleTeamsDialog).vm.$emit('close')
+    await nextTick()
+    expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(false)
   })
 })
 

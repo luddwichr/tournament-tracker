@@ -25,8 +25,14 @@ function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
   return null
 }
 
-const selectedHome = computed(() => (selectedMatch.value ? resolveTeam(selectedMatch.value.homeRef) : null))
-const selectedAway = computed(() => (selectedMatch.value ? resolveTeam(selectedMatch.value.awayRef) : null))
+type DialogTeams = { match: MatchSlot; home: Team; away: Team }
+
+const dialogTeams = computed((): DialogTeams | null => {
+  const match = selectedMatch.value
+  const home = match ? resolveTeam(match.homeRef) : null
+  const away = match ? resolveTeam(match.awayRef) : null
+  return home !== null && away !== null ? { match: match!, home, away } : null
+})
 </script>
 
 <template>
@@ -51,10 +57,10 @@ const selectedAway = computed(() => (selectedMatch.value ? resolveTeam(selectedM
     </section>
 
     <ScoreDialog
-      v-if="selectedMatch && selectedHome && selectedAway"
-      :match="selectedMatch"
-      :home-team="selectedHome"
-      :away-team="selectedAway"
+      v-if="dialogTeams"
+      :match="dialogTeams.match"
+      :home-team="dialogTeams.home"
+      :away-team="dialogTeams.away"
       @close="selectedMatch = null"
     />
   </article>

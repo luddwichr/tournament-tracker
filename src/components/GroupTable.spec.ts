@@ -13,6 +13,7 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
     ...original,
     groupMatches: [
       ...original.groupMatches,
+      // Non-team-ref match: covers the `return null` branch in resolveTeam
       {
         id: 'MOCK_NONTEAM',
         stage: 'group' as const,
@@ -20,6 +21,15 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
         kickoff: '2026-06-01T18:00:00+00:00',
         homeRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 1 as const },
         awayRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 2 as const },
+      },
+      // Team-kind ref with unknown teamId: covers the `?? null` branch in resolveTeam
+      {
+        id: 'MOCK_UNKNOWN_TEAM',
+        stage: 'group' as const,
+        group: 'C' as const,
+        kickoff: '2026-06-01T19:00:00+00:00',
+        homeRef: { kind: 'team' as const, teamId: 'UNKNOWN_XYZ' },
+        awayRef: { kind: 'team' as const, teamId: 'UNKNOWN_ABC' },
       },
     ],
   }
@@ -95,6 +105,14 @@ describe('GroupTable – resolveTeam null branch', () => {
     const wrapper = mount(GroupTable, { props: { groupId: 'B' } })
     const cards = wrapper.findAllComponents(MatchCard)
     // the injected non-team-ref match is appended last in group B
+    await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
+    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+  })
+
+  it('does not open the score dialog when team refs have an unknown teamId', async () => {
+    const wrapper = mount(GroupTable, { props: { groupId: 'C' } })
+    const cards = wrapper.findAllComponents(MatchCard)
+    // the injected unknown-teamId match is appended last in group C
     await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
     expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
   })

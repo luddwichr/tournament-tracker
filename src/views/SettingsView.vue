@@ -3,17 +3,13 @@ import { ref, computed, useTemplateRef } from 'vue'
 import type { Result } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useSettingsStore } from '../stores/settings'
-import type { Theme } from '../stores/settings'
 import { exportJson, parseImport } from '../lib/persistence'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import ThemePicker from '../components/ThemePicker.vue'
 
 const store = useTournamentStore()
 const settings = useSettingsStore()
 
-const themes: { value: Theme; label: string; icon: string }[] = [
-  { value: 'light', label: 'Hell', icon: '☀️' },
-  { value: 'dark', label: 'Dunkel', icon: '🌙' },
-]
 type PendingAction = { kind: 'reset' } | { kind: 'import'; results: Record<string, Result> }
 
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
@@ -59,7 +55,7 @@ function handleFileChange(event: Event): void {
     } catch (e) {
       importError.value = e instanceof Error ? e.message : 'Fehler beim Importieren.'
     } finally {
-      if (fileInput.value) fileInput.value.value = ''
+      fileInput.value!.value = ''
     }
   }
   reader.readAsText(file)
@@ -70,11 +66,8 @@ function handleReset(): void {
 }
 
 function handleConfirm(): void {
-  if (pending.value?.kind === 'import') {
-    store.importResults(pending.value.results)
-  } else if (pending.value?.kind === 'reset') {
-    store.reset()
-  }
+  if (pending.value?.kind === 'import') store.importResults(pending.value.results)
+  if (pending.value?.kind === 'reset') store.reset()
   pending.value = null
 }
 
@@ -90,22 +83,7 @@ function handleCancel(): void {
     <div class="settings-view__sections">
       <section class="settings-view__section">
         <h2>Erscheinungsbild</h2>
-
-        <fieldset class="settings-view__theme-picker">
-          <legend class="visually-hidden">Design</legend>
-          <div class="settings-view__theme-options" role="group">
-            <label
-              v-for="t in themes"
-              :key="t.value"
-              class="settings-view__theme-option"
-              :class="{ 'settings-view__theme-option--active': settings.theme === t.value }"
-            >
-              <input v-model="settings.theme" type="radio" name="theme" :value="t.value" class="visually-hidden" />
-              <span aria-hidden="true">{{ t.icon }}</span>
-              {{ t.label }}
-            </label>
-          </div>
-        </fieldset>
+        <ThemePicker v-model="settings.theme" />
       </section>
 
       <section class="settings-view__section">
@@ -199,57 +177,5 @@ h2 {
   color: var(--color-loss);
   margin: 0;
   font-size: var(--font-size-sm);
-}
-
-.settings-view__theme-picker {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-.settings-view__theme-options {
-  display: flex;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.settings-view__theme-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: var(--tap-target);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  border-inline-end: 2px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  transition:
-    background var(--motion-duration-base) var(--motion-easing-standard),
-    color var(--motion-duration-base) var(--motion-easing-standard);
-}
-
-.settings-view__theme-option:last-child {
-  border-inline-end: none;
-}
-
-.settings-view__theme-option--active {
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-
-.settings-view__theme-option:has(:focus-visible) {
-  outline: 3px solid var(--color-focus);
-  outline-offset: -3px;
-}
-
-.settings-view__theme-option:hover:not(.settings-view__theme-option--active) {
-  background: var(--color-bg);
-  color: var(--color-text);
 }
 </style>
