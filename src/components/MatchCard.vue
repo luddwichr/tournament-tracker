@@ -107,8 +107,6 @@ const ariaLabel = computed(() => {
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   background-color: var(--color-bg);
-  /* Upcoming matches get a faint border so they're visually distinct from the
-     surface background; played matches use full border-color opacity. */
   border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
   font-size: inherit;
   user-select: none;

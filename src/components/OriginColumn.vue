@@ -21,7 +21,6 @@ const store = useTournamentStore()
 const rankedThirds = computed(() => rankThirdPlaced(store.results))
 const allGroupsComplete = computed(() => rankedThirds.value !== null)
 
-// When all 12 groups are complete, maps each qualifying group → its thirdPlace slot.
 const thirdPlaceGroupToSlot = computed((): Map<GroupId, ThirdPlaceSlot> => {
   const ranked = rankedThirds.value
   return ranked ? buildGroupToThirdPlaceSlotMap(ranked) : new Map()

@@ -5,7 +5,6 @@ import { useSquadViewer } from '../composables/use-squad-viewer'
 
 const props = defineProps<{
   team: Team
-  /** When true, renders as a button that opens the squad viewer dialog. */
   clickable?: boolean
 }>()
 

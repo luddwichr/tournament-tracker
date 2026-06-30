@@ -15,7 +15,6 @@ const props = defineProps<{
 <style scoped>
 .team-flag {
   display: inline-block;
-  /* flag-icons uses 1.333em width relative to font-size */
   border-radius: var(--radius-sm);
   flex-shrink: 0;
 }

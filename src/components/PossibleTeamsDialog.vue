@@ -4,9 +4,7 @@ import TeamLabel from './TeamLabel.vue'
 import BaseDialog from './BaseDialog.vue'
 
 defineProps<{
-  /** German label for the slot (e.g. team name or placeholder). */
   label: string
-  /** Teams that could fill the slot. */
   possibleTeams: Team[]
 }>()
 
