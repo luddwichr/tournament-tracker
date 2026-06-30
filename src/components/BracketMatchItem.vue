@@ -24,7 +24,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <p v-if="sectionLabel" class="bracket-match-item__label">
+  <p v-if="sectionLabel" class="bracket-round__section-label">
     {{ sectionLabel }}
   </p>
   <div
@@ -58,7 +58,7 @@ const emit = defineEmits<{
   gap: var(--space-2);
 }
 
-.bracket-match-item__label {
+.bracket-round__section-label {
   margin: 0;
   padding: var(--space-1) 0;
   font-size: var(--font-size-sm);

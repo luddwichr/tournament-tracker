@@ -50,12 +50,12 @@ describe('BracketMatchItem – structure', () => {
   })
 
   it('does not render a section label by default', () => {
-    expect(mountItem().find('.bracket-match-item__label').exists()).toBe(false)
+    expect(mountItem().find('.bracket-round__section-label').exists()).toBe(false)
   })
 
   it('renders the section label when provided', () => {
     const wrapper = mountItem({ sectionLabel: 'Spiel um Platz 3' })
-    expect(wrapper.find('.bracket-match-item__label').text()).toBe('Spiel um Platz 3')
+    expect(wrapper.find('.bracket-round__section-label').text()).toBe('Spiel um Platz 3')
   })
 })
 
