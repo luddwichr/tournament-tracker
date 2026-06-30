@@ -14,6 +14,7 @@ const props = defineProps<{
   awayPlaceholder?: string
   highlighted?: boolean
   pinned?: boolean
+  hideLinkIcon?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +51,12 @@ const ariaLabel = computed(() => {
       'highlight-ring': highlighted,
     }"
   >
-    <MatchCardMeta :kickoff="match.kickoff" :pinned="!!pinned" @toggle="emit('toggleHighlight')" />
+    <MatchCardMeta
+      :kickoff="match.kickoff"
+      :pinned="!!pinned"
+      :hide-link-icon="hideLinkIcon"
+      @toggle="emit('toggleHighlight')"
+    />
     <div class="match-card__body" @click="onBodyClick">
       <MatchTeamSlot
         :team="homeTeam"

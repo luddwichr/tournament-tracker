@@ -36,6 +36,12 @@ describe('GroupTable – layout', () => {
     const expected = groupMatches.filter((m) => m.group === 'A').length
     expect(wrapper.findAllComponents(MatchCard)).toHaveLength(expected)
   })
+
+  it('renders all MatchCards with hideLinkIcon', () => {
+    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const cards = wrapper.findAllComponents(MatchCard)
+    expect(cards.every((c) => c.props('hideLinkIcon') === true)).toBe(true)
+  })
 })
 
 describe('GroupTable – score dialog', () => {

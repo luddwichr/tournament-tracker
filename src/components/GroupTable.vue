@@ -45,6 +45,7 @@ const selectedAway = computed(() => (selectedMatch.value ? resolveTeam(selectedM
         :home-team="resolveTeam(match.homeRef)"
         :away-team="resolveTeam(match.awayRef)"
         :result="store.results[match.id] ?? null"
+        hide-link-icon
         @click="selectedMatch = match"
       />
     </section>

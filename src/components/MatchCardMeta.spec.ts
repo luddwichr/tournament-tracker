@@ -38,4 +38,16 @@ describe('MatchCardMeta', () => {
     await wrapper.get('button').trigger('click')
     expect(wrapper.emitted('toggle')).toHaveLength(1)
   })
+
+  it('shows the link icon by default', () => {
+    const wrapper = mount(MatchCardMeta, { props: { kickoff } })
+    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.classes()).not.toContain('match-card-meta--static')
+  })
+
+  it('hides the link icon and marks itself static when hideLinkIcon is true', () => {
+    const wrapper = mount(MatchCardMeta, { props: { kickoff, hideLinkIcon: true } })
+    expect(wrapper.find('svg').exists()).toBe(false)
+    expect(wrapper.classes()).toContain('match-card-meta--static')
+  })
 })

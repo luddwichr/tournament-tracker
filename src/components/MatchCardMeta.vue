@@ -15,6 +15,7 @@ import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 const props = defineProps<{
   kickoff: string
   pinned?: boolean
+  hideLinkIcon?: boolean
 }>()
 
 const emit = defineEmits<{ toggle: [] }>()
@@ -26,13 +27,13 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
   <button
     type="button"
     class="match-card-meta"
-    :class="{ 'match-card-meta--active': pinned }"
+    :class="{ 'match-card-meta--active': pinned, 'match-card-meta--static': hideLinkIcon }"
     :aria-pressed="pinned ? true : false"
     aria-label="Spielverbindungen hervorheben"
     @click="emit('toggle')"
   >
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
-    <MatchLinkIcon class="match-card-meta__icon" />
+    <MatchLinkIcon v-if="!hideLinkIcon" class="match-card-meta__icon" />
   </button>
 </template>
 
@@ -54,6 +55,11 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
 .match-card-meta:hover,
 .match-card-meta--active {
   color: var(--color-primary);
+}
+
+.match-card-meta--static {
+  cursor: default;
+  pointer-events: none;
 }
 
 .match-card-meta__kickoff {
