@@ -22,8 +22,7 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketVi
   const highlightedMatchIds = computed((): string[] => {
     const ids: string[] = []
     if (activeMatchId.value) {
-      const target = nextMatchMap.get(activeMatchId.value)
-      if (target) ids.push(target)
+      ids.push(...(nextMatchMap.get(activeMatchId.value) ?? []))
       ids.push(...(prevMatchMap.get(activeMatchId.value) ?? []))
     }
     if (hoveredRefKey.value) {
@@ -55,8 +54,7 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketVi
 
   function buildAllPaths(matchId: string): string[] {
     const paths: string[] = []
-    const targetId = nextMatchMap.get(matchId)
-    if (targetId) {
+    for (const targetId of nextMatchMap.get(matchId) ?? []) {
       const p = matchConnector(matchId, targetId)
       if (p) paths.push(p)
     }

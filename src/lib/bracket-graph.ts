@@ -8,10 +8,18 @@ function r32RefKey(teamRef: TeamRef): string | null {
 }
 
 export const nextMatchMap = (() => {
-  const map = new Map<string, string>()
+  const map = new Map<string, string[]>()
   for (const match of knockoutMatches) {
-    if (match.homeRef.kind === 'matchWinner') map.set(match.homeRef.matchId, match.id)
-    if (match.awayRef.kind === 'matchWinner') map.set(match.awayRef.matchId, match.id)
+    if (match.homeRef.kind === 'matchWinner' || match.homeRef.kind === 'matchLoser') {
+      const ids = map.get(match.homeRef.matchId) ?? []
+      ids.push(match.id)
+      map.set(match.homeRef.matchId, ids)
+    }
+    if (match.awayRef.kind === 'matchWinner' || match.awayRef.kind === 'matchLoser') {
+      const ids = map.get(match.awayRef.matchId) ?? []
+      ids.push(match.id)
+      map.set(match.awayRef.matchId, ids)
+    }
   }
   return map
 })()
@@ -20,8 +28,8 @@ export const prevMatchMap = (() => {
   const map = new Map<string, string[]>()
   for (const match of knockoutMatches) {
     const sources: string[] = []
-    if (match.homeRef.kind === 'matchWinner') sources.push(match.homeRef.matchId)
-    if (match.awayRef.kind === 'matchWinner') sources.push(match.awayRef.matchId)
+    if (match.homeRef.kind === 'matchWinner' || match.homeRef.kind === 'matchLoser') sources.push(match.homeRef.matchId)
+    if (match.awayRef.kind === 'matchWinner' || match.awayRef.kind === 'matchLoser') sources.push(match.awayRef.matchId)
     if (sources.length > 0) map.set(match.id, sources)
   }
   return map

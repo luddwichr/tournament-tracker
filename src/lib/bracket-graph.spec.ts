@@ -3,27 +3,27 @@ import { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from './
 
 describe('nextMatchMap', () => {
   it('maps R32 winners to their R16 match', () => {
-    expect(nextMatchMap.get('M74')).toBe('M89') // M89 homeRef
-    expect(nextMatchMap.get('M77')).toBe('M89') // M89 awayRef
-    expect(nextMatchMap.get('M73')).toBe('M90') // M90 homeRef
-    expect(nextMatchMap.get('M75')).toBe('M90') // M90 awayRef
+    expect(nextMatchMap.get('M74')).toEqual(['M89']) // M89 homeRef
+    expect(nextMatchMap.get('M77')).toEqual(['M89']) // M89 awayRef
+    expect(nextMatchMap.get('M73')).toEqual(['M90']) // M90 homeRef
+    expect(nextMatchMap.get('M75')).toEqual(['M90']) // M90 awayRef
   })
 
   it('maps R16 winners to their QF match', () => {
-    expect(nextMatchMap.get('M89')).toBe('M97')
-    expect(nextMatchMap.get('M90')).toBe('M97')
+    expect(nextMatchMap.get('M89')).toEqual(['M97'])
+    expect(nextMatchMap.get('M90')).toEqual(['M97'])
   })
 
-  it('maps SF winners to the final', () => {
-    expect(nextMatchMap.get('M101')).toBe('M104')
-    expect(nextMatchMap.get('M102')).toBe('M104')
+  it('maps SF matches to both the third-place play-off (loser) and the final (winner)', () => {
+    expect(nextMatchMap.get('M101')).toEqual(['M103', 'M104'])
+    expect(nextMatchMap.get('M102')).toEqual(['M103', 'M104'])
   })
 
   it('has no entry for the final (no next match)', () => {
     expect(nextMatchMap.has('M104')).toBe(false)
   })
 
-  it('has no entry for the third-place match (matchLoser refs are not tracked)', () => {
+  it('has no entry for the third-place match (no next match)', () => {
     expect(nextMatchMap.has('M103')).toBe(false)
   })
 
@@ -54,12 +54,12 @@ describe('prevMatchMap', () => {
     expect(prevMatchMap.has('M74')).toBe(false)
   })
 
-  it('has no entry for the third-place match (it uses matchLoser refs)', () => {
-    expect(prevMatchMap.has('M103')).toBe(false)
+  it('maps the third-place match to its two SF sources (via matchLoser refs)', () => {
+    expect(prevMatchMap.get('M103')).toEqual(['M101', 'M102'])
   })
 
-  it('covers exactly 15 backward connections (8 R16 + 4 QF + 2 SF + 1 final)', () => {
-    expect(prevMatchMap.size).toBe(15)
+  it('covers exactly 16 backward connections (8 R16 + 4 QF + 2 SF + 1 final + 1 third-place)', () => {
+    expect(prevMatchMap.size).toBe(16)
   })
 })
 
