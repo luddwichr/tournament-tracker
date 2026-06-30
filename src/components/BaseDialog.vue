@@ -110,7 +110,7 @@ defineExpose({ close })
 }
 
 .base-dialog__close {
-  background: none;
+  background: var(--color-bg);
   border: none;
   cursor: pointer;
   padding: var(--space-1) var(--space-2);
