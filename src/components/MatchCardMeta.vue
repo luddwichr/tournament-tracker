@@ -10,6 +10,7 @@ const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 
 const props = defineProps<{
   kickoff: string
@@ -31,20 +32,7 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
     @click="emit('toggle')"
   >
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
-    <svg
-      class="match-card-meta__icon"
-      viewBox="0 0 16 16"
-      width="1em"
-      height="1em"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M2 4 H6 V12 M2 12 H6 M6 8 H14" />
-    </svg>
+    <MatchLinkIcon class="match-card-meta__icon" />
   </button>
 </template>
 

@@ -19,18 +19,16 @@ describe('DisciplineInput', () => {
     expect(groups).toHaveLength(2)
   })
 
-  it('has aria-labelledby pointing at the home label', () => {
+  it('labels the home group "Heim" via aria-label', () => {
     const wrapper = mountDisciplineInput()
-    const homeGroup = wrapper.find('[aria-labelledby="discipline-home-label"]')
+    const homeGroup = wrapper.find('[aria-label="Heim"]')
     expect(homeGroup.exists()).toBe(true)
-    expect(wrapper.find('#discipline-home-label').text()).toBe('Heim')
   })
 
-  it('has aria-labelledby pointing at the away label', () => {
+  it('labels the away group "Gast" via aria-label', () => {
     const wrapper = mountDisciplineInput()
-    const awayGroup = wrapper.find('[aria-labelledby="discipline-away-label"]')
+    const awayGroup = wrapper.find('[aria-label="Gast"]')
     expect(awayGroup.exists()).toBe(true)
-    expect(wrapper.find('#discipline-away-label').text()).toBe('Gast')
   })
 
   it('emits update:homeYellow when the home yellow increment button is clicked', async () => {

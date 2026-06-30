@@ -67,7 +67,7 @@ describe('ScoreDialog', () => {
       awayRed: 0,
     })
     const wrapper = mountDialog()
-    expect(wrapper.find('.btn--danger').text()).toBe('Löschen')
+    expect(wrapper.find('.btn--danger').text()).toContain('Löschen')
   })
 
   it('clicking "Speichern" saves to the store and closes the dialog', async () => {

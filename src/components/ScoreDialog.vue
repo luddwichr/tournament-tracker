@@ -29,6 +29,11 @@ watch(knockoutDraw, (isDraw) => {
 <template>
   <BaseDialog ref="baseDialog" :title="title" max-width="min(90vw, 28rem)" @close="emit('close')">
     <div class="score-dialog__body">
+      <div class="score-dialog__teams" aria-hidden="true">
+        <span class="score-dialog__team-name">{{ homeTeam.name }}</span>
+        <span class="score-dialog__team-name">{{ awayTeam.name }}</span>
+      </div>
+
       <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
 
       <p v-if="showDrawError" class="score-dialog__draw-error" role="alert">
@@ -45,12 +50,14 @@ watch(knockoutDraw, (isDraw) => {
 
     <template #footer>
       <button v-if="initial" type="button" class="btn btn--danger score-dialog__delete" @click="clear(close)">
-        Löschen
+        <span class="score-dialog__btn-symbol" aria-hidden="true">🗑</span> Löschen
       </button>
       <div class="score-dialog__footer-actions">
-        <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">Abbrechen</button>
+        <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">
+          <span class="score-dialog__btn-symbol" aria-hidden="true">✕</span> Abbrechen
+        </button>
         <button type="button" class="btn btn--primary" @click="knockoutDraw ? (showDrawError = true) : save(close)">
-          Speichern
+          <span class="score-dialog__btn-symbol" aria-hidden="true">✓</span> Speichern
         </button>
       </div>
     </template>
@@ -65,6 +72,21 @@ watch(knockoutDraw, (isDraw) => {
   gap: var(--space-4);
 }
 
+.score-dialog__teams {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--space-1);
+}
+
+.score-dialog__team-name {
+  flex: 1;
+  text-align: center;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
 .score-dialog__draw-error {
   margin: 0;
   padding: var(--space-2) var(--space-3);
@@ -74,6 +96,10 @@ watch(knockoutDraw, (isDraw) => {
   background: color-mix(in srgb, var(--color-draw) 12%, transparent);
   color: var(--color-draw);
   border: 2px solid var(--color-draw);
+}
+
+.score-dialog__btn-symbol {
+  margin-right: 0.3em;
 }
 
 .score-dialog__delete {

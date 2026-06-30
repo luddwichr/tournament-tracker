@@ -13,18 +13,17 @@ function mountScoreInput(home = 0, away = 0) {
 }
 
 describe('ScoreInput', () => {
-  it('has role="group" labelled "Tore"', () => {
+  it('renders a fieldset with legend "⚽ Tore"', () => {
     const wrapper = mountScoreInput()
-    const group = wrapper.find('[role="group"]')
-    expect(group.exists()).toBe(true)
-    expect(group.attributes('aria-label')).toBe('Tore')
+    expect(wrapper.find('fieldset').exists()).toBe(true)
+    expect(wrapper.find('legend').text()).toBe('⚽ Tore')
   })
 
-  it('renders home and away team names', () => {
+  it('passes team names into stepper aria-labels', () => {
     const wrapper = mountScoreInput()
-    const names = wrapper.findAll('.score-input__team-name')
-    expect(names[0]!.text()).toBe('Deutschland')
-    expect(names[1]!.text()).toBe('Frankreich')
+    const buttons = wrapper.findAll('button')
+    expect(buttons.some((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')).toBe(true)
+    expect(buttons.some((b) => b.attributes('aria-label') === 'Tor für Frankreich abziehen')).toBe(true)
   })
 
   it('renders the ":" separator as aria-hidden', () => {

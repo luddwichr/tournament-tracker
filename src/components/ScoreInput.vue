@@ -12,33 +12,50 @@ const awayGoals = defineModel<number>('away', { required: true })
 </script>
 
 <template>
-  <div class="score-input" role="group" aria-label="Tore">
-    <div class="score-input__side">
-      <span class="score-input__team-name">{{ props.homeTeam.name }}</span>
-      <StepperInput
-        v-model="homeGoals"
-        size="lg"
-        :dec-label="`Tor für ${props.homeTeam.name} abziehen`"
-        :inc-label="`Tor für ${props.homeTeam.name} hinzufügen`"
-      />
-    </div>
+  <fieldset class="score-input">
+    <legend class="score-input__heading">⚽ Tore</legend>
 
-    <span class="score-input__sep" aria-hidden="true">:</span>
+    <div class="score-input__grid">
+      <div class="score-input__side">
+        <StepperInput
+          v-model="homeGoals"
+          size="lg"
+          :dec-label="`Tor für ${props.homeTeam.name} abziehen`"
+          :inc-label="`Tor für ${props.homeTeam.name} hinzufügen`"
+        />
+      </div>
 
-    <div class="score-input__side">
-      <span class="score-input__team-name">{{ props.awayTeam.name }}</span>
-      <StepperInput
-        v-model="awayGoals"
-        size="lg"
-        :dec-label="`Tor für ${props.awayTeam.name} abziehen`"
-        :inc-label="`Tor für ${props.awayTeam.name} hinzufügen`"
-      />
+      <span class="score-input__sep" aria-hidden="true">:</span>
+
+      <div class="score-input__side">
+        <StepperInput
+          v-model="awayGoals"
+          size="lg"
+          :dec-label="`Tor für ${props.awayTeam.name} abziehen`"
+          :inc-label="`Tor für ${props.awayTeam.name} hinzufügen`"
+        />
+      </div>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <style scoped>
 .score-input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.score-input__heading {
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.score-input__grid {
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -47,17 +64,9 @@ const awayGoals = defineModel<number>('away', { required: true })
 
 .score-input__side {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
   flex: 1;
-}
-
-.score-input__team-name {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  text-align: center;
-  line-height: 1.2;
 }
 
 .score-input__sep {
