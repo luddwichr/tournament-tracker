@@ -1,17 +1,9 @@
-<script lang="ts">
-const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
-  weekday: 'short',
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-})
-</script>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { MatchSlot, Team, Result } from '../types/tournament'
-import TeamLabel from './TeamLabel.vue'
+import MatchCardMeta from './MatchCardMeta.vue'
+import MatchTeamSlot from './MatchTeamSlot.vue'
+import MatchScoreButton from './MatchScoreButton.vue'
 
 const props = defineProps<{
   match: MatchSlot
@@ -21,14 +13,22 @@ const props = defineProps<{
   homePlaceholder?: string
   awayPlaceholder?: string
   highlighted?: boolean
+  pinned?: boolean
 }>()
 
-const emit = defineEmits<{ click: []; placeholderClick: [slot: 'home' | 'away'] }>()
+const emit = defineEmits<{
+  click: []
+  placeholderClick: [slot: 'home' | 'away']
+  toggleHighlight: []
+}>()
 
 const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
 
-function formatKickoff(iso: string): string {
-  return kickoffFmt.format(new Date(iso))
+// Clicking anywhere in the body (the dead space around the score button) opens the
+// score dialog. Inner controls (team labels, placeholders, score button) stop
+// propagation so they keep their own behaviour.
+function onBodyClick(): void {
+  if (!blocked.value) emit('click')
 }
 
 const ariaLabel = computed(() => {
@@ -44,57 +44,27 @@ const ariaLabel = computed(() => {
 <template>
   <div
     class="match-card"
-    :class="{ 'match-card--played': !!result, 'match-card--blocked': blocked, 'highlight-ring': highlighted }"
+    :class="{
+      'match-card--played': !!result,
+      'match-card--blocked': blocked,
+      'highlight-ring': highlighted,
+    }"
   >
-    <div class="match-card__meta">
-      <time class="match-card__kickoff" :datetime="match.kickoff">
-        {{ formatKickoff(match.kickoff) }}
-      </time>
-    </div>
-    <div class="match-card__body">
-      <span class="match-card__team match-card__team--home">
-        <TeamLabel v-if="homeTeam" :team="homeTeam" clickable />
-        <button
-          v-else
-          type="button"
-          class="match-card__placeholder"
-          :aria-label="`Mögliche Teams: ${homePlaceholder ?? '?'}`"
-          @click="emit('placeholderClick', 'home')"
-        >
-          {{ homePlaceholder ?? '?' }}
-        </button>
-      </span>
-
-      <!-- Score area is the edit button — a sibling of the team buttons, never a wrapper -->
-      <button
-        type="button"
-        class="match-card__score-btn"
-        :aria-label="ariaLabel"
-        :disabled="blocked ? true : undefined"
-        @click="emit('click')"
-      >
-        <template v-if="result">
-          <span class="match-card__score-value">{{ result.homeGoals }}</span>
-          <span class="match-card__score-sep">:</span>
-          <span class="match-card__score-value">{{ result.awayGoals }}</span>
-        </template>
-        <template v-else>
-          <span class="match-card__score-dash">–</span>
-        </template>
-      </button>
-
-      <span class="match-card__team match-card__team--away">
-        <TeamLabel v-if="awayTeam" :team="awayTeam" clickable />
-        <button
-          v-else
-          type="button"
-          class="match-card__placeholder"
-          :aria-label="`Mögliche Teams: ${awayPlaceholder ?? '?'}`"
-          @click="emit('placeholderClick', 'away')"
-        >
-          {{ awayPlaceholder ?? '?' }}
-        </button>
-      </span>
+    <MatchCardMeta :kickoff="match.kickoff" :pinned="!!pinned" @toggle="emit('toggleHighlight')" />
+    <div class="match-card__body" @click="onBodyClick">
+      <MatchTeamSlot
+        :team="homeTeam"
+        side="home"
+        :placeholder="homePlaceholder ?? '?'"
+        @placeholder-click="emit('placeholderClick', 'home')"
+      />
+      <MatchScoreButton :result="result ?? null" :label="ariaLabel" :disabled="blocked" @click="emit('click')" />
+      <MatchTeamSlot
+        :team="awayTeam"
+        side="away"
+        :placeholder="awayPlaceholder ?? '?'"
+        @placeholder-click="emit('placeholderClick', 'away')"
+      />
     </div>
   </div>
 </template>
@@ -108,7 +78,6 @@ const ariaLabel = computed(() => {
   border-radius: var(--radius-md);
   background-color: var(--color-bg);
   border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
-  font-size: inherit;
   user-select: none;
 }
 
@@ -121,116 +90,17 @@ const ariaLabel = computed(() => {
   border-style: dashed;
 }
 
-.match-card__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.match-card__kickoff {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
+/* Teams size to content (equal 1fr gutters keep the button centered); the whole
+   body is the click target via onBodyClick, so the gutters open the score dialog */
 .match-card__body {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: stretch;
-  gap: var(--space-2);
+  gap: var(--space-1);
   font-size: var(--font-size-sm);
 }
 
-.match-card__team {
-  display: flex;
-  align-items: center;
-  align-self: center;
-  min-width: 0;
-}
-
-.match-card__team :deep(.team-label) {
-  min-width: 0;
-}
-
-.match-card__team :deep(.team-label__name) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.match-card__team--away :deep(.team-label) {
-  flex-direction: row-reverse;
-}
-
-.match-card__team--away {
-  justify-content: flex-end;
-}
-
-.match-card__score-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2em;
-  min-width: 2.5rem;
-  min-height: var(--tap-target);
-  padding: var(--space-1) var(--space-2);
-  background: none;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+.match-card:not(.match-card--blocked) .match-card__body {
   cursor: pointer;
-  font-family: inherit;
-  color: inherit;
-  transition:
-    border-color 0.15s,
-    background-color 0.15s;
-}
-
-.match-card__score-btn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
-}
-
-.match-card__score-btn:disabled {
-  cursor: not-allowed;
-}
-
-.match-card__score-value {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.match-card__score-sep {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  line-height: 1;
-}
-
-.match-card__score-dash {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.match-card__placeholder {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: inherit;
-  color: var(--color-text-muted);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-}
-
-.match-card__placeholder:hover {
-  color: var(--color-primary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 </style>

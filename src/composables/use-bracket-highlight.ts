@@ -13,14 +13,18 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketVi
 
   const hoveredMatchId = ref<string | null>(null)
   const hoveredRefKey = ref<string | null>(null)
-  const connectorPaths = ref<string[]>([])
+  // Tap-pinned match (touch devices have no hover): persists until toggled off.
+  const pinnedMatchId = ref<string | null>(null)
+
+  // Hover (desktop) wins while active; otherwise the pinned match drives the highlight.
+  const activeMatchId = computed(() => hoveredMatchId.value ?? pinnedMatchId.value)
 
   const highlightedMatchIds = computed((): string[] => {
     const ids: string[] = []
-    if (hoveredMatchId.value) {
-      const target = nextMatchMap.get(hoveredMatchId.value)
+    if (activeMatchId.value) {
+      const target = nextMatchMap.get(activeMatchId.value)
       if (target) ids.push(target)
-      ids.push(...(prevMatchMap.get(hoveredMatchId.value) ?? []))
+      ids.push(...(prevMatchMap.get(activeMatchId.value) ?? []))
     }
     if (hoveredRefKey.value) {
       const matchId = teamRefToMatchId.get(hoveredRefKey.value)
@@ -31,13 +35,22 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketVi
 
   const highlightedRefKeys = computed((): string[] => {
     const keys: string[] = []
-    if (hoveredMatchId.value) {
-      keys.push(...(matchToRefKeys.get(hoveredMatchId.value) ?? []))
+    if (activeMatchId.value) {
+      keys.push(...(matchToRefKeys.get(activeMatchId.value) ?? []))
     }
     if (hoveredRefKey.value) {
       keys.push(hoveredRefKey.value)
     }
     return keys
+  })
+
+  const connectorPaths = computed((): string[] => {
+    if (hoveredRefKey.value) {
+      const matchId = teamRefToMatchId.get(hoveredRefKey.value)
+      const p = matchId ? originConnector(hoveredRefKey.value, matchId) : null
+      return p ? [p] : []
+    }
+    return activeMatchId.value ? buildAllPaths(activeMatchId.value) : []
   })
 
   function buildAllPaths(matchId: string): string[] {
@@ -61,35 +74,37 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketVi
   function onMatchHover(matchId: string): void {
     hoveredMatchId.value = matchId
     hoveredRefKey.value = null
-    connectorPaths.value = buildAllPaths(matchId)
   }
 
   function onMatchHoverEnd(): void {
     hoveredMatchId.value = null
     hoveredRefKey.value = null
-    connectorPaths.value = []
   }
 
   function onTeamRefHover(refKey: string): void {
     hoveredRefKey.value = refKey
     hoveredMatchId.value = null
-    const matchId = teamRefToMatchId.get(refKey)
-    connectorPaths.value = matchId ? ([originConnector(refKey, matchId)].filter(Boolean) as string[]) : []
   }
 
   function onTeamRefHoverEnd(): void {
     hoveredRefKey.value = null
     hoveredMatchId.value = null
-    connectorPaths.value = []
+  }
+
+  // Tap toggle: pin this match's connections, or unpin if it is already pinned.
+  function toggleMatchPin(matchId: string): void {
+    pinnedMatchId.value = pinnedMatchId.value === matchId ? null : matchId
   }
 
   return {
     connectorPaths,
     highlightedMatchIds,
     highlightedRefKeys,
+    pinnedMatchId,
     onMatchHover,
     onMatchHoverEnd,
     onTeamRefHover,
     onTeamRefHoverEnd,
+    toggleMatchPin,
   }
 }

@@ -74,10 +74,12 @@ const {
   connectorPaths,
   highlightedMatchIds,
   highlightedRefKeys,
+  pinnedMatchId,
   onMatchHover,
   onMatchHoverEnd,
   onTeamRefHover,
   onTeamRefHoverEnd,
+  toggleMatchPin,
 } = useBracketHighlight(roundsEl, bracketViewEl)
 </script>
 
@@ -95,9 +97,11 @@ const {
         :title="round.title"
         :matches="round.matches"
         :highlighted-match-ids="highlightedMatchIds"
+        :pinned-match-id="pinnedMatchId"
         @match-click="emit('matchClick', $event)"
         @match-hover="onMatchHover"
         @match-hover-end="onMatchHoverEnd"
+        @toggle-highlight="toggleMatchPin"
         @placeholder-click="openPossibleTeams"
       />
       <svg class="bracket-view__connectors" aria-hidden="true">

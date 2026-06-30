@@ -53,7 +53,7 @@ test('placeholder labels are meaningful — no bare "?" shown', async () => {
 test('R32 group-rank placeholders include "Gruppe" and the group letter', async () => {
   await knockout.goto()
   // M73 is A2 vs B2 — first card in R32 column
-  const texts = await knockout.round(R32).locator('.match-card__placeholder').allTextContents()
+  const texts = await knockout.round(R32).locator('.match-team-slot__placeholder').allTextContents()
   // Both placeholders should mention a group letter
   for (const t of texts) {
     expect(t).toMatch(/Gruppe [A-L]/)
@@ -118,7 +118,7 @@ test('entering a knockout result propagates to the next round', async ({ page })
   // M90 kicks off earlier than M89 (UTC), so it sorts to position 0 in the R16 column.
   const m90card = knockout.matchCard(R16, 0)
   await expect(m90card.locator('.team-label')).toHaveCount(1)
-  await expect(m90card.locator('.match-card__placeholder')).toHaveCount(1)
+  await expect(m90card.locator('.match-team-slot__placeholder')).toHaveCount(1)
 })
 
 // ---------------------------------------------------------------------------

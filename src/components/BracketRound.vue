@@ -16,12 +16,14 @@ defineProps<{
   title: string
   matches: MatchRow[]
   highlightedMatchIds?: readonly string[]
+  pinnedMatchId?: string | null
 }>()
 
 const emit = defineEmits<{
   matchClick: [match: MatchSlot]
   matchHover: [matchId: string]
   matchHoverEnd: []
+  toggleHighlight: [matchId: string]
   placeholderClick: [match: MatchSlot, slot: 'home' | 'away']
 }>()
 </script>
@@ -54,7 +56,9 @@ const emit = defineEmits<{
             :home-placeholder="row.homePlaceholder"
             :away-placeholder="row.awayPlaceholder"
             :highlighted="!!highlightedMatchIds?.includes(row.match.id)"
+            :pinned="pinnedMatchId === row.match.id"
             @click="emit('matchClick', row.match)"
+            @toggle-highlight="emit('toggleHighlight', row.match.id)"
             @placeholder-click="(slot) => emit('placeholderClick', row.match, slot)"
           />
         </div>

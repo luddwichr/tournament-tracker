@@ -48,11 +48,11 @@ export class KnockoutPage {
   }
 
   placeholders(): Locator {
-    return this.page.locator('.match-card__placeholder')
+    return this.page.locator('.match-team-slot__placeholder')
   }
 
   disabledScoreButtons(roundIndex: number): Locator {
-    return this.round(roundIndex).locator('.match-card__score-btn[disabled]')
+    return this.round(roundIndex).locator('.match-score-btn[disabled]')
   }
 
   /**
@@ -66,7 +66,7 @@ export class KnockoutPage {
 
   /** Opens the score dialog for a match card and waits for it to appear. */
   async openScoreDialog(roundIndex: number, cardIndex: number): Promise<ScoreDialog> {
-    await this.matchCard(roundIndex, cardIndex).locator('.match-card__score-btn').click()
+    await this.matchCard(roundIndex, cardIndex).locator('.match-score-btn').click()
     const dialog = new ScoreDialog(this.page)
     await dialog.expectVisible()
     return dialog
