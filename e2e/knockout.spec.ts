@@ -122,45 +122,36 @@ test('entering a knockout result propagates to the next round', async ({ page })
 })
 
 // ---------------------------------------------------------------------------
-// Penalty winner picker
+// Knockout draw guard
 // ---------------------------------------------------------------------------
 
-test('penalty winner section is hidden for a non-tied knockout score', async ({ page }) => {
+test('saving a tied knockout score shows a draw error and keeps the dialog open', async ({ page }) => {
   await seedResults(page, allGroupResults())
   await knockout.goto()
   const dialog = await knockout.openScoreDialog(R32, 0)
 
-  // Default scores are 0:0 — picker visible; set to 1:0 to hide it
+  // Default score is 0:0 — a knockout match cannot end in a draw
+  await dialog.save()
+  await expect(dialog.drawError()).toBeVisible()
+  await dialog.expectVisible()
+})
+
+test('the draw error clears once the score is no longer tied, then the result saves', async ({ page }) => {
+  await seedResults(page, allGroupResults())
+  await knockout.goto()
+
+  // Open the first R32 card (M73: A2 vs B2) and trigger the draw error
+  const dialog = await knockout.openScoreDialog(R32, 0)
+  await dialog.save()
+  await expect(dialog.drawError()).toBeVisible()
+
+  // Make the score non-tied → error clears and saving now succeeds
   await dialog.incrementHomeGoals()
-  await expect(dialog.penalties()).not.toBeVisible()
-})
-
-test('penalty winner section appears for a tied knockout score', async ({ page }) => {
-  await seedResults(page, allGroupResults())
-  await knockout.goto()
-  const dialog = await knockout.openScoreDialog(R32, 0)
-
-  // Scores are 0:0 by default → both teams tied → picker should show
-  await expect(dialog.penalties()).toBeVisible()
-  await expect(dialog.penaltyGroup()).toBeVisible()
-})
-
-test('saving a tied knockout result with penalty winner propagates bracket', async ({ page }) => {
-  await seedResults(page, allGroupResults())
-  await knockout.goto()
-
-  // Open the first R32 card (M73: A2 vs B2)
-  const dialog = await knockout.openScoreDialog(R32, 0)
-
-  // Leave score at 0:0 (draw) and pick home team as penalty winner
-  await expect(dialog.penaltyGroup()).toBeVisible()
-  await dialog.pickHomePenaltyWinner()
-  await expect(dialog.penaltyButtons().first()).toHaveAttribute('aria-pressed', 'true')
-
+  await expect(dialog.drawError()).not.toBeVisible()
   await dialog.save()
   await dialog.expectHidden()
 
-  // M90 (R16) homeRef = winner(M73) — home team should now be resolved
+  // M90 (R16) homeRef = winner(M73) — home team should now be resolved.
   // M90 sorts to position 0 in R16 (earlier kickoff than M89).
   await expect(knockout.matchCard(R16, 0).locator('.team-label')).toHaveCount(1)
 })

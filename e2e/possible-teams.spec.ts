@@ -46,8 +46,8 @@ test('the possible-teams dialog lists team names with flags', async () => {
   const firstItem = dialog.items().first()
   await expect(firstItem).toBeVisible()
 
-  // Each item has a flag (role="img") and a team name
-  await expect(firstItem.getByRole('img')).toBeVisible()
+  // Each item has a flag (decorative) and a team name
+  await expect(dialog.flag(firstItem)).toBeVisible()
   await expect(dialog.teamName(firstItem)).not.toBeEmpty()
 })
 

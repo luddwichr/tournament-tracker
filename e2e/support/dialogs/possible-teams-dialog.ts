@@ -25,7 +25,11 @@ export class PossibleTeamsDialog {
   }
 
   teamName(item: Locator): Locator {
-    return item.locator('.possible-teams-dialog__team-name')
+    return item.locator('.team-label__name')
+  }
+
+  flag(item: Locator): Locator {
+    return item.locator('.team-flag')
   }
 
   async closeWithEscape(): Promise<void> {

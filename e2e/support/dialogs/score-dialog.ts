@@ -3,7 +3,7 @@ import { expect } from '@playwright/test'
 
 /**
  * The result-entry dialog opened from a knockout match card. Encapsulates the
- * score stepper, the penalty-shootout winner picker and the save action.
+ * score stepper, the knockout draw-guard error and the save action.
  */
 export class ScoreDialog {
   readonly root: Locator
@@ -29,22 +29,9 @@ export class ScoreDialog {
     await this.root.locator('.stepper__step').filter({ hasText: '+' }).first().click()
   }
 
-  /** The penalty-shootout winner picker, only visible for a tied score. */
-  penalties(): Locator {
-    return this.root.locator('.score-dialog__penalties')
-  }
-
-  penaltyGroup(): Locator {
-    return this.root.getByRole('group', { name: /Elfmeterschießen/ })
-  }
-
-  penaltyButtons(): Locator {
-    return this.penaltyGroup().getByRole('button')
-  }
-
-  /** Picks the home team as the penalty-shootout winner. */
-  async pickHomePenaltyWinner(): Promise<void> {
-    await this.penaltyButtons().first().click()
+  /** The draw-guard error, shown when saving a knockout match with a tied score. */
+  drawError(): Locator {
+    return this.root.getByRole('alert')
   }
 
   async save(): Promise<void> {
