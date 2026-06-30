@@ -4,19 +4,14 @@ import MatchCard from './MatchCard.vue'
 import MatchCardMeta from './MatchCardMeta.vue'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import MatchScoreButton from './MatchScoreButton.vue'
-import type { MatchSlot, Result } from '../types/tournament'
+import type { Result } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
+import { makeMatch } from '../test-support/matches'
 
 const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
-const match: MatchSlot = {
-  id: 'M73',
-  stage: 'r32',
-  kickoff: '2026-06-30T18:00:00+02:00',
-  homeRef: { kind: 'matchWinner', matchId: 'M1' },
-  awayRef: { kind: 'matchWinner', matchId: 'M2' },
-}
+const match = makeMatch({ id: 'M73' })
 
 const result: Result = {
   matchId: 'M73',

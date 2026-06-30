@@ -3,28 +3,26 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ScoreDialog from './ScoreDialog.vue'
 import { useTournamentStore } from '../stores/tournament'
-import type { MatchSlot } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
+import { makeMatch } from '../test-support/matches'
 
 const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
-const groupMatch: MatchSlot = {
+const groupMatch = makeMatch({
   id: 'M01',
   stage: 'group',
   group: 'A',
-  kickoff: '2026-06-08T18:00:00+02:00',
   homeRef: { kind: 'team', teamId: 'ger' },
   awayRef: { kind: 'team', teamId: 'fra' },
-}
+})
 
-const knockoutMatch: MatchSlot = {
+const knockoutMatch = makeMatch({
   id: 'M90',
   stage: 'sf',
-  kickoff: '2026-07-08T18:00:00+02:00',
   homeRef: { kind: 'matchWinner', matchId: 'M73' },
   awayRef: { kind: 'matchWinner', matchId: 'M74' },
-}
+})
 
 function mountDialog(match = groupMatch) {
   return mount(ScoreDialog, { props: { match, homeTeam, awayTeam } })

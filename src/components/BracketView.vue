@@ -6,6 +6,7 @@ import { useTournamentStore } from '../stores/tournament'
 import { resolveTeamRef } from '../lib/knockout'
 import { teamRefLabel } from '../lib/bracket-labels'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
+import BracketConnectors from './BracketConnectors.vue'
 import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
@@ -27,19 +28,19 @@ function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
   return sectionLabel !== undefined ? { ...base, sectionLabel } : base
 }
 
+const stageRounds = [
+  { title: 'Runde der 32', stage: 'r32' },
+  { title: 'Achtelfinale', stage: 'r16' },
+  { title: 'Viertelfinale', stage: 'qf' },
+  { title: 'Halbfinale', stage: 'sf' },
+] as const
+
 interface Round {
   title: string
   matches: MatchRow[]
 }
 
 const rounds = computed((): Round[] => {
-  const stageRounds: { title: string; stage: string }[] = [
-    { title: 'Runde der 32', stage: 'r32' },
-    { title: 'Achtelfinale', stage: 'r16' },
-    { title: 'Viertelfinale', stage: 'qf' },
-    { title: 'Halbfinale', stage: 'sf' },
-  ]
-
   const groups: Round[] = stageRounds.map(({ title, stage }) => ({
     title,
     matches: knockoutMatches
@@ -50,7 +51,6 @@ const rounds = computed((): Round[] => {
 
   const thirdMatch = knockoutMatches.find((m) => m.stage === 'third')!
   const finalMatch = knockoutMatches.find((m) => m.stage === 'final')!
-
   groups.push({
     title: 'Finale',
     matches: [toRow(thirdMatch, 'Spiel um Platz 3'), toRow(finalMatch, 'Finale')],
@@ -104,9 +104,7 @@ const {
         @toggle-highlight="toggleMatchPin"
         @placeholder-click="openPossibleTeams"
       />
-      <svg class="bracket-view__connectors" aria-hidden="true">
-        <path v-for="(path, i) in connectorPaths" :key="i" :d="path" class="bracket-view__connector" />
-      </svg>
+      <BracketConnectors :paths="connectorPaths" />
     </div>
   </div>
 
@@ -134,22 +132,5 @@ const {
   align-items: flex-start;
   min-width: max-content;
   padding: var(--space-1) var(--space-1) var(--space-2);
-}
-
-.bracket-view__connectors {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.bracket-view__connector {
-  fill: none;
-  stroke: var(--color-primary);
-  stroke-width: 2.5;
-  stroke-opacity: 0.65;
-  stroke-linecap: round;
 }
 </style>
