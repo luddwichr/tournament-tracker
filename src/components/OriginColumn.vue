@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { GROUP_IDS } from '../types/tournament'
-import type { GroupId, ThirdPlaceSlot } from '../types/tournament'
-import { toThirdPlaceKey } from '../types/tournament'
+import type { GroupId, Team, ThirdPlaceSlot } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { computeGroupStandings } from '../lib/standings'
-import { rankThirdPlaced, QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
-import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
+import { rankThirdPlaced, buildGroupToThirdPlaceSlotMap } from '../lib/third-place'
 import TeamFlag from './TeamFlag.vue'
 
 defineProps<{
@@ -20,29 +18,17 @@ const emit = defineEmits<{
 
 const store = useTournamentStore()
 
+const rankedThirds = computed(() => rankThirdPlaced(store.results))
+const allGroupsComplete = computed(() => rankedThirds.value !== null)
+
 // When all 12 groups are complete, maps each qualifying group → its thirdPlace slot.
 const thirdPlaceGroupToSlot = computed((): Map<GroupId, ThirdPlaceSlot> => {
-  const ranked = rankThirdPlaced(store.results)
-  if (!ranked) return new Map()
-
-  const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
-  const qualifyingGroups = toThirdPlaceKey(top8.map((s) => s.team.group))
-  const allocation = THIRD_PLACE_ALLOCATION[qualifyingGroups]
-  if (!allocation) return new Map()
-
-  const map = new Map<GroupId, ThirdPlaceSlot>()
-  for (const [slotStr, hostGroup] of Object.entries(THIRD_PLACE_SLOT_HOST) as [string, GroupId][]) {
-    const slot = Number(slotStr) as ThirdPlaceSlot
-    const sourceGroup = allocation[hostGroup]
-    if (sourceGroup) map.set(sourceGroup, slot)
-  }
-  return map
+  const ranked = rankedThirds.value
+  return ranked ? buildGroupToThirdPlaceSlotMap(ranked) : new Map()
 })
 
-const allGroupsComplete = computed(() => rankThirdPlaced(store.results) !== null)
-
 interface TeamRow {
-  team: ReturnType<typeof computeGroupStandings>[number]['team']
+  team: Team
   rank: number
   refKey: string | null
   eliminated: boolean

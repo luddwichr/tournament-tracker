@@ -9,7 +9,7 @@
  * table (THIRD_PLACE_ALLOCATION in fixtures-2026.ts).
  */
 
-import type { Result, Team, ThirdPlaceSlot } from '../types/tournament'
+import type { GroupId, Result, Team, ThirdPlaceSlot } from '../types/tournament'
 import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import type { TeamStat } from './standings'
@@ -45,6 +45,26 @@ export function rankThirdPlaced(results: Record<string, Result>): TeamStat[] | n
   })
 
   return thirds.toSorted(compareThirdPlaced)
+}
+
+/**
+ * Build a map from each qualifying group → its assigned ThirdPlaceSlot.
+ * Returns an empty map if the allocation key is not found (should not happen
+ * with valid ranked input but guards against unknown combinations).
+ */
+export function buildGroupToThirdPlaceSlotMap(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> {
+  const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
+  const qualifyingGroups = toThirdPlaceKey(top8.map((s) => s.team.group))
+  const allocation = THIRD_PLACE_ALLOCATION[qualifyingGroups]
+  if (!allocation) return new Map()
+
+  const map = new Map<GroupId, ThirdPlaceSlot>()
+  for (const [slotStr, hostGroup] of Object.entries(THIRD_PLACE_SLOT_HOST)) {
+    const slot = Number(slotStr) as ThirdPlaceSlot
+    const sourceGroup = allocation[hostGroup as GroupId]
+    if (sourceGroup) map.set(sourceGroup, slot)
+  }
+  return map
 }
 
 /**

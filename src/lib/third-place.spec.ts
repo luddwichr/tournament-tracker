@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 import type { Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
-import { rankThirdPlaced, resolveThirdPlaceSlot } from './third-place'
+import { rankThirdPlaced, resolveThirdPlaceSlot, buildGroupToThirdPlaceSlotMap } from './third-place'
 import { makeResult } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
@@ -170,5 +170,44 @@ describe('resolveThirdPlaceSlot', () => {
       const team = resolveThirdPlaceSlot(slot, results)
       expect(top8Groups.has(team!.group)).toBe(true)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// buildGroupToThirdPlaceSlotMap
+// ---------------------------------------------------------------------------
+
+describe('buildGroupToThirdPlaceSlotMap', () => {
+  it('returns an empty map when given an empty ranked array', () => {
+    const map = buildGroupToThirdPlaceSlotMap([])
+    expect(map.size).toBe(0)
+  })
+
+  it('maps exactly 8 qualifying groups when all groups are complete', () => {
+    const ranked = rankThirdPlaced(allGroupResults(1, 0))!
+    const map = buildGroupToThirdPlaceSlotMap(ranked)
+    expect(map.size).toBe(8)
+  })
+
+  it('assigns each slot number from 1 to 8 exactly once', () => {
+    const ranked = rankThirdPlaced(allGroupResults(1, 0))!
+    const map = buildGroupToThirdPlaceSlotMap(ranked)
+    const slots = [...map.values()].toSorted((a, b) => a - b)
+    expect(slots).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+  })
+
+  it('only includes groups from the top-8 ranked thirds', () => {
+    const ranked = rankThirdPlaced(allGroupResults(1, 0))!
+    const top8Groups = new Set(ranked.slice(0, 8).map((s) => s.team.group))
+    const map = buildGroupToThirdPlaceSlotMap(ranked)
+    for (const group of map.keys()) {
+      expect(top8Groups.has(group)).toBe(true)
+    }
+  })
+
+  it('produces distinct groups (no group assigned to two slots)', () => {
+    const ranked = rankThirdPlaced(allGroupResults(1, 0))!
+    const map = buildGroupToThirdPlaceSlotMap(ranked)
+    expect(new Set(map.keys()).size).toBe(map.size)
   })
 })
