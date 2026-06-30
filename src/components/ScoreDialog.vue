@@ -27,7 +27,7 @@ watch(knockoutDraw, (isDraw) => {
 </script>
 
 <template>
-  <BaseDialog ref="baseDialog" :title="title" max-width="min(90vw, 28rem)" @close="emit('close')">
+  <BaseDialog ref="baseDialog" :title="title" max-width="min(95vw, 28rem)" @close="emit('close')">
     <div class="score-dialog__body">
       <div class="score-dialog__teams" aria-hidden="true">
         <span class="score-dialog__team-name">{{ homeTeam.name }}</span>
@@ -100,11 +100,6 @@ watch(knockoutDraw, (isDraw) => {
 
 .score-dialog__btn-symbol {
   margin-right: 0.3em;
-}
-
-.score-dialog__delete {
-  margin-right: auto;
-  margin-left: var(--space-2);
 }
 
 .score-dialog__footer-actions {

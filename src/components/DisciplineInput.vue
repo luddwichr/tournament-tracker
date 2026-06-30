@@ -54,7 +54,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
 .discipline-input {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4) var(--space-4);
+  padding: var(--space-3) var(--space-2) var(--space-4);
 }
 
 .discipline-input__heading {
@@ -77,7 +77,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
 
 .discipline-input__grid {
   display: flex;
-  gap: var(--space-5);
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
@@ -86,13 +86,13 @@ const awayRed = defineModel<number>('awayRed', { required: true })
   flex-direction: column;
   gap: var(--space-2);
   flex: 1;
-  min-width: 10rem;
+  min-width: 9rem;
 }
 
 .discipline-input__row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .discipline-input__card {
