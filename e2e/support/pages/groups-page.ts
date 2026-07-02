@@ -47,6 +47,14 @@ export class GroupsPage {
     return this.page.getByText(name, { exact: true })
   }
 
+  thirdPlaceTable(): Locator {
+    return this.page.getByRole('region', { name: 'Beste Drittplatzierte' })
+  }
+
+  thirdPlaceRows(): Locator {
+    return this.thirdPlaceTable().getByRole('region', { name: 'Rangliste' }).locator('tbody tr')
+  }
+
   /** Match button aria-label for an already-entered result, e.g. "Mexiko 2 : 1 Südafrika". */
   scoredMatchButton(home: string, homeGoals: number, awayGoals: number, away: string): Locator {
     return this.page.getByRole('button', {

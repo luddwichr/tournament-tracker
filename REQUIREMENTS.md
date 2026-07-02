@@ -131,9 +131,13 @@ chain always resolves — no unresolved-tie UI state.
 ### 5.2 Third place (`third-place.ts`)
 
 Rank all 12 third-placed teams by the cross-group chain (pts → GD → GF →
-fair-play → FIFA ranking; no H2H, different groups). Returns `null` until all 12
-groups complete. `resolveThirdPlaceSlot` takes the top 8, builds the sorted key,
-looks up `THIRD_PLACE_ALLOCATION`, maps host group → source group → team.
+fair-play → FIFA ranking; no H2H, different groups). `rankThirdPlaced` returns
+`null` until all 12 groups complete. `rankThirdPlacedLive` always returns the
+current ranking plus a `final` flag (true once all 12 groups are complete) —
+used by the groups view to show a live "who currently qualifies" table before
+the group stage ends. `resolveThirdPlaceSlot` takes the top 8, builds the
+sorted key, looks up `THIRD_PLACE_ALLOCATION`, maps host group → source group
+→ team.
 
 ### 5.3 Knockout resolution (`knockout.ts`)
 
@@ -200,6 +204,19 @@ tab title synced to route. Four routes:
 12 `GroupTable`s in a responsive CSS Grid (1→2→3→4 cols by width). Each table:
 standings rows (rank, `TeamLabel`, P/W/D/L/GF/GA/GD/Pts, recent-form
 `OutcomeBadge`s) computed reactively, plus the 6 group matches as `MatchCard`s.
+
+Below the grid, `ThirdPlaceTable` ("Die besten 8 Drittplatzierten") shows all
+12 current third-placed teams ranked by `rankThirdPlacedLive`
+(`third-place.ts`) — live, even before the group stage finishes. Each
+`ThirdPlaceRow` shows only the columns relevant to the cross-group tiebreaker
+chain, in breaking order: group letter, points, goal difference, goals
+scored, fair-play score, FIFA ranking. The top 8 are marked
+"sicher"/"qualifiziert" (green) and the rest "gefährdet"/"ausgeschieden"
+(red) — "sicher"/"gefährdet" while the group stage is still running,
+"qualifiziert"/"ausgeschieden" once all 12 groups are complete, mirroring the
+in-group status treatment in `StandingsRow`. An `InfoDisclosure`, placed above
+the table, explains the tiebreaker chain (points → GD → goals → fair play →
+FIFA ranking) in plain, icon-illustrated language.
 
 ### 7.2 Result entry
 

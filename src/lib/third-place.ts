@@ -28,23 +28,40 @@ function compareThirdPlaced(a: TeamStat, b: TeamStat): number {
   return a.team.fifaRanking - b.team.fifaRanking
 }
 
-/**
- * Rank all 12 third-placed teams (best → worst) from current results.
- * Returns null if not all 12 groups have complete group-stage results.
- */
-export function rankThirdPlaced(results: Record<string, Result>): TeamStat[] | null {
-  for (const groupId of GROUP_IDS) {
-    if (!isGroupComplete(groupId, results)) return null
-  }
-
-  const thirds = GROUP_IDS.map((groupId) => {
+function thirdPlacedStats(results: Record<string, Result>): TeamStat[] {
+  return GROUP_IDS.map((groupId) => {
     const standings = computeGroupStandings(groupId, results)
     const third = standings.at(THIRD_PLACE_RANK)
     if (!third) throw new Error(`Group ${groupId} has fewer than ${THIRD_PLACE_RANK + 1} teams`)
     return third
   })
+}
 
-  return thirds.toSorted(compareThirdPlaced)
+export interface ThirdPlaceRanking {
+  /** All 12 third-placed teams, best → worst by the cross-group chain. */
+  ranked: TeamStat[]
+  /** True once all 12 groups have complete group-stage results. */
+  final: boolean
+}
+
+/**
+ * Rank the 12 third-placed teams (best → worst) from the *current* results,
+ * regardless of whether the group stage is finished. Use this for a live
+ * "who currently qualifies" view; `final` tells the caller whether the order
+ * is still provisional.
+ */
+export function rankThirdPlacedLive(results: Record<string, Result>): ThirdPlaceRanking {
+  const final = GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
+  return { ranked: thirdPlacedStats(results).toSorted(compareThirdPlaced), final }
+}
+
+/**
+ * Rank all 12 third-placed teams (best → worst) from current results.
+ * Returns null if not all 12 groups have complete group-stage results.
+ */
+export function rankThirdPlaced(results: Record<string, Result>): TeamStat[] | null {
+  const { ranked, final } = rankThirdPlacedLive(results)
+  return final ? ranked : null
 }
 
 /**

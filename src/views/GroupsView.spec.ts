@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import GroupsView from './GroupsView.vue'
 import GroupTable from '../components/GroupTable.vue'
+import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
 import { GROUP_IDS } from '../types/tournament'
 
 beforeEach(() => {
@@ -24,5 +25,10 @@ describe('GroupsView', () => {
     const wrapper = mount(GroupsView)
     const groupIds = wrapper.findAllComponents(GroupTable).map((t) => t.props('groupId'))
     expect(groupIds).toEqual([...GROUP_IDS])
+  })
+
+  it('renders the third-place table', () => {
+    const wrapper = mount(GroupsView)
+    expect(wrapper.findComponent(ThirdPlaceTable).exists()).toBe(true)
   })
 })

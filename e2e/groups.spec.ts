@@ -32,3 +32,14 @@ test('each group has exactly 4 team rows and 6 match cards', async () => {
 test('groups view has no detectable accessibility violations', async ({ page }) => {
   await expectNoA11yViolations(page)
 })
+
+test('shows a third-place table with 12 rows, one per group', async () => {
+  await expect(groups.thirdPlaceTable()).toBeVisible()
+  await expect(groups.thirdPlaceRows()).toHaveCount(12)
+})
+
+test('the third-place tiebreaker explainer can be expanded', async ({ page }) => {
+  const summary = groups.thirdPlaceTable().getByText('Wie wird das entschieden?')
+  await summary.click()
+  await expect(page.getByText('geschossenen Tore')).toBeVisible()
+})

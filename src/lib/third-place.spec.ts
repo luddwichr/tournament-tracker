@@ -6,7 +6,12 @@ import { describe, it, expect } from 'vitest'
 import type { Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
-import { rankThirdPlaced, resolveThirdPlaceSlot, buildGroupToThirdPlaceSlotMap } from './third-place'
+import {
+  rankThirdPlaced,
+  rankThirdPlacedLive,
+  resolveThirdPlaceSlot,
+  buildGroupToThirdPlaceSlotMap,
+} from './third-place'
 import { makeResult } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
@@ -134,6 +139,43 @@ describe('rankThirdPlaced', () => {
     // rsa and bih both have same pts/GD/GF; rsa has fairPlay=-2, bih has fairPlay=0
     // → bih must rank above rsa despite rsa having a better FIFA rank
     expect(bihIdx).toBeLessThan(rsaIdx)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// rankThirdPlacedLive
+// ---------------------------------------------------------------------------
+
+describe('rankThirdPlacedLive', () => {
+  it('returns 12 teams and final: false when no matches have been played', () => {
+    const { ranked, final } = rankThirdPlacedLive({})
+    expect(ranked).toHaveLength(12)
+    expect(final).toBe(false)
+  })
+
+  it('returns 12 teams and final: false when only some groups are complete', () => {
+    const partial: Record<string, Result> = {}
+    groupMatches
+      .filter((m) => m.group === 'A')
+      .forEach((m) => {
+        partial[m.id] = makeResult(m.id, 1, 0)
+      })
+    const { ranked, final } = rankThirdPlacedLive(partial)
+    expect(ranked).toHaveLength(12)
+    expect(final).toBe(false)
+  })
+
+  it('returns final: true and the same order as rankThirdPlaced once all groups are complete', () => {
+    const results = allGroupResults(1, 0)
+    const { ranked, final } = rankThirdPlacedLive(results)
+    expect(final).toBe(true)
+    expect(ranked.map((s) => s.team.id)).toEqual(rankThirdPlaced(results)!.map((s) => s.team.id))
+  })
+
+  it('includes exactly one team from every group even before any match is played', () => {
+    const { ranked } = rankThirdPlacedLive({})
+    const groups = ranked.map((s) => s.team.group)
+    expect(new Set(groups).size).toBe(12)
   })
 })
 
