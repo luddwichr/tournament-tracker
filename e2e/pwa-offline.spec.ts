@@ -1,5 +1,9 @@
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 import { test, expect } from '@playwright/test'
 import { AppNav, GroupsPage, KnockoutPage, SettingsPage } from './support'
+
+const indexHtmlPath = path.resolve(import.meta.dirname, '..', 'dist', 'index.html')
 
 /**
  * PWA offline tests — run against the production build via `npm run preview`.
@@ -53,8 +57,45 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   await expect(page).toHaveURL(/\/settings$/)
   await settings.expectLoaded()
 
-  // Full navigation while offline — SW serves index.html from cache via navigateFallback.
+  // Full navigation while offline — SW serves the cached shell (NetworkFirst
+  // falls back to the 'pages' cache when the network is unreachable).
   await page.goto('/')
   await expect(page).toHaveURL(/\/groups$/)
   await groups.expectLoaded()
+})
+
+test('reload fetches a new deploy over the network instead of a stale cache', async ({ context, page }) => {
+  const originalHtml = await fs.readFile(indexHtmlPath, 'utf-8')
+  const marker = 'e2e-deploy-marker'
+
+  try {
+    // --- Phase 1: prime the SW cache with the current build (online) ---
+    await page.goto('/')
+    await new GroupsPage(page).expectLoaded()
+    await page.waitForLoadState('networkidle')
+    await page.evaluate(() => navigator.serviceWorker.ready)
+
+    // --- Phase 2: simulate a new deploy by rewriting the served index.html,
+    // then reload while still online. NetworkFirst must hit the network and
+    // pick up the new file rather than reusing the shell cached in phase 1.
+    await fs.writeFile(
+      indexHtmlPath,
+      originalHtml.replace('<head>', `<head>\n    <meta name="${marker}" content="v2">`),
+    )
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+
+    await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
+    await new GroupsPage(page).expectLoaded()
+
+    // --- Phase 3: the freshly-fetched shell is now cached — verify it (not
+    // the phase-1 shell) is what NetworkFirst falls back to when offline.
+    await context.setOffline(true)
+    await page.reload()
+
+    await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
+    await new GroupsPage(page).expectLoaded()
+  } finally {
+    await fs.writeFile(indexHtmlPath, originalHtml)
+  }
 })
