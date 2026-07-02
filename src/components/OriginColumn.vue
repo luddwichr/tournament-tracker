@@ -96,7 +96,7 @@ const groupData = computed(() =>
 
 <style scoped>
 .origin-column {
-  width: 17rem;
+  width: 13rem;
   flex-shrink: 0;
   /* surface-card applied via shared class in base.css */
   display: flex;

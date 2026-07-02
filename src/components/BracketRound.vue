@@ -52,7 +52,7 @@ const emit = defineEmits<{
 
 <style scoped>
 .bracket-round {
-  width: 26rem;
+  width: 18rem;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;

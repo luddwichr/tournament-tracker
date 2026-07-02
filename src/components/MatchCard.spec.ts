@@ -4,6 +4,7 @@ import MatchCard from './MatchCard.vue'
 import MatchCardMeta from './MatchCardMeta.vue'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import MatchScoreButton from './MatchScoreButton.vue'
+import CardIcon from './icons/CardIcon.vue'
 import type { Result } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
@@ -17,10 +18,10 @@ const result: Result = {
   matchId: 'M73',
   homeGoals: 2,
   awayGoals: 1,
-  homeYellow: 0,
+  homeYellow: 1,
   homeRed: 0,
-  awayYellow: 0,
-  awayRed: 0,
+  awayYellow: 2,
+  awayRed: 1,
 }
 
 type Props = InstanceType<typeof MatchCard>['$props']
@@ -41,6 +42,22 @@ describe('MatchCard – composition', () => {
     const slots = mountCard().findAllComponents(MatchTeamSlot)
     expect(slots[0]!.props()).toMatchObject({ team: homeTeam, side: 'home' })
     expect(slots[1]!.props()).toMatchObject({ team: awayTeam, side: 'away' })
+  })
+
+  it('shows a card icon per non-zero count, centered next to the score', () => {
+    const icons = mountCard({ result }).findAllComponents(CardIcon)
+    // home: 1 yellow; away: 2 yellow + 1 red
+    expect(icons.map((i) => [i.props('color'), i.props('count')])).toEqual([
+      ['yellow', 1],
+      ['yellow', 2],
+      ['red', 1],
+    ])
+  })
+
+  it('shows no card icons when there are no bookings', () => {
+    expect(
+      mountCard({ result: { ...result, homeYellow: 0, awayYellow: 0, awayRed: 0 } }).findAllComponents(CardIcon),
+    ).toHaveLength(0)
   })
 })
 

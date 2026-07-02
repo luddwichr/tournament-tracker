@@ -4,6 +4,7 @@ import type { MatchSlot, Team, Result } from '../types/tournament'
 import MatchCardMeta from './MatchCardMeta.vue'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import MatchScoreButton from './MatchScoreButton.vue'
+import CardIcon from './icons/CardIcon.vue'
 
 const props = defineProps<{
   match: MatchSlot
@@ -61,15 +62,41 @@ const ariaLabel = computed(() => {
       <MatchTeamSlot
         :team="homeTeam"
         side="home"
+        class="match-card__team match-card__team--home"
         :placeholder="homePlaceholder ?? '?'"
         @placeholder-click="emit('placeholderClick', 'home')"
       />
-      <MatchScoreButton :result="result ?? null" :label="ariaLabel" :disabled="blocked" @click="emit('click')" />
+      <span
+        v-if="result?.homeYellow || result?.homeRed"
+        class="match-card__cards match-card__cards--home"
+        aria-hidden="true"
+      >
+        <CardIcon v-if="result?.homeYellow" color="yellow" :count="result.homeYellow" class="match-card__card-icon" />
+        <CardIcon v-if="result?.homeRed" color="red" :count="result.homeRed" class="match-card__card-icon" />
+      </span>
+
       <MatchTeamSlot
         :team="awayTeam"
         side="away"
+        class="match-card__team match-card__team--away"
         :placeholder="awayPlaceholder ?? '?'"
         @placeholder-click="emit('placeholderClick', 'away')"
+      />
+      <span
+        v-if="result?.awayYellow || result?.awayRed"
+        class="match-card__cards match-card__cards--away"
+        aria-hidden="true"
+      >
+        <CardIcon v-if="result?.awayYellow" color="yellow" :count="result.awayYellow" class="match-card__card-icon" />
+        <CardIcon v-if="result?.awayRed" color="red" :count="result.awayRed" class="match-card__card-icon" />
+      </span>
+
+      <MatchScoreButton
+        class="match-card__score"
+        :result="result ?? null"
+        :label="ariaLabel"
+        :disabled="blocked"
+        @click="emit('click')"
       />
     </div>
   </div>
@@ -96,17 +123,59 @@ const ariaLabel = computed(() => {
   border-style: dashed;
 }
 
-/* Teams size to content (equal 1fr gutters keep the button centered); the whole
-   body is the click target via onBodyClick, so the gutters open the score dialog */
+/* Each team is its own row (name, cards, goal); the score button spans both
+   rows so it sits vertically centered between them. The whole body is the
+   click target via onBodyClick, so the gutters open the score dialog. */
 .match-card__body {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: stretch;
-  gap: var(--space-1);
+  grid-template-columns: 1fr auto auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--space-2);
+  row-gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
   font-size: var(--font-size-sm);
 }
 
 .match-card:not(.match-card--blocked) .match-card__body {
   cursor: pointer;
+}
+
+.match-card__team--home {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.match-card__team--away {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.match-card__cards {
+  display: flex;
+  align-items: center;
+  gap: 0.15em;
+}
+
+.match-card__cards--home {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.match-card__cards--away {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.match-card__card-icon {
+  width: 0.7rem;
+  height: 0.93rem;
+}
+
+.match-card__score {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: stretch;
 }
 </style>

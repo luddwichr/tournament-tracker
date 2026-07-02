@@ -30,15 +30,7 @@ const emit = defineEmits<{ placeholderClick: [] }>()
 .match-team-slot {
   display: flex;
   align-items: center;
-  align-self: center;
-}
-
-.match-team-slot--away {
-  justify-content: flex-end;
-}
-
-.match-team-slot--away :deep(.team-label) {
-  flex-direction: row-reverse;
+  min-width: 0;
 }
 
 .match-team-slot__placeholder {
