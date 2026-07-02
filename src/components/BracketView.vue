@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
+import { computed, onMounted, useTemplateRef } from 'vue'
 import type { MatchSlot } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
-import { resolveTeamRef } from '../lib/knockout'
+import { currentBracketColumn, resolveTeamRef, type BracketColumnStage } from '../lib/knockout'
 import { teamRefLabel } from '../lib/bracket-labels'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
 import BracketConnectors from './BracketConnectors.vue'
@@ -37,12 +37,14 @@ const stageRounds = [
 
 interface Round {
   title: string
+  stage: BracketColumnStage
   matches: MatchRow[]
 }
 
 const rounds = computed((): Round[] => {
   const groups: Round[] = stageRounds.map(({ title, stage }) => ({
     title,
+    stage,
     matches: knockoutMatches
       .filter((m) => m.stage === stage)
       .toSorted((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
@@ -53,6 +55,7 @@ const rounds = computed((): Round[] => {
   const finalMatch = knockoutMatches.find((m) => m.stage === 'final')!
   groups.push({
     title: 'Finale',
+    stage: 'final',
     matches: [toRow(thirdMatch, 'Spiel um Platz 3'), toRow(finalMatch, 'Finale')],
   })
 
@@ -81,6 +84,14 @@ const {
   onTeamRefHoverEnd,
   toggleMatchPin,
 } = useBracketHighlight(roundsEl, bracketViewEl)
+
+onMounted(() => {
+  const stage = currentBracketColumn(store.results)
+  if (!stage) return
+  roundsEl.value
+    ?.querySelector<HTMLElement>(`[data-stage="${stage}"]`)
+    ?.scrollIntoView({ inline: 'start', block: 'nearest' })
+})
 </script>
 
 <template>
@@ -95,6 +106,7 @@ const {
         v-for="round in rounds"
         :key="round.title"
         :title="round.title"
+        :stage="round.stage"
         :matches="round.matches"
         :highlighted-match-ids="highlightedMatchIds"
         :pinned-match-id="pinnedMatchId"

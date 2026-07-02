@@ -8,6 +8,9 @@ import BracketConnectors from './BracketConnectors.vue'
 import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import type { MatchRow } from './BracketRound.vue'
+import { useTournamentStore } from '../stores/tournament'
+import { allGroupResults, makeResult } from '../test-support/results'
+import { knockoutMatches } from '../data/fixtures-2026'
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -15,6 +18,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
     this.dispatchEvent(new Event('close'))
   })
+  HTMLElement.prototype.scrollIntoView = vi.fn()
 })
 
 describe('BracketView – structure', () => {
@@ -125,5 +129,30 @@ describe('BracketView – Finale section labels', () => {
     const finale = wrapper.findAllComponents(BracketRound)[4]!
     const matches = finale.props('matches') as Array<{ sectionLabel?: string }>
     expect(matches[1]!.sectionLabel).toBe('Finale')
+  })
+})
+
+describe('BracketView – scroll to current round on mount', () => {
+  it('does not scroll while the group stage is still ongoing', () => {
+    mount(BracketView, { attachTo: document.body })
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('scrolls the r32 round into view once the group stage completes', () => {
+    useTournamentStore().importResults(allGroupResults(1, 0))
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const r32Section = wrapper.findAllComponents(BracketRound)[0]!.find('section').element
+    expect(r32Section.scrollIntoView).toHaveBeenCalledWith({ inline: 'start', block: 'nearest' })
+  })
+
+  it('scrolls the Finale round into view once every knockout match is played', () => {
+    const results = allGroupResults(1, 0)
+    for (const m of knockoutMatches) {
+      results[m.id] = makeResult(m.id, 2, 1)
+    }
+    useTournamentStore().importResults(results)
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const finaleSection = wrapper.findAllComponents(BracketRound)[4]!.find('section').element
+    expect(finaleSection.scrollIntoView).toHaveBeenCalledWith({ inline: 'start', block: 'nearest' })
   })
 })

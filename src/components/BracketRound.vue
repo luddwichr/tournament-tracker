@@ -14,6 +14,7 @@ export interface MatchRow {
 
 defineProps<{
   title: string
+  stage: string
   matches: MatchRow[]
   highlightedMatchIds?: readonly string[]
   pinnedMatchId?: string | null
@@ -29,7 +30,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section class="bracket-round surface-card" :aria-label="title">
+  <section class="bracket-round surface-card" :aria-label="title" :data-stage="stage">
     <header class="bracket-round__header sticky-card-header">
       <h2 class="bracket-round__title">{{ title }}</h2>
     </header>

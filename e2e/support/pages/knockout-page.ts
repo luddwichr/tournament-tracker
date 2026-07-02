@@ -35,6 +35,14 @@ export class KnockoutPage {
     await this.round(index).waitFor()
   }
 
+  bracketView(): Locator {
+    return this.page.locator('.bracket-view')
+  }
+
+  async bracketScrollLeft(): Promise<number> {
+    return this.bracketView().evaluate((el) => el.scrollLeft)
+  }
+
   allMatchCards(): Locator {
     return this.page.locator('.match-card')
   }

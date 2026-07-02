@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { KnockoutPage, allGroupResults, clearResults, expectNoA11yViolations, seedResults } from './support'
+import { KnockoutPage, allGroupResults, clearResults, expectNoA11yViolations, makeResult, seedResults } from './support'
+import { knockoutMatches } from '../src/data/fixtures-2026'
 
 const { R32, R16 } = KnockoutPage
 
@@ -169,4 +170,37 @@ test('knockout view with group results has no detectable accessibility violation
   await seedResults(page, allGroupResults())
   await knockout.goto()
   await expectNoA11yViolations(page)
+})
+
+// ---------------------------------------------------------------------------
+// Scroll to the currently ongoing round on load
+// ---------------------------------------------------------------------------
+
+test('does not scroll away from R32 while the group stage is still ongoing', async () => {
+  await knockout.goto()
+  await knockout.waitForRound(R32)
+  expect(await knockout.bracketScrollLeft()).toBe(0)
+})
+
+test('scrolls to Halbfinale once R32, R16 and QF are decided', async ({ page }) => {
+  const results = allGroupResults()
+  for (const m of knockoutMatches.filter((m) => m.stage === 'r32' || m.stage === 'r16' || m.stage === 'qf')) {
+    results[m.id] = makeResult(m.id, 2, 1)
+  }
+  await seedResults(page, results)
+  await knockout.goto()
+
+  await expect(knockout.roundHeading('Halbfinale')).toBeInViewport()
+  await expect(knockout.roundHeading('Runde der 32')).not.toBeInViewport()
+})
+
+test('scrolls to Finale once every knockout match has been decided', async ({ page }) => {
+  const results = allGroupResults()
+  for (const m of knockoutMatches) {
+    results[m.id] = makeResult(m.id, 2, 1)
+  }
+  await seedResults(page, results)
+  await knockout.goto()
+
+  await expect(knockout.roundHeading('Finale')).toBeInViewport()
 })

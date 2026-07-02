@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
-import { resolveTeamRef, canEnterResult } from './knockout'
+import { resolveTeamRef, canEnterResult, currentBracketColumn } from './knockout'
 import { makeResult, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
@@ -253,5 +253,46 @@ describe('full bracket propagation', () => {
     const m89 = knockoutMatches.find((m) => m.id === 'M89')!
     // M89 homeRef is winner(M74) which is unresolved — canEnterResult must be false.
     expect(canEnterResult(m89, results)).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// currentBracketColumn
+// ---------------------------------------------------------------------------
+
+describe('currentBracketColumn', () => {
+  it('returns null while the group stage is still ongoing', () => {
+    expect(currentBracketColumn({})).toBeNull()
+    const partial = allGroupResults(1, 0)
+    delete partial['M72']
+    expect(currentBracketColumn(partial)).toBeNull()
+  })
+
+  it('returns r32 once the group stage completes and no knockout match has been played', () => {
+    expect(currentBracketColumn(allGroupResults(1, 0))).toBe('r32')
+  })
+
+  it('returns r16 once every r32 match has a result', () => {
+    const results = allGroupResults(1, 0)
+    for (const m of knockoutMatches.filter((m) => m.stage === 'r32')) {
+      results[m.id] = makeResult(m.id, 2, 1)
+    }
+    expect(currentBracketColumn(results)).toBe('r16')
+  })
+
+  it('returns final once the third-place match is played but the final is not', () => {
+    const results = allGroupResults(1, 0)
+    for (const m of knockoutMatches.filter((m) => m.stage !== 'final')) {
+      results[m.id] = makeResult(m.id, 2, 1)
+    }
+    expect(currentBracketColumn(results)).toBe('final')
+  })
+
+  it('returns final once every knockout match, including the final, has been played', () => {
+    const results = allGroupResults(1, 0)
+    for (const m of knockoutMatches) {
+      results[m.id] = makeResult(m.id, 2, 1)
+    }
+    expect(currentBracketColumn(results)).toBe('final')
   })
 })

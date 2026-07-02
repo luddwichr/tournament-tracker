@@ -9,8 +9,9 @@
  * must enter the decisive score (e.g. the AET score when extra time settled it).
  */
 
-import type { MatchSlot, TeamRef, Team, Result } from '../types/tournament'
-import { fixtures } from '../data/fixtures-2026'
+import type { MatchSlot, Stage, TeamRef, Team, Result } from '../types/tournament'
+import { GROUP_IDS } from '../types/tournament'
+import { fixtures, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
 import { computeGroupStandings, isGroupComplete } from './standings'
 import { resolveThirdPlaceSlot } from './third-place'
@@ -67,4 +68,33 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
  */
 export function canEnterResult(match: MatchSlot, results: Record<string, Result>): boolean {
   return resolveTeamRef(match.homeRef, results) !== null && resolveTeamRef(match.awayRef, results) !== null
+}
+
+/** A bracket column as rendered in `BracketView` — the third-place and final matches share one column. */
+export type BracketColumnStage = 'r32' | 'r16' | 'qf' | 'sf' | 'final'
+
+const COLUMN_STAGE_ORDER: readonly BracketColumnStage[] = ['r32', 'r16', 'qf', 'sf', 'final']
+
+const COLUMN_MATCH_STAGES: Record<BracketColumnStage, readonly Stage[]> = {
+  r32: ['r32'],
+  r16: ['r16'],
+  qf: ['qf'],
+  sf: ['sf'],
+  final: ['third', 'final'],
+}
+
+/**
+ * The bracket column to scroll to when opening the knockout view: the
+ * earliest column that still has an unplayed match. Returns null while the
+ * group stage is still ongoing (the bracket isn't the focus yet), and
+ * 'final' once every knockout match has been decided.
+ */
+export function currentBracketColumn(results: Record<string, Result>): BracketColumnStage | null {
+  if (!GROUP_IDS.every((group) => isGroupComplete(group, results))) return null
+
+  return (
+    COLUMN_STAGE_ORDER.find((column) =>
+      knockoutMatches.some((m) => COLUMN_MATCH_STAGES[column].includes(m.stage) && results[m.id] == null),
+    ) ?? 'final'
+  )
 }

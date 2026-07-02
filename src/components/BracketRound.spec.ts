@@ -24,6 +24,7 @@ function mountRound(overrides: Partial<Props> = {}) {
   return mount(BracketRound, {
     props: {
       title: 'Achtelfinale',
+      stage: 'r16',
       matches: [makeRow('M73'), makeRow('M74')],
       ...overrides,
     },
@@ -40,6 +41,11 @@ describe('BracketRound – structure', () => {
   it('renders the title in the header', () => {
     const wrapper = mountRound()
     expect(wrapper.find('h2').text()).toBe('Achtelfinale')
+  })
+
+  it('sets data-stage on the section for scroll targeting', () => {
+    const wrapper = mountRound({ stage: 'qf' })
+    expect(wrapper.find('section').attributes('data-stage')).toBe('qf')
   })
 
   it('renders one BracketMatchItem per match', () => {
