@@ -1,17 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import SettingsView from './SettingsView.vue'
 import { useSettingsStore } from '../stores/settings'
 import { useTournamentStore } from '../stores/tournament'
 import * as persistence from '../lib/persistence'
+import { syncResults } from '../lib/results-sync'
 import ThemePicker from '../components/ThemePicker.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import SyncDialog from '../components/SyncDialog.vue'
 
 vi.mock('../lib/persistence', () => ({
   exportJson: vi.fn(),
   parseImport: vi.fn(),
   SCHEMA_VERSION: 1,
+}))
+
+vi.mock('../lib/results-sync', () => ({
+  syncResults: vi.fn(),
 }))
 
 beforeEach(() => {
@@ -206,5 +212,69 @@ describe('SettingsView – reset', () => {
     await wrapper.find('dialog').trigger('close')
     expect(resetSpy).not.toHaveBeenCalled()
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
+  })
+})
+
+function clickSync(wrapper: ReturnType<typeof mountView>) {
+  return wrapper
+    .findAll('button')
+    .find((b) => b.text() === 'Ergebnisse abrufen')!
+    .trigger('click')
+}
+
+function dialogButton(wrapper: ReturnType<typeof mountView>, text: string) {
+  return wrapper
+    .findComponent(SyncDialog)
+    .findAll('button')
+    .find((b) => b.text().includes(text))!
+    .trigger('click')
+}
+
+const oneResult = {
+  M01: { matchId: 'M01', homeGoals: 2, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+}
+
+describe('SettingsView – sync results', () => {
+  it('opens the sync dialog in the confirm state', async () => {
+    const wrapper = mountView()
+    await clickSync(wrapper)
+    expect(wrapper.findComponent(SyncDialog).exists()).toBe(true)
+    expect(wrapper.find('.base-dialog__title').text()).toBe('Ergebnisse abrufen')
+  })
+
+  it('confirming runs the sync and applies the results', async () => {
+    const store = useTournamentStore()
+    vi.mocked(syncResults).mockResolvedValue(oneResult)
+
+    const wrapper = mountView()
+    await clickSync(wrapper)
+    await dialogButton(wrapper, 'Abrufen & ersetzen')
+    await flushPromises()
+
+    expect(store.results).toEqual(oneResult)
+    expect(wrapper.findComponent(SyncDialog).text()).toContain('aktualisiert')
+  })
+
+  it('shows an error and can retry to success', async () => {
+    vi.mocked(syncResults).mockRejectedValueOnce(new Error('Netzfehler')).mockResolvedValueOnce(oneResult)
+
+    const wrapper = mountView()
+    await clickSync(wrapper)
+    await dialogButton(wrapper, 'Abrufen & ersetzen')
+    await flushPromises()
+    expect(wrapper.find('.sync-dialog__error').text()).toBe('Netzfehler')
+
+    await dialogButton(wrapper, 'Erneut versuchen')
+    await flushPromises()
+    expect(wrapper.findComponent(SyncDialog).text()).toContain('aktualisiert')
+  })
+
+  it('cancelling closes the dialog without syncing', async () => {
+    const wrapper = mountView()
+    await clickSync(wrapper)
+    await dialogButton(wrapper, 'Abbrechen')
+    await flushPromises()
+    expect(vi.mocked(syncResults)).not.toHaveBeenCalled()
+    expect(wrapper.findComponent(SyncDialog).exists()).toBe(false)
   })
 })

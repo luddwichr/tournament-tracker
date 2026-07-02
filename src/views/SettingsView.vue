@@ -4,11 +4,22 @@ import type { Result } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useSettingsStore } from '../stores/settings'
 import { exportJson, parseImport } from '../lib/persistence'
+import { useResultsSync } from '../composables/use-results-sync'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import SyncDialog from '../components/SyncDialog.vue'
 import ThemePicker from '../components/ThemePicker.vue'
 
 const store = useTournamentStore()
 const settings = useSettingsStore()
+const {
+  status: syncStatus,
+  progress: syncProgress,
+  error: syncError,
+  count: syncCount,
+  open: openSync,
+  run: runSync,
+  cancel: cancelSync,
+} = useResultsSync((results) => store.importResults(results))
 
 type PendingAction = { kind: 'reset' } | { kind: 'import'; results: Record<string, Result> }
 
@@ -66,9 +77,10 @@ function handleReset(): void {
 }
 
 function handleConfirm(): void {
-  if (pending.value?.kind === 'import') store.importResults(pending.value.results)
-  if (pending.value?.kind === 'reset') store.reset()
+  const action = pending.value
   pending.value = null
+  if (action?.kind === 'import') store.importResults(action.results)
+  else if (action?.kind === 'reset') store.reset()
 }
 
 function handleCancel(): void {
@@ -92,6 +104,7 @@ function handleCancel(): void {
         <div class="settings-view__actions">
           <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
           <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
+          <button type="button" class="settings-view__btn" @click="openSync">Ergebnisse abrufen</button>
           <button type="button" class="settings-view__btn btn--danger" @click="handleReset">Zurücksetzen</button>
         </div>
 
@@ -119,6 +132,17 @@ function handleCancel(): void {
     :confirm-label="confirmConfig.confirmLabel"
     @confirm="handleConfirm"
     @cancel="handleCancel"
+  />
+
+  <SyncDialog
+    v-if="syncStatus !== 'idle'"
+    :status="syncStatus"
+    :progress="syncProgress"
+    :error="syncError"
+    :count="syncCount"
+    @confirm="runSync"
+    @retry="runSync"
+    @cancel="cancelSync"
   />
 </template>
 
