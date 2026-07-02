@@ -114,6 +114,19 @@ describe('OriginColumn', () => {
     expect(wrapper.emitted('teamRefHoverEnd')).toHaveLength(1)
   })
 
+  it('rows with a refKey show a link icon', () => {
+    const wrapper = mount(OriginColumn)
+    const rows = wrapper.findAll('.origin-column__group')[0]!.findAll('.origin-column__team-row')
+    expect(rows[0]!.find('.origin-column__link-icon').exists()).toBe(true)
+    expect(rows[1]!.find('.origin-column__link-icon').exists()).toBe(true)
+  })
+
+  it('rank-3 row has no link icon when groups are not complete', () => {
+    const wrapper = mount(OriginColumn)
+    const rows = wrapper.findAll('.origin-column__group')[0]!.findAll('.origin-column__team-row')
+    expect(rows[2]!.find('.origin-column__link-icon').exists()).toBe(false)
+  })
+
   it('group labels read "Gruppe A" through "Gruppe L"', () => {
     const wrapper = mount(OriginColumn)
     const labels = wrapper.findAll('.origin-column__group-label').map((el) => el.text())

@@ -6,6 +6,7 @@ import { useTournamentStore } from '../stores/tournament'
 import { computeGroupStandings } from '../lib/standings'
 import { rankThirdPlaced, buildGroupToThirdPlaceSlotMap } from '../lib/third-place'
 import TeamFlag from './TeamFlag.vue'
+import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 
 defineProps<{
   highlightedRefs?: readonly string[]
@@ -87,6 +88,7 @@ const groupData = computed(() =>
           <span class="origin-column__rank" aria-hidden="true">{{ row.rank }}</span>
           <TeamFlag :flag-code="row.team.flagCode" size="1.25rem" />
           <span class="origin-column__name">{{ row.team.name }}</span>
+          <MatchLinkIcon v-if="row.refKey" class="origin-column__link-icon" />
           <span v-if="row.eliminated" class="visually-hidden">(ausgeschieden)</span>
         </div>
       </div>
@@ -196,11 +198,17 @@ const groupData = computed(() =>
 }
 
 .origin-column__name {
+  flex: 1;
   font-size: var(--font-size-sm);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+
+.origin-column__link-icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 </style>
