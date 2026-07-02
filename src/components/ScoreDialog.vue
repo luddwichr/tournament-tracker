@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, ref, watch } from 'vue'
+import { useTemplateRef, ref, computed, watch } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
@@ -17,13 +17,29 @@ const emit = defineEmits<{ close: [] }>()
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const close = () => baseDialog.value?.close()
 
-const { homeGoals, awayGoals, homeYellow, homeRed, awayYellow, awayRed, knockoutDraw, title, initial, save, clear } =
-  useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
+const {
+  homeGoals,
+  awayGoals,
+  homeYellow,
+  homeRed,
+  awayYellow,
+  awayRed,
+  knockoutDraw,
+  title,
+  initial,
+  save,
+  clear,
+  fetchStatus,
+  fetchError,
+  fetchLive,
+} = useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
 
 const showDrawError = ref(false)
 watch(knockoutDraw, (isDraw) => {
   if (!isDraw) showDrawError.value = false
 })
+
+const isPastKickoff = computed(() => new Date(props.match.kickoff).getTime() <= Date.now())
 </script>
 
 <template>
@@ -46,6 +62,29 @@ watch(knockoutDraw, (isDraw) => {
         v-model:away-yellow="awayYellow"
         v-model:away-red="awayRed"
       />
+
+      <template v-if="isPastKickoff">
+        <button
+          type="button"
+          class="btn btn--secondary score-dialog__fetch"
+          :disabled="fetchStatus === 'loading'"
+          @click="fetchLive"
+        >
+          <span class="score-dialog__btn-symbol" aria-hidden="true">🔄</span>
+          {{ fetchStatus === 'loading' ? 'Ergebnis wird geholt …' : 'Ergebnis holen' }}
+        </button>
+
+        <p v-if="fetchStatus === 'not-found'" class="score-dialog__fetch-message" role="status">
+          Kein Live-Ergebnis gefunden.
+        </p>
+        <p
+          v-else-if="fetchStatus === 'error'"
+          class="score-dialog__fetch-message score-dialog__fetch-message--error"
+          role="alert"
+        >
+          {{ fetchError }}
+        </p>
+      </template>
     </div>
 
     <template #footer>
@@ -100,6 +139,21 @@ watch(knockoutDraw, (isDraw) => {
 
 .score-dialog__btn-symbol {
   margin-right: 0.3em;
+}
+
+.score-dialog__fetch {
+  align-self: center;
+}
+
+.score-dialog__fetch-message {
+  margin: calc(-1 * var(--space-2)) 0 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.score-dialog__fetch-message--error {
+  color: var(--color-loss);
 }
 
 .score-dialog__footer-actions {

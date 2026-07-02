@@ -2,6 +2,9 @@ import { ref, computed } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from './use-announce'
+import { syncResults } from '../lib/results-sync'
+
+export type FetchLiveStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'
 
 export function useMatchResultForm(match: MatchSlot, homeTeam: Team, awayTeam: Team) {
   const store = useTournamentStore()
@@ -40,6 +43,36 @@ export function useMatchResultForm(match: MatchSlot, homeTeam: Team, awayTeam: T
     close()
   }
 
+  const fetchStatus = ref<FetchLiveStatus>('idle')
+  const fetchError = ref<string | null>(null)
+
+  /** Looks up the live result for just this match and fills the fields with
+   * it, leaving the user to review and press "Speichern" — nothing is
+   * written to the store here, so there's nothing to warn about overwriting. */
+  async function fetchLive(): Promise<void> {
+    fetchStatus.value = 'loading'
+    fetchError.value = null
+    try {
+      const results = await syncResults()
+      const result = results[match.id]
+      if (!result) {
+        fetchStatus.value = 'not-found'
+        return
+      }
+      homeGoals.value = result.homeGoals
+      awayGoals.value = result.awayGoals
+      homeYellow.value = result.homeYellow
+      homeRed.value = result.homeRed
+      awayYellow.value = result.awayYellow
+      awayRed.value = result.awayRed
+      fetchStatus.value = 'success'
+      announce(`Live-Ergebnis übernommen: ${homeTeam.name} ${result.homeGoals} : ${result.awayGoals} ${awayTeam.name}`)
+    } catch (e) {
+      fetchError.value = e instanceof Error ? e.message : 'Abruf fehlgeschlagen.'
+      fetchStatus.value = 'error'
+    }
+  }
+
   return {
     homeGoals,
     awayGoals,
@@ -52,5 +85,8 @@ export function useMatchResultForm(match: MatchSlot, homeTeam: Team, awayTeam: T
     initial,
     save,
     clear,
+    fetchStatus,
+    fetchError,
+    fetchLive,
   }
 }

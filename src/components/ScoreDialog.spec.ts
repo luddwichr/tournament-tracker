@@ -1,10 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ScoreDialog from './ScoreDialog.vue'
 import { useTournamentStore } from '../stores/tournament'
 import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
+import { syncResults } from '../lib/results-sync'
+
+vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
 
 const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
@@ -30,6 +33,7 @@ function mountDialog(match = groupMatch) {
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  vi.clearAllMocks()
   HTMLDialogElement.prototype.showModal = vi.fn()
   HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
     this.dispatchEvent(new Event('close'))
@@ -79,7 +83,8 @@ describe('ScoreDialog', () => {
   it('clicking "Abbrechen" closes without saving', async () => {
     const store = useTournamentStore()
     const wrapper = mountDialog()
-    await wrapper.find('.btn--secondary').trigger('click')
+    const btn = wrapper.findAll('.btn--secondary').find((b) => b.text().includes('Abbrechen'))
+    await btn!.trigger('click')
     expect(store.results['M01']).toBeUndefined()
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
@@ -151,6 +156,70 @@ describe('ScoreDialog', () => {
       await btn!.trigger('click')
       await wrapper.find('.btn--primary').trigger('click')
       expect(store.results['M01']).toMatchObject({ awayRed: 1 })
+    })
+  })
+
+  describe('live result fetch', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-02T12:00:00Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('hides the fetch button before kickoff', () => {
+      const future = makeMatch({ id: 'M99', kickoff: '2026-07-03T18:00:00+02:00' })
+      const wrapper = mountDialog(future)
+      expect(wrapper.find('.score-dialog__fetch').exists()).toBe(false)
+    })
+
+    it('shows the fetch button once kickoff has passed', () => {
+      const past = makeMatch({ id: 'M98', kickoff: '2026-07-01T18:00:00+02:00' })
+      const wrapper = mountDialog(past)
+      expect(wrapper.find('.score-dialog__fetch').exists()).toBe(true)
+    })
+
+    it('fills the fields from the fetched result without saving to the store', async () => {
+      const store = useTournamentStore()
+      vi.mocked(syncResults).mockResolvedValue({
+        M01: { matchId: 'M01', homeGoals: 3, awayGoals: 1, homeYellow: 1, homeRed: 0, awayYellow: 2, awayRed: 1 },
+      })
+      const wrapper = mountDialog()
+
+      await wrapper.find('.score-dialog__fetch').trigger('click')
+      await flushPromises()
+
+      expect(store.results['M01']).toBeUndefined()
+      await wrapper.find('.btn--primary').trigger('click')
+      expect(store.results['M01']).toMatchObject({
+        homeGoals: 3,
+        awayGoals: 1,
+        homeYellow: 1,
+        awayYellow: 2,
+        awayRed: 1,
+      })
+    })
+
+    it('shows a message when no live result is found', async () => {
+      vi.mocked(syncResults).mockResolvedValue({})
+      const wrapper = mountDialog()
+
+      await wrapper.find('.score-dialog__fetch').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('.score-dialog__fetch-message').text()).toBe('Kein Live-Ergebnis gefunden.')
+    })
+
+    it('shows the error message when the fetch fails', async () => {
+      vi.mocked(syncResults).mockRejectedValue(new Error('Netzfehler'))
+      const wrapper = mountDialog()
+
+      await wrapper.find('.score-dialog__fetch').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('.score-dialog__fetch-message--error').text()).toBe('Netzfehler')
     })
   })
 
