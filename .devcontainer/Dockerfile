@@ -53,6 +53,9 @@ USER ${USERNAME}
 # Pre-install Playwright browsers
 RUN npx playwright@${PLAYWRIGHT_VERSION} install
 
+# Install playwright cli
+RUN npm install -g @playwright/cli@latest
+
 # install uv (Python package manager)
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
   && uv python install ${PYTHON_VERSION} --default

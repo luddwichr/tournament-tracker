@@ -10,6 +10,9 @@ coverage/
 playwright-report/
 test-results/
 
+# Debugging artifacts
+.playwright-cli
+
 # Editor / OS
 .DS_Store
 *.local
