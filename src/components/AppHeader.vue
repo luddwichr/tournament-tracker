@@ -22,7 +22,7 @@ function handleKeydown(e: KeyboardEvent): void {
 <template>
   <header class="app-header" @keydown="handleKeydown">
     <div class="app-header__bar">
-      <p class="app-header__title">⚽ WM 2026 Tracker</p>
+      <p class="app-header__title"><span class="app-header__ball" aria-hidden="true">⚽</span> WM 2026 Tracker</p>
       <button
         class="app-header__burger"
         type="button"
@@ -61,6 +61,23 @@ function handleKeydown(e: KeyboardEvent): void {
   margin: 0;
   font-size: var(--font-size-lg);
   font-weight: 700;
+}
+
+.app-header__ball {
+  display: inline-block;
+  animation: app-header-ball-spin 2.4s linear infinite;
+}
+
+@keyframes app-header-ball-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header__ball {
+    animation: none;
+  }
 }
 
 .app-header__burger {
