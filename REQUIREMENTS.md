@@ -246,14 +246,27 @@ composable). Each unresolved slot offers a "Mögliche Teams" affordance opening
 
 Full FIFA ranking table (rang / Mannschaft / Punkte, de-DE number format). WC
 2026 participants get a tinted row + left accent strip (color paired with bold
-name/flag, never color-alone) and a clickable squad link.
+name/flag, never color-alone) and a clickable team-dialog link.
 
-### 7.5 Squad viewer
+### 7.5 Team dialog
 
-`TeamLabel` with `clickable` renders as a `<button>` (`aria-label="… – Kader
-anzeigen"`) opening `SquadDialog` (native `<dialog>`, flag+name header,
-scrollable focusable `SquadList` table: Nr / Position / Name with German position
-labels Torwart/Abwehr/Mittelfeld/Sturm). Used from standings and ranking rows.
+`TeamLabel` with `clickable` renders as a `<button>` (`aria-label="… – Details
+anzeigen"`) opening `TeamDialog` (native `<dialog>`, flag+name+FIFA-ranking
+header, scrollable focusable body). Used from standings and ranking rows.
+
+Two tabs, "Team" selected by default:
+
+- **Team** — overall stats row (Sp/S/U/N/Tore/Gegentore/Gelb/Rot, aggregated
+  across all played matches including knockouts) above the `SquadList` roster
+  table: Nr / Position / Name with German position labels
+  Torwart/Abwehr/Mittelfeld/Sturm.
+- **Spielplan** — the team's matches (`TeamSchedule`), latest kickoff first,
+  each preceded by a stage label ("Gruppenspiel 2/3", "Achtelfinale", …).
+  Reuses `MatchCard` with `hide-link-icon` (no connector icon, no datetime
+  highlight toggle) but keeps the normal click-to-edit behaviour, opening
+  `ScoreDialog` nested on top. Knockout matches only appear once this team's
+  side of the bracket resolves to it; the other side may still show a
+  placeholder.
 
 ### 7.6 Settings view
 

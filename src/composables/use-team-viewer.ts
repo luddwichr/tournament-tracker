@@ -4,14 +4,14 @@ import type { Team } from '../types/tournament'
 
 type OpenFn = (team: Team) => void
 
-export const squadViewerKey: InjectionKey<OpenFn> = Symbol('squad-viewer')
+export const teamViewerKey: InjectionKey<OpenFn> = Symbol('team-viewer')
 
-export interface SquadViewerState {
+export interface TeamViewerState {
   team: Ref<Team | null>
   close: () => void
 }
 
-export function provideSquadViewer(): SquadViewerState {
+export function provideTeamViewer(): TeamViewerState {
   const team = ref<Team | null>(null)
 
   function open(t: Team): void {
@@ -22,13 +22,13 @@ export function provideSquadViewer(): SquadViewerState {
     team.value = null
   }
 
-  provide(squadViewerKey, open)
+  provide(teamViewerKey, open)
 
   return { team, close }
 }
 
 const noop: OpenFn = () => undefined
 
-export function useSquadViewer(): OpenFn {
-  return inject(squadViewerKey, noop)
+export function useTeamViewer(): OpenFn {
+  return inject(teamViewerKey, noop)
 }

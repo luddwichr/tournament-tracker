@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import type { GroupId } from '../../../src/types/tournament'
-import { SquadDialog } from '../dialogs/squad-dialog'
+import { TeamDialog } from '../dialogs/team-dialog'
 
 /** The group-stage view (`/groups`). */
 export class GroupsPage {
@@ -67,10 +67,10 @@ export class GroupsPage {
     return this.page.getByRole('button', { name: `${home} – ${away}: Ergebnis eingeben` })
   }
 
-  /** Opens the squad dialog for the first team of a group's standings table. */
-  async openSquadDialog(groupId: GroupId): Promise<SquadDialog> {
+  /** Opens the team dialog for the first team of a group's standings table. */
+  async openTeamDialog(groupId: GroupId): Promise<TeamDialog> {
     await this.standings(groupId).getByRole('button').first().click()
-    const dialog = new SquadDialog(this.page)
+    const dialog = new TeamDialog(this.page)
     await dialog.expectVisible()
     return dialog
   }

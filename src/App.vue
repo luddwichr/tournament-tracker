@@ -2,9 +2,9 @@
 import { ref, watch, watchEffect, nextTick, provide, useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
-import SquadDialog from './components/SquadDialog.vue'
+import TeamDialog from './components/TeamDialog.vue'
 import { announceKey } from './composables/use-announce'
-import { provideSquadViewer } from './composables/use-squad-viewer'
+import { provideTeamViewer } from './composables/use-team-viewer'
 import { useSettingsStore } from './stores/settings'
 import { squads } from './data/squads'
 
@@ -27,7 +27,7 @@ function announce(msg: string): void {
 
 provide(announceKey, announce)
 
-const { team: squadTeam, close: closeSquad } = provideSquadViewer()
+const { team: viewedTeam, close: closeTeamView } = provideTeamViewer()
 
 // On route change, move focus to the main landmark and announce the new page
 // so keyboard and screen-reader users are oriented.
@@ -51,7 +51,7 @@ watch(
     {{ announcement }}
   </div>
 
-  <SquadDialog v-if="squadTeam" :team="squadTeam" :players="squads[squadTeam.id] ?? []" @close="closeSquad" />
+  <TeamDialog v-if="viewedTeam" :team="viewedTeam" :players="squads[viewedTeam.id] ?? []" @close="closeTeamView" />
 </template>
 
 <style scoped>

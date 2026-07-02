@@ -7,8 +7,9 @@ import TeamFlag from '../components/TeamFlag.vue'
 import TeamLabel from '../components/TeamLabel.vue'
 
 // World Cup participation is owned by teams.ts; we match a ranking row to its
-// Team by flag code so the highlight (and the squad link) stay in sync with the
-// rest of the app. fifa-ranking.spec.ts guards that every team's code resolves.
+// Team by flag code so the highlight (and the team dialog link) stay in sync
+// with the rest of the app. fifa-ranking.spec.ts guards that every team's code
+// resolves.
 const teamByFlag = new Map<string, Team>(teams.map((t) => [t.flagCode, t]))
 
 const rows = computed(() =>

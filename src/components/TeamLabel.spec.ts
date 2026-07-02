@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TeamLabel from './TeamLabel.vue'
-import { squadViewerKey } from '../composables/use-squad-viewer'
+import { teamViewerKey } from '../composables/use-team-viewer'
 import { makeTeam } from '../test-support/teams'
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland' })
@@ -23,14 +23,14 @@ describe('TeamLabel – non-clickable', () => {
     expect(wrapper.attributes('aria-label')).toBeUndefined()
   })
 
-  it('does not call the squad viewer when not clickable', async () => {
-    const openSquad = vi.fn()
+  it('does not call the team viewer when not clickable', async () => {
+    const openTeamView = vi.fn()
     const wrapper = mount(TeamLabel, {
       props: { team },
-      global: { provide: { [squadViewerKey as symbol]: openSquad } },
+      global: { provide: { [teamViewerKey as symbol]: openTeamView } },
     })
     await wrapper.trigger('click')
-    expect(openSquad).not.toHaveBeenCalled()
+    expect(openTeamView).not.toHaveBeenCalled()
   })
 })
 
@@ -50,14 +50,14 @@ describe('TeamLabel – clickable', () => {
     expect(wrapper.attributes('aria-label')).toContain('Deutschland')
   })
 
-  it('calls the squad viewer with the team on click', async () => {
-    const openSquad = vi.fn()
+  it('calls the team viewer with the team on click', async () => {
+    const openTeamView = vi.fn()
     const wrapper = mount(TeamLabel, {
       props: { team, clickable: true },
-      global: { provide: { [squadViewerKey as symbol]: openSquad } },
+      global: { provide: { [teamViewerKey as symbol]: openTeamView } },
     })
     await wrapper.trigger('click')
-    expect(openSquad).toHaveBeenCalledOnce()
-    expect(openSquad).toHaveBeenCalledWith(team)
+    expect(openTeamView).toHaveBeenCalledOnce()
+    expect(openTeamView).toHaveBeenCalledWith(team)
   })
 })

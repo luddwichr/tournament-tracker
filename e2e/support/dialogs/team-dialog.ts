@@ -1,8 +1,8 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
-/** The squad dialog opened by clicking a team name in a group standings table. */
-export class SquadDialog {
+/** The team dialog opened by clicking a team name in a group standings table. */
+export class TeamDialog {
   readonly root: Locator
 
   constructor(private readonly page: Page) {
@@ -17,12 +17,13 @@ export class SquadDialog {
     await expect(this.root).not.toBeVisible()
   }
 
+  /** The squad roster table, shown on the "Team" tab (selected by default). */
   table(): Locator {
-    return this.root.locator('table')
+    return this.root.locator('.squad-list')
   }
 
   playerRows(): Locator {
-    return this.root.locator('tbody tr')
+    return this.table().locator('tbody tr')
   }
 
   async closeWithEscape(): Promise<void> {

@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
-import { useSquadViewer } from '../composables/use-squad-viewer'
+import { useTeamViewer } from '../composables/use-team-viewer'
 
 const props = defineProps<{
   team: Team
   clickable?: boolean
 }>()
 
-const openSquad = useSquadViewer()
+const openTeamView = useTeamViewer()
 
 function handleClick(e: MouseEvent): void {
   if (!props.clickable) return
   e.stopPropagation()
-  openSquad(props.team)
+  openTeamView(props.team)
 }
 </script>
 
@@ -23,7 +23,7 @@ function handleClick(e: MouseEvent): void {
     class="team-label"
     :class="{ 'team-label--btn': clickable }"
     :type="clickable ? 'button' : undefined"
-    :aria-label="clickable ? `${team.name} – Kader anzeigen` : undefined"
+    :aria-label="clickable ? `${team.name} – Details anzeigen` : undefined"
     @click="handleClick"
   >
     <TeamFlag :flag-code="team.flagCode" size="1.5rem" />
