@@ -5,6 +5,8 @@ interface TeamSide {
   id: string
   abbr: string
   score?: string | null
+  shootoutScore?: number | null
+  winner?: boolean
 }
 
 function ev(opts: {
@@ -17,8 +19,22 @@ function ev(opts: {
 }) {
   const { home, away, completed = true, details = [], date = '2026-06-11T19:00Z', competition = true } = opts
   const competitors: unknown[] = []
-  if (home) competitors.push({ homeAway: 'home', score: home.score, team: { id: home.id, abbreviation: home.abbr } })
-  if (away) competitors.push({ homeAway: 'away', score: away.score, team: { id: away.id, abbreviation: away.abbr } })
+  if (home)
+    competitors.push({
+      homeAway: 'home',
+      score: home.score,
+      shootoutScore: home.shootoutScore,
+      winner: home.winner,
+      team: { id: home.id, abbreviation: home.abbr },
+    })
+  if (away)
+    competitors.push({
+      homeAway: 'away',
+      score: away.score,
+      shootoutScore: away.shootoutScore,
+      winner: away.winner,
+      team: { id: away.id, abbreviation: away.abbr },
+    })
   return {
     date,
     status: { type: { completed } },
@@ -124,6 +140,48 @@ describe('espnProvider.fetchResults', () => {
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
     expect(match).toMatchObject({ homeId: 'ger', homeGoals: 0, awayGoals: 0, date: '' })
+  })
+
+  it('uses the shootout score when a knockout match went to penalties', async () => {
+    const data = {
+      events: [
+        ev({
+          home: { id: '17', abbr: 'GER', score: '1', shootoutScore: 3, winner: false },
+          away: { id: '23', abbr: 'PAR', score: '1', shootoutScore: 4, winner: true },
+        }),
+      ],
+    }
+    const { impl } = recordingFetch(data)
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
+    expect(match).toMatchObject({ homeGoals: 3, awayGoals: 4 })
+  })
+
+  it('nudges a level shootout score to a one-goal edge for the flagged winner', async () => {
+    const data = {
+      events: [
+        ev({
+          home: { id: '17', abbr: 'GER', score: '1', shootoutScore: 3, winner: false },
+          away: { id: '23', abbr: 'PAR', score: '1', shootoutScore: 3, winner: true },
+        }),
+      ],
+    }
+    const { impl } = recordingFetch(data)
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
+    expect(match).toMatchObject({ homeGoals: 3, awayGoals: 4 })
+  })
+
+  it('leaves a level score untouched when there was no shootout', async () => {
+    const data = {
+      events: [
+        ev({
+          home: { id: '10', abbr: 'BRA', score: '1', winner: false },
+          away: { id: '20', abbr: 'MAR', score: '1', winner: false },
+        }),
+      ],
+    }
+    const { impl } = recordingFetch(data)
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
+    expect(match).toMatchObject({ homeGoals: 1, awayGoals: 1 })
   })
 
   it('requests the whole elapsed range in a single call', async () => {

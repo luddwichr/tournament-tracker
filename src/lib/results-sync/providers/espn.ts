@@ -20,6 +20,8 @@ interface RawTeam {
 interface RawCompetitor {
   homeAway?: string
   score?: string | null
+  shootoutScore?: number | null
+  winner?: boolean
   team?: RawTeam
 }
 interface RawDetail {
@@ -59,6 +61,10 @@ function teamIdFromAbbr(abbr: string | undefined): string | null {
 function nonNegativeInt(value: string | null | undefined): number {
   const n = Number.parseInt(value ?? '', 10)
   return Number.isFinite(n) && n > 0 ? n : 0
+}
+
+function nonNegativeNumber(value: number | null | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0
 }
 
 function fixtureDate(kickoff: string): string {
@@ -104,6 +110,23 @@ function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTe
   return tally
 }
 
+/** ESPN's `score` is the goal count after extra time, which is level when a
+ * shootout decided the match — but our `Result` has no penalty field (a level
+ * knockout score is unresolvable, see `knockout.ts`). When a shootout
+ * happened, ESPN reports it separately as `shootoutScore`; use that as the
+ * stored score instead, matching the "enter the decisive score" convention
+ * used for manual AET entries. `winner` is a last-resort tiebreak for the
+ * (unobserved) case of a level shootout score. */
+function decisiveGoals(home: RawCompetitor, away: RawCompetitor): { homeGoals: number; awayGoals: number } {
+  const hadShootout = home.shootoutScore != null || away.shootoutScore != null
+  const homeGoals = hadShootout ? nonNegativeNumber(home.shootoutScore) : nonNegativeInt(home.score)
+  const awayGoals = hadShootout ? nonNegativeNumber(away.shootoutScore) : nonNegativeInt(away.score)
+  if (homeGoals !== awayGoals) return { homeGoals, awayGoals }
+  if (home.winner) return { homeGoals: awayGoals + 1, awayGoals }
+  if (away.winner) return { homeGoals, awayGoals: homeGoals + 1 }
+  return { homeGoals, awayGoals }
+}
+
 function toSourceMatch(event: RawEvent): SourceMatch | null {
   const competition = event.competitions?.[0]
   const competitors = competition?.competitors ?? []
@@ -119,8 +142,7 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
   return {
     homeId,
     awayId,
-    homeGoals: nonNegativeInt(home.score),
-    awayGoals: nonNegativeInt(away.score),
+    ...decisiveGoals(home, away),
     ...cards,
     date: (event.date ?? '').slice(0, 10),
   }
