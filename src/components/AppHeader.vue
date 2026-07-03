@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { watch } from 'vue'
 import AppNav from './AppNav.vue'
 
 const isNavOpen = ref(false)
 const route = useRoute()
+const burgerBtn = useTemplateRef<HTMLButtonElement>('burgerBtn')
 
 watch(
   () => route.path,
@@ -15,7 +15,10 @@ watch(
 )
 
 function handleKeydown(e: KeyboardEvent): void {
-  if (e.key === 'Escape') isNavOpen.value = false
+  if (e.key === 'Escape' && isNavOpen.value) {
+    isNavOpen.value = false
+    burgerBtn.value?.focus()
+  }
 }
 </script>
 
@@ -25,6 +28,7 @@ function handleKeydown(e: KeyboardEvent): void {
     <div class="app-header__bar">
       <p class="app-header__title"><span class="app-header__ball" aria-hidden="true">⚽</span> WM 2026 Tracker</p>
       <button
+        ref="burgerBtn"
         class="app-header__burger"
         type="button"
         :aria-expanded="isNavOpen"

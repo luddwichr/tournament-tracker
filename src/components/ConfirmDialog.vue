@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, useId, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 
 defineProps<{
@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>()
 
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
+const descId = useId()
 const wasConfirmed = ref(false)
 
 function handleConfirm(): void {
@@ -38,12 +39,12 @@ function handleClose(): void {
   <BaseDialog
     ref="baseDialog"
     :title="title"
-    aria-describedby="confirm-dialog-desc"
+    :aria-describedby="descId"
     max-width="min(90vw, 24rem)"
     :show-close-button="false"
     @close="handleClose"
   >
-    <p id="confirm-dialog-desc" class="confirm-dialog__message">
+    <p :id="descId" class="confirm-dialog__message">
       {{ message }}
     </p>
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Theme } from '../stores/settings'
 
-defineProps<{ modelValue: Theme }>()
-const emit = defineEmits<{ 'update:modelValue': [value: Theme] }>()
+const model = defineModel<Theme>({ required: true })
 
 const themes: { value: Theme; label: string; icon: string }[] = [
   { value: 'light', label: 'Hell', icon: '☀️' },
@@ -19,16 +18,15 @@ const themes: { value: Theme; label: string; icon: string }[] = [
         :key="t.value"
         :for="`theme-picker-${t.value}`"
         class="theme-picker__option"
-        :class="{ 'theme-picker__option--active': modelValue === t.value }"
+        :class="{ 'theme-picker__option--active': model === t.value }"
       >
         <input
           :id="`theme-picker-${t.value}`"
+          v-model="model"
           type="radio"
           name="theme"
           :value="t.value"
-          :checked="modelValue === t.value"
           class="visually-hidden"
-          @change="emit('update:modelValue', t.value)"
         />
         <span aria-hidden="true">{{ t.icon }}</span>
         {{ t.label }}

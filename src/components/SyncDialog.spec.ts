@@ -29,6 +29,14 @@ describe('SyncDialog', () => {
     expect(wrapper.emitted('confirm')).toHaveLength(1)
   })
 
+  it('sets aria-describedby on the dialog pointing to the body id', () => {
+    const wrapper = mountDialog({ status: 'confirm' })
+    const body = wrapper.find('.sync-dialog__body')
+    const dialog = wrapper.find('dialog')
+    expect(body.attributes('id')).toBeTruthy()
+    expect(dialog.attributes('aria-describedby')).toBe(body.attributes('id'))
+  })
+
   it('confirm: Abbrechen closes and emits cancel', async () => {
     const wrapper = mountDialog({ status: 'confirm' })
     await button(wrapper, 'Abbrechen').trigger('click')

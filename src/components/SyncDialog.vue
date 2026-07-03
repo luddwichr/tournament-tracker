@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
+import { computed, useId, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 import type { SyncStatus } from '../composables/use-results-sync'
 
@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{ confirm: []; cancel: []; retry: [] }>()
 
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
+const descId = useId()
 
 const TITLES: Record<SyncStatus, string> = {
   idle: 'Ergebnisse abrufen',
@@ -34,12 +35,12 @@ function requestClose(): void {
   <BaseDialog
     ref="baseDialog"
     :title="title"
-    aria-describedby="sync-dialog-desc"
+    :aria-describedby="descId"
     max-width="min(90vw, 26rem)"
     :show-close-button="false"
     @close="emit('cancel')"
   >
-    <div id="sync-dialog-desc" class="sync-dialog__body">
+    <div :id="descId" class="sync-dialog__body">
       <p v-if="status === 'confirm'">
         Alle vorhandenen Ergebnisse werden durch die abgerufenen Daten (Tore und Karten) ersetzt.
       </p>

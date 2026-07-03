@@ -31,6 +31,14 @@ function mountDialog(overrides: { team?: Team } = {}) {
   return mount(TeamDialog, { props: { team, ...overrides } })
 }
 
+function tabs(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAll('[role="tab"]')
+}
+
+function panels(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAll('[role="tabpanel"]')
+}
+
 describe('TeamDialog', () => {
   it('sets aria-label to the team name on the dialog element', () => {
     const wrapper = mountDialog()
@@ -58,15 +66,28 @@ describe('TeamDialog', () => {
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
+  it('gives each tab/panel pair stable, unique, and correlated ids', () => {
+    const wrapper = mountDialog()
+    const [teamTab, scheduleTab] = tabs(wrapper)
+    const [teamPanel, schedulePanel] = panels(wrapper)
+    expect(teamTab!.attributes('id')).toBeTruthy()
+    expect(scheduleTab!.attributes('id')).toBeTruthy()
+    expect(teamTab!.attributes('id')).not.toBe(scheduleTab!.attributes('id'))
+    expect(teamTab!.attributes('aria-controls')).toBe(teamPanel!.attributes('id'))
+    expect(scheduleTab!.attributes('aria-controls')).toBe(schedulePanel!.attributes('id'))
+    expect(teamPanel!.attributes('aria-labelledby')).toBe(teamTab!.attributes('id'))
+    expect(schedulePanel!.attributes('aria-labelledby')).toBe(scheduleTab!.attributes('id'))
+  })
+
   describe('team tab', () => {
     it('is shown by default', () => {
       const wrapper = mountDialog()
-      const teamTab = wrapper.find('#team-dialog-tab-team')
-      const scheduleTab = wrapper.find('#team-dialog-tab-schedule')
-      expect(teamTab.attributes('aria-selected')).toBe('true')
-      expect(scheduleTab.attributes('aria-selected')).toBe('false')
-      expect(wrapper.find('#team-dialog-panel-team').isVisible()).toBe(true)
-      expect(wrapper.find('#team-dialog-panel-schedule').isVisible()).toBe(false)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+      const [teamPanel, schedulePanel] = panels(wrapper)
+      expect(teamTab!.attributes('aria-selected')).toBe('true')
+      expect(scheduleTab!.attributes('aria-selected')).toBe('false')
+      expect(teamPanel!.isVisible()).toBe(true)
+      expect(schedulePanel!.isVisible()).toBe(false)
     })
 
     it('renders a row for each player in the squad list', () => {
@@ -83,22 +104,24 @@ describe('TeamDialog', () => {
   describe('schedule tab', () => {
     it('switches panels when clicked', async () => {
       const wrapper = mountDialog()
-      await wrapper.find('#team-dialog-tab-schedule').trigger('click')
-      expect(wrapper.find('#team-dialog-tab-schedule').attributes('aria-selected')).toBe('true')
-      expect(wrapper.find('#team-dialog-panel-schedule').isVisible()).toBe(true)
-      expect(wrapper.find('#team-dialog-panel-team').isVisible()).toBe(false)
+      const scheduleTab = tabs(wrapper)[1]!
+      await scheduleTab.trigger('click')
+      expect(scheduleTab.attributes('aria-selected')).toBe('true')
+      const [teamPanel, schedulePanel] = panels(wrapper)
+      expect(schedulePanel!.isVisible()).toBe(true)
+      expect(teamPanel!.isVisible()).toBe(false)
     })
 
     it("renders a MatchCard for each of the team's group matches", async () => {
       const wrapper = mountDialog()
-      await wrapper.find('#team-dialog-tab-schedule').trigger('click')
+      await tabs(wrapper)[1]!.trigger('click')
       expect(wrapper.findComponent(MatchCard).exists()).toBe(true)
       expect(wrapper.findAllComponents(MatchCard)).toHaveLength(3)
     })
 
     it('passes hide-link-icon to disable the connector icon and datetime toggle', async () => {
       const wrapper = mountDialog()
-      await wrapper.find('#team-dialog-tab-schedule').trigger('click')
+      await tabs(wrapper)[1]!.trigger('click')
       for (const card of wrapper.findAllComponents(MatchCard)) {
         expect(card.props('hideLinkIcon')).toBe(true)
       }

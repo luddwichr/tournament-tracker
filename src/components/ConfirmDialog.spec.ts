@@ -20,7 +20,15 @@ describe('ConfirmDialog', () => {
       props: { title: 'Daten importieren', message: 'Ergebnisse werden ersetzt.' },
     })
     expect(wrapper.find('.base-dialog__title').text()).toBe('Daten importieren')
-    expect(wrapper.find('#confirm-dialog-desc').text()).toBe('Ergebnisse werden ersetzt.')
+    expect(wrapper.find('.confirm-dialog__message').text()).toBe('Ergebnisse werden ersetzt.')
+  })
+
+  it('sets aria-describedby on the dialog pointing to the message id', () => {
+    const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
+    const message = wrapper.find('.confirm-dialog__message')
+    const dialog = wrapper.find('dialog')
+    expect(message.attributes('id')).toBeTruthy()
+    expect(dialog.attributes('aria-describedby')).toBe(message.attributes('id'))
   })
 
   it('uses default confirm label when none provided', () => {

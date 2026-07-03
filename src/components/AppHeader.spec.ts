@@ -13,8 +13,8 @@ const router = createRouter({
   ],
 })
 
-function mountHeader() {
-  return mount(AppHeader, { global: { plugins: [router] } })
+function mountHeader(options: { attachTo?: Element } = {}) {
+  return mount(AppHeader, { global: { plugins: [router] }, ...options })
 }
 
 describe('AppHeader – layout', () => {
@@ -67,6 +67,21 @@ describe('AppHeader – keyboard', () => {
     await wrapper.find('.app-header__burger').trigger('click')
     await wrapper.find('.app-header').trigger('keydown', { key: 'Escape' })
     expect(wrapper.find('.app-header__burger').attributes('aria-expanded')).toBe('false')
+  })
+
+  it('pressing Escape returns focus to the burger button', async () => {
+    const wrapper = mountHeader({ attachTo: document.body })
+    await wrapper.find('.app-header__burger').trigger('click')
+    await wrapper.find('.app-header').trigger('keydown', { key: 'Escape' })
+    expect(document.activeElement).toBe(wrapper.find('.app-header__burger').element)
+    wrapper.unmount()
+  })
+
+  it('pressing Escape while the nav is already closed does not steal focus', async () => {
+    const wrapper = mountHeader({ attachTo: document.body })
+    await wrapper.find('.app-header').trigger('keydown', { key: 'Escape' })
+    expect(document.activeElement).not.toBe(wrapper.find('.app-header__burger').element)
+    wrapper.unmount()
   })
 
   it('pressing a non-Escape key does not close the nav', async () => {

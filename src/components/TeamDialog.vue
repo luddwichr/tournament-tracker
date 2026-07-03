@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, useId } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadList from './SquadList.vue'
@@ -29,6 +29,7 @@ const tabs: { id: TabId; label: string }[] = [
   { id: 'schedule', label: 'Spielplan' },
 ]
 const activeTab = ref<TabId>('team')
+const tabIds = tabs.map(() => useId())
 </script>
 
 <template>
@@ -47,15 +48,15 @@ const activeTab = ref<TabId>('team')
 
     <div class="team-dialog__tabs" role="tablist" aria-label="Ansicht">
       <button
-        v-for="tab in tabs"
-        :id="`team-dialog-tab-${tab.id}`"
+        v-for="(tab, index) in tabs"
+        :id="`${tabIds[index]}-tab`"
         :key="tab.id"
         type="button"
         role="tab"
         class="team-dialog__tab"
         :class="{ 'team-dialog__tab--active': activeTab === tab.id }"
         :aria-selected="activeTab === tab.id"
-        :aria-controls="`team-dialog-panel-${tab.id}`"
+        :aria-controls="`${tabIds[index]}-panel`"
         :tabindex="activeTab === tab.id ? 0 : -1"
         @click="activeTab = tab.id"
       >
@@ -67,9 +68,9 @@ const activeTab = ref<TabId>('team')
 
     <div
       v-show="activeTab === 'team'"
-      id="team-dialog-panel-team"
+      :id="`${tabIds[0]}-panel`"
       role="tabpanel"
-      aria-labelledby="team-dialog-tab-team"
+      :aria-labelledby="`${tabIds[0]}-tab`"
       class="team-dialog__panel"
     >
       <TeamStats :stats="stats" />
@@ -78,9 +79,9 @@ const activeTab = ref<TabId>('team')
 
     <div
       v-show="activeTab === 'schedule'"
-      id="team-dialog-panel-schedule"
+      :id="`${tabIds[1]}-panel`"
       role="tabpanel"
-      aria-labelledby="team-dialog-tab-schedule"
+      :aria-labelledby="`${tabIds[1]}-tab`"
       class="team-dialog__panel"
     >
       <TeamSchedule :entries="entries" />
