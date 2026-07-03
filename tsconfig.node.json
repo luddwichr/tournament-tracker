@@ -3,8 +3,6 @@
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     // keep tsconfig.base.json target in sync with libs in tsconfig.*.json files and vite.config.ts `build.target`
     "lib": ["ES2025"],
     "types": ["node"]
