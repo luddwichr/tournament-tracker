@@ -1,5 +1,49 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "rangeStrategy": "pin"
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "groupName": "playwright",
+      "matchPackageNames": ["playwright", "@playwright/test"]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG NODE_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG UV_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "uv",
+      "packageNameTemplate": "astral-sh/uv",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG PYTHON_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "python",
+      "datasourceTemplate": "python-version"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG PLAYWRIGHT_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "playwright",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG PLAYWRIGHT_CLI_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "@playwright/cli",
+      "datasourceTemplate": "npm"
+    }
+  ]
 }

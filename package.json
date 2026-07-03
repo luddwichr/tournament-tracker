@@ -19,6 +19,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "size": "size-limit",
+    "renovate:validate": "npx --yes --package renovate -- renovate-config-validator",
     "check": "npm run typecheck && npm run format:check && npm run lint && npm run test:unit:coverage",
     "prepare": "git config core.hooksPath .githooks"
   },
