@@ -1,14 +1,16 @@
+import { fileURLToPath } from 'node:url'
 import eslint from '@eslint/js'
+import { includeIgnoreFile } from 'eslint/config'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVueA11y from 'eslint-plugin-vuejs-accessibility'
 import oxlint from 'eslint-plugin-oxlint'
 import tseslint from 'typescript-eslint'
 import globals from 'globals'
 
+const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
+
 export default tseslint.config(
-  {
-    ignores: ['dist/**', 'coverage/**', '.claude/**', 'playwright-report/**', 'test-results/**', 'dev-dist/**'],
-  },
+  includeIgnoreFile(gitignorePath),
   eslint.configs.recommended,
   tseslint.configs.recommended,
   pluginVue.configs['flat/recommended'],
@@ -64,6 +66,12 @@ export default tseslint.config(
     files: ['**/*.spec.ts'],
     rules: {
       'vue/one-component-per-file': 'off',
+    },
+  },
+  {
+    files: ['.claude/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
   oxlint.buildFromOxlintConfigFile('./.oxlintrc.json'),
