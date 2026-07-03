@@ -33,7 +33,7 @@ npm run dev
 | `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                          |
 | `npm run format` / `format:check` | Format / check formatting with oxfmt                                               |
 | `npm run check`                   | Run typecheck, format:check, lint and test:unit:coverage — run this before pushing |
-| `npm run size`                    | Check bundle size budgets (size-limit)                                             |
+| `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first               |
 
 ## Two Playwright configs
 
