@@ -1,6 +1,9 @@
 {
   "autoMemoryEnabled": false,
   "plansDirectory": ".claude/plans",
+  "worktree": {
+    "baseRef": "head"
+  },
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": [
