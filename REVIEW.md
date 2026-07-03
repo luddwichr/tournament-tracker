@@ -16,17 +16,17 @@ Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 
 ## 1. Top priorities (cross-cutting)
 
-1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§4.1).
-2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§6.1).
-3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§4.2).
-4. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§7.2).
-5. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§8.1).
+1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§3.1).
+2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§5.1).
+3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§3.2).
+4. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§6.2).
+5. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§7.1).
 
 ---
 
-## 3. Vue best practices & conciseness
+## 2. Vue best practices & conciseness
 
-### 3.1 🟡 `useMatchResultForm` accepts plain values, freezing prop reactivity
+### 2.1 🟡 `useMatchResultForm` accepts plain values, freezing prop reactivity
 
 `use-match-result-form.ts:17` takes `(match: MatchSlot, homeTeam: Team, awayTeam: Team)`
 and is called with `props.match` etc. (`ScoreDialog.vue:35`). If a parent ever swaps
@@ -36,7 +36,7 @@ invariant enforced nowhere.
 **Fix:** follow the composable convention — accept `MaybeRefOrGetter<...>` and
 `toValue()` inside, or have parents pass `:key="dialogConfig.match.id"`.
 
-### 3.2 🟡 `fetchLive` fetches the whole tournament feed for one match, with no cancellation
+### 2.2 🟡 `fetchLive` fetches the whole tournament feed for one match, with no cancellation
 
 `use-match-result-form.ts:207-229` — the doc comment says "just this match", but
 `syncResults()` fetches all provider results and maps all fixtures, then plucks one.
@@ -46,7 +46,7 @@ on an unmounted component.
 **Fix:** thread an `AbortController` aborted in `onUnmounted`; fix the comment or add a
 provider-level single-match path.
 
-### 3.3 🟡 Connector paths are computed from non-reactive DOM measurements
+### 2.3 🟡 Connector paths are computed from non-reactive DOM measurements
 
 `use-bracket-highlight.ts:93-100` — the `connectorPaths` computed calls into
 `querySelector` + `getBoundingClientRect`. A computed only re-evaluates on _reactive_
@@ -57,7 +57,7 @@ connectors pointing at stale coordinates.
 computed reads (disconnect in `onScopeDispose`). This also makes the computed's impurity
 explicitly keyed.
 
-### 3.4 🟡 Watcher and pseudo-computed where derived state suffices
+### 2.4 🟡 Watcher and pseudo-computed where derived state suffices
 
 - `ScoreDialog.vue:37-40`: `showDrawError` ref + `watch(knockoutDraw, ...)` is the
   canonical avoidable watcher. Fix: `showDrawError = computed(() => attemptedDrawSave.value && knockoutDraw.value)`.
@@ -65,20 +65,20 @@ explicitly keyed.
   reactive; it lies if the dialog is open across kickoff. Either compute it once as a
   plain `const` (honest one-shot) or use a ticking `useNow()` source.
 
-### 3.5 🟢 Non-reactive prop capture in `GroupTable`
+### 2.5 🟢 Non-reactive prop capture in `GroupTable`
 
 `GroupTable.vue:16` filters `groupMatches` against `props.groupId` at setup time while
 `standings` two lines below is a proper computed. Works because `GroupsView` keys the
 loop, but it's a landmine for reuse — and the inconsistency within one file is the tell.
 **Fix:** make it a `computed`.
 
-### 3.6 🟢 Emits named `click` shadow the native event
+### 2.6 🟢 Emits named `click` shadow the native event
 
 `MatchCard.vue:22` and `MatchScoreButton.vue` declare `click: []` as a component emit —
 a well-known footgun (future `.stop`/`.prevent` modifiers won't behave natively; readers
 can't tell custom from native at call sites). **Fix:** rename to intent: `edit` / `open-score`.
 
-### 3.7 🟢 Questionable `v-for` keys
+### 2.7 🟢 Questionable `v-for` keys
 
 - `OriginColumn.vue` team rows: `:key="row.rank"` — on reorder, DOM nodes are reused
   across _different teams_, so per-node state (highlight ring, focus) sticks to the slot.
@@ -86,7 +86,7 @@ can't tell custom from native at call sites). **Fix:** rename to intent: `edit` 
 - `BracketView.vue:107`: `:key="round.title"` keys columns by a German display string;
   `round.stage` is the stable id next to it.
 
-### 3.8 🟢 Convention drift, quick wins
+### 2.8 🟢 Convention drift, quick wins
 
 - `ThemePicker.vue` hand-rolls `modelValue`/`update:modelValue` + radio `:checked`/`@change`
   while sibling inputs use `defineModel`; `defineModel<Theme>()` + `v-model` on the radios
@@ -118,9 +118,9 @@ can't tell custom from native at call sites). **Fix:** rename to intent: `edit` 
 
 ---
 
-## 4. TypeScript & domain logic
+## 3. TypeScript & domain logic
 
-### 4.1 🔴 The `possible-teams` enumeration is effectively unbounded in the worst case
+### 3.1 🔴 The `possible-teams` enumeration is effectively unbounded in the worst case
 
 `possible-teams.ts:36-39,98` — `maxGoalsPerSide` returns `Math.max(base, gdSpread + 1)`.
 The "≤531k combos" claim in the header comment (line 8) only holds for the base caps.
@@ -133,7 +133,7 @@ arbitrary scores; a typo like 30:0 makes `maxGoals = 31`.
 `(cap²)^remaining > ~10⁶` — or enumerate outcome classes {W/D/L × capped GD} instead of
 raw scorelines.
 
-### 4.2 🔴 `REQUIREMENTS.md` contradicts the (correct) implementation
+### 3.2 🔴 `REQUIREMENTS.md` contradicts the (correct) implementation
 
 - §5.1 specifies the _old_ 2018/2022 tiebreaker order (overall GD before H2H, "restart
   the full chain") — the code and `docs/tournament-rules.md` correctly implement the
@@ -147,7 +147,7 @@ raw scorelines.
   update the result model description to the "enter the decisive score" convention, move
   live-sync into scope.
 
-### 4.3 🟡 Storing shootout scores corrupts downstream goal aggregates
+### 3.3 🟡 Storing shootout scores corrupts downstream goal aggregates
 
 `espn.ts:120-128` + `results-sync/index.ts:64-72` — a 1:1 (4:2 pens) match is persisted
 as `homeGoals: 4, awayGoals: 2`; `computeTeamStats` then shows goals that never happened,
@@ -157,7 +157,7 @@ data with no real-world referent).
 The ESPN hack is evidence the current model is too lossy; this is the same gap as the
 removed `penaltyWinner`.
 
-### 4.4 🟡 Persisted state is rehydrated with zero validation
+### 3.4 🟡 Persisted state is rehydrated with zero validation
 
 `stores/tournament.ts:33-35` — file import goes through `parseImport`, but localStorage
 rehydration doesn't; a corrupted/hand-edited entry flows straight into
@@ -165,7 +165,7 @@ rehydration doesn't; a corrupted/hand-edited entry flows straight into
 **Fix:** an `afterHydrate` hook that validates and resets — the validator already exists
 in `persistence.ts`, just trapped inside `isValidPersistedState`; export it.
 
-### 4.5 🟡 `parseImport` loopholes
+### 3.5 🟡 `parseImport` loopholes
 
 `persistence.ts:41-47` — accepts arrays (`typeof [] === 'object'`); never checks that
 keys are real fixture ids or that `key === result.matchId`; unknown ids import silently
@@ -173,7 +173,7 @@ and sit invisible forever. Acknowledged as a loophole in REQUIREMENTS §9.8, but
 three lines: reject arrays, validate entries against a `fixtureIds` set, require
 `r.matchId === k`.
 
-### 4.6 🟡 Type-level misses
+### 3.6 🟡 Type-level misses
 
 - `data/teams.ts:19`: `teams: readonly Team[] = [...] as const` — the explicit
   annotation wins, so `as const` is inert and `Team.id` stays `string`. Use
@@ -197,7 +197,7 @@ three lines: reject arrays, validate entries against a `fixtureIds` set, require
 - The exhaustiveness `default` block is copy-pasted in `knockout.ts`, `possible-teams.ts`,
   `bracket-labels.ts` — extract a shared `assertNever`.
 
-### 4.7 🟡 Duplicated Annex-C plumbing
+### 3.7 🟡 Duplicated Annex-C plumbing
 
 `third-place.ts:72-85` vs `:91-106` — `buildGroupToThirdPlaceSlotMap` and
 `resolveThirdPlaceSlot` duplicate the top-8 → key → allocation pipeline with different
@@ -205,7 +205,7 @@ iteration direction; two hand-rolled walks over the same table is where an incon
 bug would live. **Fix:** implement one in terms of the other (or extract
 `qualifyingAllocation(ranked)`).
 
-### 4.8 🟢 Smaller logic/API nits
+### 3.8 🟢 Smaller logic/API nits
 
 - `espn.ts:99-101`: `detail.team?.id === homeTeamId` attributes a card to the home team
   when both ids are `undefined`. Guard with `homeTeamId != null && …`.
@@ -233,7 +233,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 - `possible-teams.ts:134`: cache eviction dumps all 500 entries to admit one; a one-line
   FIFO delete keeps hot entries warm.
 
-### 4.9 🟡 Data files
+### 3.9 🟡 Data files
 
 - **Six player names ship with Wikipedia disambiguation suffixes** — `'Matt Turner (soccer)'`,
   `'Chris Richards (soccer)'`, etc. (`squads.ts:62,140,345,347,356,369`), rendered
@@ -248,12 +248,12 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 ---
 
-## 5. HTML semantics
+## 4. HTML semantics
 
 1. 🔴 **Nested `<main>` landmarks** — `RankingView.vue:29` and `SettingsView.vue:92` use
    `<main>` as their root inside App.vue's `<main id="main">`. Invalid HTML, duplicate
    landmark navigation — and the axe helper's tag set excludes the rule that would have
-   caught it (§6.9). GroupsView/KnockoutView correctly use `<div>`; make it 4 of 4.
+   caught it (§5.9). GroupsView/KnockoutView correctly use `<div>`; make it 4 of 4.
 2. 🟡 **Abbreviated table headers rely on `title` only** — 19 occurrences across
    `GroupStandingsTable.vue:20-27`, `TeamStats.vue:15-20`, `ThirdPlaceTable.vue:51-55`
    (`<th title="Siege">S</th>`). `title` isn't announced by most screen readers and is
@@ -273,7 +273,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 5. 🟢 **SquadList row headers styled as column headers** — `.squad-list th` paints player
    names in muted color; scope to `thead th`.
 
-## 6. ARIA & accessibility
+## 5. ARIA & accessibility
 
 1. 🔴 **TeamDialog tabs keyboard-unreachable** — `TeamDialog.vue:47-65`: roving tabindex
    (`:tabindex="activeTab === tab.id ? 0 : -1"`) with no arrow-key handler; a keyboard
@@ -319,7 +319,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
     but WCAG 2.2.2 asks for a pause affordance for _all_ users on >5 s auto-motion, and
     a permanently spinning sticky-header element is distracting. Spin ~2 cycles and stop.
 
-## 7. CSS & Material Design alignment
+## 6. CSS & Material Design alignment
 
 1. 🔴 **Undefined design token** — `ScoreDialog.vue:123` references `var(--font-size-md)`;
    the scale is xs/sm/base/lg/xl/score. The declaration resolves to unset — team names
@@ -365,7 +365,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
     renders at ~7 px in MatchCard — illegible. Give the icon a ratio-honoring default
     and scale via `em`; move counts outside the glyph.
 
-## 8. Stylistic consistency
+## 7. Stylistic consistency
 
 1. 🟡 **Physical vs logical properties mixed** — 21 physical occurrences
    (`border-left`, `padding-left`, `margin-left/right`, `text-align: left`) against 5
@@ -390,7 +390,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 ---
 
-## 9. Test suite
+## 8. Test suite
 
 ### Coverage gaps (by impact)
 
@@ -404,7 +404,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
    e2e exercises the highlight feature at all. (Coverage run confirms: 38 % stmts, and
    that only via incidental imports.)
 3. 🟡 **The most delicate numeric logic in `possible-teams.ts` is untested** — the
-   `maxGoalsPerSide`/`gdSpread` lift (§4.1) has no test where a team trails by 5 goals
+   `maxGoalsPerSide`/`gdSpread` lift (§3.1) has no test where a team trails by 5 goals
    and only qualifies because of the spread lift; an off-by-one silently excludes teams.
 4. 🟡 **The "memoization" tests don't test memoization** — `possible-teams.spec.ts:239-261`:
    both pass on a no-op cache (Team identity comes from `teamsById`, not the cache).
@@ -504,7 +504,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 ---
 
-## 10. Tooling & project setup
+## 9. Tooling & project setup
 
 ### TypeScript setup
 
@@ -524,7 +524,7 @@ exceptional.
 
 ---
 
-## 11. Genuinely positive aspects
+## 10. Genuinely positive aspects
 
 - **Derived-everything architecture.** One mutable `results` map; standings, third-place
   ranking, and the whole bracket are pure functions of it. This is why the app can be
@@ -560,7 +560,7 @@ exceptional.
 
 ---
 
-## 12. How to improve: established techniques & feedback loops (especially for coding agents)
+## 11. How to improve: established techniques & feedback loops (especially for coding agents)
 
 The recurring failure mode in this codebase is not bad code — it's **drift**: comments,
 docs, and configs that describe a state the code has left (`main.ts` bundle comment,
@@ -583,24 +583,24 @@ catch and humans/agents don't. Concrete program, in order of leverage:
    that _is_ the product.
 3. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
-   Candidates from this review: `vuejs-accessibility` plugin (§6 findings), stylelint
-   with `plugin/use-logical` + a custom-property-must-exist check (§7.1, §8.1),
+   Candidates from this review: `vuejs-accessibility` plugin (§5 findings), stylelint
+   with `plugin/use-logical` + a custom-property-must-exist check (§6.1, §7.1),
    `oxlint --deny-warnings`, import ordering. The house `toSorted()` rule shows the team
    already knows this works — extend the pattern.
 4. **Encode invariants as types or data-integrity tests, never as comments.**
-   `TeamId`-keyed squads (§4.6) turns a data bug into a compile error; the existing
+   `TeamId`-keyed squads (§3.6) turns a data bug into a compile error; the existing
    `data.spec.ts` pattern should grow the missing guards (no `(` in player names,
    ranking↔teams name equality, storage-key single-sourcing). Where a comment currently
    states an invariant ("callers must not mutate"), promote it to `readonly`.
 5. **Keep executable docs, kill aspirational ones.** REQUIREMENTS.md's tiebreaker section
-   actively endangers the code it describes (§4.2). Rule of thumb: a doc may describe
+   actively endangers the code it describes (§3.2). Rule of thumb: a doc may describe
    _intent_ (tournament-rules.md does this well, with tests referencing it) but must not
    _duplicate_ what code/tests already state — link instead. Add a README that documents
    the feedback loops themselves (scripts, hooks, CI, deploy base path), because that's
    the doc agents read first.
 6. **Rebalance the hook pyramid** — fast, deterministic checks close to the keystroke
    (format+oxlint pre-commit, `check` pre-push), slow ones in CI (e2e, PWA suite,
-   coverage, axe). A disabled-because-too-slow hook (§10) protects nothing; a 5-second
+   coverage, axe). A disabled-because-too-slow hook (§9) protects nothing; a 5-second
    hook that always runs protects everything. And fix the pre-commit staging footgun —
    agents doing scoped commits will silently sweep unrelated changes with it.
 7. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard

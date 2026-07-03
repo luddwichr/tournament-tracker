@@ -29,8 +29,6 @@ function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
   return sectionLabel !== undefined ? { ...base, sectionLabel } : base
 }
 
-// Data source for <OriginColumn> — this container computes it from the
-// store and passes it down so the leaf stays store-free (REVIEW.md §2.2).
 const groupData = useOriginGroupData()
 
 const stageRounds = [
