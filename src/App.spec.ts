@@ -70,6 +70,18 @@ async function openTeamDialog(wrapper: ReturnType<typeof mount>) {
   )
 }
 
+async function openScoreDialog(wrapper: ReturnType<typeof mount>) {
+  await wrapper.find('.score-opener').trigger('click')
+  // ScoreDialog is also a defineAsyncComponent(() => import(...)) — same
+  // real-transform-time caveat as TeamDialog above.
+  await vi.waitFor(
+    () => {
+      if (!wrapper.find('.base-dialog__title').exists()) throw new Error('ScoreDialog not rendered yet')
+    },
+    { timeout: 5000 },
+  )
+}
+
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.stubGlobal('scrollTo', vi.fn())
@@ -140,8 +152,7 @@ describe('App', () => {
     const { wrapper } = await mountApp()
     expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
 
-    await wrapper.find('.score-opener').trigger('click')
-    await wrapper.vm.$nextTick()
+    await openScoreDialog(wrapper)
 
     const title = wrapper.find('.base-dialog__title')
     expect(title.exists()).toBe(true)
@@ -150,8 +161,7 @@ describe('App', () => {
 
   it('closes ScoreDialog when it emits close', async () => {
     const { wrapper } = await mountApp()
-    await wrapper.find('.score-opener').trigger('click')
-    await wrapper.vm.$nextTick()
+    await openScoreDialog(wrapper)
     expect(wrapper.find('.base-dialog__title').exists()).toBe(true)
 
     await wrapper.find('dialog').trigger('close')
