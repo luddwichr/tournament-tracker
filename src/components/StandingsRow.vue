@@ -9,7 +9,9 @@ const props = defineProps<{
   groupDone: boolean
 }>()
 
-const status = computed(() => {
+type StandingsStatus = 'none' | 'qualified' | 'third' | 'eliminated' | 'safe' | 'potential' | 'danger'
+
+const status = computed((): StandingsStatus => {
   if (props.stat.played === 0) return 'none'
   if (props.groupDone) {
     if (props.rank <= 2) return 'qualified'
@@ -21,7 +23,7 @@ const status = computed(() => {
   return 'danger'
 })
 
-const statusLabel: Record<string, string> = {
+const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
   qualified: 'qualifiziert',
   safe: 'sicher',
   third: 'Dritter',

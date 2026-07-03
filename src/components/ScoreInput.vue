@@ -2,7 +2,7 @@
 import type { Team } from '../types/tournament'
 import StepperInput from './StepperInput.vue'
 
-const props = defineProps<{
+defineProps<{
   homeTeam: Team
   awayTeam: Team
 }>()
@@ -20,8 +20,8 @@ const awayGoals = defineModel<number>('away', { required: true })
         <StepperInput
           v-model="homeGoals"
           size="lg"
-          :dec-label="`Tor für ${props.homeTeam.name} abziehen`"
-          :inc-label="`Tor für ${props.homeTeam.name} hinzufügen`"
+          :dec-label="`Tor für ${homeTeam.name} abziehen`"
+          :inc-label="`Tor für ${homeTeam.name} hinzufügen`"
         />
       </div>
 
@@ -31,8 +31,8 @@ const awayGoals = defineModel<number>('away', { required: true })
         <StepperInput
           v-model="awayGoals"
           size="lg"
-          :dec-label="`Tor für ${props.awayTeam.name} abziehen`"
-          :inc-label="`Tor für ${props.awayTeam.name} hinzufügen`"
+          :dec-label="`Tor für ${awayTeam.name} abziehen`"
+          :inc-label="`Tor für ${awayTeam.name} hinzufügen`"
         />
       </div>
     </div>

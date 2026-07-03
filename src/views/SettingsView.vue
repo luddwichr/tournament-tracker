@@ -59,7 +59,7 @@ function handleFileChange(event: Event): void {
   if (!file) return
 
   const reader = new FileReader()
-  // oxlint-disable-next-line unicorn/prefer-add-event-listener -- keeps the FileReader test double in SettingsView.spec.ts (which only implements `onload`) simple; a single handler is all we need
+  // oxlint-disable-next-line unicorn/prefer-add-event-listener -- assignment style keeps the FileReader test double in SettingsView.spec.ts simple
   reader.onload = () => {
     try {
       const newResults = parseImport(reader.result as string)
@@ -67,8 +67,12 @@ function handleFileChange(event: Event): void {
     } catch (e) {
       importError.value = e instanceof Error ? e.message : 'Fehler beim Importieren.'
     } finally {
-      fileInput.value!.value = ''
+      if (fileInput.value) fileInput.value.value = ''
     }
+  }
+  // oxlint-disable-next-line unicorn/prefer-add-event-listener -- assignment style keeps the FileReader test double in SettingsView.spec.ts simple
+  reader.onerror = () => {
+    importError.value = 'Fehler beim Lesen der Datei.'
   }
   reader.readAsText(file)
 }

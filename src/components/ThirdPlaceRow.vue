@@ -13,13 +13,15 @@ const props = defineProps<{
 
 const inTopEight = computed(() => props.rank <= QUALIFYING_THIRDS_COUNT)
 
-const status = computed(() => {
+type ThirdPlaceStatus = 'none' | 'qualified' | 'eliminated' | 'safe' | 'danger'
+
+const status = computed((): ThirdPlaceStatus => {
   if (props.stat.played === 0) return 'none'
   if (props.final) return inTopEight.value ? 'qualified' : 'eliminated'
   return inTopEight.value ? 'safe' : 'danger'
 })
 
-const statusLabel: Record<string, string> = {
+const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
   qualified: 'qualifiziert',
   safe: 'aktuell sicher',
   eliminated: 'ausgeschieden',

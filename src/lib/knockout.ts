@@ -9,7 +9,7 @@
  * must enter the decisive score (e.g. the AET score when extra time settled it).
  */
 
-import type { MatchSlot, Stage, TeamRef, Team, Result } from '../types/tournament'
+import type { Stage, TeamRef, Team, Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { fixtures, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
@@ -59,15 +59,6 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
       throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
     }
   }
-}
-
-/**
- * Return true when both participants of `match` are resolved and result entry
- * should be permitted. Always true for group-stage matches (refs are concrete
- * teams). For knockout matches, both upstream refs must resolve.
- */
-export function canEnterResult(match: MatchSlot, results: Record<string, Result>): boolean {
-  return resolveTeamRef(match.homeRef, results) !== null && resolveTeamRef(match.awayRef, results) !== null
 }
 
 /** A bracket column as rendered in `BracketView` — the third-place and final matches share one column. */

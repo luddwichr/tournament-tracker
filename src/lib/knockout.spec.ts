@@ -1,12 +1,12 @@
 /**
- * Unit tests for knockout bracket resolution (resolveTeamRef / canEnterResult).
+ * Unit tests for knockout bracket resolution (resolveTeamRef / currentBracketColumn).
  */
 
 import { describe, it, expect } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
-import { resolveTeamRef, canEnterResult, currentBracketColumn } from './knockout'
+import { resolveTeamRef, currentBracketColumn } from './knockout'
 import { makeResult, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
@@ -180,34 +180,6 @@ describe("resolveTeamRef — kind 'matchLoser'", () => {
 })
 
 // ---------------------------------------------------------------------------
-// canEnterResult
-// ---------------------------------------------------------------------------
-
-describe('canEnterResult', () => {
-  it('returns true for a group-stage match even with no results', () => {
-    const groupMatch = groupMatches[0]!
-    expect(canEnterResult(groupMatch, {})).toBe(true)
-  })
-
-  it('returns false for a knockout match with unresolved upstream refs', () => {
-    const r32match = knockoutMatches.find((m) => m.stage === 'r32')!
-    expect(canEnterResult(r32match, {})).toBe(false)
-  })
-
-  it('returns true for a knockout match once both upstream refs are resolved', () => {
-    // M73: A2 vs B2
-    const m73 = knockoutMatches.find((m) => m.id === 'M73')!
-    const results: Record<string, Result> = {}
-    groupMatches
-      .filter((m) => m.group === 'A' || m.group === 'B')
-      .forEach((m) => {
-        results[m.id] = makeResult(m.id, 1, 0)
-      })
-    expect(canEnterResult(m73, results)).toBe(true)
-  })
-})
-
-// ---------------------------------------------------------------------------
 // Full bracket propagation: R32 → R16 → QF → SF → Final
 // ---------------------------------------------------------------------------
 
@@ -251,8 +223,8 @@ describe('full bracket propagation', () => {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     const m89 = knockoutMatches.find((m) => m.id === 'M89')!
-    // M89 homeRef is winner(M74) which is unresolved — canEnterResult must be false.
-    expect(canEnterResult(m89, results)).toBe(false)
+    // M89 homeRef is winner(M74) which is unresolved — result entry must be blocked.
+    expect(resolveTeamRef(m89.homeRef, results)).toBeNull()
   })
 })
 

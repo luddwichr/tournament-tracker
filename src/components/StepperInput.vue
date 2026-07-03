@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(
+withDefaults(
   defineProps<{
     decLabel: string
     incLabel: string
@@ -12,12 +12,12 @@ const model = defineModel<number>({ required: true })
 </script>
 
 <template>
-  <div class="stepper" :class="`stepper--${props.size}`">
-    <button type="button" class="stepper__step" :aria-label="props.decLabel" @click="model = Math.max(0, model - 1)">
+  <div class="stepper" :class="`stepper--${size}`">
+    <button type="button" class="stepper__step" :aria-label="decLabel" @click="model = Math.max(0, model - 1)">
       −
     </button>
     <span class="stepper__value" aria-live="polite" aria-atomic="true">{{ model }}</span>
-    <button type="button" class="stepper__step" :aria-label="props.incLabel" @click="model = model + 1">+</button>
+    <button type="button" class="stepper__step" :aria-label="incLabel" @click="model = model + 1">+</button>
   </div>
 </template>
 
