@@ -50,7 +50,7 @@ function selectEntry(entry: TeamMatchEntry): void {
         :home-placeholder="teamRefLabel(row.entry.match.homeRef)"
         :away-placeholder="teamRefLabel(row.entry.match.awayRef)"
         hide-link-icon
-        @click="selectEntry(row.entry)"
+        @open-score="selectEntry(row.entry)"
       />
     </div>
   </div>

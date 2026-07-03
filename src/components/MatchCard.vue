@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  click: []
+  openScore: []
   placeholderClick: [slot: 'home' | 'away']
   toggleHighlight: []
 }>()
@@ -30,7 +30,7 @@ const blocked = computed(() => props.homeTeam === null || props.awayTeam === nul
 // score dialog. Inner controls (team labels, placeholders, score button) stop
 // propagation so they keep their own behaviour.
 function onBodyClick(): void {
-  if (!blocked.value) emit('click')
+  if (!blocked.value) emit('openScore')
 }
 
 const ariaLabel = computed(() => {
@@ -97,7 +97,7 @@ const ariaLabel = computed(() => {
         :result="result ?? null"
         :label="ariaLabel"
         :disabled="blocked"
-        @click="emit('click')"
+        @open-score="emit('openScore')"
       />
     </div>
   </div>

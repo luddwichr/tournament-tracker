@@ -32,16 +32,16 @@ describe('MatchScoreButton', () => {
     expect(wrapper.get('button').attributes('aria-label')).toBe('Deutschland – Frankreich: Ergebnis eingeben')
   })
 
-  it('emits "click" when enabled', async () => {
+  it('emits "openScore" when enabled', async () => {
     const wrapper = mount(MatchScoreButton, { props: { label: 'x' } })
     await wrapper.get('button').trigger('click')
-    expect(wrapper.emitted('click')).toHaveLength(1)
+    expect(wrapper.emitted('openScore')).toHaveLength(1)
   })
 
   it('is disabled and does not emit when disabled', async () => {
     const wrapper = mount(MatchScoreButton, { props: { label: 'x', disabled: true } })
     expect(wrapper.get('button').attributes('disabled')).toBeDefined()
     await wrapper.get('button').trigger('click')
-    expect(wrapper.emitted('click')).toBeUndefined()
+    expect(wrapper.emitted('openScore')).toBeUndefined()
   })
 })

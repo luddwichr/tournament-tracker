@@ -13,7 +13,7 @@ const props = defineProps<{ groupId: GroupId }>()
 const store = useTournamentStore()
 const openScoreDialog = useScoreDialog()
 
-const matches = groupMatches.filter((m) => m.group === props.groupId)
+const matches = computed(() => groupMatches.filter((m) => m.group === props.groupId))
 
 const standings = computed(() => store.standingsByGroup.get(props.groupId) ?? [])
 const groupDone = computed(() => standings.value.every((s) => s.played === 3))
@@ -47,7 +47,7 @@ function selectMatch(match: MatchSlot): void {
         :away-team="resolveTeam(match.awayRef)"
         :result="store.results[match.id] ?? null"
         hide-link-icon
-        @click="selectMatch(match)"
+        @open-score="selectMatch(match)"
       />
     </section>
   </article>

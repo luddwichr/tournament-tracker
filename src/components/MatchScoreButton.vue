@@ -7,7 +7,7 @@ defineProps<{
   disabled?: boolean
 }>()
 
-const emit = defineEmits<{ click: [] }>()
+const emit = defineEmits<{ openScore: [] }>()
 </script>
 
 <template>
@@ -15,8 +15,8 @@ const emit = defineEmits<{ click: [] }>()
     type="button"
     class="match-score-btn"
     :aria-label="label"
-    :disabled="disabled ? true : undefined"
-    @click.stop="emit('click')"
+    :disabled="disabled"
+    @click.stop="emit('openScore')"
   >
     <span class="match-score-btn__pill" :class="{ 'match-score-btn__pill--split': result }">
       <template v-if="result">

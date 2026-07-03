@@ -57,7 +57,7 @@ const emit = defineEmits<{
             :away-placeholder="row.awayPlaceholder"
             :highlighted="!!highlightedMatchIds?.includes(row.match.id)"
             :pinned="pinnedMatchId === row.match.id"
-            @click="emit('matchClick', row.match)"
+            @open-score="emit('matchClick', row.match)"
             @toggle-highlight="emit('toggleHighlight', row.match.id)"
             @placeholder-click="(slot) => emit('placeholderClick', row.match, slot)"
           />

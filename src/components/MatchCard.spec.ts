@@ -84,22 +84,22 @@ describe('MatchCard – state classes', () => {
 })
 
 describe('MatchCard – events', () => {
-  it('emits "click" when the body gutter is clicked (not blocked)', async () => {
+  it('emits "openScore" when the body gutter is clicked (not blocked)', async () => {
     const wrapper = mountCard()
     await wrapper.find('.match-card__body').trigger('click')
-    expect(wrapper.emitted('click')).toHaveLength(1)
+    expect(wrapper.emitted('openScore')).toHaveLength(1)
   })
 
-  it('does not emit "click" from the body when blocked', async () => {
+  it('does not emit "openScore" from the body when blocked', async () => {
     const wrapper = mountCard({ homeTeam: null, homePlaceholder: 'Gruppe A – 1.' })
     await wrapper.find('.match-card__body').trigger('click')
-    expect(wrapper.emitted('click')).toBeUndefined()
+    expect(wrapper.emitted('openScore')).toBeUndefined()
   })
 
-  it('emits "click" once when the score button is pressed (no double via the body)', async () => {
+  it('emits "openScore" once when the score button is pressed (no double via the body)', async () => {
     const wrapper = mountCard()
     await wrapper.find('.match-score-btn').trigger('click')
-    expect(wrapper.emitted('click')).toHaveLength(1)
+    expect(wrapper.emitted('openScore')).toHaveLength(1)
   })
 
   it('forwards a placeholder click with the home slot id', async () => {
