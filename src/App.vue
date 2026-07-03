@@ -2,8 +2,10 @@
 import { ref, watch, watchEffect, nextTick, provide, useTemplateRef, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
+import ScoreDialog from './components/ScoreDialog.vue'
 import { announceKey } from './composables/use-announce'
 import { provideTeamViewer } from './composables/use-team-viewer'
+import { provideScoreDialog } from './composables/use-score-dialog'
 import { useSettingsStore } from './stores/settings'
 
 // Loaded lazily: TeamDialog pulls in the squads dataset and flag-icons CSS
@@ -31,6 +33,7 @@ function announce(msg: string): void {
 provide(announceKey, announce)
 
 const { team: viewedTeam, close: closeTeamView } = provideTeamViewer()
+const { config: scoreDialogConfig, close: closeScoreDialog } = provideScoreDialog()
 
 // On route change, move focus to the main landmark and announce the new page
 // so keyboard and screen-reader users are oriented.
@@ -55,6 +58,13 @@ watch(
   </div>
 
   <TeamDialog v-if="viewedTeam" :team="viewedTeam" @close="closeTeamView" />
+  <ScoreDialog
+    v-if="scoreDialogConfig"
+    :match="scoreDialogConfig.match"
+    :home-team="scoreDialogConfig.home"
+    :away-team="scoreDialogConfig.away"
+    @close="closeScoreDialog"
+  />
 </template>
 
 <style scoped>

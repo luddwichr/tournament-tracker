@@ -6,14 +6,30 @@ import { defineComponent, h } from 'vue'
 import App from './App.vue'
 import { useSettingsStore } from './stores/settings'
 import { useTeamViewer } from './composables/use-team-viewer'
+import { useScoreDialog } from './composables/use-score-dialog'
 import { makeTeam } from './test-support/teams'
+import { makeMatch } from './test-support/matches'
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
+
+const homeTeam = makeTeam({ id: 'ger2', name: 'Deutschland', fifaRanking: 14 })
+const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich', fifaRanking: 2 })
+const match = makeMatch({
+  stage: 'group',
+  group: 'A',
+  homeRef: { kind: 'team', teamId: homeTeam.id },
+  awayRef: { kind: 'team', teamId: awayTeam.id },
+})
 
 const OpenerStub = defineComponent({
   setup() {
     const open = useTeamViewer()
-    return () => h('button', { class: 'opener', onClick: () => open(team) }, 'open')
+    const openScore = useScoreDialog()
+    return () =>
+      h('div', [
+        h('button', { class: 'opener', onClick: () => open(team) }, 'open'),
+        h('button', { class: 'score-opener', onClick: () => openScore(match, homeTeam, awayTeam) }, 'open score'),
+      ])
   },
 })
 
@@ -118,5 +134,28 @@ describe('App', () => {
     await wrapper.find('dialog').trigger('close')
     await flushPromises()
     expect(wrapper.find('.team-dialog__title').exists()).toBe(false)
+  })
+
+  it('does not render ScoreDialog until a match is opened, then opens it for the selected match', async () => {
+    const { wrapper } = await mountApp()
+    expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
+
+    await wrapper.find('.score-opener').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const title = wrapper.find('.base-dialog__title')
+    expect(title.exists()).toBe(true)
+    expect(title.text()).toBe('Ergebnis: Deutschland – Frankreich')
+  })
+
+  it('closes ScoreDialog when it emits close', async () => {
+    const { wrapper } = await mountApp()
+    await wrapper.find('.score-opener').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.base-dialog__title').exists()).toBe(true)
+
+    await wrapper.find('dialog').trigger('close')
+    await flushPromises()
+    expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
   })
 })

@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import KnockoutView from './KnockoutView.vue'
 import BracketView from '../components/BracketView.vue'
-import ScoreDialog from '../components/ScoreDialog.vue'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 import { makeMatch } from '../test-support/matches'
 
 const resolvedMatch = makeMatch({
@@ -27,68 +26,55 @@ const partiallyResolvedMatch = makeMatch({
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
 })
 
-function mountView() {
-  return mount(KnockoutView, { global: { stubs: { BracketView: true } } })
+function mountView(openScoreDialog = vi.fn()) {
+  const wrapper = mount(KnockoutView, {
+    global: {
+      stubs: { BracketView: true },
+      provide: { [scoreDialogKey as symbol]: openScoreDialog },
+    },
+  })
+  return { wrapper, openScoreDialog }
 }
 
 describe('KnockoutView – structure', () => {
   it('renders the heading "K.-o.-Runde"', () => {
-    const wrapper = mountView()
+    const { wrapper } = mountView()
     expect(wrapper.find('h1').text()).toBe('K.-o.-Runde')
   })
 
   it('renders the BracketView component', () => {
-    const wrapper = mountView()
+    const { wrapper } = mountView()
     expect(wrapper.findComponent(BracketView).exists()).toBe(true)
   })
 
-  it('does not show ScoreDialog on mount', () => {
-    const wrapper = mountView()
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+  it('does not call the score dialog opener on mount', () => {
+    const { openScoreDialog } = mountView()
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 })
 
-describe('KnockoutView – ScoreDialog', () => {
-  it('shows ScoreDialog after matchClick with resolvable teams', async () => {
-    const wrapper = mountView()
+describe('KnockoutView – score dialog', () => {
+  it('calls the score dialog opener after matchClick with resolvable teams', () => {
+    const { wrapper, openScoreDialog } = mountView()
     wrapper.findComponent(BracketView).vm.$emit('matchClick', resolvedMatch)
-    await nextTick()
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(true)
+    expect(openScoreDialog).toHaveBeenCalledOnce()
+    const [match, home, away] = openScoreDialog.mock.calls[0]!
+    expect(match).toMatchObject({ id: resolvedMatch.id })
+    expect(home).toMatchObject({ id: 'mex' })
+    expect(away).toMatchObject({ id: 'usa' })
   })
 
-  it('does not show ScoreDialog when match refs cannot be resolved', async () => {
-    const wrapper = mountView()
+  it('does not call the score dialog opener when match refs cannot be resolved', () => {
+    const { wrapper, openScoreDialog } = mountView()
     wrapper.findComponent(BracketView).vm.$emit('matchClick', unresolvedMatch)
-    await nextTick()
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 
-  it('does not show ScoreDialog when only the home team is resolvable', async () => {
-    const wrapper = mountView()
+  it('does not call the score dialog opener when only the home team is resolvable', () => {
+    const { wrapper, openScoreDialog } = mountView()
     wrapper.findComponent(BracketView).vm.$emit('matchClick', partiallyResolvedMatch)
-    await nextTick()
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
-  })
-
-  it('hides ScoreDialog when it emits close', async () => {
-    const wrapper = mountView()
-    wrapper.findComponent(BracketView).vm.$emit('matchClick', resolvedMatch)
-    await nextTick()
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(true)
-    await wrapper.find('dialog').trigger('close')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
-  })
-
-  it('wires the selected match into ScoreDialog', async () => {
-    const wrapper = mountView()
-    wrapper.findComponent(BracketView).vm.$emit('matchClick', resolvedMatch)
-    await nextTick()
-    expect(wrapper.findComponent(ScoreDialog).props('match')).toMatchObject({ id: resolvedMatch.id })
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 })

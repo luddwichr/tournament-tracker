@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { MatchSlot, Team } from '../types/tournament'
+import type { MatchSlot } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { resolveTeamRef } from '../lib/knockout'
+import { useScoreDialog } from '../composables/use-score-dialog'
 import BracketView from '../components/BracketView.vue'
-import ScoreDialog from '../components/ScoreDialog.vue'
 
 const store = useTournamentStore()
-const selectedMatch = ref<MatchSlot | null>(null)
+const openScoreDialog = useScoreDialog()
 
-type DialogConfig = { match: MatchSlot; home: Team; away: Team }
-
-const dialogConfig = computed((): DialogConfig | null => {
-  const match = selectedMatch.value
-  if (!match) return null
+function selectMatch(match: MatchSlot): void {
   const home = resolveTeamRef(match.homeRef, store.results)
-  if (!home) return null
+  if (!home) return
   const away = resolveTeamRef(match.awayRef, store.results)
-  if (!away) return null
-  return { match, home, away }
-})
+  if (!away) return
+  openScoreDialog(match, home, away)
+}
 </script>
 
 <template>
   <div class="knockout-view">
     <h1 class="knockout-view__heading">K.-o.-Runde</h1>
-    <BracketView @match-click="selectedMatch = $event" />
-    <ScoreDialog
-      v-if="dialogConfig"
-      :match="dialogConfig.match"
-      :home-team="dialogConfig.home"
-      :away-team="dialogConfig.away"
-      @close="selectedMatch = null"
-    />
+    <BracketView @match-click="selectMatch" />
   </div>
 </template>
 

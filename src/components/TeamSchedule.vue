@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { MatchSlot, Team } from '../types/tournament'
+import { computed } from 'vue'
 import type { TeamMatchEntry } from '../lib/team-schedule'
 import { teamRefLabel } from '../lib/bracket-labels'
 import { matchStageLabel } from '../lib/team-schedule'
+import { useScoreDialog } from '../composables/use-score-dialog'
 import MatchCard from './MatchCard.vue'
-import ScoreDialog from './ScoreDialog.vue'
 
 const props = defineProps<{ entries: TeamMatchEntry[] }>()
+
+const openScoreDialog = useScoreDialog()
 
 interface ScheduleRow {
   entry: TeamMatchEntry
@@ -30,17 +31,10 @@ const rows = computed((): ScheduleRow[] => {
   return labeled.toReversed()
 })
 
-const selectedMatch = ref<MatchSlot | null>(null)
-
-type DialogTeams = { match: MatchSlot; home: Team; away: Team }
-
-const dialogTeams = computed((): DialogTeams | null => {
-  const match = selectedMatch.value
-  if (!match) return null
-  const entry = props.entries.find((e) => e.match.id === match.id)
-  if (!entry?.homeTeam || !entry.awayTeam) return null
-  return { match, home: entry.homeTeam, away: entry.awayTeam }
-})
+function selectEntry(entry: TeamMatchEntry): void {
+  if (!entry.homeTeam || !entry.awayTeam) return
+  openScoreDialog(entry.match, entry.homeTeam, entry.awayTeam)
+}
 </script>
 
 <template>
@@ -56,17 +50,9 @@ const dialogTeams = computed((): DialogTeams | null => {
         :home-placeholder="teamRefLabel(row.entry.match.homeRef)"
         :away-placeholder="teamRefLabel(row.entry.match.awayRef)"
         hide-link-icon
-        @click="selectedMatch = row.entry.match"
+        @click="selectEntry(row.entry)"
       />
     </div>
-
-    <ScoreDialog
-      v-if="dialogTeams"
-      :match="dialogTeams.match"
-      :home-team="dialogTeams.home"
-      :away-team="dialogTeams.away"
-      @close="selectedMatch = null"
-    />
   </div>
 </template>
 

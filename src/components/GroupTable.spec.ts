@@ -4,8 +4,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import GroupTable from './GroupTable.vue'
 import MatchCard from './MatchCard.vue'
 import GroupStandingsTable from './GroupStandingsTable.vue'
-import ScoreDialog from './ScoreDialog.vue'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 import { groupMatches } from '../data/fixtures-2026'
+import type { GroupId } from '../types/tournament'
 
 vi.mock('../data/fixtures-2026', async (importOriginal) => {
   const original = await importOriginal<typeof import('../data/fixtures-2026')>()
@@ -37,83 +38,77 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
 })
+
+function mountGroupTable(groupId: GroupId, openScoreDialog = vi.fn()) {
+  const wrapper = mount(GroupTable, {
+    props: { groupId },
+    global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
+  })
+  return { wrapper, openScoreDialog }
+}
 
 describe('GroupTable – layout', () => {
   it('renders the group title', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const { wrapper } = mountGroupTable('A')
     expect(wrapper.find('.group-table__title').text()).toBe('Gruppe A')
   })
 
   it('renders the correct group title for a different group', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'E' } })
+    const { wrapper } = mountGroupTable('E')
     expect(wrapper.find('.group-table__title').text()).toBe('Gruppe E')
   })
 
   it('renders the standings table', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const { wrapper } = mountGroupTable('A')
     expect(wrapper.findComponent(GroupStandingsTable).exists()).toBe(true)
   })
 
   it('renders one MatchCard per match in the group', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const { wrapper } = mountGroupTable('A')
     const expected = groupMatches.filter((m) => m.group === 'A').length
     expect(wrapper.findAllComponents(MatchCard)).toHaveLength(expected)
   })
 
   it('renders all MatchCards with hideLinkIcon', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const { wrapper } = mountGroupTable('A')
     const cards = wrapper.findAllComponents(MatchCard)
     expect(cards.every((c) => c.props('hideLinkIcon') === true)).toBe(true)
   })
 })
 
 describe('GroupTable – score dialog', () => {
-  it('does not show the score dialog on mount', () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+  it('does not call the score dialog opener on mount', () => {
+    const { openScoreDialog } = mountGroupTable('A')
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 
-  it('shows the score dialog after clicking a match card body', async () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
-    await wrapper.find('.match-card__body').trigger('click')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(true)
-  })
-
-  it('hides the score dialog after it emits "close"', async () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
-    await wrapper.find('.match-card__body').trigger('click')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(true)
-    await wrapper.find('dialog').trigger('close')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
-  })
-
-  it('wires the correct match into the score dialog', async () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+  it('calls the score dialog opener with the clicked match and resolved teams', async () => {
+    const { wrapper, openScoreDialog } = mountGroupTable('A')
     const firstMatch = groupMatches.find((m) => m.group === 'A')!
     await wrapper.find('.match-card__body').trigger('click')
-    expect(wrapper.findComponent(ScoreDialog).props('match')).toMatchObject({ id: firstMatch.id })
+    expect(openScoreDialog).toHaveBeenCalledOnce()
+    const [match, home, away] = openScoreDialog.mock.calls[0]!
+    expect(match).toMatchObject({ id: firstMatch.id })
+    expect(home).toBeTruthy()
+    expect(away).toBeTruthy()
   })
 })
 
 describe('GroupTable – resolveTeam null branch', () => {
-  it('does not open the score dialog when match refs are not team-kind', async () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'B' } })
+  it('does not call the score dialog opener when match refs are not team-kind', async () => {
+    const { wrapper, openScoreDialog } = mountGroupTable('B')
     const cards = wrapper.findAllComponents(MatchCard)
     // the injected non-team-ref match is appended last in group B
     await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 
-  it('does not open the score dialog when team refs have an unknown teamId', async () => {
-    const wrapper = mount(GroupTable, { props: { groupId: 'C' } })
+  it('does not call the score dialog opener when team refs have an unknown teamId', async () => {
+    const { wrapper, openScoreDialog } = mountGroupTable('C')
     const cards = wrapper.findAllComponents(MatchCard)
     // the injected unknown-teamId match is appended last in group C
     await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
-    expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 })

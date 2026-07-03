@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import TeamSchedule from './TeamSchedule.vue'
 import MatchCard from './MatchCard.vue'
-import ScoreDialog from './ScoreDialog.vue'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 import type { MatchSlot, Team } from '../types/tournament'
 import type { TeamMatchEntry } from '../lib/team-schedule'
 import { makeTeam } from '../test-support/teams'
@@ -11,10 +11,6 @@ import { makeResult } from '../test-support/results'
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
 })
 
 const ger = makeTeam({ id: 'ger', name: 'Deutschland' })
@@ -39,6 +35,14 @@ function knockoutMatch(id: string, stage: MatchSlot['stage'], kickoff: string, h
     homeRef: home ? { kind: 'team', teamId: home.id } : { kind: 'groupRank', group: 'B', rank: 1 },
     awayRef: { kind: 'groupRank', group: 'C', rank: 2 },
   }
+}
+
+function mountSchedule(rows: TeamMatchEntry[], openScoreDialog = vi.fn()) {
+  const wrapper = mount(TeamSchedule, {
+    props: { entries: rows },
+    global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
+  })
+  return { wrapper, openScoreDialog }
 }
 
 describe('TeamSchedule', () => {
@@ -103,29 +107,19 @@ describe('TeamSchedule', () => {
       { match: playedMatch, homeTeam: ger, awayTeam: jpn, result: makeResult('M1', 2, 1) },
     ]
 
-    it('does not show the score dialog on mount', () => {
-      const wrapper = mount(TeamSchedule, { props: { entries } })
-      expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+    it('does not call the score dialog opener on mount', () => {
+      const { openScoreDialog } = mountSchedule(entries)
+      expect(openScoreDialog).not.toHaveBeenCalled()
     })
 
-    it('opens the score dialog for the clicked match with both teams resolved', async () => {
-      const wrapper = mount(TeamSchedule, { props: { entries } })
+    it('calls the score dialog opener for the clicked match with both teams resolved', async () => {
+      const { wrapper, openScoreDialog } = mountSchedule(entries)
       await wrapper.find('.match-card__body').trigger('click')
-      const dialog = wrapper.findComponent(ScoreDialog)
-      expect(dialog.exists()).toBe(true)
-      expect(dialog.props('match')).toMatchObject({ id: 'M1' })
-      expect(dialog.props('homeTeam')).toEqual(ger)
-      expect(dialog.props('awayTeam')).toEqual(jpn)
+      expect(openScoreDialog).toHaveBeenCalledOnce()
+      expect(openScoreDialog).toHaveBeenCalledWith(playedMatch, ger, jpn)
     })
 
-    it('closes the score dialog when it emits "close"', async () => {
-      const wrapper = mount(TeamSchedule, { props: { entries } })
-      await wrapper.find('.match-card__body').trigger('click')
-      await wrapper.find('dialog').trigger('close')
-      expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
-    })
-
-    it('does not open the score dialog when the other side has not resolved yet', async () => {
+    it('does not call the score dialog opener when the other side has not resolved yet', async () => {
       const unresolvedEntries: TeamMatchEntry[] = [
         {
           match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger),
@@ -134,9 +128,9 @@ describe('TeamSchedule', () => {
           result: null,
         },
       ]
-      const wrapper = mount(TeamSchedule, { props: { entries: unresolvedEntries } })
+      const { wrapper, openScoreDialog } = mountSchedule(unresolvedEntries)
       await wrapper.find('.match-card__body').trigger('click')
-      expect(wrapper.findComponent(ScoreDialog).exists()).toBe(false)
+      expect(openScoreDialog).not.toHaveBeenCalled()
     })
   })
 })

@@ -1,38 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import type { GroupId, MatchSlot, Team } from '../types/tournament'
 import { teamsById } from '../data/teams'
 import { groupMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
 import { computeGroupStandings } from '../lib/standings'
+import { useScoreDialog } from '../composables/use-score-dialog'
 import MatchCard from './MatchCard.vue'
-import ScoreDialog from './ScoreDialog.vue'
 import GroupStandingsTable from './GroupStandingsTable.vue'
 
 const props = defineProps<{ groupId: GroupId }>()
 
 const store = useTournamentStore()
+const openScoreDialog = useScoreDialog()
 
 const matches = groupMatches.filter((m) => m.group === props.groupId)
 
 const standings = computed(() => computeGroupStandings(props.groupId, store.results))
 const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
-const selectedMatch = ref<MatchSlot | null>(null)
-
 function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
   if (teamRef.kind === 'team') return teamsById.get(teamRef.teamId) ?? null
   return null
 }
 
-type DialogTeams = { match: MatchSlot; home: Team; away: Team }
-
-const dialogTeams = computed((): DialogTeams | null => {
-  const match = selectedMatch.value
-  const home = match ? resolveTeam(match.homeRef) : null
-  const away = match ? resolveTeam(match.awayRef) : null
-  return home !== null && away !== null ? { match: match!, home, away } : null
-})
+function selectMatch(match: MatchSlot): void {
+  const home = resolveTeam(match.homeRef)
+  const away = resolveTeam(match.awayRef)
+  if (home !== null && away !== null) openScoreDialog(match, home, away)
+}
 </script>
 
 <template>
@@ -52,17 +48,9 @@ const dialogTeams = computed((): DialogTeams | null => {
         :away-team="resolveTeam(match.awayRef)"
         :result="store.results[match.id] ?? null"
         hide-link-icon
-        @click="selectedMatch = match"
+        @click="selectMatch(match)"
       />
     </section>
-
-    <ScoreDialog
-      v-if="dialogTeams"
-      :match="dialogTeams.match"
-      :home-team="dialogTeams.home"
-      :away-team="dialogTeams.away"
-      @close="selectedMatch = null"
-    />
   </article>
 </template>
 
