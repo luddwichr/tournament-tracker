@@ -2,13 +2,6 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 const APP_NAME = 'WM 2026 Tracker'
 
-declare module 'vue-router' {
-  interface RouteMeta {
-    /** Page title — drives both the document title and the a11y announcement. */
-    title?: string
-  }
-}
-
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/groups' },
   {
