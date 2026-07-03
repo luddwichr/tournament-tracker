@@ -574,83 +574,17 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 Top-decile strictness (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
 `noPropertyAccessFromIndexSignature`, `noImplicitOverride`, `erasableSyntaxOnly`) with a
-clean base/app/node/vitest project-reference layout. Remaining issues:
-
-1. 🟡 `tsconfig.vitest.json` includes all of `src/**` with `exclude: []`, fully
-   overlapping `tsconfig.app.json` — every `vue-tsc -b` checks the app twice. Narrow to
-   spec/test-support files.
-2. 🟢 `build` runs `vue-tsc -b && vite build` and `typecheck` runs `vue-tsc -b --noEmit`;
-   `noEmit` is already set by `@vue/tsconfig`, so the flag is a no-op — one spelling,
-   please. `module`/`moduleResolution` in tsconfig.node.json re-state inherited values.
-   `vite/client` types declared twice (env.d.ts + tsconfig.app.json).
+clean base/app/node/vitest project-reference layout.
 
 ### Linting & formatting
 
 The eslint↔oxlint bridge (`buildFromOxlintConfigFile` placed last) is the canonical
-pattern, and nearly every rule override carries a why-comment. Gaps:
-
-1. 🟡 **ESLint ignores miss generated directories** — `playwright-report/`,
-   `test-results/`, `dev-dist/` are gitignored but not eslint-ignored; after a local e2e
-   run, `eslint .` lints Playwright's bundled report. Mirror the .gitignore entries.
-2. 🟡 **No a11y linting** — the project clearly cares about a11y (axe in e2e), but axe
-   only covers states the suite visits; `eslint-plugin-vuejs-accessibility` catches the
-   rest at author time (and would flag several §6 findings on write).
-3. 🟡 Inconsistent warning policy: eslint gets `--max-warnings 0`, oxlint runs bare —
-   the first warn-severity rule added passes CI silently. `oxlint --deny-warnings`.
-4. 🟢 oxlint enables only the `correctness` category — `suspicious` is cheap signal.
-   Order nit: oxlint is ~50× faster; run it before eslint for faster failure. No import
-   ordering enforced anywhere.
+pattern, and nearly every rule override carries a why-comment.
 
 ### Build / PWA
 
 The workbox config comments (navigateFallback rationale, GH-Pages 404 fallback) are
-exceptional. Gaps:
-
-1. 🟡 **`index.html` lacks PWA/mobile meta essentials** — no `theme-color` meta, no
-   `apple-touch-icon` (iOS installs get a screenshot blob), no `description`.
-   vite-plugin-pwa does not inject these.
-2. 🟡 **Manifest lacks `id`** — app identity derives from `start_url`; a deploy-path
-   change orphans existing installs.
-3. 🟡 **The production base path exists only as a CI flag** — CI builds with `--base=/repo/`
-   while local builds use `/`; the production artifact is not reproducible locally
-   without the magic flag, and the GH-Pages-specific SW fallback code is only ever
-   tested at base `/`. Derive base from an env var in vite.config.ts and document it.
-
-### Scripts, hooks & CI
-
-1. 🟡 **No aggregate `check` script** — CI hand-lists five steps; local devs must
-   remember the same list; they will drift. Add
-   `"check": "typecheck && format:check && lint && test:unit:coverage"` and have CI call it.
-2. 🟡 **CI gaps** (`.github/workflows/ci.yml`): coverage never enforced (§9);
-   the PWA offline suite runs nowhere automatically — for an app whose stated core value
-   is offline-first, the entire service-worker behavior is unguarded; no `permissions`
-   block on the ci job; no `concurrency` cancel-in-progress group; no `timeout-minutes`
-   (a hung Playwright server burns the 6 h default); Playwright browsers reinstalled
-   every run (cache `~/.cache/ms-playwright`).
-3. 🟡 **`package-lock.json` is out of sync** — the lock still lists `globals` under
-   `dependencies` while package.json has it in devDependencies; `npm ci` validates this.
-   Run `npm install` and commit. (`globals` itself is nearly unused — with `no-undef`
-   off, the eslint globals map does almost nothing; removing it moots the drift.)
-
-### Repo hygiene & missing infrastructure
-
-1. 🟡 **`.vscode/settings.json` is missing editor conveniences** — no `editor.formatOnSave`
-   (the oxc formatter is configured but never triggered) and no ESLint extension
-   recommendation.
-2. 🟡 **No README** — no setup instructions, no mention of the devcontainer, the `--base`
-   deploy trick, or the two-config Playwright split. Highest-impact doc gap.
-3. 🟡 **No renovate/dependabot** — CLAUDE.md mandates exact pins with no update
-   mechanism: pinning without automation is guaranteed staleness. `renovate.json` with
-   `rangeStrategy: "pin"` matches the house convention.
-4. 🟡 **Node version pinned three different ways** — Dockerfile `24.18.0`, CI
-   `node-version: 24` (floating), nothing for bare-metal devs. Add `.nvmrc` + `engines`,
-   point CI at `node-version-file`.
-5. 🟢 `.gitattributes`: `*.svg binary` is wrong — SVG is text; this disables diffs and
-   the LF normalization the file's first rule establishes. Devcontainer: no
-   `postCreateCommand: "npm ci"` (fresh containers start without node*modules \_and*
-   without hooks, since `prepare` never ran), no `forwardPorts`; `@playwright/cli@latest`
-   is the one unpinned install. No LICENSE, no `.editorconfig` (Python/MD/YAML/shell
-   files have no guidance), `.env` not gitignored (only `*.local`).
+exceptional.
 
 ---
 
