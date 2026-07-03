@@ -6,6 +6,17 @@ import MatchCard from './MatchCard.vue'
 import type { Team, Player } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
 
+const { players } = vi.hoisted(() => {
+  const players: Player[] = [
+    { number: 1, name: 'Manuel Neuer', position: 'GK' },
+    { number: 4, name: 'Jonathan Tah', position: 'DF' },
+    { number: 8, name: 'Toni Kroos', position: 'MF' },
+  ]
+  return { players }
+})
+
+vi.mock('../data/squads', () => ({ squads: { ger: players } }))
+
 beforeEach(() => {
   setActivePinia(createPinia())
   HTMLDialogElement.prototype.showModal = vi.fn()
@@ -16,14 +27,8 @@ beforeEach(() => {
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
 
-const players: Player[] = [
-  { number: 1, name: 'Manuel Neuer', position: 'GK' },
-  { number: 4, name: 'Jonathan Tah', position: 'DF' },
-  { number: 8, name: 'Toni Kroos', position: 'MF' },
-]
-
-function mountDialog(overrides: { team?: Team; players?: Player[] } = {}) {
-  return mount(TeamDialog, { props: { team, players, ...overrides } })
+function mountDialog(overrides: { team?: Team } = {}) {
+  return mount(TeamDialog, { props: { team, ...overrides } })
 }
 
 describe('TeamDialog', () => {

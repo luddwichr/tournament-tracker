@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Team, Player } from '../types/tournament'
+import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadList from './SquadList.vue'
 import TeamStats from './TeamStats.vue'
@@ -10,15 +10,16 @@ import TeamIcon from './icons/TeamIcon.vue'
 import ScheduleIcon from './icons/ScheduleIcon.vue'
 import { useTournamentStore } from '../stores/tournament'
 import { matchesForTeam, computeTeamStats } from '../lib/team-schedule'
+import { squads } from '../data/squads'
 
 const props = defineProps<{
   team: Team
-  players: Player[]
 }>()
 
 const emit = defineEmits<{ close: [] }>()
 
 const store = useTournamentStore()
+const players = computed(() => squads[props.team.id] ?? [])
 const entries = computed(() => matchesForTeam(props.team, store.results))
 const stats = computed(() => computeTeamStats(props.team, entries.value))
 

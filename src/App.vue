@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect, nextTick, provide, useTemplateRef } from 'vue'
+import { ref, watch, watchEffect, nextTick, provide, useTemplateRef, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
-import TeamDialog from './components/TeamDialog.vue'
 import { announceKey } from './composables/use-announce'
 import { provideTeamViewer } from './composables/use-team-viewer'
 import { useSettingsStore } from './stores/settings'
-import { squads } from './data/squads'
+
+// Loaded lazily: TeamDialog pulls in the squads dataset and flag-icons CSS
+// (see main.ts), which must not ride the entry chunk. It only renders under
+// v-if, so the async gap is invisible.
+const TeamDialog = defineAsyncComponent(() => import('./components/TeamDialog.vue'))
 
 const settings = useSettingsStore()
 watchEffect(() => {
@@ -51,7 +54,7 @@ watch(
     {{ announcement }}
   </div>
 
-  <TeamDialog v-if="viewedTeam" :team="viewedTeam" :players="squads[viewedTeam.id] ?? []" @close="closeTeamView" />
+  <TeamDialog v-if="viewedTeam" :team="viewedTeam" @close="closeTeamView" />
 </template>
 
 <style scoped>

@@ -18,30 +18,16 @@ Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 
 1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§4.1).
 2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§6.1).
-3. 🔴 **Entry bundle regression** — `App.vue` statically pulls TeamDialog → squads dataset → flag-icons CSS into the entry chunk (441 kB CSS / 182 kB JS), directly contradicting the lazy-loading comment in `main.ts` (§2.1).
-4. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§4.2).
-5. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§7.2).
-6. 🔴 **e2e code is never typechecked** — no tsconfig covers `e2e/**` or `playwright.pwa.config.ts` (§9.1).
-7. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§8.1).
+3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§4.2).
+4. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§7.2).
+5. 🔴 **e2e code is never typechecked** — no tsconfig covers `e2e/**` or `playwright.pwa.config.ts` (§9.1).
+6. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§8.1).
 
 ---
 
 ## 2. Architecture & structure
 
-### 2.1 🔴 Entry bundle defeats the app's own lazy-loading strategy
-
-`src/App.vue:5,9` statically imports `TeamDialog` and the full `squads` dataset;
-`TeamFlag.vue:3` imports the flag-icons CSS. `src/main.ts:8-10` explicitly documents
-that flag-icons must ride a lazy route chunk — the bundler disagrees: verified in the
-build output, entry CSS is **441 kB (90 kB gzip)** containing flag-icons and entry JS is
-**182 kB (50 kB gzip)** containing the 1,352-line squads dataset.
-**Fix:** `defineAsyncComponent(() => import('./components/TeamDialog.vue'))` in App.vue
-(it renders under `v-if`, so the async gap is invisible) and move the `squads[team.id]`
-lookup into TeamDialog itself — App has no business knowing about squads. This deletes
-the `players` prop and pulls TeamDialog + squads + flag-icons out of the entry chunk in
-one move. Add a bundle-size guardrail so this can't silently regress again (§9.7, §11).
-
-### 2.2 🟡 The score-dialog ownership pattern is copy-pasted three times
+### 2.1 🟡 The score-dialog ownership pattern is copy-pasted three times
 
 `GroupTable.vue:21-35`, `KnockoutView.vue:11-25`, `TeamSchedule.vue` each own a
 `selectedMatch` ref, a `dialogConfig` computed of the same `{ match, home, away }` shape,
@@ -50,7 +36,7 @@ this exact problem for TeamDialog with `provideTeamViewer`.
 **Fix:** mirror that — a `useScoreDialog()` provide/inject pair with one `<ScoreDialog>`
 at App level. `resolveTeamRef` subsumes two of the three slightly-different resolvers.
 
-### 2.3 🟡 The smart/dumb component line is inconsistent
+### 2.2 🟡 The smart/dumb component line is inconsistent
 
 Nine modules reach into the tournament store directly, including deep leaves:
 `GroupTable`, `OriginColumn`, `TeamDialog`, `BracketView`, `ThirdPlaceTable`,
@@ -62,7 +48,7 @@ computations themselves, making them untestable without Pinia and unreusable.
 pass computed rows into the leaves the way `GroupStandingsTable` already receives
 `standings`.
 
-### 2.4 🟡 Standings are recomputed redundantly all over the tree
+### 2.3 🟡 Standings are recomputed redundantly all over the tree
 
 `computeGroupStandings` has no memoization and is called per `GroupTable` instance
 (×12), per group inside `OriginColumn.groupData`, again inside `rankThirdPlacedLive`,
@@ -75,7 +61,7 @@ gives Vue-cached invalidation for the views; fingerprint-memoize
 `computeGroupStandings(group, results)` for the lib callers (a fingerprint helper
 already exists in `possible-teams.ts:53` — hoist it).
 
-### 2.5 🟡 Layering inversion in the bracket composables
+### 2.4 🟡 Layering inversion in the bracket composables
 
 `use-bracket-connectors.ts:2` re-exports the pure `bracket-graph` maps, so
 `use-bracket-highlight.ts` imports graph _data_ from a DOM-geometry _rendering_ module.
@@ -87,7 +73,7 @@ drop the `viewEl` parameter and the `bracketViewEl` template ref. Either give th
 function the missing reactivity (the ResizeObserver from §3.3) or rename it
 `createConnectorGeometry`.
 
-### 2.6 🟡 Five events relayed verbatim through two layers
+### 2.5 🟡 Five events relayed verbatim through two layers
 
 `BracketView → BracketRound → BracketMatchItem → MatchCard`: `matchClick`, `matchHover`,
 `matchHoverEnd`, `toggleHighlight`, `placeholderClick` are declared and re-emitted
@@ -493,8 +479,8 @@ bug would live. **Fix:** implement one in terms of the other (or extract
    `isNonNegativeInteger` half (negative/fractional/NaN goals, non-string matchId) is
    unexercised — exactly the corrupt-import cases the validator exists for. 2–3
    `it.each` rows.
-6. 🟢 `provideTeamViewer`, `use-possible-teams-dialog`'s label fallback, and App.vue are
-   untested; the label fallback is genuine logic worth 2 direct tests.
+6. 🟢 `provideTeamViewer` and `use-possible-teams-dialog`'s label fallback are untested;
+   the label fallback is genuine logic worth 2 direct tests.
 
 ### Test design
 
@@ -635,6 +621,7 @@ exceptional. Gaps:
    tested at base `/`. Derive base from an env var in vite.config.ts and document it.
 
 ### Scripts, hooks & CI
+
 1. 🟡 **No aggregate `check` script** — CI hand-lists five steps; local devs must
    remember the same list; they will drift. Add
    `"check": "typecheck && format:check && lint && test:unit:coverage"` and have CI call it.
@@ -667,7 +654,7 @@ exceptional. Gaps:
    point CI at `node-version-file`.
 5. 🟢 `.gitattributes`: `*.svg binary` is wrong — SVG is text; this disables diffs and
    the LF normalization the file's first rule establishes. Devcontainer: no
-   `postCreateCommand: "npm ci"` (fresh containers start without node_modules _and_
+   `postCreateCommand: "npm ci"` (fresh containers start without node*modules \_and*
    without hooks, since `prepare` never ran), no `forwardPorts`; `@playwright/cli@latest`
    is the one unpinned install. No LICENSE, no `.editorconfig` (Python/MD/YAML/shell
    files have no guidance), `.env` not gitignored (only `*.local`).
@@ -698,8 +685,7 @@ exceptional. Gaps:
   abziehen"), centralized axe helper scanning seeded states and open dialogs.
 - **Comments explain _why_, almost never _what_** — the GroupsView 49rem grid derivation,
   the possible-teams cache-key rationale, the workbox/GH-Pages fallback documentation are
-  model comments. Notably, the stale `main.ts` bundle comment (§2.1) still paid rent: it
-  made the regression detectable.
+  model comments.
 - **Test suite discipline**: domain tests against real fixtures with hand-derived math
   shown; data-integrity specs as a gate (the table↔bracket drift check is genuinely
   clever); injectable fetch/clock in the ESPN provider; cancellation-race coverage; zero
@@ -728,10 +714,10 @@ catch and humans/agents don't. Concrete program, in order of leverage:
 2. **Make every threshold a ratchet, not a floor.** Coverage thresholds at 70 % while
    reality is 94 % means the loop is disconnected — an agent can delete a module's tests
    and stay green. Set thresholds to observed − 2-3 pts (or `thresholds.autoUpdate`
-   locally, committed), and _run coverage in CI_. Same principle for bundle size: add
-   `size-limit` with a budget on `dist/assets/*` — §2.1 happened precisely because no
-   loop watched the entry chunk; for an offline-first PWA the precache payload _is_ the
-   product.
+   locally, committed), and _run coverage in CI_. Same principle now applied to bundle
+   size (a `size-limit` budget on `dist/assets/index-*` runs in CI on every push/PR) —
+   generalize it to the PWA precache payload as a whole, since for an offline-first app
+   that _is_ the product.
 3. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
    Candidates from this review: `vuejs-accessibility` plugin (§6 findings), stylelint
