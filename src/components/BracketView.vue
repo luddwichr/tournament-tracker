@@ -70,7 +70,6 @@ const {
   close: closePossibleTeams,
 } = usePossibleTeamsDialog()
 
-const bracketViewEl = useTemplateRef<HTMLElement>('bracketViewEl')
 const roundsEl = useTemplateRef<HTMLElement>('roundsEl')
 
 const {
@@ -83,7 +82,7 @@ const {
   onTeamRefHover,
   onTeamRefHoverEnd,
   toggleMatchPin,
-} = useBracketHighlight(roundsEl, bracketViewEl)
+} = useBracketHighlight(roundsEl)
 
 onMounted(() => {
   const stage = currentBracketColumn(store.results)
@@ -95,7 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="bracketViewEl" class="bracket-view" role="region" aria-label="K.-o.-Runde" tabindex="0">
+  <div class="bracket-view" role="region" aria-label="K.-o.-Runde" tabindex="0">
     <div ref="roundsEl" class="bracket-view__rounds">
       <OriginColumn
         :highlighted-refs="highlightedRefKeys"

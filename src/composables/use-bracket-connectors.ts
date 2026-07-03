@@ -1,5 +1,4 @@
 import type { Ref } from 'vue'
-export { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from '../lib/bracket-graph'
 
 function connectorBetween(fromEl: HTMLElement, toEl: HTMLElement, container: HTMLElement): string {
   const cRect = container.getBoundingClientRect()
@@ -13,9 +12,9 @@ function connectorBetween(fromEl: HTMLElement, toEl: HTMLElement, container: HTM
   return `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`
 }
 
-export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>, viewEl: Ref<HTMLElement | null>) {
+export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>) {
   function matchConnector(fromId: string, toId: string): string | null {
-    if (!roundsEl.value || !viewEl.value) return null
+    if (!roundsEl.value) return null
     const container = roundsEl.value
     const fromGroup = container.querySelector<HTMLElement>(`[data-match-id="${fromId}"]`)
     const toGroup = container.querySelector<HTMLElement>(`[data-match-id="${toId}"]`)
@@ -26,7 +25,7 @@ export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>, viewEl: 
   }
 
   function originConnector(refKey: string, matchId: string): string | null {
-    if (!roundsEl.value || !viewEl.value) return null
+    if (!roundsEl.value) return null
     const container = roundsEl.value
     const fromEl = container.querySelector<HTMLElement>(`[data-ref-key="${refKey}"]`)
     const toGroup = container.querySelector<HTMLElement>(`[data-match-id="${matchId}"]`)

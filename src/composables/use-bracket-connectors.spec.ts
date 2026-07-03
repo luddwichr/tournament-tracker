@@ -28,12 +28,7 @@ describe('useBracketConnectors', () => {
 
   describe('matchConnector', () => {
     it('returns null when roundsEl is null', () => {
-      const { matchConnector } = useBracketConnectors(ref(null), ref(document.createElement('div')))
-      expect(matchConnector('M73', 'M90')).toBeNull()
-    })
-
-    it('returns null when viewEl is null', () => {
-      const { matchConnector } = useBracketConnectors(ref(document.createElement('div')), ref(null))
+      const { matchConnector } = useBracketConnectors(ref(null))
       expect(matchConnector('M73', 'M90')).toBeNull()
     })
 
@@ -42,7 +37,7 @@ describe('useBracketConnectors', () => {
       const toGroup = document.createElement('div')
       toGroup.dataset['matchId'] = 'M90'
       container.appendChild(toGroup)
-      const { matchConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
+      const { matchConnector } = useBracketConnectors(ref(container))
       expect(matchConnector('M73', 'M90')).toBeNull()
     })
 
@@ -51,12 +46,11 @@ describe('useBracketConnectors', () => {
       const fromGroup = document.createElement('div')
       fromGroup.dataset['matchId'] = 'M73'
       container.appendChild(fromGroup)
-      const { matchConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
+      const { matchConnector } = useBracketConnectors(ref(container))
       expect(matchConnector('M73', 'M90')).toBeNull()
     })
 
     it('returns a cubic bezier SVG path using .match-card bounding rects', () => {
-      const scrollEl = document.createElement('div')
       const container = document.createElement('div')
       mockRect(container, { left: 0, top: 0 })
 
@@ -76,7 +70,7 @@ describe('useBracketConnectors', () => {
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
-      const { matchConnector } = useBracketConnectors(ref(container), ref(scrollEl))
+      const { matchConnector } = useBracketConnectors(ref(container))
 
       // x1 = right(50) - containerLeft(0) = 50
       // y1 = top(20) + height/2(10) - containerTop(0) = 30
@@ -87,7 +81,6 @@ describe('useBracketConnectors', () => {
     })
 
     it('accounts for container offset', () => {
-      const scrollEl = document.createElement('div')
       const container = document.createElement('div')
       mockRect(container, { left: 10, top: 5 })
 
@@ -107,7 +100,7 @@ describe('useBracketConnectors', () => {
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
-      const { matchConnector } = useBracketConnectors(ref(container), ref(scrollEl))
+      const { matchConnector } = useBracketConnectors(ref(container))
 
       // getBoundingClientRect already reflects scroll, so subtracting container coords
       // gives scroll-invariant SVG positions.
@@ -122,12 +115,7 @@ describe('useBracketConnectors', () => {
 
   describe('originConnector', () => {
     it('returns null when roundsEl is null', () => {
-      const { originConnector } = useBracketConnectors(ref(null), ref(document.createElement('div')))
-      expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
-    })
-
-    it('returns null when viewEl is null', () => {
-      const { originConnector } = useBracketConnectors(ref(document.createElement('div')), ref(null))
+      const { originConnector } = useBracketConnectors(ref(null))
       expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
     })
 
@@ -136,7 +124,7 @@ describe('useBracketConnectors', () => {
       const toGroup = document.createElement('div')
       toGroup.dataset['matchId'] = 'M73'
       container.appendChild(toGroup)
-      const { originConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
+      const { originConnector } = useBracketConnectors(ref(container))
       expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
     })
 
@@ -145,12 +133,11 @@ describe('useBracketConnectors', () => {
       const fromEl = document.createElement('div')
       fromEl.dataset['refKey'] = 'groupRank:A:2'
       container.appendChild(fromEl)
-      const { originConnector } = useBracketConnectors(ref(container), ref(document.createElement('div')))
+      const { originConnector } = useBracketConnectors(ref(container))
       expect(originConnector('groupRank:A:2', 'M73')).toBeNull()
     })
 
     it('returns a cubic bezier SVG path from origin row to match card', () => {
-      const scrollEl = document.createElement('div')
       const container = document.createElement('div')
       mockRect(container, { left: 0, top: 0 })
 
@@ -167,7 +154,7 @@ describe('useBracketConnectors', () => {
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
-      const { originConnector } = useBracketConnectors(ref(container), ref(scrollEl))
+      const { originConnector } = useBracketConnectors(ref(container))
 
       // x1 = right(30) - containerLeft(0) = 30
       // y1 = top(15) + height/2(5) - containerTop(0) = 20

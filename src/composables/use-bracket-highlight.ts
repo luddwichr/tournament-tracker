@@ -1,15 +1,10 @@
 import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
-import {
-  nextMatchMap,
-  prevMatchMap,
-  teamRefToMatchId,
-  matchToRefKeys,
-  useBracketConnectors,
-} from './use-bracket-connectors'
+import { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from '../lib/bracket-graph'
+import { useBracketConnectors } from './use-bracket-connectors'
 
-export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>, bracketViewEl: Ref<HTMLElement | null>) {
-  const { matchConnector, originConnector } = useBracketConnectors(roundsEl, bracketViewEl)
+export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
+  const { matchConnector, originConnector } = useBracketConnectors(roundsEl)
 
   const hoveredMatchId = ref<string | null>(null)
   const hoveredRefKey = ref<string | null>(null)

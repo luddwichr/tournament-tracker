@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
-import BracketMatchItem from './BracketMatchItem.vue'
+import MatchCard from './MatchCard.vue'
 import type { MatchSlot } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
@@ -48,60 +48,102 @@ describe('BracketRound – structure', () => {
     expect(wrapper.find('section').attributes('data-stage')).toBe('qf')
   })
 
-  it('renders one BracketMatchItem per match', () => {
+  it('renders one MatchCard per match', () => {
     const wrapper = mountRound()
-    expect(wrapper.findAllComponents(BracketMatchItem)).toHaveLength(2)
+    expect(wrapper.findAllComponents(MatchCard)).toHaveLength(2)
   })
 
-  it('renders BracketMatchItem components for each match', () => {
+  it('renders a MatchCard for each match', () => {
     const rows = [makeRow('M73'), makeRow('M74'), makeRow('M75')]
     const wrapper = mountRound({ matches: rows })
-    expect(wrapper.findAllComponents(BracketMatchItem)).toHaveLength(3)
+    expect(wrapper.findAllComponents(MatchCard)).toHaveLength(3)
+  })
+
+  it('sets data-match-id on the wrapper div for each row', () => {
+    const wrapper = mountRound()
+    expect(wrapper.find('[data-match-id="M73"]').exists()).toBe(true)
+    expect(wrapper.find('[data-match-id="M74"]').exists()).toBe(true)
+  })
+
+  it('does not render a section label when not provided', () => {
+    const wrapper = mountRound()
+    expect(wrapper.find('.bracket-round__section-label').exists()).toBe(false)
+  })
+
+  it('renders the section label when provided on a row', () => {
+    const rows = [makeRow('M73', { sectionLabel: 'Spiel um Platz 3' }), makeRow('M74')]
+    const wrapper = mountRound({ matches: rows })
+    expect(wrapper.find('.bracket-round__section-label').text()).toBe('Spiel um Platz 3')
   })
 })
 
 describe('BracketRound – highlight / pin props', () => {
-  it('passes highlighted=true to the matching BracketMatchItem', () => {
+  it('passes highlighted=true to the matching MatchCard', () => {
     const rows = [makeRow('M73'), makeRow('M74')]
     const wrapper = mountRound({ matches: rows, highlightedMatchIds: ['M73'] })
-    const items = wrapper.findAllComponents(BracketMatchItem)
-    expect(items[0]!.props('highlighted')).toBe(true)
-    expect(items[1]!.props('highlighted')).toBe(false)
+    const cards = wrapper.findAllComponents(MatchCard)
+    expect(cards[0]!.props('highlighted')).toBe(true)
+    expect(cards[1]!.props('highlighted')).toBe(false)
   })
 
-  it('passes pinned=true only to the pinned match item', () => {
+  it('passes pinned=true only to the pinned MatchCard', () => {
     const rows = [makeRow('M73'), makeRow('M74')]
     const wrapper = mountRound({ matches: rows, pinnedMatchId: 'M74' })
-    const items = wrapper.findAllComponents(BracketMatchItem)
-    expect(items[0]!.props('pinned')).toBe(false)
-    expect(items[1]!.props('pinned')).toBe(true)
+    const cards = wrapper.findAllComponents(MatchCard)
+    expect(cards[0]!.props('pinned')).toBe(false)
+    expect(cards[1]!.props('pinned')).toBe(true)
   })
 
-  it('passes sectionLabel through to BracketMatchItem', () => {
-    const rows = [makeRow('M73', { sectionLabel: 'Spiel um Platz 3' }), makeRow('M74')]
+  it('passes match, homeTeam, awayTeam and result through to MatchCard', () => {
+    const result = {
+      matchId: 'M73',
+      homeGoals: 2,
+      awayGoals: 1,
+      homeYellow: 0,
+      homeRed: 0,
+      awayYellow: 0,
+      awayRed: 0,
+    }
+    const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
+    const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
+    const rows = [makeRow('M73', { homeTeam, awayTeam, result })]
     const wrapper = mountRound({ matches: rows })
-    const items = wrapper.findAllComponents(BracketMatchItem)
-    expect(items[0]!.props('sectionLabel')).toBe('Spiel um Platz 3')
-    expect(items[1]!.props('sectionLabel')).toBeUndefined()
+    const card = wrapper.findComponent(MatchCard)
+    expect(card.props('match')).toStrictEqual(rows[0]!.match)
+    expect(card.props('homeTeam')).toStrictEqual(homeTeam)
+    expect(card.props('awayTeam')).toStrictEqual(awayTeam)
+    expect(card.props('result')).toStrictEqual(result)
   })
 })
 
 describe('BracketRound – events', () => {
-  it('forwards matchClick from a BracketMatchItem', async () => {
+  it('emits matchClick from the MatchCard body click', async () => {
     const wrapper = mountRound()
     await wrapper.find('.match-card__body').trigger('click')
     expect(wrapper.emitted('matchClick')).toHaveLength(1)
   })
 
-  it('forwards matchHover with the match id from mouseenter', async () => {
+  it('emits matchHover with the match id from mouseenter', async () => {
     const wrapper = mountRound()
     await wrapper.find('.bracket-match-item').trigger('mouseenter')
     expect(wrapper.emitted('matchHover')?.[0]).toEqual(['M73'])
   })
 
-  it('forwards matchHoverEnd from mouseleave', async () => {
+  it('emits matchHoverEnd from mouseleave', async () => {
     const wrapper = mountRound()
     await wrapper.find('.bracket-match-item').trigger('mouseleave')
+    expect(wrapper.emitted('matchHoverEnd')).toHaveLength(1)
+  })
+
+  it('emits matchHover with the match id from focusin', async () => {
+    const wrapper = mountRound()
+    await wrapper.find('.bracket-match-item').trigger('focusin')
+    expect(wrapper.emitted('matchHover')?.[0]).toEqual(['M73'])
+  })
+
+  it('emits matchHoverEnd from focusout', async () => {
+    const wrapper = mountRound()
+    await wrapper.find('.bracket-match-item').trigger('focusout')
     expect(wrapper.emitted('matchHoverEnd')).toHaveLength(1)
   })
 

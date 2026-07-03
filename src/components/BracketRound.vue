@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MatchSlot, Team, Result } from '../types/tournament'
-import BracketMatchItem from './BracketMatchItem.vue'
+import MatchCard from './MatchCard.vue'
 
 export interface MatchRow {
   match: MatchSlot
@@ -35,18 +35,34 @@ const emit = defineEmits<{
       <h2 class="bracket-round__title">{{ title }}</h2>
     </header>
     <div class="bracket-round__matches">
-      <BracketMatchItem
-        v-for="row in matches"
-        :key="row.match.id"
-        v-bind="row"
-        :highlighted="!!highlightedMatchIds?.includes(row.match.id)"
-        :pinned="pinnedMatchId === row.match.id"
-        @match-click="emit('matchClick', $event)"
-        @match-hover="emit('matchHover', $event)"
-        @match-hover-end="emit('matchHoverEnd')"
-        @toggle-highlight="emit('toggleHighlight', $event)"
-        @placeholder-click="(match, slot) => emit('placeholderClick', match, slot)"
-      />
+      <template v-for="row in matches" :key="row.match.id">
+        <p v-if="row.sectionLabel" class="bracket-round__section-label">
+          {{ row.sectionLabel }}
+        </p>
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- mouse/focus-only hover-highlight sync; the click action lives on the nested MatchCard's real controls, see REVIEW.md §6 -->
+        <div
+          class="bracket-match-item"
+          :data-match-id="row.match.id"
+          @mouseenter="emit('matchHover', row.match.id)"
+          @mouseleave="emit('matchHoverEnd')"
+          @focusin="emit('matchHover', row.match.id)"
+          @focusout="emit('matchHoverEnd')"
+        >
+          <MatchCard
+            :match="row.match"
+            :home-team="row.homeTeam"
+            :away-team="row.awayTeam"
+            :result="row.result"
+            :home-placeholder="row.homePlaceholder"
+            :away-placeholder="row.awayPlaceholder"
+            :highlighted="!!highlightedMatchIds?.includes(row.match.id)"
+            :pinned="pinnedMatchId === row.match.id"
+            @click="emit('matchClick', row.match)"
+            @toggle-highlight="emit('toggleHighlight', row.match.id)"
+            @placeholder-click="(slot) => emit('placeholderClick', row.match, slot)"
+          />
+        </div>
+      </template>
     </div>
   </section>
 </template>
@@ -70,5 +86,22 @@ const emit = defineEmits<{
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.bracket-round__section-label {
+  margin: 0;
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bracket-match-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 </style>
