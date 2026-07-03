@@ -9,6 +9,9 @@ ARG UV_VERSION=0.11.25
 ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes — keep in sync with @playwright/test in package.json
 ARG PLAYWRIGHT_VERSION=1.61.1
+# https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
+# independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
+ARG PLAYWRIGHT_CLI_VERSION=0.1.15
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -54,7 +57,7 @@ USER ${USERNAME}
 RUN npx playwright@${PLAYWRIGHT_VERSION} install
 
 # Install playwright cli
-RUN npm install -g @playwright/cli@latest
+RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION}
 
 # install uv (Python package manager)
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
