@@ -8,6 +8,7 @@
 // App.vue without also reaching router.ts (where this used to live) would
 // otherwise type-check `route.meta.title` against the unaugmented RouteMeta
 // index signature.
+// oxlint-disable-next-line unicorn/require-module-specifiers -- the empty export is load-bearing here, not dead code; see comment above
 export {}
 
 declare module 'vue-router' {

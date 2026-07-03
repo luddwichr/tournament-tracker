@@ -7,12 +7,12 @@ import type { Team, Player } from '../types/tournament'
 import { makeTeam } from '../test-support/teams'
 
 const { players } = vi.hoisted(() => {
-  const players: Player[] = [
+  const hoistedPlayers: Player[] = [
     { number: 1, name: 'Manuel Neuer', position: 'GK' },
     { number: 4, name: 'Jonathan Tah', position: 'DF' },
     { number: 8, name: 'Toni Kroos', position: 'MF' },
   ]
-  return { players }
+  return { players: hoistedPlayers }
 })
 
 vi.mock('../data/squads', () => ({ squads: { ger: players } }))
