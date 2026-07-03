@@ -65,5 +65,8 @@
       "limit": "12 KB"
     }
   ],
+  "engines": {
+    "node": "24.18.0"
+  },
   "packageManager": "npm@11.16.0"
 }
