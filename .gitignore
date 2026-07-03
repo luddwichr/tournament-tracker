@@ -19,6 +19,9 @@ test-results/
 .idea
 .claude/settings.local.json
 
+# Secrets
+.env
+
 # Logs
 *.log
 npm-debug.log*
