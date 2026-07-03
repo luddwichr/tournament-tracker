@@ -63,6 +63,10 @@ export default defineConfig({
         ],
       },
       manifest: {
+        // Relative to the manifest's own URL (per the Web App Manifest spec),
+        // so app identity stays stable across deploy base paths (`/` locally,
+        // `/<repo>/` on GH Pages) instead of implicitly deriving from start_url.
+        id: '.',
         name: 'WM 2026 Tracker',
         short_name: 'WM 2026',
         description: 'Offline-Tracker für die FIFA Weltmeisterschaft 2026',
