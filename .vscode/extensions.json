@@ -3,6 +3,7 @@
     "vue.volar",
     "anthropic.claude-code",
     "oxc.oxc-vscode",
+    "dbaeumer.vscode-eslint",
     "ms-playwright.playwright",
     "vitest.explorer",
     "github.vscode-github-actions"
