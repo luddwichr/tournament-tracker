@@ -3,5 +3,8 @@
   "editor.formatOnSave": true,
   "js/ts.tsdk.path": "./node_modules/typescript/lib",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
-  "eslint.validate": ["typescript", "vue"]
+  "eslint.validate": ["typescript", "vue"],
+  "json.schemaDownload.trustedDomains": {
+    "https://docs.renovatebot.com/renovate-schema.json": true
+  }
 }
