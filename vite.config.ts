@@ -12,6 +12,10 @@ declare const caches: {
 }
 
 export default defineConfig({
+  // GH Pages serves this app from a repo subpath (e.g. /wm2026-tracker/)
+  // rather than from the domain root. Set DEPLOY_BASE_PATH to reproduce that
+  // build locally, e.g. `DEPLOY_BASE_PATH=/wm2026-tracker/ npm run build`.
+  base: process.env['DEPLOY_BASE_PATH'] ?? '/',
   plugins: [
     vue(),
     VitePWA({
