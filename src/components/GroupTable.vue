@@ -4,7 +4,6 @@ import type { GroupId, MatchSlot, Team } from '../types/tournament'
 import { teamsById } from '../data/teams'
 import { groupMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
-import { computeGroupStandings } from '../lib/standings'
 import { useScoreDialog } from '../composables/use-score-dialog'
 import MatchCard from './MatchCard.vue'
 import GroupStandingsTable from './GroupStandingsTable.vue'
@@ -16,7 +15,7 @@ const openScoreDialog = useScoreDialog()
 
 const matches = groupMatches.filter((m) => m.group === props.groupId)
 
-const standings = computed(() => computeGroupStandings(props.groupId, store.results))
+const standings = computed(() => store.standingsByGroup.get(props.groupId) ?? [])
 const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
 function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {

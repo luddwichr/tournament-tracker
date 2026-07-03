@@ -23,7 +23,7 @@
 import type { Team, TeamRef, GroupId, Result, ThirdPlaceSlot } from '../types/tournament'
 import { groupMatches, knockoutMatches, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import { teamsById, teamsInGroup } from '../data/teams'
-import { computeGroupStandings } from './standings'
+import { computeGroupStandings, resultFingerprint } from './standings'
 import { resolveTeamRef } from './knockout'
 import { resolveThirdPlaceSlot } from './third-place'
 
@@ -50,25 +50,12 @@ export function clearPossibleTeamsCache(): void {
   cache.clear()
 }
 
-function groupResultFingerprint(group: GroupId, results: Record<string, Result>): string {
-  return groupMatches
-    .filter((m) => m.group === group)
-    .map((m) => {
-      const r = results[m.id]
-      // Include discipline counts: fair-play (yellow/red cards) breaks ties and
-      // must be part of the cache key, otherwise two identical-score results with
-      // different cards would collide and return a stale cached set.
-      return r ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}` : '_'
-    })
-    .join(',')
-}
-
 // ---------------------------------------------------------------------------
 // Core: possible teams at a specific group rank
 // ---------------------------------------------------------------------------
 
 function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Record<string, Result>): Set<string> {
-  const fp = groupResultFingerprint(group, results)
+  const fp = resultFingerprint(group, results)
   const cacheKey = `${group}:${rank}:${fp}`
   const cached = cache.get(cacheKey)
   if (cached) return cached

@@ -1,7 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { GROUP_IDS } from '../types/tournament'
+import { useTournamentStore } from '../stores/tournament'
+import { rankThirdPlacedLive } from '../lib/third-place'
 import GroupTable from '../components/GroupTable.vue'
 import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
+
+const store = useTournamentStore()
+
+const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 </script>
 
 <template>
@@ -9,7 +16,7 @@ import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
     <h1 class="groups-view__heading">Gruppen</h1>
     <div class="groups-view__grid">
       <GroupTable v-for="groupId in GROUP_IDS" :key="groupId" :group-id="groupId" />
-      <ThirdPlaceTable class="groups-view__third-place" />
+      <ThirdPlaceTable class="groups-view__third-place" :live-ranking="liveRanking" />
     </div>
   </div>
 </template>

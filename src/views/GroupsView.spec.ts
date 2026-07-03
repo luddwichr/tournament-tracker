@@ -5,6 +5,9 @@ import GroupsView from './GroupsView.vue'
 import GroupTable from '../components/GroupTable.vue'
 import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
 import { GROUP_IDS } from '../types/tournament'
+import { useTournamentStore } from '../stores/tournament'
+import { rankThirdPlacedLive } from '../lib/third-place'
+import { allGroupResults } from '../test-support/results'
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -30,5 +33,25 @@ describe('GroupsView', () => {
   it('renders the third-place table', () => {
     const wrapper = mount(GroupsView)
     expect(wrapper.findComponent(ThirdPlaceTable).exists()).toBe(true)
+  })
+
+  it('passes the live third-place ranking (computed from store.results) to ThirdPlaceTable', () => {
+    const wrapper = mount(GroupsView)
+    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking') as ReturnType<
+      typeof rankThirdPlacedLive
+    >
+    expect(liveRanking).toEqual(rankThirdPlacedLive({}))
+    expect(liveRanking.final).toBe(false)
+  })
+
+  it('updates the liveRanking prop once all groups are complete', async () => {
+    const store = useTournamentStore()
+    const wrapper = mount(GroupsView)
+    store.importResults(allGroupResults(1, 0))
+    await wrapper.vm.$nextTick()
+    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking') as ReturnType<
+      typeof rankThirdPlacedLive
+    >
+    expect(liveRanking.final).toBe(true)
   })
 })

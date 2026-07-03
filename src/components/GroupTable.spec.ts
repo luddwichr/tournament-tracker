@@ -6,7 +6,10 @@ import MatchCard from './MatchCard.vue'
 import GroupStandingsTable from './GroupStandingsTable.vue'
 import { scoreDialogKey } from '../composables/use-score-dialog'
 import { groupMatches } from '../data/fixtures-2026'
+import { GROUP_IDS } from '../types/tournament'
 import type { GroupId } from '../types/tournament'
+import { useTournamentStore } from '../stores/tournament'
+import { makeResult } from '../test-support/results'
 
 vi.mock('../data/fixtures-2026', async (importOriginal) => {
   const original = await importOriginal<typeof import('../data/fixtures-2026')>()
@@ -92,6 +95,35 @@ describe('GroupTable – score dialog', () => {
     expect(match).toMatchObject({ id: firstMatch.id })
     expect(home).toBeTruthy()
     expect(away).toBeTruthy()
+  })
+})
+
+describe('GroupTable – store.standingsByGroup getter', () => {
+  it('exposes a Map with an entry for every group', () => {
+    const store = useTournamentStore()
+    expect(store.standingsByGroup.size).toBe(GROUP_IDS.length)
+    for (const id of GROUP_IDS) {
+      expect(store.standingsByGroup.get(id)).toBeDefined()
+    }
+  })
+
+  it('reflects newly entered results', () => {
+    const store = useTournamentStore()
+    const before = store.standingsByGroup.get('A')!
+    expect(before.every((s) => s.played === 0)).toBe(true)
+
+    const firstMatch = groupMatches.find((m) => m.group === 'A')!
+    store.enterResult(makeResult(firstMatch.id, 2, 0))
+
+    const after = store.standingsByGroup.get('A')!
+    expect(after.some((s) => s.played === 1)).toBe(true)
+  })
+
+  it('GroupTable renders standings sourced from store.standingsByGroup (not a fresh computation)', () => {
+    const store = useTournamentStore()
+    const wrapper = mount(GroupTable, { props: { groupId: 'A' } })
+    const table = wrapper.findComponent(GroupStandingsTable)
+    expect(table.props('standings')).toBe(store.standingsByGroup.get('A'))
   })
 })
 

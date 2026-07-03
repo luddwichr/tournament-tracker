@@ -7,8 +7,8 @@
  * actual production function, not a re-implemented copy.
  */
 
-import { describe, it, expect } from 'vitest'
-import { computeGroupStandings } from './standings'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { computeGroupStandings, resultFingerprint, clearStandingsCache } from './standings'
 import { groupMatches } from '../data/fixtures-2026'
 import { makeResult, resultsMap } from '../test-support/results'
 
@@ -209,5 +209,63 @@ describe('computeGroupStandings — correct ordering', () => {
     expect(standings[1]!.team.id).toBe('rsa') // 0 cards, worse FIFA rank than kor
     expect(standings[2]!.team.id).toBe('cze') // -2 fair-play (2 yellows)
     expect(standings[3]!.team.id).toBe('mex') // -3 fair-play (1 red × 3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// resultFingerprint — cache-key builder shared with possible-teams.ts
+// ---------------------------------------------------------------------------
+
+describe('resultFingerprint', () => {
+  it('is identical for two equal results maps', () => {
+    const a = resultsMap(makeResult(mid(0), 2, 0), makeResult(mid(1), 1, 1))
+    const b = resultsMap(makeResult(mid(0), 2, 0), makeResult(mid(1), 1, 1))
+    expect(resultFingerprint('A', a)).toBe(resultFingerprint('A', b))
+  })
+
+  it('changes when a score changes', () => {
+    const a = resultsMap(makeResult(mid(0), 2, 0))
+    const b = resultsMap(makeResult(mid(0), 1, 0))
+    expect(resultFingerprint('A', a)).not.toBe(resultFingerprint('A', b))
+  })
+
+  it('changes when only discipline counts differ (same score)', () => {
+    const a = resultsMap(makeResult(mid(0), 1, 0, { homeYellow: 1 }))
+    const b = resultsMap(makeResult(mid(0), 1, 0, { homeYellow: 2 }))
+    expect(resultFingerprint('A', a)).not.toBe(resultFingerprint('A', b))
+  })
+})
+
+// ---------------------------------------------------------------------------
+// computeGroupStandings — memoization
+// ---------------------------------------------------------------------------
+
+describe('computeGroupStandings — memoization', () => {
+  beforeEach(() => {
+    clearStandingsCache()
+  })
+
+  it('returns the same array reference for two calls with an equal (but distinct) results object', () => {
+    const results1 = resultsMap(makeResult(mid(0), 2, 0), makeResult(mid(1), 1, 1))
+    const results2 = resultsMap(makeResult(mid(0), 2, 0), makeResult(mid(1), 1, 1))
+    const first = computeGroupStandings('A', results1)
+    const second = computeGroupStandings('A', results2)
+    expect(second).toBe(first)
+  })
+
+  it('recomputes (different reference) once a score changes', () => {
+    const first = computeGroupStandings('A', resultsMap(makeResult(mid(0), 2, 0)))
+    const second = computeGroupStandings('A', resultsMap(makeResult(mid(0), 1, 0)))
+    expect(second).not.toBe(first)
+  })
+
+  it('clearStandingsCache forces recomputation for the same results', () => {
+    const results = resultsMap(makeResult(mid(0), 2, 0))
+    const first = computeGroupStandings('A', results)
+    clearStandingsCache()
+    const second = computeGroupStandings('A', results)
+    expect(second).not.toBe(first)
+    // Content is still equivalent — only the cache identity changed.
+    expect(second.map((s) => s.team.id)).toEqual(first.map((s) => s.team.id))
   })
 })

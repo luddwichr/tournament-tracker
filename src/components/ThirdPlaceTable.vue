@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useTournamentStore } from '../stores/tournament'
-import { rankThirdPlacedLive, QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
+import type { ThirdPlaceRanking } from '../lib/third-place'
+import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
 import ThirdPlaceRow from './ThirdPlaceRow.vue'
 import InfoDisclosure from './InfoDisclosure.vue'
 
-const store = useTournamentStore()
-
-const liveRanking = computed(() => rankThirdPlacedLive(store.results))
+defineProps<{
+  liveRanking: ThirdPlaceRanking
+}>()
 </script>
 
 <template>

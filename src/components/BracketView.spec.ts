@@ -5,7 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import BracketView from './BracketView.vue'
 import BracketRound from './BracketRound.vue'
 import BracketConnectors from './BracketConnectors.vue'
-import OriginColumn from './OriginColumn.vue'
+import OriginColumn, { type OriginGroupData } from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import type { MatchRow } from './BracketRound.vue'
 import { useTournamentStore } from '../stores/tournament'
@@ -154,5 +154,44 @@ describe('BracketView – scroll to current round on mount', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finaleSection = wrapper.findAllComponents(BracketRound)[4]!.find('section').element
     expect(finaleSection.scrollIntoView).toHaveBeenCalledWith({ inline: 'start', block: 'nearest' })
+  })
+})
+
+describe('BracketView – groupData computed for OriginColumn', () => {
+  it('passes 12 groups with 3 team rows each before any results exist', () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    expect(groupData).toHaveLength(12)
+    for (const group of groupData) {
+      expect(group.teams).toHaveLength(3)
+    }
+  })
+
+  it('gives group A a rank-1 row with refKey groupRank:A:1 and a refKey-less rank-3 row', () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupA = groupData.find((g) => g.id === 'A')!
+    expect(groupA.teams[0]!.refKey).toBe('groupRank:A:1')
+    expect(groupA.teams[1]!.refKey).toBe('groupRank:A:2')
+    expect(groupA.teams[2]!.refKey).toBeNull()
+    expect(groupA.teams[2]!.eliminated).toBe(false)
+  })
+
+  it('assigns a thirdPlace refKey to exactly 8 groups and marks 4 as eliminated once all groups complete', () => {
+    useTournamentStore().importResults(allGroupResults(1, 0))
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const thirdRows = groupData.map((g) => g.teams[2]!)
+    expect(thirdRows.filter((r) => r.refKey?.startsWith('thirdPlace:'))).toHaveLength(8)
+    expect(thirdRows.filter((r) => r.eliminated)).toHaveLength(4)
+  })
+
+  it('reuses the store standingsByGroup data (same team ordering) rather than recomputing it', () => {
+    const wrapper = mount(BracketView, { attachTo: document.body })
+    const store = useTournamentStore()
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupA = groupData.find((g) => g.id === 'A')!
+    const storeStandingsA = store.standingsByGroup.get('A')!
+    expect(groupA.teams.map((t) => t.team.id)).toEqual(storeStandingsA.slice(0, 3).map((s) => s.team.id))
   })
 })

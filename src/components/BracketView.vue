@@ -11,6 +11,7 @@ import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
 import { useBracketHighlight } from '../composables/use-bracket-highlight'
+import { useOriginGroupData } from '../composables/use-origin-group-data'
 
 const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
 
@@ -27,6 +28,10 @@ function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
   }
   return sectionLabel !== undefined ? { ...base, sectionLabel } : base
 }
+
+// Data source for <OriginColumn> — this container computes it from the
+// store and passes it down so the leaf stays store-free (REVIEW.md §2.2).
+const groupData = useOriginGroupData()
 
 const stageRounds = [
   { title: 'Runde der 32', stage: 'r32' },
@@ -97,6 +102,7 @@ onMounted(() => {
   <div class="bracket-view" role="region" aria-label="K.-o.-Runde" tabindex="0">
     <div ref="roundsEl" class="bracket-view__rounds">
       <OriginColumn
+        :group-data="groupData"
         :highlighted-refs="highlightedRefKeys"
         @team-ref-hover="onTeamRefHover"
         @team-ref-hover-end="onTeamRefHoverEnd"

@@ -27,11 +27,57 @@ export interface TeamStat {
   form: MatchOutcome[]
 }
 
+// ---------------------------------------------------------------------------
+// Fingerprint — a string key built from a group's match results (including
+// discipline counts). Shared by the memoization below and by
+// possible-teams.ts, which keys its own cache on (group, rank, fingerprint).
+// ---------------------------------------------------------------------------
+
+export function resultFingerprint(groupId: GroupId, results: Record<string, Result>): string {
+  return groupMatches
+    .filter((m) => m.group === groupId)
+    .map((m) => {
+      const r = results[m.id]
+      // Include discipline counts: fair-play (yellow/red cards) breaks ties and
+      // must be part of the cache key, otherwise two identical-score results with
+      // different cards would collide and return a stale cached set.
+      return r ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}` : '_'
+    })
+    .join(',')
+}
+
+// ---------------------------------------------------------------------------
+// Memoization — keyed by (groupId, result fingerprint). Without this, a
+// single score entry can trigger dozens of redundant recomputations: every
+// GroupTable/OriginColumn instance, the third-place ranking, and every
+// bracket TeamRef resolution each call computeGroupStandings independently.
+// ---------------------------------------------------------------------------
+
+const MAX_CACHE_SIZE = 200
+const standingsCache = new Map<string, TeamStat[]>()
+
+/** Clear the memoization cache — call after resetting or importing results. */
+export function clearStandingsCache(): void {
+  standingsCache.clear()
+}
+
 /**
  * Compute the sorted group standings for `groupId` given the current `results`
  * map. Teams with no results played appear last, ordered by FIFA ranking.
+ * Memoized per (groupId, results fingerprint) — see `resultFingerprint`.
  */
 export function computeGroupStandings(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
+  const cacheKey = `${groupId}:${resultFingerprint(groupId, results)}`
+  const cached = standingsCache.get(cacheKey)
+  if (cached) return cached
+
+  const computed = computeGroupStandingsUncached(groupId, results)
+  if (standingsCache.size >= MAX_CACHE_SIZE) standingsCache.clear()
+  standingsCache.set(cacheKey, computed)
+  return computed
+}
+
+function computeGroupStandingsUncached(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
   const gTeams = teamsInGroup(groupId)
   const gMatches = groupMatches.filter((m) => m.group === groupId)
 

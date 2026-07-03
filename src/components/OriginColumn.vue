@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { GROUP_IDS } from '../types/tournament'
-import type { GroupId, Team, ThirdPlaceSlot } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { computeGroupStandings } from '../lib/standings'
-import { rankThirdPlaced, buildGroupToThirdPlaceSlotMap } from '../lib/third-place'
+import type { GroupId, Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 
+export interface OriginTeamRow {
+  team: Team
+  rank: number
+  refKey: string | null
+  eliminated: boolean
+}
+
+export interface OriginGroupData {
+  id: GroupId
+  teams: OriginTeamRow[]
+}
+
 defineProps<{
+  groupData: OriginGroupData[]
   highlightedRefs?: readonly string[]
 }>()
 
@@ -16,47 +24,6 @@ const emit = defineEmits<{
   teamRefHover: [refKey: string]
   teamRefHoverEnd: []
 }>()
-
-const store = useTournamentStore()
-
-const rankedThirds = computed(() => rankThirdPlaced(store.results))
-const allGroupsComplete = computed(() => rankedThirds.value !== null)
-
-const thirdPlaceGroupToSlot = computed((): Map<GroupId, ThirdPlaceSlot> => {
-  const ranked = rankedThirds.value
-  return ranked ? buildGroupToThirdPlaceSlotMap(ranked) : new Map()
-})
-
-interface TeamRow {
-  team: Team
-  rank: number
-  refKey: string | null
-  eliminated: boolean
-}
-
-const groupData = computed(() =>
-  GROUP_IDS.map((id: GroupId) => {
-    const standings = computeGroupStandings(id, store.results)
-    const r3Slot = thirdPlaceGroupToSlot.value.get(id) ?? null
-
-    const teams: TeamRow[] = standings.slice(0, 3).map((stat, i) => {
-      const rank = i + 1
-      let refKey: string | null
-      if (rank === 1) refKey = `groupRank:${id}:1`
-      else if (rank === 2) refKey = `groupRank:${id}:2`
-      else refKey = r3Slot != null ? `thirdPlace:${r3Slot}` : null
-
-      return {
-        team: stat.team,
-        rank,
-        refKey,
-        eliminated: rank === 3 && allGroupsComplete.value && r3Slot == null,
-      }
-    })
-
-    return { id, teams }
-  }),
-)
 </script>
 
 <template>
