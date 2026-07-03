@@ -3,6 +3,8 @@
   "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [5173, 4173],
   "customizations": {
     "vscode": {
       "extensions": [
