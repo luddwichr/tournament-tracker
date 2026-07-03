@@ -52,9 +52,10 @@ npm run test:e2e:pwa
 ## Deployment
 
 CI deploys to GitHub Pages on push to `main`. Because the site is served from
-a `/<repo-name>/` subpath there, the deploy build is produced with an explicit
-base path: `npm run build -- --base=/<repo-name>/` (see the "Build for deploy"
-step in `.github/workflows/ci.yml`). A plain local `npm run build` uses `/`.
+a `/<repo-name>/` subpath there, the deploy build sets `DEPLOY_BASE_PATH` (see
+the "Build for deploy" step in `.github/workflows/ci.yml`), which
+`vite.config.ts` reads into `base`. Reproduce it locally with
+`DEPLOY_BASE_PATH=/<repo-name>/ npm run build`; a plain `npm run build` uses `/`.
 
 ## Domain rules
 
