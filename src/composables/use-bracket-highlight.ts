@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Ref } from 'vue'
 import { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from '../lib/bracket-graph'
 import { useBracketConnectors } from './use-bracket-connectors'
@@ -10,6 +10,28 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
   const hoveredRefKey = ref<string | null>(null)
   // Tap-pinned match (touch devices have no hover): persists until toggled off.
   const pinnedMatchId = ref<string | null>(null)
+
+  // matchConnector/originConnector read DOM geometry (querySelector +
+  // getBoundingClientRect), which is invisible to Vue's reactivity system.
+  // Bump this whenever roundsEl's box (or its descendants') size changes —
+  // window resize, device rotation, late web-font/flag-image loads shifting
+  // layout — so connectorPaths below has a reactive dependency to key off.
+  const measureVersion = ref(0)
+  // jsdom (unit tests) has no ResizeObserver; guard so tests don't crash.
+  if (typeof ResizeObserver !== 'undefined') {
+    watch(
+      roundsEl,
+      (el, _oldEl, onCleanup) => {
+        if (!el) return
+        const observer = new ResizeObserver(() => {
+          measureVersion.value++
+        })
+        observer.observe(el)
+        onCleanup(() => observer.disconnect())
+      },
+      { immediate: true },
+    )
+  }
 
   // Hover (desktop) wins while active; otherwise the pinned match drives the highlight.
   const activeMatchId = computed(() => hoveredMatchId.value ?? pinnedMatchId.value)
@@ -39,6 +61,9 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
   })
 
   const connectorPaths = computed((): string[] => {
+    // Dead-looking but load-bearing: DOM geometry isn't reactive, so this
+    // read is what makes ResizeObserver-driven layout shifts re-run the computed.
+    void measureVersion.value
     if (hoveredRefKey.value) {
       const matchId = teamRefToMatchId.get(hoveredRefKey.value)
       const p = matchId ? originConnector(hoveredRefKey.value, matchId) : null
