@@ -258,7 +258,7 @@ describe('ScoreDialog', () => {
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
     })
 
-    it('error stays cleared when scores return to a draw after differing', async () => {
+    it('error reappears when scores return to a draw after differing', async () => {
       const wrapper = mountDialog(knockoutMatch)
       await wrapper.find('.btn--primary').trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
@@ -267,8 +267,10 @@ describe('ScoreDialog', () => {
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
       const dec = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
       await dec!.trigger('click')
-      // scores are equal again; showDrawError stays false (watch no-op when isDraw=true)
-      expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
+      // scores are equal again; showDrawError is now purely derived from
+      // (attempted-save && knockoutDraw), so it reappears rather than staying
+      // latched false.
+      expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
     })
   })
 })

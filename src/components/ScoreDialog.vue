@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, ref, computed, watch } from 'vue'
+import { useTemplateRef, ref, computed } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
@@ -17,29 +17,16 @@ const emit = defineEmits<{ close: [] }>()
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const close = () => baseDialog.value?.close()
 
-const {
-  homeGoals,
-  awayGoals,
-  homeYellow,
-  homeRed,
-  awayYellow,
-  awayRed,
-  knockoutDraw,
-  title,
-  initial,
-  save,
-  clear,
-  fetchStatus,
-  fetchError,
-  fetchLive,
-} = useMatchResultForm(props.match, props.homeTeam, props.awayTeam)
+const { goals, cards, knockoutDraw, title, initial, save, clear, fetch } = useMatchResultForm(
+  () => props.match,
+  () => props.homeTeam,
+  () => props.awayTeam,
+)
 
-const showDrawError = ref(false)
-watch(knockoutDraw, (isDraw) => {
-  if (!isDraw) showDrawError.value = false
-})
+const attemptedDrawSave = ref(false)
+const showDrawError = computed(() => attemptedDrawSave.value && knockoutDraw.value)
 
-const isPastKickoff = computed(() => new Date(props.match.kickoff).getTime() <= Date.now())
+const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 </script>
 
 <template>
@@ -50,39 +37,39 @@ const isPastKickoff = computed(() => new Date(props.match.kickoff).getTime() <= 
         <span class="score-dialog__team-name">{{ awayTeam.name }}</span>
       </div>
 
-      <ScoreInput v-model:home="homeGoals" v-model:away="awayGoals" :home-team="homeTeam" :away-team="awayTeam" />
+      <ScoreInput v-model:home="goals.home" v-model:away="goals.away" :home-team="homeTeam" :away-team="awayTeam" />
 
       <p v-if="showDrawError" class="score-dialog__draw-error" role="alert">
         Unentschieden geht nicht! Wer hat gewonnen?
       </p>
 
       <DisciplineInput
-        v-model:home-yellow="homeYellow"
-        v-model:home-red="homeRed"
-        v-model:away-yellow="awayYellow"
-        v-model:away-red="awayRed"
+        v-model:home-yellow="cards.homeYellow"
+        v-model:home-red="cards.homeRed"
+        v-model:away-yellow="cards.awayYellow"
+        v-model:away-red="cards.awayRed"
       />
 
       <template v-if="isPastKickoff">
         <button
           type="button"
           class="btn btn--secondary score-dialog__fetch"
-          :disabled="fetchStatus === 'loading'"
-          @click="fetchLive"
+          :disabled="fetch.status === 'loading'"
+          @click="fetch.run"
         >
           <span class="score-dialog__btn-symbol" aria-hidden="true">🔄</span>
-          {{ fetchStatus === 'loading' ? 'Ergebnis wird geholt …' : 'Ergebnis holen' }}
+          {{ fetch.status === 'loading' ? 'Ergebnis wird geholt …' : 'Ergebnis holen' }}
         </button>
 
-        <p v-if="fetchStatus === 'not-found'" class="score-dialog__fetch-message" role="status">
+        <p v-if="fetch.status === 'not-found'" class="score-dialog__fetch-message" role="status">
           Kein Live-Ergebnis gefunden.
         </p>
         <p
-          v-else-if="fetchStatus === 'error'"
+          v-else-if="fetch.status === 'error'"
           class="score-dialog__fetch-message score-dialog__fetch-message--error"
           role="alert"
         >
-          {{ fetchError }}
+          {{ fetch.error }}
         </p>
       </template>
     </div>
@@ -95,7 +82,7 @@ const isPastKickoff = computed(() => new Date(props.match.kickoff).getTime() <= 
         <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">
           <span class="score-dialog__btn-symbol" aria-hidden="true">✕</span> Abbrechen
         </button>
-        <button type="button" class="btn btn--primary" @click="knockoutDraw ? (showDrawError = true) : save(close)">
+        <button type="button" class="btn btn--primary" @click="knockoutDraw ? (attemptedDrawSave = true) : save(close)">
           <span class="score-dialog__btn-symbol" aria-hidden="true">✓</span> Speichern
         </button>
       </div>

@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive, toValue, onUnmounted } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from './use-announce'
@@ -6,87 +7,95 @@ import { syncResults } from '../lib/results-sync'
 
 export type FetchLiveStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'
 
-export function useMatchResultForm(match: MatchSlot, homeTeam: Team, awayTeam: Team) {
+export function useMatchResultForm(
+  match: MaybeRefOrGetter<MatchSlot>,
+  homeTeam: MaybeRefOrGetter<Team>,
+  awayTeam: MaybeRefOrGetter<Team>,
+) {
   const store = useTournamentStore()
   const announce = useAnnounce()
 
-  const initial = computed(() => store.results[match.id] ?? null)
+  const initial = computed(() => store.results[toValue(match).id] ?? null)
 
-  const homeGoals = ref(initial.value?.homeGoals ?? 0)
-  const awayGoals = ref(initial.value?.awayGoals ?? 0)
-  const homeYellow = ref(initial.value?.homeYellow ?? 0)
-  const homeRed = ref(initial.value?.homeRed ?? 0)
-  const awayYellow = ref(initial.value?.awayYellow ?? 0)
-  const awayRed = ref(initial.value?.awayRed ?? 0)
-  const knockoutDraw = computed(() => match.stage !== 'group' && homeGoals.value === awayGoals.value)
+  const goals = reactive({
+    home: initial.value?.homeGoals ?? 0,
+    away: initial.value?.awayGoals ?? 0,
+  })
+  const cards = reactive({
+    homeYellow: initial.value?.homeYellow ?? 0,
+    homeRed: initial.value?.homeRed ?? 0,
+    awayYellow: initial.value?.awayYellow ?? 0,
+    awayRed: initial.value?.awayRed ?? 0,
+  })
+  const knockoutDraw = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
 
-  const title = `Ergebnis: ${homeTeam.name} – ${awayTeam.name}`
+  const title = computed(() => `Ergebnis: ${toValue(homeTeam).name} – ${toValue(awayTeam).name}`)
 
   function save(close: () => void): void {
     if (knockoutDraw.value) return
     store.enterResult({
-      matchId: match.id,
-      homeGoals: homeGoals.value,
-      awayGoals: awayGoals.value,
-      homeYellow: homeYellow.value,
-      homeRed: homeRed.value,
-      awayYellow: awayYellow.value,
-      awayRed: awayRed.value,
+      matchId: toValue(match).id,
+      homeGoals: goals.home,
+      awayGoals: goals.away,
+      homeYellow: cards.homeYellow,
+      homeRed: cards.homeRed,
+      awayYellow: cards.awayYellow,
+      awayRed: cards.awayRed,
     })
-    announce(`Ergebnis gespeichert: ${homeTeam.name} ${homeGoals.value} : ${awayGoals.value} ${awayTeam.name}`)
+    announce(`Ergebnis gespeichert: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}`)
     close()
   }
 
   function clear(close: () => void): void {
-    store.clearResult(match.id)
+    store.clearResult(toValue(match).id)
     announce('Ergebnis gelöscht')
     close()
   }
 
   const fetchStatus = ref<FetchLiveStatus>('idle')
   const fetchError = ref<string | null>(null)
+  const controller = new AbortController()
+  onUnmounted(() => controller.abort())
 
-  /** Looks up the live result for just this match and fills the fields with
-   * it, leaving the user to review and press "Speichern" — nothing is
-   * written to the store here, so there's nothing to warn about overwriting. */
+  /** Fetches the whole results feed and plucks this match's result, filling
+   * the fields for review — nothing is written to the store here, so there's
+   * nothing to warn about overwriting. The fetch is aborted on unmount so a
+   * request still in flight can't later write to a closed dialog. */
   async function fetchLive(): Promise<void> {
     fetchStatus.value = 'loading'
     fetchError.value = null
     try {
-      const results = await syncResults()
-      const result = results[match.id]
+      const results = await syncResults(undefined, { signal: controller.signal })
+      const result = results[toValue(match).id]
       if (!result) {
         fetchStatus.value = 'not-found'
         return
       }
-      homeGoals.value = result.homeGoals
-      awayGoals.value = result.awayGoals
-      homeYellow.value = result.homeYellow
-      homeRed.value = result.homeRed
-      awayYellow.value = result.awayYellow
-      awayRed.value = result.awayRed
+      goals.home = result.homeGoals
+      goals.away = result.awayGoals
+      cards.homeYellow = result.homeYellow
+      cards.homeRed = result.homeRed
+      cards.awayYellow = result.awayYellow
+      cards.awayRed = result.awayRed
       fetchStatus.value = 'success'
-      announce(`Live-Ergebnis übernommen: ${homeTeam.name} ${result.homeGoals} : ${result.awayGoals} ${awayTeam.name}`)
+      announce(
+        `Live-Ergebnis übernommen: ${toValue(homeTeam).name} ${result.homeGoals} : ${result.awayGoals} ${toValue(awayTeam).name}`,
+      )
     } catch (e) {
+      if (controller.signal.aborted) return
       fetchError.value = e instanceof Error ? e.message : 'Abruf fehlgeschlagen.'
       fetchStatus.value = 'error'
     }
   }
 
   return {
-    homeGoals,
-    awayGoals,
-    homeYellow,
-    homeRed,
-    awayYellow,
-    awayRed,
+    goals,
+    cards,
     knockoutDraw,
     title,
     initial,
     save,
     clear,
-    fetchStatus,
-    fetchError,
-    fetchLive,
+    fetch: reactive({ status: fetchStatus, error: fetchError, run: fetchLive }),
   }
 }
