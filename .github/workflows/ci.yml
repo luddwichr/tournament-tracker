@@ -17,10 +17,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run typecheck
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run test:unit
+      - run: npm run check
       - run: npm run test:e2e
       - run: npm run build
       - name: Check bundle size budgets

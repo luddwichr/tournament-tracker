@@ -19,6 +19,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "size": "size-limit",
+    "check": "npm run typecheck && npm run format:check && npm run lint && npm run test:unit:coverage",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
