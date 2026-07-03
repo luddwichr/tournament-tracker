@@ -66,8 +66,8 @@ const rounds = computed((): Round[] => {
 })
 
 const {
-  possibleTeamsMatch,
-  possibleTeams,
+  isOpen: possibleTeamsOpen,
+  teams: possibleTeams,
   label: possibleTeamsLabel,
   open: openPossibleTeams,
   close: closePossibleTeams,
@@ -107,7 +107,7 @@ onMounted(() => {
       />
       <BracketRound
         v-for="round in rounds"
-        :key="round.title"
+        :key="round.stage"
         :title="round.title"
         :stage="round.stage"
         :matches="round.matches"
@@ -125,7 +125,7 @@ onMounted(() => {
 
   <Teleport to="body">
     <PossibleTeamsDialog
-      v-if="possibleTeamsMatch"
+      v-if="possibleTeamsOpen"
       :label="possibleTeamsLabel"
       :possible-teams="possibleTeams"
       @close="closePossibleTeams"

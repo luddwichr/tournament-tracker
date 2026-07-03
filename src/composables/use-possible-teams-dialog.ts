@@ -8,13 +8,15 @@ import { possibleTeamsFor } from '../lib/possible-teams'
 export function usePossibleTeamsDialog() {
   const store = useTournamentStore()
 
-  const possibleTeamsMatch = ref<MatchSlot | null>(null)
-  const possibleTeamsSlot = ref<'home' | 'away' | null>(null)
+  const match = ref<MatchSlot | null>(null)
+  const slot = ref<'home' | 'away' | null>(null)
 
   const teamRef = computed(() => {
-    if (!possibleTeamsMatch.value || !possibleTeamsSlot.value) return null
-    return possibleTeamsSlot.value === 'home' ? possibleTeamsMatch.value.homeRef : possibleTeamsMatch.value.awayRef
+    if (!match.value || !slot.value) return null
+    return slot.value === 'home' ? match.value.homeRef : match.value.awayRef
   })
+
+  const isOpen = computed(() => match.value !== null)
 
   const label = computed((): string => {
     if (!teamRef.value) return ''
@@ -28,15 +30,15 @@ export function usePossibleTeamsDialog() {
       : [],
   )
 
-  function open(match: MatchSlot, slot: 'home' | 'away'): void {
-    possibleTeamsMatch.value = match
-    possibleTeamsSlot.value = slot
+  function open(newMatch: MatchSlot, newSlot: 'home' | 'away'): void {
+    match.value = newMatch
+    slot.value = newSlot
   }
 
   function close(): void {
-    possibleTeamsMatch.value = null
-    possibleTeamsSlot.value = null
+    match.value = null
+    slot.value = null
   }
 
-  return { possibleTeamsMatch, possibleTeams, label, open, close }
+  return { isOpen, teams: possibleTeams, label, open, close }
 }

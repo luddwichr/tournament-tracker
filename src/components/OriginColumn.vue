@@ -37,7 +37,7 @@ const emit = defineEmits<{
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- hover/focus-highlight sync already reachable via tabindex + focusin/focusout; no click action is triggered, see REVIEW.md §6 -->
         <div
           v-for="row in group.teams"
-          :key="row.rank"
+          :key="row.team.id"
           class="origin-column__team-row"
           :class="{
             'origin-column__team-row--third': row.rank === 3,
