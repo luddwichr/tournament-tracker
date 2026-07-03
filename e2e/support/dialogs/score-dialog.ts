@@ -7,8 +7,10 @@ import { expect } from '@playwright/test'
  */
 export class ScoreDialog {
   readonly root: Locator
+  private readonly page: Page
 
-  constructor(private readonly page: Page) {
+  constructor(page: Page) {
+    this.page = page
     this.root = page.getByRole('dialog')
   }
 

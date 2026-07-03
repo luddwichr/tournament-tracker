@@ -13,7 +13,7 @@ export function storedState(results: Record<string, Result>): string {
 }
 
 export async function seedResults(page: Page, results: Record<string, Result>): Promise<void> {
-  await page.evaluate(([key, value]) => localStorage.setItem(key, value as string), [STORAGE_KEY, storedState(results)])
+  await page.evaluate(([key, value]) => localStorage.setItem(key, value), [STORAGE_KEY, storedState(results)] as const)
 }
 
 export async function clearResults(page: Page): Promise<void> {

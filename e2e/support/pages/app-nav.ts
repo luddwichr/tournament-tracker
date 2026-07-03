@@ -10,7 +10,11 @@ export const NAV_LABELS = {
 
 /** Drives the persistent main navigation via its router links. */
 export class AppNav {
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
 
   private async click(label: string): Promise<void> {
     await this.page.getByRole('link', { name: label }).click()

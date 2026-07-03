@@ -20,8 +20,7 @@ Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§6.1).
 3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§4.2).
 4. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§7.2).
-5. 🔴 **e2e code is never typechecked** — no tsconfig covers `e2e/**` or `playwright.pwa.config.ts` (§9.1).
-6. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§8.1).
+5. 🔴 **`stores/tournament.ts` and `use-bracket-highlight.ts` have zero direct tests** — the central store and the entire highlight feature are unguarded (§8.1).
 
 ---
 
@@ -577,13 +576,10 @@ Top-decile strictness (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
 `noPropertyAccessFromIndexSignature`, `noImplicitOverride`, `erasableSyntaxOnly`) with a
 clean base/app/node/vitest project-reference layout. Remaining issues:
 
-1. 🔴 **`e2e/**`and`playwright.pwa.config.ts`are never typechecked** — no tsconfig
-includes them; type errors surface only if Playwright's esbuild transpile happens to
-fail. Add a`tsconfig.e2e.json` referenced from the solution file.
-2. 🟡 `tsconfig.vitest.json` includes all of `src/**` with `exclude: []`, fully
+1. 🟡 `tsconfig.vitest.json` includes all of `src/**` with `exclude: []`, fully
    overlapping `tsconfig.app.json` — every `vue-tsc -b` checks the app twice. Narrow to
    spec/test-support files.
-3. 🟢 `build` runs `vue-tsc -b && vite build` and `typecheck` runs `vue-tsc -b --noEmit`;
+2. 🟢 `build` runs `vue-tsc -b && vite build` and `typecheck` runs `vue-tsc -b --noEmit`;
    `noEmit` is already set by `@vue/tsconfig`, so the flag is a no-op — one spelling,
    please. `module`/`moduleResolution` in tsconfig.node.json re-state inherited values.
    `vite/client` types declared twice (env.d.ts + tsconfig.app.json).

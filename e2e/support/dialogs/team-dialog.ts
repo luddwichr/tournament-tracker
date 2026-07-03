@@ -4,8 +4,10 @@ import { expect } from '@playwright/test'
 /** The team dialog opened by clicking a team name in a group standings table. */
 export class TeamDialog {
   readonly root: Locator
+  private readonly page: Page
 
-  constructor(private readonly page: Page) {
+  constructor(page: Page) {
+    this.page = page
     this.root = page.getByRole('dialog')
   }
 

@@ -12,7 +12,11 @@ export class KnockoutPage {
   static readonly R32 = 0
   static readonly R16 = 1
 
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
 
   async goto(): Promise<void> {
     await this.page.goto(KnockoutPage.path)

@@ -13,7 +13,11 @@ export class SettingsPage {
   static readonly path = '/settings'
   static readonly heading = 'Einstellungen'
 
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
 
   async goto(): Promise<void> {
     await this.page.goto(SettingsPage.path)

@@ -8,7 +8,11 @@ export class GroupsPage {
   static readonly path = '/groups'
   static readonly heading = 'Gruppen'
 
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
 
   async goto(): Promise<void> {
     await this.page.goto(GroupsPage.path)
