@@ -67,6 +67,7 @@ const groupData = computed(() =>
     <div class="origin-column__groups">
       <div v-for="group in groupData" :key="group.id" class="origin-column__group">
         <div class="origin-column__group-label">Gruppe {{ group.id }}</div>
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- hover/focus-highlight sync already reachable via tabindex + focusin/focusout; no click action is triggered, see REVIEW.md §6 -->
         <div
           v-for="row in group.teams"
           :key="row.rank"

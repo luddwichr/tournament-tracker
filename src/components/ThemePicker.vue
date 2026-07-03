@@ -17,10 +17,12 @@ const themes: { value: Theme; label: string; icon: string }[] = [
       <label
         v-for="t in themes"
         :key="t.value"
+        :for="`theme-picker-${t.value}`"
         class="theme-picker__option"
         :class="{ 'theme-picker__option--active': modelValue === t.value }"
       >
         <input
+          :id="`theme-picker-${t.value}`"
           type="radio"
           name="theme"
           :value="t.value"

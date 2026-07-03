@@ -27,6 +27,7 @@ const emit = defineEmits<{
   <p v-if="sectionLabel" class="bracket-round__section-label">
     {{ sectionLabel }}
   </p>
+  <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- mouse/focus-only hover-highlight sync; the click action lives on the nested MatchCard's real controls, see REVIEW.md §6 -->
   <div
     class="bracket-match-item"
     :data-match-id="match.id"

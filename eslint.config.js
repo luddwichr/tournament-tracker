@@ -1,5 +1,6 @@
 import eslint from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
+import pluginVueA11y from 'eslint-plugin-vuejs-accessibility'
 import oxlint from 'eslint-plugin-oxlint'
 import tseslint from 'typescript-eslint'
 import globals from 'globals'
@@ -11,6 +12,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   pluginVue.configs['flat/recommended'],
+  pluginVueA11y.configs['flat/recommended'],
   {
     files: ['**/*.ts', '**/*.vue'],
     // TypeScript's compiler already catches undefined references;

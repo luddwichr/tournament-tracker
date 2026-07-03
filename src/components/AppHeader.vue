@@ -20,6 +20,7 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <template>
+  <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- keydown delegation to catch Escape while focus is anywhere within the header/nav, see REVIEW.md §6 -->
   <header class="app-header" @keydown="handleKeydown">
     <div class="app-header__bar">
       <p class="app-header__title"><span class="app-header__ball" aria-hidden="true">⚽</span> WM 2026 Tracker</p>

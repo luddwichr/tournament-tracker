@@ -17,6 +17,7 @@ const emit = defineEmits<{ close: [] }>()
       <h3 class="possible-teams-dialog__section-title">
         {{ label }}
       </h3>
+      <!-- eslint-disable-next-line vuejs-accessibility/no-redundant-roles -- role="list" restores the semantic list role that `list-style: none` strips in Safari/VoiceOver -->
       <ul class="possible-teams-dialog__list" role="list">
         <li v-for="team in possibleTeams" :key="team.id" class="possible-teams-dialog__item">
           <TeamLabel :team="team" />
