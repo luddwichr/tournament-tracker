@@ -184,6 +184,7 @@ export const espnProvider: ResultsProvider = {
 }
 
 // Exported for unit tests.
+// oxlint-disable-next-line no-underscore-dangle -- leading underscore is a deliberate "not part of the public API" convention here
 export const _internal = {
   teamIdFromAbbr,
   fixtureDateRange,

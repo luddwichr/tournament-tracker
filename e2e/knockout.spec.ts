@@ -184,7 +184,9 @@ test('does not scroll away from R32 while the group stage is still ongoing', asy
 
 test('scrolls to Halbfinale once R32, R16 and QF are decided', async ({ page }) => {
   const results = allGroupResults()
-  for (const m of knockoutMatches.filter((m) => m.stage === 'r32' || m.stage === 'r16' || m.stage === 'qf')) {
+  for (const m of knockoutMatches.filter(
+    (match) => match.stage === 'r32' || match.stage === 'r16' || match.stage === 'qf',
+  )) {
     results[m.id] = makeResult(m.id, 2, 1)
   }
   await seedResults(page, results)

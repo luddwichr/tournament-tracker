@@ -55,8 +55,8 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
     }
 
     default: {
-      const _exhaustive: never = ref
-      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(_exhaustive)}`)
+      const exhaustiveCheck: never = ref
+      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
     }
   }
 }

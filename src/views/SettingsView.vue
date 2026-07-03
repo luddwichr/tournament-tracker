@@ -59,6 +59,7 @@ function handleFileChange(event: Event): void {
   if (!file) return
 
   const reader = new FileReader()
+  // oxlint-disable-next-line unicorn/prefer-add-event-listener -- keeps the FileReader test double in SettingsView.spec.ts (which only implements `onload`) simple; a single handler is all we need
   reader.onload = () => {
     try {
       const newResults = parseImport(reader.result as string)

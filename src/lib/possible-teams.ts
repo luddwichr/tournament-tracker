@@ -205,8 +205,8 @@ function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<
     }
 
     default: {
-      const _exhaustive: never = ref
-      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(_exhaustive)}`)
+      const exhaustiveCheck: never = ref
+      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
     }
   }
 }

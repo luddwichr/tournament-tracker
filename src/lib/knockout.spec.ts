@@ -218,7 +218,7 @@ describe('full bracket propagation', () => {
     // M77: I1 vs 3rd-slot6, same
     const results = allGroupResults(1, 0)
     // Play M73–M88 (all R32)
-    for (const m of knockoutMatches.filter((m) => m.stage === 'r32')) {
+    for (const m of knockoutMatches.filter((match) => match.stage === 'r32')) {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     // Now M89 home/away should both be resolvable (both their R32 matches played).
@@ -247,7 +247,7 @@ describe('full bracket propagation', () => {
   it('blocks result entry on M89 when M74 result is missing', () => {
     const results = allGroupResults(1, 0)
     // Play all R32 except M74.
-    for (const m of knockoutMatches.filter((m) => m.stage === 'r32' && m.id !== 'M74')) {
+    for (const m of knockoutMatches.filter((match) => match.stage === 'r32' && match.id !== 'M74')) {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     const m89 = knockoutMatches.find((m) => m.id === 'M89')!
@@ -274,7 +274,7 @@ describe('currentBracketColumn', () => {
 
   it('returns r16 once every r32 match has a result', () => {
     const results = allGroupResults(1, 0)
-    for (const m of knockoutMatches.filter((m) => m.stage === 'r32')) {
+    for (const m of knockoutMatches.filter((match) => match.stage === 'r32')) {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     expect(currentBracketColumn(results)).toBe('r16')
@@ -282,7 +282,7 @@ describe('currentBracketColumn', () => {
 
   it('returns final once the third-place match is played but the final is not', () => {
     const results = allGroupResults(1, 0)
-    for (const m of knockoutMatches.filter((m) => m.stage !== 'final')) {
+    for (const m of knockoutMatches.filter((match) => match.stage !== 'final')) {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     expect(currentBracketColumn(results)).toBe('final')
