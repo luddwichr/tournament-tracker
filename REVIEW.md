@@ -634,11 +634,8 @@ exceptional. Gaps:
 
 ### Repo hygiene & missing infrastructure
 
-1. 🔴 **`.vscode/settings.json` uses nonexistent setting keys** — `js/ts.tsdk.path` etc.
-   are not VS Code settings; the editor silently uses its bundled TypeScript instead of
-   the pinned 6.0.3, so editor and CLI can disagree on errors. Use `typescript.tsdk` +
-   `typescript.enablePromptUseWorkspaceTsdk`. Also missing: `editor.formatOnSave` (the
-   oxc formatter is configured but never triggered) and the ESLint extension
+1. 🟡 **`.vscode/settings.json` is missing editor conveniences** — no `editor.formatOnSave`
+   (the oxc formatter is configured but never triggered) and no ESLint extension
    recommendation.
 2. 🟡 **No README** — no setup instructions, no mention of the devcontainer, the `--base`
    deploy trick, or the two-config Playwright split. Highest-impact doc gap.
