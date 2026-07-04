@@ -3,6 +3,13 @@ import type { Result, PersistedState } from '../types/tournament'
 export const SCHEMA_VERSION = 1
 
 /**
+ * localStorage key used by the `tournament` store's persistence plugin.
+ * Single source of truth — also imported by `e2e/support/results.ts` so the
+ * e2e seed helper can never silently drift from the real persisted key.
+ */
+export const STORAGE_KEY = `wc2026:results:v${SCHEMA_VERSION}`
+
+/**
  * Trigger a browser download of the results as a JSON file.
  * Exported format: `{ version, results }` — see PersistedState.
  */

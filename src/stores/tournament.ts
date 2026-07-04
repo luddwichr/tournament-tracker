@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { GroupId, Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
-import { SCHEMA_VERSION } from '../lib/persistence'
+import { STORAGE_KEY } from '../lib/persistence'
 import { clearPossibleTeamsCache } from '../lib/possible-teams'
 import { computeGroupStandings, clearStandingsCache, type TeamStat } from '../lib/standings'
 
@@ -42,7 +42,7 @@ export const useTournamentStore = defineStore(
   },
   {
     persist: {
-      key: `wc2026:results:v${SCHEMA_VERSION}`,
+      key: STORAGE_KEY,
     },
   },
 )

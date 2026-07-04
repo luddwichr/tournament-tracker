@@ -14,6 +14,7 @@ vi.mock('../lib/persistence', () => ({
   exportJson: vi.fn(),
   parseImport: vi.fn(),
   SCHEMA_VERSION: 1,
+  STORAGE_KEY: 'wc2026:results:v1',
 }))
 
 vi.mock('../lib/results-sync', () => ({
