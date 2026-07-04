@@ -2,6 +2,7 @@
 import { ref, watch, watchEffect, nextTick, provide, useTemplateRef, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
+import UpdateDialog from './components/UpdateDialog.vue'
 import { announceKey } from './composables/use-announce'
 import { provideTeamViewer } from './composables/use-team-viewer'
 import { provideScoreDialog } from './composables/use-score-dialog'
@@ -60,6 +61,8 @@ watch(
   <div class="visually-hidden" role="status" aria-live="polite">
     {{ announcement }}
   </div>
+
+  <UpdateDialog />
 
   <TeamDialog v-if="viewedTeam" :team="viewedTeam" @close="closeTeamView" />
   <ScoreDialog

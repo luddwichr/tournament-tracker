@@ -19,9 +19,20 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' (rather than 'autoUpdate') so an updated SW installs and waits
+      // instead of skip-waiting/reloading on its own — UpdateDialog.vue surfaces
+      // the waiting update via useRegisterSW() and lets the user trigger the reload.
+      registerType: 'prompt',
+      // We register the SW ourselves via useRegisterSW() in UpdateDialog.vue so
+      // it can observe needRefresh/updateServiceWorker; skip the auto-injected
+      // registerSW.js script to avoid registering the SW twice.
+      injectRegister: false,
       // Service worker disabled in dev to keep the dev server and e2e tests deterministic.
       devOptions: { enabled: false },
+      // The manifest icons are already covered by globPatterns below (they live
+      // in public/icons and match the png extension); without this they'd be
+      // added to the precache manifest a second time.
+      includeManifestIcons: false,
       workbox: {
         // Precache the built shell (hashed JS/CSS, fonts, icons, index.html).
         // index.html is precached only as a last-resort offline fallback — see
@@ -33,6 +44,13 @@ export default defineConfig({
         // registers a precache-only NavigationRoute ahead of the runtimeCaching
         // route below and would shadow it for every navigation. Disable it.
         navigateFallback: null,
+        // Precaching's own route matches requests before runtimeCaching gets a
+        // chance to: by default it maps any URL ending in "/" (i.e. the app's
+        // start_url, both locally and under the GH Pages base path) to the
+        // precached index.html and serves it cache-first, silently bypassing
+        // the NetworkFirst navigate route below. Disabling it ensures every
+        // navigation — including the root — goes through that route instead.
+        directoryIndex: null,
         runtimeCaching: [
           {
             urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',

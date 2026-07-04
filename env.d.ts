@@ -1,4 +1,5 @@
 /// <reference types="vite-plugin-pwa/client" />
+/// <reference types="vite-plugin-pwa/vue" />
 
 // `export {}` makes this a module so the augmentation below merges with
 // vue-router's real types instead of replacing them (a `declare module`
