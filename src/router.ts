@@ -1,9 +1,19 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { useTournamentStore } from './stores/tournament'
+import { isGroupComplete } from './lib/standings'
+import { GROUP_IDS } from './types/tournament'
 
 const APP_NAME = 'WM 2026 Tracker'
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', redirect: '/groups' },
+  {
+    path: '/',
+    redirect: () => {
+      const { results } = useTournamentStore()
+      const allGroupsComplete = GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
+      return allGroupsComplete ? '/knockout' : '/groups'
+    },
+  },
   {
     path: '/groups',
     name: 'groups',
