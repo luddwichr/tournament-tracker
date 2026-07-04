@@ -21,7 +21,7 @@
     "size": "size-limit",
     "renovate:validate": "npx --yes --package renovate -- renovate-config-validator",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage",
-    "check:build": "npm run build && run-p -c --aggregate-output test:e2e size && npm run test:e2e:pwa",
+    "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
