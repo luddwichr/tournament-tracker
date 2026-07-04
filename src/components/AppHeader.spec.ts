@@ -14,6 +14,8 @@ beforeEach(() => {
       { path: '/', redirect: '/groups' },
       { path: '/groups', component: { template: '<div />' } },
       { path: '/knockout', component: { template: '<div />' } },
+      { path: '/ranking', component: { template: '<div />' } },
+      { path: '/settings', component: { template: '<div />' } },
     ],
   })
 })
