@@ -1,14 +1,20 @@
 import { test, expect } from '@playwright/test'
-import { KnockoutPage, allGroupResults, clearResults, expectNoA11yViolations, makeResult, seedResults } from './support'
+import {
+  KnockoutPage,
+  allGroupResults,
+  clearResultsOnLoad,
+  expectNoA11yViolations,
+  makeResult,
+  seedResultsOnLoad,
+} from './support'
 import { knockoutMatches } from '../src/data/fixtures-2026'
 
-const { R32, R16 } = KnockoutPage
+const { R32 } = KnockoutPage
 
 let knockout: KnockoutPage
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/')
-  await clearResults(page)
+  await clearResultsOnLoad(page)
   knockout = new KnockoutPage(page)
 })
 
@@ -71,7 +77,7 @@ test('all 16 R32 cards are disabled without group results', async () => {
 })
 
 test('all 16 R32 cards become enabled after all group results are entered', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
   // No disabled R32 cards
   await expect(knockout.disabledScoreButtons(R32)).toHaveCount(0)
@@ -83,10 +89,11 @@ test('all 16 R32 cards become enabled after all group results are entered', asyn
 // ---------------------------------------------------------------------------
 
 test('clicking an enabled R32 card opens ScoreDialog with resolved team names', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
-  const dialog = await knockout.openScoreDialog(R32, 0)
+  // M73 is A2 vs B2 — the first R32 match
+  const dialog = await knockout.openScoreDialog('M73')
   const text = await dialog.title().textContent()
   // Title must name two real teams, not generic fallback strings
   expect(text).toMatch(/Ergebnis: .+ – .+/)
@@ -95,29 +102,28 @@ test('clicking an enabled R32 card opens ScoreDialog with resolved team names', 
 })
 
 test('Escape closes the ScoreDialog', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
-  const dialog = await knockout.openScoreDialog(R32, 0)
+  const dialog = await knockout.openScoreDialog('M73')
   await dialog.closeWithEscape()
   await dialog.expectHidden()
 })
 
 test('entering a knockout result propagates to the next round', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
   // Enter a result for the first R32 match (M73: A2 vs B2)
-  const dialog = await knockout.openScoreDialog(R32, 0)
-  // Increment home goals once via the "+" step button
-  await dialog.incrementHomeGoals()
+  const dialog = await knockout.openScoreDialog('M73')
+  const { home } = await dialog.teamNames()
+  await dialog.incrementGoals(home)
   await dialog.save()
   await dialog.expectHidden()
 
-  // M73 winner (A2, home win) should now appear as the resolved home team in M90 (R16 index 0)
+  // M73 winner (A2, home win) should now appear as the resolved home team in M90
   // M90 homeRef = winner(M73), awayRef = winner(M75) — M75 still unresolved
-  // M90 kicks off earlier than M89 (UTC), so it sorts to position 0 in the R16 column.
-  const m90card = knockout.matchCard(R16, 0)
+  const m90card = knockout.matchCard('M90')
   await expect(m90card.locator('.team-label')).toHaveCount(1)
   await expect(m90card.locator('.match-team-slot__placeholder')).toHaveCount(1)
 })
@@ -127,9 +133,9 @@ test('entering a knockout result propagates to the next round', async ({ page })
 // ---------------------------------------------------------------------------
 
 test('saving a tied knockout score shows a draw error and keeps the dialog open', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
-  const dialog = await knockout.openScoreDialog(R32, 0)
+  const dialog = await knockout.openScoreDialog('M73')
 
   // Default score is 0:0 — a knockout match cannot end in a draw
   await dialog.save()
@@ -138,23 +144,23 @@ test('saving a tied knockout score shows a draw error and keeps the dialog open'
 })
 
 test('the draw error clears once the score is no longer tied, then the result saves', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
   // Open the first R32 card (M73: A2 vs B2) and trigger the draw error
-  const dialog = await knockout.openScoreDialog(R32, 0)
+  const dialog = await knockout.openScoreDialog('M73')
   await dialog.save()
   await expect(dialog.drawError()).toBeVisible()
 
   // Make the score non-tied → error clears and saving now succeeds
-  await dialog.incrementHomeGoals()
+  const { home } = await dialog.teamNames()
+  await dialog.incrementGoals(home)
   await expect(dialog.drawError()).not.toBeVisible()
   await dialog.save()
   await dialog.expectHidden()
 
-  // M90 (R16) homeRef = winner(M73) — home team should now be resolved.
-  // M90 sorts to position 0 in R16 (earlier kickoff than M89).
-  await expect(knockout.matchCard(R16, 0).locator('.team-label')).toHaveCount(1)
+  // M90 homeRef = winner(M73) — home team should now be resolved.
+  await expect(knockout.matchCard('M90').locator('.team-label')).toHaveCount(1)
 })
 
 // ---------------------------------------------------------------------------
@@ -167,7 +173,7 @@ test('knockout view has no detectable accessibility violations', async ({ page }
 })
 
 test('knockout view with group results has no detectable accessibility violations', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
   await expectNoA11yViolations(page)
 })
@@ -189,7 +195,7 @@ test('scrolls to Halbfinale once R32, R16 and QF are decided', async ({ page }) 
   )) {
     results[m.id] = makeResult(m.id, 2, 1)
   }
-  await seedResults(page, results)
+  await seedResultsOnLoad(page, results)
   await knockout.goto()
 
   await expect(knockout.roundHeading('Halbfinale')).toBeInViewport()
@@ -201,7 +207,7 @@ test('scrolls to Finale once every knockout match has been decided', async ({ pa
   for (const m of knockoutMatches) {
     results[m.id] = makeResult(m.id, 2, 1)
   }
-  await seedResults(page, results)
+  await seedResultsOnLoad(page, results)
   await knockout.goto()
 
   await expect(knockout.roundHeading('Finale')).toBeInViewport()

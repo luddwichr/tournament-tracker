@@ -26,9 +26,27 @@ export class ScoreDialog {
     return this.root.locator('.base-dialog__title')
   }
 
-  /** Clicks the first "+" stepper button, bumping the home goals by one. */
-  async incrementHomeGoals(): Promise<void> {
-    await this.root.locator('.stepper__step').filter({ hasText: '+' }).first().click()
+  /**
+   * Parses the "home – away" team names out of the dialog title, e.g.
+   * "Ergebnis: Mexiko – Südafrika".
+   */
+  async teamNames(): Promise<{ home: string; away: string }> {
+    const text = (await this.title().textContent()) ?? ''
+    const match = /Ergebnis: (.+) – (.+)/.exec(text)
+    const home = match?.[1]
+    const away = match?.[2]
+    if (!home || !away) throw new Error(`Could not parse team names from dialog title: "${text}"`)
+    return { home, away }
+  }
+
+  /**
+   * Clicks the "+" stepper for the named team (aria-label
+   * "Tor für <Team> hinzufügen"), bumping that team's goals by one. Targeting
+   * by team name — rather than the first `.stepper__step` element containing
+   * "+" — avoids silently incrementing the wrong side if DOM order changes.
+   */
+  async incrementGoals(teamName: string): Promise<void> {
+    await this.root.getByRole('button', { name: `Tor für ${teamName} hinzufügen` }).click()
   }
 
   /** The draw-guard error, shown when saving a knockout match with a tied score. */

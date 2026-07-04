@@ -1,13 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { KnockoutPage, allGroupResults, clearResults, expectNoA11yViolations, seedResults } from './support'
+import { KnockoutPage, allGroupResults, clearResultsOnLoad, expectNoA11yViolations, seedResultsOnLoad } from './support'
 
 const { R32, R16 } = KnockoutPage
 
 let knockout: KnockoutPage
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/')
-  await clearResults(page)
+  await clearResultsOnLoad(page)
   knockout = new KnockoutPage(page)
 })
 
@@ -23,7 +22,7 @@ test('each R32 card has a "Mögliche Teams" button when no results entered', asy
 })
 
 test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({ page }) => {
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
   // All R32 participants now known — buttons should be gone
   await expect(knockout.possibleTeamsButtons(R32)).toHaveCount(0)
@@ -32,11 +31,6 @@ test('"Mögliche Teams" buttons disappear from R32 once all group results are en
 // ---------------------------------------------------------------------------
 // Dialog opens and shows teams
 // ---------------------------------------------------------------------------
-
-test('clicking "Mögliche Teams" opens a dialog listing possible teams', async () => {
-  await knockout.goto()
-  await knockout.openPossibleTeamsDialog(R32)
-})
 
 test('the possible-teams dialog lists team names with flags', async () => {
   await knockout.goto()
@@ -84,7 +78,7 @@ test('close button (✕) closes the possible-teams dialog', async () => {
 test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches', async ({ page }) => {
   // Seed all group results so R32 is populated. Leave R32 unplayed so R16 slots
   // are still unresolved.
-  await seedResults(page, allGroupResults())
+  await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
   const dialog = await knockout.openPossibleTeamsDialog(R16)

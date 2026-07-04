@@ -1,5 +1,6 @@
 export * from './a11y'
 export * from './results'
+export * from './storage'
 export * from './pages/app-nav'
 export * from './pages/groups-page'
 export * from './pages/knockout-page'

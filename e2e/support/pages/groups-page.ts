@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import type { GroupId } from '../../../src/types/tournament'
 import { TeamDialog } from '../dialogs/team-dialog'
+import { ScoreDialog } from '../dialogs/score-dialog'
 
 /** The group-stage view (`/groups`). */
 export class GroupsPage {
@@ -47,10 +48,6 @@ export class GroupsPage {
     return this.matches(groupId).locator('.match-card')
   }
 
-  teamName(name: string): Locator {
-    return this.page.getByText(name, { exact: true })
-  }
-
   thirdPlaceTable(): Locator {
     return this.page.getByRole('region', { name: 'Beste Drittplatzierte' })
   }
@@ -75,6 +72,14 @@ export class GroupsPage {
   async openTeamDialog(groupId: GroupId): Promise<TeamDialog> {
     await this.standings(groupId).getByRole('button').first().click()
     const dialog = new TeamDialog(this.page)
+    await dialog.expectVisible()
+    return dialog
+  }
+
+  /** Opens the score dialog for a not-yet-played match card and waits for it to appear. */
+  async openScoreDialog(home: string, away: string): Promise<ScoreDialog> {
+    await this.emptyMatchButton(home, away).click()
+    const dialog = new ScoreDialog(this.page)
     await dialog.expectVisible()
     return dialog
   }

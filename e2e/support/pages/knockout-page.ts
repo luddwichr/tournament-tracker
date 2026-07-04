@@ -8,9 +8,9 @@ export class KnockoutPage {
   static readonly path = '/knockout'
   static readonly heading = 'K.-o.-Runde'
 
-  /** Bracket column indices, in left-to-right render order. */
-  static readonly R32 = 0
-  static readonly R16 = 1
+  /** Bracket round aria-labels/headings, in left-to-right render order. */
+  static readonly R32 = 'Runde der 32'
+  static readonly R16 = 'Achtelfinale'
 
   private readonly page: Page
 
@@ -30,13 +30,13 @@ export class KnockoutPage {
     return this.page.getByRole('heading', { level: 2, name, exact: true })
   }
 
-  /** A single bracket-round column by index (use the R32/R16 constants). */
-  round(index: number): Locator {
-    return this.page.locator('.bracket-round').nth(index)
+  /** A single bracket-round column by its title (use the R32/R16 constants). */
+  round(title: string): Locator {
+    return this.page.getByRole('region', { name: title, exact: true })
   }
 
-  async waitForRound(index: number): Promise<void> {
-    await this.round(index).waitFor()
+  async waitForRound(title: string): Promise<void> {
+    await this.round(title).waitFor()
   }
 
   bracketView(): Locator {
@@ -51,8 +51,9 @@ export class KnockoutPage {
     return this.page.locator('.match-card')
   }
 
-  matchCard(roundIndex: number, cardIndex: number): Locator {
-    return this.round(roundIndex).locator('.match-card').nth(cardIndex)
+  /** A single match card by its stable `data-match-id`, e.g. "M73". */
+  matchCard(matchId: string): Locator {
+    return this.page.locator(`[data-match-id="${matchId}"]`)
   }
 
   sectionLabels(): Locator {
@@ -63,30 +64,30 @@ export class KnockoutPage {
     return this.page.locator('.match-team-slot__placeholder')
   }
 
-  disabledScoreButtons(roundIndex: number): Locator {
-    return this.round(roundIndex).locator('.match-score-btn[disabled]')
+  disabledScoreButtons(title: string): Locator {
+    return this.round(title).locator('.match-score-btn[disabled]')
   }
 
   /**
-   * "Mögliche Teams" buttons. Scoped to a round when `roundIndex` is given,
+   * "Mögliche Teams" buttons. Scoped to a round when `title` is given,
    * otherwise across the whole bracket.
    */
-  possibleTeamsButtons(roundIndex?: number): Locator {
-    const scope = roundIndex === undefined ? this.page : this.round(roundIndex)
+  possibleTeamsButtons(title?: string): Locator {
+    const scope = title === undefined ? this.page : this.round(title)
     return scope.getByRole('button', { name: /Mögliche Teams/ })
   }
 
-  /** Opens the score dialog for a match card and waits for it to appear. */
-  async openScoreDialog(roundIndex: number, cardIndex: number): Promise<ScoreDialog> {
-    await this.matchCard(roundIndex, cardIndex).locator('.match-score-btn').click()
+  /** Opens the score dialog for a match card (by `data-match-id`) and waits for it to appear. */
+  async openScoreDialog(matchId: string): Promise<ScoreDialog> {
+    await this.matchCard(matchId).locator('.match-score-btn').click()
     const dialog = new ScoreDialog(this.page)
     await dialog.expectVisible()
     return dialog
   }
 
   /** Clicks the nth "Mögliche Teams" button in a round and opens its dialog. */
-  async openPossibleTeamsDialog(roundIndex: number, buttonIndex = 0): Promise<PossibleTeamsDialog> {
-    await this.possibleTeamsButtons(roundIndex).nth(buttonIndex).click()
+  async openPossibleTeamsDialog(title: string, buttonIndex = 0): Promise<PossibleTeamsDialog> {
+    await this.possibleTeamsButtons(title).nth(buttonIndex).click()
     const dialog = new PossibleTeamsDialog(this.page)
     await dialog.expectVisible()
     return dialog
