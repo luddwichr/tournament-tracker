@@ -5,26 +5,7 @@ import GroupStandingsTable from './GroupStandingsTable.vue'
 import StandingsRow from './StandingsRow.vue'
 import type { TeamStat } from '../lib/standings'
 import { teamsInGroup } from '../data/teams'
-
-function makeStat(overrides: Partial<TeamStat> = {}): TeamStat {
-  const team = teamsInGroup('A')[0]!
-  return {
-    team,
-    played: 3,
-    wins: 2,
-    draws: 1,
-    losses: 0,
-    goalsFor: 5,
-    goalsAgainst: 2,
-    goalDiff: 3,
-    points: 7,
-    yellowCards: 0,
-    redCards: 0,
-    fairPlayScore: 0,
-    form: ['W', 'W', 'D'],
-    ...overrides,
-  }
-}
+import { makeStat } from '../test-support/stats'
 
 const standings: TeamStat[] = teamsInGroup('A').map((team, i) => makeStat({ team, wins: 3 - i, points: (3 - i) * 3 }))
 
