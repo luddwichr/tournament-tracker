@@ -295,63 +295,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 ---
 
-## 8. Tooling & project setup
-
-### TypeScript setup
-
-Top-decile strictness (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
-`noPropertyAccessFromIndexSignature`, `noImplicitOverride`, `erasableSyntaxOnly`) with a
-clean base/app/node/vitest project-reference layout.
-
-### Linting & formatting
-
-The eslint↔oxlint bridge (`buildFromOxlintConfigFile` placed last) is the canonical
-pattern, and nearly every rule override carries a why-comment.
-
-### Build / PWA
-
-The workbox config comments (navigateFallback rationale, GH-Pages 404 fallback) are
-exceptional.
-
----
-
-## 9. Genuinely positive aspects
-
-- **Derived-everything architecture.** One mutable `results` map; standings, third-place
-  ranking, and the whole bracket are pure functions of it. This is why the app can be
-  this small, this testable, and this fast to reason about.
-- **The 2026 tiebreaker chain is actually correct** — H2H-first with subset recursion and
-  no-restart d→g. Most implementations get this wrong; here it's also documented against
-  the regulations with deliberate deviations called out honestly. Annex C is encoded
-  verbatim (all 495 combinations) rather than "recomputed by intuition", and validates clean.
-- **Top-decile TypeScript strictness** (`noUncheckedIndexedAccess` +
-  `exactOptionalPropertyTypes` + `noPropertyAccessFromIndexSignature` on a real app),
-  `GroupId` derived from runtime data, branded `ThirdPlaceKey`, exhaustive `never`
-  switches, honest all-optional boundary types for the ESPN feed.
-- **Uniformly modern Vue authoring**: every SFC is `<script setup lang="ts">` with
-  type-based props/emits, `defineModel` on the inputs, Vue 3.5 APIs (`useTemplateRef`,
-  `useId`). `BaseDialog` is a strong native-`<dialog>` wrapper (single close path,
-  refcounted scroll lock, focus restore for free). `useResultsSync` is a genuinely
-  race-safe state machine (per-run AbortController, guarded post-await writes).
-- **A11y investment far above hobby-project baseline**: skip link, route-change focus
-  management + announcements, status never conveyed by color alone (with the rule
-  documented in tokens.css), descriptive control labels in context ("Tor für Spanien
-  abziehen"), centralized axe helper scanning seeded states and open dialogs.
-- **Comments explain _why_, almost never _what_** — the GroupsView 49rem grid derivation,
-  the possible-teams cache-key rationale, the workbox/GH-Pages fallback documentation are
-  model comments.
-- **Test suite discipline**: domain tests against real fixtures with hand-derived math
-  shown; data-integrity specs as a gate (the table↔bracket drift check is genuinely
-  clever); injectable fetch/clock in the ESPN provider; cancellation-race coverage; zero
-  snapshots; no `wrapper.vm` state-poking; e2e page objects with a PWA deploy-marker
-  staleness test most suites never attempt.
-- **Infrastructure**: canonical eslint↔oxlint bridge; digest-pinned devcontainer base
-  image with version-sync comments; 100 % exact-pinned dependencies per the house rule;
-  a real CI pipeline; typecheck in the build path.
-
----
-
-## 10. How to improve: established techniques & feedback loops (especially for coding agents)
+## 7. How to improve: established techniques & feedback loops (especially for coding agents)
 
 The recurring failure mode in this codebase is not bad code — it's **drift**: comments,
 docs, and configs that describe a state the code has left (`main.ts` bundle comment,
@@ -391,7 +335,7 @@ catch and humans/agents don't. Concrete program, in order of leverage:
    the doc agents read first.
 6. **Rebalance the hook pyramid** — fast, deterministic checks close to the keystroke
    (format+oxlint pre-commit, `check` pre-push), slow ones in CI (e2e, PWA suite,
-   coverage, axe). A disabled-because-too-slow hook (§8) protects nothing; a 5-second
+   coverage, axe). A disabled-because-too-slow hook protects nothing; a 5-second
    hook that always runs protects everything. And fix the pre-commit staging footgun —
    agents doing scoped commits will silently sweep unrelated changes with it.
 7. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard
