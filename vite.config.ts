@@ -122,8 +122,7 @@ export default defineConfig({
     target: 'es2025',
   },
   test: {
-    environment: 'jsdom',
-    globals: true,
+    environment: 'node',
     include: ['src/**/*.spec.ts'],
     css: true,
     coverage: {
@@ -131,10 +130,10 @@ export default defineConfig({
       include: ['src/**/*.ts', 'src/**/*.vue'],
       exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router.ts', 'src/test-support/**'],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
-        statements: 70,
+        lines: 96,
+        functions: 96,
+        branches: 90,
+        statements: 95,
       },
     },
   },
