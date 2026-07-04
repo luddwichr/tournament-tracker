@@ -1,18 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { makeTeam } from '../test-support/teams'
 
 const teamA = makeTeam({ id: 'ger', name: 'Deutschland' })
 const teamB = makeTeam({ id: 'fra', name: 'Frankreich' })
-
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
-})
 
 describe('PossibleTeamsDialog', () => {
   it('calls showModal on mount', () => {

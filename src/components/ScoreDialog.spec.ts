@@ -35,10 +35,6 @@ function mountDialog(match = groupMatch) {
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
 })
 
 describe('ScoreDialog', () => {

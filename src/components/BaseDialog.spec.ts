@@ -1,14 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BaseDialog from './BaseDialog.vue'
-
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
-})
 
 describe('BaseDialog', () => {
   it('calls showModal on mount', () => {

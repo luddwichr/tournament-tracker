@@ -1,15 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SyncDialog from './SyncDialog.vue'
 import type { SyncStatus } from '../composables/use-results-sync'
-
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
-})
 
 function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> = {}) {
   return mount(SyncDialog, {

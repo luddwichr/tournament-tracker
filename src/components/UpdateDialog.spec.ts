@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
@@ -8,13 +8,6 @@ import UpdateDialog from './UpdateDialog.vue'
 vi.mock('virtual:pwa-register/vue', () => ({
   useRegisterSW: vi.fn(),
 }))
-
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
-})
 
 function mockRegisterSW(needRefresh: boolean) {
   const needRefreshRef = ref(needRefresh)

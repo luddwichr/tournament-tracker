@@ -124,6 +124,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.spec.ts'],
+    setupFiles: ['src/test-support/setup.ts'],
     css: true,
     coverage: {
       provider: 'v8',

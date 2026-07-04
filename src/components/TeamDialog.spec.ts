@@ -20,10 +20,6 @@ vi.mock('../data/squads', () => ({ squads: { ger: players } }))
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
-    this.dispatchEvent(new Event('close'))
-  })
 })
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
