@@ -5,9 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
-    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" href="%BASE_URL%icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.png" />
     <title>WM 2026 Tracker</title>
+    <script type="text/javascript">
+      // Single Page Apps for GitHub Pages
+      // MIT License
+      // https://github.com/rafgraph/spa-github-pages
+      // Restores the real path encoded by public/404.html's redirect before
+      // the router reads window.location.
+      ;(function (location) {
+        if (location.search[1] === '/') {
+          const decoded = location.search
+            .slice(1)
+            .split('&')
+            .map((s) => s.replace(/~and~/g, '&'))
+            .join('?')
+          window.history.replaceState(null, '', location.pathname.slice(0, -1) + decoded + location.hash)
+        }
+      })(window.location)
+    </script>
   </head>
   <body>
     <div id="app"></div>
