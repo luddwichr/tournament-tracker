@@ -36,15 +36,15 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npm run check
       - run: npm run test:e2e
-      - name: Build
-        run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            export DEPLOY_BASE_PATH="/${{ github.event.repository.name }}/"
-          fi
-          npm run build
+      - run: npm run build
       - run: npm run test:e2e:pwa
       - name: Check bundle size budgets
         run: npm run size
+      - name: Build for deploy
+        if: github.ref == 'refs/heads/main'
+        run: npm run build
+        env:
+          DEPLOY_BASE_PATH: /${{ github.event.repository.name }}/
       - name: Upload dist
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
