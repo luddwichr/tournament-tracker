@@ -14,10 +14,25 @@ export function makeResult(matchId: string, homeGoals: number, awayGoals: number
   }
 }
 
-export function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {
+export type CardOverrides = Record<
+  string,
+  { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number }
+>
+
+/**
+ * Build a results map where every group match plays out as the given score,
+ * with optional per-matchId score and card overrides.
+ */
+export function allGroupResults(
+  homeGoals = 1,
+  awayGoals = 0,
+  overrides: Record<string, [number, number]> = {},
+  cardOverrides: CardOverrides = {},
+): Record<string, Result> {
   const results: Record<string, Result> = {}
   for (const m of groupMatches) {
-    results[m.id] = makeResult(m.id, homeGoals, awayGoals)
+    const [h, a] = overrides[m.id] ?? [homeGoals, awayGoals]
+    results[m.id] = makeResult(m.id, h, a, cardOverrides[m.id] ?? {})
   }
   return results
 }

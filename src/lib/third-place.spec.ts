@@ -12,31 +12,7 @@ import {
   resolveThirdPlaceSlot,
   buildGroupToThirdPlaceSlotMap,
 } from './third-place'
-import { makeResult } from '../test-support/results'
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-type CardOverrides = Record<string, { homeYellow?: number; homeRed?: number; awayYellow?: number; awayRed?: number }>
-
-/**
- * Build a results map where every group match plays out as the given score,
- * with per-matchId score and card overrides.
- */
-function allGroupResults(
-  defaultHome: number,
-  defaultAway: number,
-  overrides: Record<string, [number, number]> = {},
-  cardOverrides: CardOverrides = {},
-): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const match of groupMatches) {
-    const [h, a] = overrides[match.id] ?? [defaultHome, defaultAway]
-    results[match.id] = makeResult(match.id, h, a, cardOverrides[match.id] ?? {})
-  }
-  return results
-}
+import { makeResult, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // rankThirdPlaced
