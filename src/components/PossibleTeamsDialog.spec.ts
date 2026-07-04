@@ -52,7 +52,7 @@ describe('PossibleTeamsDialog', () => {
 
   it('emits close when the close button is clicked', async () => {
     const wrapper = mount(PossibleTeamsDialog, { props: { label: 'Sieger A', possibleTeams: [] } })
-    await wrapper.find('.base-dialog__close').trigger('click')
+    await wrapper.find('[aria-label="Schließen"]').trigger('click')
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 })

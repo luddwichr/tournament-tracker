@@ -36,18 +36,24 @@ describe('UpdateDialog', () => {
   it('calls updateServiceWorker when "Aktualisieren" is clicked', async () => {
     const { updateServiceWorker } = mockRegisterSW(true)
     const wrapper = mount(UpdateDialog)
-    await wrapper.find('.btn--primary').trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Aktualisieren')!
+      .trigger('click')
     expect(updateServiceWorker).toHaveBeenCalledOnce()
   })
 
   it('dismisses without reloading when "Später" is clicked', async () => {
     const { needRefresh, updateServiceWorker } = mockRegisterSW(true)
     const wrapper = mount(UpdateDialog)
-    await wrapper.find('.btn--secondary').trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Später')!
+      .trigger('click')
     expect(needRefresh.value).toBe(false)
     expect(updateServiceWorker).not.toHaveBeenCalled()
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
+    expect(wrapper.find('dialog').exists()).toBe(false)
   })
 
   it('sets needRefresh to false when the dialog is closed externally (e.g. Esc)', async () => {

@@ -65,7 +65,7 @@ async function openTeamDialog(wrapper: ReturnType<typeof mount>) {
   // microtask flush, so poll until it has resolved and rendered.
   await vi.waitFor(
     () => {
-      if (!wrapper.find('.team-dialog__title').exists()) throw new Error('TeamDialog not rendered yet')
+      if (!wrapper.find('dialog').exists()) throw new Error('TeamDialog not rendered yet')
     },
     { timeout: 5000 },
   )
@@ -77,7 +77,7 @@ async function openScoreDialog(wrapper: ReturnType<typeof mount>) {
   // real-transform-time caveat as TeamDialog above.
   await vi.waitFor(
     () => {
-      if (!wrapper.find('.base-dialog__title').exists()) throw new Error('ScoreDialog not rendered yet')
+      if (!wrapper.find('dialog').exists()) throw new Error('ScoreDialog not rendered yet')
     },
     { timeout: 5000 },
   )
@@ -126,7 +126,7 @@ describe('App', () => {
 
   it('does not render TeamDialog until a team is opened, then opens it for the selected team', async () => {
     const { wrapper } = await mountApp()
-    expect(wrapper.find('.team-dialog__title').exists()).toBe(false)
+    expect(wrapper.find('dialog').exists()).toBe(false)
 
     await openTeamDialog(wrapper)
 
@@ -138,16 +138,16 @@ describe('App', () => {
   it('closes TeamDialog when it emits close', async () => {
     const { wrapper } = await mountApp()
     await openTeamDialog(wrapper)
-    expect(wrapper.find('.team-dialog__title').exists()).toBe(true)
+    expect(wrapper.find('dialog').exists()).toBe(true)
 
     await wrapper.find('dialog').trigger('close')
     await flushPromises()
-    expect(wrapper.find('.team-dialog__title').exists()).toBe(false)
+    expect(wrapper.find('dialog').exists()).toBe(false)
   })
 
   it('does not render ScoreDialog until a match is opened, then opens it for the selected match', async () => {
     const { wrapper } = await mountApp()
-    expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
+    expect(wrapper.find('dialog').exists()).toBe(false)
 
     await openScoreDialog(wrapper)
 
@@ -159,10 +159,10 @@ describe('App', () => {
   it('closes ScoreDialog when it emits close', async () => {
     const { wrapper } = await mountApp()
     await openScoreDialog(wrapper)
-    expect(wrapper.find('.base-dialog__title').exists()).toBe(true)
+    expect(wrapper.find('dialog').exists()).toBe(true)
 
     await wrapper.find('dialog').trigger('close')
     await flushPromises()
-    expect(wrapper.find('.base-dialog__title').exists()).toBe(false)
+    expect(wrapper.find('dialog').exists()).toBe(false)
   })
 })

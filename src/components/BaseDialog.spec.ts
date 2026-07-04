@@ -55,17 +55,17 @@ describe('BaseDialog', () => {
   describe('close button', () => {
     it('renders by default', () => {
       const wrapper = mount(BaseDialog)
-      expect(wrapper.find('.base-dialog__close').exists()).toBe(true)
+      expect(wrapper.find('[aria-label="Schließen"]').exists()).toBe(true)
     })
 
     it('is hidden when showCloseButton is false', () => {
       const wrapper = mount(BaseDialog, { props: { showCloseButton: false } })
-      expect(wrapper.find('.base-dialog__close').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="Schließen"]').exists()).toBe(false)
     })
 
     it('click emits close', async () => {
       const wrapper = mount(BaseDialog)
-      await wrapper.find('.base-dialog__close').trigger('click')
+      await wrapper.find('[aria-label="Schließen"]').trigger('click')
       expect(wrapper.emitted('close')).toHaveLength(1)
     })
   })

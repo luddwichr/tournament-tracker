@@ -39,14 +39,20 @@ describe('ConfirmDialog', () => {
 
   it('emits confirm (only) when confirm button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
-    await wrapper.find('.btn--danger').trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Bestätigen')!
+      .trigger('click')
     expect(wrapper.emitted('confirm')).toHaveLength(1)
     expect(wrapper.emitted('cancel')).toBeUndefined()
   })
 
   it('emits cancel (only) when cancel button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { title: 'T', message: 'M' } })
-    await wrapper.find('.btn--secondary').trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Abbrechen')!
+      .trigger('click')
     expect(wrapper.emitted('cancel')).toHaveLength(1)
     expect(wrapper.emitted('confirm')).toBeUndefined()
   })

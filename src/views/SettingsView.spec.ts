@@ -163,7 +163,11 @@ describe('SettingsView – import', () => {
     vi.mocked(persistence.parseImport).mockReturnValue(mockResults)
     const wrapper = mountView()
     await triggerFileChange(wrapper, '...')
-    await wrapper.findComponent(ConfirmDialog).find('.btn--danger').trigger('click')
+    await wrapper
+      .findComponent(ConfirmDialog)
+      .findAll('button')
+      .find((b) => b.text() === 'Ersetzen')!
+      .trigger('click')
     expect(store.results).toEqual(mockResults)
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })
@@ -198,7 +202,11 @@ describe('SettingsView – reset', () => {
       .findAll('button')
       .find((b) => b.text() === 'Zurücksetzen')!
       .trigger('click')
-    await wrapper.findComponent(ConfirmDialog).find('.btn--danger').trigger('click')
+    await wrapper
+      .findComponent(ConfirmDialog)
+      .findAll('button')
+      .find((b) => b.text() === 'Zurücksetzen')!
+      .trigger('click')
     expect(resetSpy).toHaveBeenCalledOnce()
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })

@@ -32,6 +32,18 @@ function mountDialog(match = groupMatch) {
   return mount(ScoreDialog, { props: { match, homeTeam, awayTeam } })
 }
 
+function saveButton(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAll('button').find((b) => b.text().includes('Speichern'))!
+}
+
+function cancelButton(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAll('button').find((b) => b.text().includes('Abbrechen'))!
+}
+
+function deleteButton(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAll('button').find((b) => b.text().includes('Löschen'))
+}
+
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
@@ -51,7 +63,7 @@ describe('ScoreDialog', () => {
 
   it('hides "Löschen" when there is no existing result', () => {
     const wrapper = mountDialog()
-    expect(wrapper.find('.btn--danger').exists()).toBe(false)
+    expect(deleteButton(wrapper)).toBeUndefined()
   })
 
   it('shows "Löschen" when an existing result is present', () => {
@@ -72,7 +84,7 @@ describe('ScoreDialog', () => {
   it('clicking "Speichern" saves to the store and closes the dialog', async () => {
     const store = useTournamentStore()
     const wrapper = mountDialog()
-    await wrapper.find('.btn--primary').trigger('click')
+    await saveButton(wrapper).trigger('click')
     expect(store.results['M01']).toMatchObject({ matchId: 'M01', homeGoals: 0, awayGoals: 0 })
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
@@ -80,8 +92,7 @@ describe('ScoreDialog', () => {
   it('clicking "Abbrechen" closes without saving', async () => {
     const store = useTournamentStore()
     const wrapper = mountDialog()
-    const btn = wrapper.findAll('.btn--secondary').find((b) => b.text().includes('Abbrechen'))
-    await btn!.trigger('click')
+    await cancelButton(wrapper).trigger('click')
     expect(store.results['M01']).toBeUndefined()
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
@@ -98,7 +109,7 @@ describe('ScoreDialog', () => {
       awayRed: 0,
     })
     const wrapper = mountDialog()
-    await wrapper.find('.btn--danger').trigger('click')
+    await deleteButton(wrapper)!.trigger('click')
     expect(store.results['M01']).toBeUndefined()
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
@@ -114,7 +125,7 @@ describe('ScoreDialog', () => {
     const wrapper = mountDialog()
     const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
     await btn!.trigger('click')
-    await wrapper.find('.btn--primary').trigger('click')
+    await saveButton(wrapper).trigger('click')
     expect(store.results['M01']).toMatchObject({ awayGoals: 1 })
   })
 
@@ -124,7 +135,7 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog()
       const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Gelbe Karte Heim hinzufügen')
       await btn!.trigger('click')
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ homeYellow: 1 })
     })
 
@@ -133,7 +144,7 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog()
       const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Rote Karte Heim hinzufügen')
       await btn!.trigger('click')
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ homeRed: 1 })
     })
 
@@ -142,7 +153,7 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog()
       const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Gelbe Karte Gast hinzufügen')
       await btn!.trigger('click')
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ awayYellow: 1 })
     })
 
@@ -151,7 +162,7 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog()
       const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Rote Karte Gast hinzufügen')
       await btn!.trigger('click')
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ awayRed: 1 })
     })
   })
@@ -189,7 +200,7 @@ describe('ScoreDialog', () => {
       await flushPromises()
 
       expect(store.results['M01']).toBeUndefined()
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({
         homeGoals: 3,
         awayGoals: 1,
@@ -228,21 +239,21 @@ describe('ScoreDialog', () => {
 
     it('shows error after clicking "Speichern" with a knockout draw', async () => {
       const wrapper = mountDialog(knockoutMatch)
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
     })
 
     it('does not save when "Speichern" is clicked with a knockout draw', async () => {
       const store = useTournamentStore()
       const wrapper = mountDialog(knockoutMatch)
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(store.results['M90']).toBeUndefined()
       expect(wrapper.emitted('close')).toBeUndefined()
     })
 
     it('error clears automatically once scores differ', async () => {
       const wrapper = mountDialog(knockoutMatch)
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
       const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
       await inc!.trigger('click')
@@ -251,13 +262,13 @@ describe('ScoreDialog', () => {
 
     it('shows no error for a group-stage draw', async () => {
       const wrapper = mountDialog(groupMatch)
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
     })
 
     it('error reappears when scores return to a draw after differing', async () => {
       const wrapper = mountDialog(knockoutMatch)
-      await wrapper.find('.btn--primary').trigger('click')
+      await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
       const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
       await inc!.trigger('click')
