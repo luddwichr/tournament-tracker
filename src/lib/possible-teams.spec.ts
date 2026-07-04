@@ -73,47 +73,51 @@ describe('possibleTeamsFor — groupRank, all matches played', () => {
 // ---------------------------------------------------------------------------
 
 describe('possibleTeamsFor — groupRank, 1 match remaining', () => {
-  it('returns exactly 2 possible rank-1 teams when only mex vs kor remains', () => {
+  // The four cases previously here all re-derived the same fact (only mex and
+  // kor can still occupy rank 1 or rank 2; cze/rsa have finished and can't
+  // catch up) with minor variations — consolidated into one parametrized test.
+  it.each([1, 2] as const)('returns exactly mex and kor as possible rank-%i teams (cze/rsa cannot catch up)', (rank) => {
     const results = groupAFiveMatchResults()
+    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank }
+    const teams = possibleTeamsFor(ref, results)
+    const ids = [...teams].map((t) => t.id).toSorted()
+    expect(ids).toEqual(['kor', 'mex'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// groupRank: gdSpread cap lift — a team trailing by a large goal difference
+// must still be found possible at a rank when only a big swing gets it there.
+// ---------------------------------------------------------------------------
+
+describe('possibleTeamsFor — groupRank, gdSpread cap lift', () => {
+  it('includes a team trailing by 4 GD that can only reach rank 1 via a big swing in its last match', () => {
+    // Group A, 5 of 6 matches played; only M53 (cze vs mex) remains.
+    //   M01: mex 0–0 rsa        M28: mex 0–4 kor       M54: rsa 5–0 kor
+    //   M25: cze 1–0 rsa        M02: kor 0–0 cze
+    // Pre-M53 goal difference: mex −4, rsa +4, kor −1, cze +1 → gdSpread = 8.
+    // mex, rsa, kor and cze are then all locked on 4 points once mex wins
+    // M53 (mex's only route to 4 points), so that result is compared against
+    // rsa — the current GD leader — on overall goal difference (then goals
+    // scored). mex's final GD is (−4 + goals scored in M53); to merely tie
+    // rsa's fixed GD (+4) mex needs an 8-goal swing — reachable only because
+    // maxGoalsPerSide lifts the per-side cap to gdSpread + 1 = 9 (goals
+    // 0..8). With the base cap alone (7, i.e. goals 0..6) — or if the lift
+    // used gdSpread instead of gdSpread + 1 (an off-by-one) — mex's rank-1
+    // scenario (an 8–0 win, which also wins it the goals-scored tiebreaker)
+    // would never be enumerated and mex would be silently excluded.
+    const results: Record<string, Result> = {
+      M01: makeResult('M01', 0, 0),
+      M28: makeResult('M28', 0, 4),
+      M54: makeResult('M54', 5, 0),
+      M25: makeResult('M25', 1, 0),
+      M02: makeResult('M02', 0, 0),
+      // M53 (cze vs mex) intentionally left unplayed.
+    }
     const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(2)
     const ids = [...teams].map((t) => t.id)
     expect(ids).toContain('mex')
-    expect(ids).toContain('kor')
-  })
-
-  it('does not include cze or rsa as possible rank-1 teams', () => {
-    const results = groupAFiveMatchResults()
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
-    const teams = possibleTeamsFor(ref, results)
-    const ids = [...teams].map((t) => t.id)
-    expect(ids).not.toContain('cze')
-    expect(ids).not.toContain('rsa')
-  })
-
-  it('returns exactly 2 possible rank-2 teams (same mex and kor)', () => {
-    const results = groupAFiveMatchResults()
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 2 }
-    const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(2)
-    const ids = [...teams].map((t) => t.id)
-    expect(ids).toContain('mex')
-    expect(ids).toContain('kor')
-  })
-
-  it('possible rank-1 and rank-2 sets together cover exactly mex and kor', () => {
-    // Verifies the inverse: if only mex and kor can be rank 1 or rank 2,
-    // then cze and rsa are confined to ranks 3 and 4 (not directly testable
-    // via TeamRef since groupRank only exposes rank 1 and 2).
-    const results = groupAFiveMatchResults()
-    const rank1ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 1 }, results)].map((t) => t.id)
-    const rank2ids = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 2 }, results)].map((t) => t.id)
-    const combined = new Set([...rank1ids, ...rank2ids])
-    expect(combined.has('mex')).toBe(true)
-    expect(combined.has('kor')).toBe(true)
-    expect(combined.has('cze')).toBe(false)
-    expect(combined.has('rsa')).toBe(false)
   })
 })
 
@@ -233,30 +237,49 @@ describe('possibleTeamsFor — team ref', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Memoization — second call returns the same Set instance
+// Memoization — the cache key must include everything that can change the
+// result, in particular discipline (card) counts. Team identity always comes
+// from the `teamsById` singleton map regardless of caching, so asserting on
+// Team object references (as this suite used to) can't tell a working cache
+// apart from no cache at all. Instead, exercise the exact property the
+// cache-key comment in possible-teams.ts (via resultFingerprint) worries
+// about: two calls with identical scores but different card counts must not
+// collide on the same cache key and return a stale result.
 // ---------------------------------------------------------------------------
 
-describe('possibleTeamsFor — memoization', () => {
-  it('returns Team object singletons across calls (same Team reference in both results)', () => {
-    const results = groupAFiveMatchResults()
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
-    const first = [...possibleTeamsFor(ref, results)]
-    const second = [...possibleTeamsFor(ref, results)]
-    // Team objects come from a singleton map; verify the exact same references are returned
-    expect(first.map((t) => t.id).toSorted()).toEqual(second.map((t) => t.id).toSorted())
-    for (const team of first) {
-      expect(second).toContain(team) // same object reference, not a copy
+describe('possibleTeamsFor — memoization respects card counts in the cache key', () => {
+  it('does not return a stale cached rank-1 team when only card counts change (same scores)', () => {
+    // Group A, fully played. mex and kor finish level on points (7), overall
+    // GD (+4) and GF (5), and their head-to-head (M28) is a 1–1 draw — a tie
+    // all the way to the fair-play score. With no cards, fair play also ties,
+    // so FIFA ranking (mex #14 vs kor #25) puts mex at rank 1.
+    const baseResults: Record<string, Result> = {
+      M01: makeResult('M01', 2, 0), // mex 2–0 rsa
+      M02: makeResult('M02', 2, 0), // kor 2–0 cze
+      M25: makeResult('M25', 0, 0), // cze 0–0 rsa
+      M28: makeResult('M28', 1, 1), // mex 1–1 kor — draw
+      M53: makeResult('M53', 0, 2), // cze 0–2 mex — away win
+      M54: makeResult('M54', 0, 2), // rsa 0–2 kor — away win
     }
-  })
-
-  it('clearPossibleTeamsCache resets state so fresh enumeration runs again', () => {
-    const results = groupAFiveMatchResults()
     const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
-    const first = possibleTeamsFor(ref, results)
-    clearPossibleTeamsCache()
-    const second = possibleTeamsFor(ref, results)
-    // Content should be identical after a cache clear + re-run
-    expect([...first].map((t) => t.id).toSorted()).toEqual([...second].map((t) => t.id).toSorted())
+    const first = [...possibleTeamsFor(ref, baseResults)].map((t) => t.id)
+    expect(first).toEqual(['mex'])
+
+    // Repeating the exact same call should hit the cache and return identical
+    // content (a cheap smoke test that the cache path itself doesn't blow up).
+    const repeat = [...possibleTeamsFor(ref, baseResults)].map((t) => t.id)
+    expect(repeat).toEqual(first)
+
+    // Same scores, but mex now picks up 2 yellow cards in M28. Fair play
+    // (which is checked before FIFA ranking) now favors kor, so kor — not
+    // mex — should be rank 1. If the cache key omitted card counts, this
+    // call would incorrectly return the stale { mex } result cached above.
+    const cardedResults: Record<string, Result> = {
+      ...baseResults,
+      M28: makeResult('M28', 1, 1, { homeYellow: 2 }),
+    }
+    const second = [...possibleTeamsFor(ref, cardedResults)].map((t) => t.id)
+    expect(second).toEqual(['kor'])
   })
 })
 
