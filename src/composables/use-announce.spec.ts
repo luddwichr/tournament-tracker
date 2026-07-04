@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest'
 import { defineComponent, provide, h } from 'vue'
 import { mount } from '@vue/test-utils'

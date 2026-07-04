@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount, RouterLinkStub } from '@vue/test-utils'
 import { createRouter, createWebHashHistory, type Router } from 'vue-router'

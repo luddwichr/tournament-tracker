@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import OriginColumn, { type OriginGroupData, type OriginTeamRow } from './OriginColumn.vue'

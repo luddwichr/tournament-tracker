@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Result } from '../types/tournament'
 import { parseImport, exportJson } from './persistence'
