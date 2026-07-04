@@ -42,6 +42,22 @@ describe('parseImport', () => {
     const json = JSON.stringify({ version: 1, results: { M01: bad } })
     expect(() => parseImport(json)).toThrow()
   })
+
+  // Corrupt-import cases that must be caught by isNonNegativeInteger (used
+  // inside isValidResult) and the matchId type check. Each row's override is
+  // inlined as raw JSON text rather than JSON.stringify'd, since that lets us
+  // express a value — like a number that overflows to Infinity — that
+  // JSON.stringify cannot produce (it turns Infinity/NaN into `null`) but
+  // JSON.parse can.
+  it.each([
+    ['a negative goal count', '"homeGoals":-1'],
+    ['a fractional goal count', '"homeGoals":1.5'],
+    ['a non-finite goal count (numeric overflow to Infinity)', '"homeGoals":1e400'],
+    ['a non-string matchId', '"matchId":123'],
+  ])('rejects an import with %s', (_label, fieldOverride) => {
+    const json = `{"version":1,"results":{"M01":{"matchId":"M01","homeGoals":1,"awayGoals":0,"homeYellow":0,"homeRed":0,"awayYellow":0,"awayRed":0,${fieldOverride}}}}`
+    expect(() => parseImport(json)).toThrow()
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -50,8 +66,6 @@ describe('parseImport', () => {
 
 describe('exportJson', () => {
   let anchor: HTMLAnchorElement
-  let appendSpy: ReturnType<typeof vi.spyOn>
-  let removeSpy: ReturnType<typeof vi.spyOn>
   let clickSpy: ReturnType<typeof vi.spyOn>
   let createObjectURLSpy: ReturnType<typeof vi.spyOn>
   let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>
@@ -59,16 +73,18 @@ describe('exportJson', () => {
 
   beforeEach(() => {
     fakeUrl = 'blob:fake-url'
-    anchor = document.createElement('a')
+
+    // Capture the real createElement before spying on it, so the mock's
+    // fallback branch (for tags other than 'a') delegates to the actual DOM
+    // implementation instead of recursing into itself.
+    const originalCreateElement = document.createElement.bind(document)
+    anchor = originalCreateElement('a')
     clickSpy = vi.spyOn(anchor, 'click').mockImplementation(() => {})
 
     vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') return anchor
-      return document.createElement(tag)
+      return originalCreateElement(tag)
     })
-
-    appendSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => anchor)
-    removeSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => anchor)
 
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue(fakeUrl)
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
@@ -88,10 +104,9 @@ describe('exportJson', () => {
     expect(clickSpy).toHaveBeenCalledOnce()
   })
 
-  it('appends and then removes the anchor from the body', () => {
+  it('does not leave the download anchor attached to the document', () => {
     exportJson({})
-    expect(appendSpy).toHaveBeenCalledWith(anchor)
-    expect(removeSpy).toHaveBeenCalledWith(anchor)
+    expect(document.body.contains(anchor)).toBe(false)
   })
 
   it('sets the download filename to wc2026-results-<date>.json', () => {
