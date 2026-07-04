@@ -48,15 +48,10 @@ describe('BracketRound – structure', () => {
     expect(wrapper.find('section').attributes('data-stage')).toBe('qf')
   })
 
-  it('renders one MatchCard per match', () => {
-    const wrapper = mountRound()
-    expect(wrapper.findAllComponents(MatchCard)).toHaveLength(2)
-  })
-
-  it('renders a MatchCard for each match', () => {
-    const rows = [makeRow('M73'), makeRow('M74'), makeRow('M75')]
+  it.each([2, 3])('renders one MatchCard per match (%i matches)', (count) => {
+    const rows = Array.from({ length: count }, (_, i) => makeRow(`M${73 + i}`))
     const wrapper = mountRound({ matches: rows })
-    expect(wrapper.findAllComponents(MatchCard)).toHaveLength(3)
+    expect(wrapper.findAllComponents(MatchCard)).toHaveLength(count)
   })
 
   it('sets data-match-id on the wrapper div for each row', () => {

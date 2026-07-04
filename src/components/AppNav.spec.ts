@@ -1,18 +1,22 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount, RouterLinkStub } from '@vue/test-utils'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, type Router } from 'vue-router'
 
 import AppNav from './AppNav.vue'
 
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes: [
-    { path: '/', redirect: '/groups' },
-    { path: '/groups', component: { template: '<div />' } },
-    { path: '/knockout', component: { template: '<div />' } },
-    { path: '/ranking', component: { template: '<div />' } },
-    { path: '/settings', component: { template: '<div />' } },
-  ],
+let router: Router
+
+beforeEach(() => {
+  router = createRouter({
+    history: createWebHashHistory(),
+    routes: [
+      { path: '/', redirect: '/groups' },
+      { path: '/groups', component: { template: '<div />' } },
+      { path: '/knockout', component: { template: '<div />' } },
+      { path: '/ranking', component: { template: '<div />' } },
+      { path: '/settings', component: { template: '<div />' } },
+    ],
+  })
 })
 
 describe('AppNav', () => {

@@ -19,11 +19,15 @@ describe('ScoreInput', () => {
     expect(wrapper.find('legend').text()).toBe('⚽ Tore')
   })
 
-  it('passes team names into stepper aria-labels', () => {
+  it.each([
+    'Tor für Deutschland abziehen',
+    'Tor für Deutschland hinzufügen',
+    'Tor für Frankreich abziehen',
+    'Tor für Frankreich hinzufügen',
+  ])('sets a stepper button with aria-label %j', (label) => {
     const wrapper = mountScoreInput()
     const buttons = wrapper.findAll('button')
-    expect(buttons.some((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')).toBe(true)
-    expect(buttons.some((b) => b.attributes('aria-label') === 'Tor für Frankreich abziehen')).toBe(true)
+    expect(buttons.some((b) => b.attributes('aria-label') === label)).toBe(true)
   })
 
   it('renders the ":" separator as aria-hidden', () => {
@@ -31,24 +35,6 @@ describe('ScoreInput', () => {
     const sep = wrapper.find('.score-input__sep')
     expect(sep.text()).toBe(':')
     expect(sep.attributes('aria-hidden')).toBe('true')
-  })
-
-  it('sets correct aria-labels on the home stepper buttons', () => {
-    const wrapper = mountScoreInput()
-    const buttons = wrapper.findAll('button')
-    const dec = buttons.find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
-    const inc = buttons.find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-    expect(dec).toBeDefined()
-    expect(inc).toBeDefined()
-  })
-
-  it('sets correct aria-labels on the away stepper buttons', () => {
-    const wrapper = mountScoreInput()
-    const buttons = wrapper.findAll('button')
-    const dec = buttons.find((b) => b.attributes('aria-label') === 'Tor für Frankreich abziehen')
-    const inc = buttons.find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
-    expect(dec).toBeDefined()
-    expect(inc).toBeDefined()
   })
 
   it('emits update:home when home increment is clicked', async () => {

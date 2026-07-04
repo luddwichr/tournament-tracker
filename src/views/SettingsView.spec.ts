@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import SettingsView from './SettingsView.vue'
@@ -28,6 +28,10 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
     this.dispatchEvent(new Event('close'))
   })
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
 })
 
 function mountView() {

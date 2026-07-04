@@ -3,11 +3,9 @@ import { mount } from '@vue/test-utils'
 import BracketConnectors from './BracketConnectors.vue'
 
 describe('BracketConnectors', () => {
-  it('renders an svg element', () => {
-    const wrapper = mount(BracketConnectors, { props: { paths: [] } })
-    expect(wrapper.find('svg').exists()).toBe(true)
-  })
-
+  // No separate "renders an svg element" test: an svg not existing would
+  // already make the aria-hidden assertion below fail (attributes() on a
+  // missing element returns undefined, not 'true').
   it('is aria-hidden', () => {
     const wrapper = mount(BracketConnectors, { props: { paths: [] } })
     expect(wrapper.find('svg').attributes('aria-hidden')).toBe('true')
