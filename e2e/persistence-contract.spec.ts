@@ -21,7 +21,7 @@ test('the plugin persists results in the exact shape seedResults()/storedState()
   await groups.emptyMatchButton('Mexiko', 'Südafrika').click()
   const dialog = new ScoreDialog(page)
   await dialog.expectVisible()
-  await dialog.incrementHomeGoals()
+  await dialog.incrementGoals('Mexiko')
   await dialog.save()
   await dialog.expectHidden()
 
