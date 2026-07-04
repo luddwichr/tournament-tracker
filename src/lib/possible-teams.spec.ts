@@ -76,13 +76,16 @@ describe('possibleTeamsFor — groupRank, 1 match remaining', () => {
   // The four cases previously here all re-derived the same fact (only mex and
   // kor can still occupy rank 1 or rank 2; cze/rsa have finished and can't
   // catch up) with minor variations — consolidated into one parametrized test.
-  it.each([1, 2] as const)('returns exactly mex and kor as possible rank-%i teams (cze/rsa cannot catch up)', (rank) => {
-    const results = groupAFiveMatchResults()
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank }
-    const teams = possibleTeamsFor(ref, results)
-    const ids = [...teams].map((t) => t.id).toSorted()
-    expect(ids).toEqual(['kor', 'mex'])
-  })
+  it.each([1, 2] as const)(
+    'returns exactly mex and kor as possible rank-%i teams (cze/rsa cannot catch up)',
+    (rank) => {
+      const results = groupAFiveMatchResults()
+      const ref: TeamRef = { kind: 'groupRank', group: 'A', rank }
+      const teams = possibleTeamsFor(ref, results)
+      const ids = [...teams].map((t) => t.id).toSorted()
+      expect(ids).toEqual(['kor', 'mex'])
+    },
+  )
 })
 
 // ---------------------------------------------------------------------------
