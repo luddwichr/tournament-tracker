@@ -42,6 +42,7 @@ function handleClick(e: MouseEvent): void {
   background: none;
   border: none;
   padding: 0;
+  min-height: var(--tap-target);
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;

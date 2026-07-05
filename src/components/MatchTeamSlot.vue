@@ -34,9 +34,12 @@ const emit = defineEmits<{ placeholderClick: [] }>()
 }
 
 .match-team-slot__placeholder {
+  display: inline-flex;
+  align-items: center;
   background: none;
   border: none;
   padding: 0;
+  min-height: var(--tap-target);
   color: var(--color-text-muted);
   font-style: italic;
   overflow: hidden;
