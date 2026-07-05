@@ -51,8 +51,7 @@ const awayGoals = defineModel<number>('away', { required: true })
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline: auto;
 }
 
 .score-input__grid {

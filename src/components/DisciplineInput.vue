@@ -65,8 +65,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline: auto;
 }
 
 .discipline-input__legend-icon {

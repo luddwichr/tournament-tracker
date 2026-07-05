@@ -119,7 +119,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 
 .ranking-table th {
   padding: var(--space-3) var(--space-3);
-  text-align: left;
+  text-align: start;
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
@@ -128,12 +128,12 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 
 .ranking-table thead .ranking-table__rank-col {
   width: 3.5rem;
-  text-align: right;
+  text-align: end;
 }
 
 .ranking-table thead .ranking-table__pts-col {
   width: 5.5rem;
-  text-align: right;
+  text-align: end;
 }
 
 .ranking-row {
@@ -142,7 +142,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 
 .ranking-row__rank {
   padding: var(--space-2) var(--space-3);
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
@@ -164,7 +164,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 
 .ranking-row__pts {
   padding: var(--space-2) var(--space-3);
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
 }

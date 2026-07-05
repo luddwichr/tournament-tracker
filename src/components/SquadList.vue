@@ -47,7 +47,7 @@ const sorted = computed(() => sortBySquadPosition(props.players))
   padding: var(--space-1) var(--space-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 
@@ -85,6 +85,6 @@ const sorted = computed(() => sortBySquadPosition(props.players))
 .squad-list__name {
   padding: var(--space-2) var(--space-3);
   font-weight: 500;
-  text-align: left;
+  text-align: start;
 }
 </style>

@@ -60,8 +60,8 @@ defineProps<{
 }
 
 .standings-table thead .standings-table__team-col {
-  text-align: left;
-  padding-left: var(--space-3);
+  text-align: start;
+  padding-inline-start: var(--space-3);
 }
 
 .standings-table__num-col {

@@ -94,8 +94,8 @@ defineProps<{
 }
 
 .third-place-table__table thead .third-place-table__team-col {
-  text-align: left;
-  padding-left: var(--space-3);
+  text-align: start;
+  padding-inline-start: var(--space-3);
 }
 
 .third-place-table__num-col {
@@ -109,7 +109,7 @@ defineProps<{
 
 .third-place-table__steps {
   margin: 0;
-  padding-left: var(--space-5);
+  padding-inline-start: var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

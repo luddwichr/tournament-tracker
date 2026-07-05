@@ -160,7 +160,7 @@ const emit = defineEmits<{
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   width: 1ch;
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }

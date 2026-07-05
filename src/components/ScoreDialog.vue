@@ -125,7 +125,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 }
 
 .score-dialog__btn-symbol {
-  margin-right: 0.3em;
+  margin-inline-end: 0.3em;
 }
 
 .score-dialog__fetch {

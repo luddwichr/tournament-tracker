@@ -15,7 +15,7 @@
 .standings-cell__team {
   white-space: nowrap;
   font-weight: inherit;
-  text-align: left;
+  text-align: start;
 }
 
 .standings-cell__team-inner {
@@ -36,7 +36,7 @@
 .standings-cell__rank {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  text-align: right;
+  text-align: end;
 }
 
 .standings-cell__num {
@@ -57,15 +57,15 @@
  * alongside the component-specific status class.
  */
 .standings-cell--win-strip {
-  border-left: 4px solid var(--color-win);
+  border-inline-start: 4px solid var(--color-win);
 }
 
 .standings-cell--draw-strip {
-  border-left: 4px solid var(--color-draw);
+  border-inline-start: 4px solid var(--color-draw);
 }
 
 .standings-cell--loss-strip {
-  border-left: 4px solid var(--color-loss);
+  border-inline-start: 4px solid var(--color-loss);
 }
 
 /*
