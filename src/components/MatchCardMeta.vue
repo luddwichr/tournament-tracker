@@ -49,7 +49,7 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color var(--motion-duration-base) var(--motion-easing-standard);
 }
 
 .match-card-meta:hover,

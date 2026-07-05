@@ -61,8 +61,8 @@ const emit = defineEmits<{ openScore: [] }>()
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   transition:
-    border-color 0.15s,
-    background-color 0.15s;
+    border-color var(--motion-duration-base) var(--motion-easing-standard),
+    background-color var(--motion-duration-base) var(--motion-easing-standard);
 }
 
 .match-score-btn__pill--split {
