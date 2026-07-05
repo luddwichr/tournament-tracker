@@ -78,7 +78,10 @@ body {
   color: var(--color-primary-contrast);
 }
 .btn--primary:hover {
-  opacity: 0.9;
+  background-color: color-mix(in srgb, var(--color-primary) 100%, var(--color-primary-contrast) var(--state-hover));
+}
+.btn--primary:active {
+  background-color: color-mix(in srgb, var(--color-primary) 100%, var(--color-primary-contrast) var(--state-pressed));
 }
 
 .btn--secondary {
@@ -89,6 +92,9 @@ body {
 .btn--secondary:hover {
   background: var(--color-bg);
 }
+.btn--secondary:active {
+  background: color-mix(in srgb, var(--color-text) var(--state-pressed), transparent);
+}
 
 .btn--danger {
   background: transparent;
@@ -97,6 +103,9 @@ body {
 }
 .btn--danger:hover {
   background: color-mix(in srgb, var(--color-loss) var(--state-hover), transparent);
+}
+.btn--danger:active {
+  background: color-mix(in srgb, var(--color-loss) var(--state-pressed), transparent);
 }
 
 /*
