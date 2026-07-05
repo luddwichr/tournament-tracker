@@ -59,7 +59,8 @@ function onValueKeydown(event: KeyboardEvent) {
       aria-live="polite"
       aria-atomic="true"
       @keydown="onValueKeydown"
-    >{{ model }}</span>
+      >{{ model }}</span
+    >
     <button type="button" class="stepper__step" :aria-label="incLabel" @click="increment">+</button>
   </div>
 </template>
