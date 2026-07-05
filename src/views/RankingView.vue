@@ -26,7 +26,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 </script>
 
 <template>
-  <main class="ranking-view">
+  <div class="ranking-view">
     <header class="ranking-view__header">
       <h1 class="view-heading">FIFA-Weltrangliste</h1>
       <p class="ranking-view__subtitle">
@@ -72,7 +72,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
         </tbody>
       </table>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

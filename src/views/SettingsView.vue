@@ -94,7 +94,7 @@ function handleCancel(): void {
 </script>
 
 <template>
-  <main class="settings-view">
+  <div class="settings-view">
     <h1 class="view-heading">Einstellungen</h1>
 
     <div class="settings-view__sections">
@@ -128,7 +128,7 @@ function handleCancel(): void {
         />
       </section>
     </div>
-  </main>
+  </div>
 
   <ConfirmDialog
     v-if="confirmConfig"
