@@ -133,6 +133,15 @@ body {
   background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
+/* Shared page-heading recipe — used by every view's top-level <h1>, keeping
+   heading size/weight/spacing consistent across GroupsView, KnockoutView,
+   RankingView and SettingsView. */
+.view-heading {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
 /* Screen-reader-only utility */
 .visually-hidden {
   position: absolute;

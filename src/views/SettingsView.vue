@@ -95,7 +95,7 @@ function handleCancel(): void {
 
 <template>
   <main class="settings-view">
-    <h1>Einstellungen</h1>
+    <h1 class="view-heading">Einstellungen</h1>
 
     <div class="settings-view__sections">
       <section class="settings-view__section">
@@ -153,12 +153,17 @@ function handleCancel(): void {
 
 <style scoped>
 .settings-view {
-  padding: var(--space-5) var(--space-4);
   max-width: 40rem;
   margin-inline: auto;
 }
 
-h1 {
+/*
+ * .view-heading (base.css) sets margin-block-end: var(--space-4); this view
+ * wants extra breathing room before its sections, so override it here. Needs
+ * the extra class-selector specificity (over .view-heading's single class)
+ * to win the cascade.
+ */
+.settings-view h1 {
   margin-block-end: var(--space-6);
 }
 

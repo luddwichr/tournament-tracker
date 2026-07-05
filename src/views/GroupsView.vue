@@ -13,7 +13,7 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 
 <template>
   <div class="groups-view">
-    <h1 class="groups-view__heading">Gruppen</h1>
+    <h1 class="view-heading">Gruppen</h1>
     <div class="groups-view__grid">
       <GroupTable v-for="groupId in GROUP_IDS" :key="groupId" :group-id="groupId" />
       <ThirdPlaceTable class="groups-view__third-place" :live-ranking="liveRanking" />
@@ -22,12 +22,6 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 </template>
 
 <style scoped>
-.groups-view__heading {
-  margin: 0 0 var(--space-4);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-}
-
 .groups-view__grid {
   display: grid;
   /* min(360px,100%) prevents the column from exceeding the container width on

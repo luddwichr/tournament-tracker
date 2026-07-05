@@ -28,7 +28,7 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 <template>
   <main class="ranking-view">
     <header class="ranking-view__header">
-      <h1>FIFA-Weltrangliste</h1>
+      <h1 class="view-heading">FIFA-Weltrangliste</h1>
       <p class="ranking-view__subtitle">
         Stand 11. Juni 2026 · {{ fifaRanking.length }} Mannschaften ·
         <span class="ranking-view__legend-swatch" aria-hidden="true" />
@@ -77,17 +77,17 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 
 <style scoped>
 .ranking-view {
-  padding: var(--space-5) var(--space-4);
   max-width: 44rem;
   margin-inline: auto;
 }
 
+/*
+ * .view-heading (base.css) gives the <h1> a larger bottom margin than this
+ * view used before (space-4 vs. the old space-2) — trimmed by the same
+ * amount here so the header's total height is unchanged.
+ */
 .ranking-view__header {
-  margin-block-end: var(--space-5);
-}
-
-h1 {
-  margin: 0 0 var(--space-2);
+  margin-block-end: var(--space-4);
 }
 
 .ranking-view__subtitle {
