@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
 <template>
   <section class="bracket-round surface-card" :aria-label="title" :data-stage="stage">
-    <header class="bracket-round__header sticky-card-header">
+    <header class="bracket-round__header card-header sticky-card-header">
       <h2 class="bracket-round__title">{{ title }}</h2>
     </header>
     <div class="bracket-round__matches">

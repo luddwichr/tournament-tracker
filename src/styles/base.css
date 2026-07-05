@@ -109,16 +109,26 @@ body {
 }
 
 /*
- * Sticky primary-coloured card header — used by BracketRound and OriginColumn.
- * Apply alongside the component-specific class that controls width/padding overrides.
+ * Primary-coloured card header — used by GroupTable, ThirdPlaceTable,
+ * BracketRound and OriginColumn. Apply alongside the component-specific class
+ * that controls width/padding overrides.
+ */
+.card-header {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+/*
+ * Sticky variant — apply together with .card-header on headers that sit
+ * inside a scrolling container and should stay pinned to its top (BracketRound,
+ * OriginColumn). GroupTable/ThirdPlaceTable headers live in a non-scrolling
+ * grid, so they use .card-header alone.
  */
 .sticky-card-header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
 }
 
 /* Focus-style highlight ring — used by BracketRound match targets and OriginColumn team rows */

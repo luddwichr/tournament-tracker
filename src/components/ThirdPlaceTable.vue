@@ -11,7 +11,7 @@ defineProps<{
 
 <template>
   <section class="third-place-table surface-card" aria-label="Beste Drittplatzierte">
-    <header class="third-place-table__header">
+    <header class="third-place-table__header card-header">
       <h2 class="third-place-table__title">Die besten {{ QUALIFYING_THIRDS_COUNT }} Drittplatzierten</h2>
     </header>
 
@@ -69,12 +69,6 @@ defineProps<{
 </template>
 
 <style scoped>
-.third-place-table__header {
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-
 .third-place-table__title {
   margin: 0;
   font-size: var(--font-size-lg);

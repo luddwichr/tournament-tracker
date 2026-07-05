@@ -28,7 +28,7 @@ const emit = defineEmits<{
 
 <template>
   <section class="origin-column surface-card" aria-label="Gruppenphase">
-    <header class="origin-column__header sticky-card-header">
+    <header class="origin-column__header card-header sticky-card-header">
       <h2 class="origin-column__title">Gruppen</h2>
     </header>
     <div class="origin-column__groups">
