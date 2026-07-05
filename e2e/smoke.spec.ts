@@ -30,3 +30,10 @@ test('home route has no detectable accessibility violations', async ({ page }) =
 
   await expectNoA11yViolations(page)
 })
+
+test('ranking view has no detectable accessibility violations', async ({ page }) => {
+  await page.goto('/ranking')
+  await expect(page.getByRole('heading', { level: 1, name: 'FIFA-Weltrangliste' })).toBeVisible()
+
+  await expectNoA11yViolations(page)
+})

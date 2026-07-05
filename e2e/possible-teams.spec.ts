@@ -100,5 +100,9 @@ test('possible-teams dialog has no accessibility violations', async ({ page }) =
 
 test('knockout view with possible-teams buttons has no accessibility violations', async ({ page }) => {
   await knockout.goto()
+  // Routes are lazily imported (see router.ts) — wait for the view to
+  // actually be mounted before scanning, otherwise axe can run against the
+  // pre-hydration DOM and misreport a missing level-one heading.
+  await knockout.expectLoaded()
   await expectNoA11yViolations(page)
 })

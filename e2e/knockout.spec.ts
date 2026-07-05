@@ -169,12 +169,17 @@ test('the draw error clears once the score is no longer tied, then the result sa
 
 test('knockout view has no detectable accessibility violations', async ({ page }) => {
   await knockout.goto()
+  // Routes are lazily imported (see router.ts) — wait for the view to
+  // actually be mounted before scanning, otherwise axe can run against the
+  // pre-hydration DOM and misreport a missing level-one heading.
+  await knockout.expectLoaded()
   await expectNoA11yViolations(page)
 })
 
 test('knockout view with group results has no detectable accessibility violations', async ({ page }) => {
   await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
+  await knockout.expectLoaded()
   await expectNoA11yViolations(page)
 })
 

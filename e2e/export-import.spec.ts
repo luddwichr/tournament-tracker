@@ -125,6 +125,17 @@ test('confirm dialog has no detectable accessibility violations', async ({ page 
   await expectNoA11yViolations(page)
 })
 
+test('sync dialog has no detectable accessibility violations', async ({ page }) => {
+  await settings.goto()
+  // "Ergebnisse abrufen" opens the SyncDialog straight into its 'confirm'
+  // state — no network request has fired yet, so this is reachable without
+  // mocking the sync provider.
+  await page.getByRole('button', { name: 'Ergebnisse abrufen' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+
+  await expectNoA11yViolations(page)
+})
+
 test('Importieren with invalid JSON shows error', async () => {
   await settings.goto()
 
@@ -154,6 +165,14 @@ test('Importieren with wrong version shows error', async () => {
 
 test('settings page has no detectable accessibility violations', async ({ page }) => {
   await settings.goto()
+
+  await expectNoA11yViolations(page)
+})
+
+test('settings page has no detectable accessibility violations in dark theme', async ({ page }) => {
+  await settings.goto()
+  await page.getByRole('radio', { name: 'Dunkel' }).check()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
   await expectNoA11yViolations(page)
 })

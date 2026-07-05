@@ -37,6 +37,14 @@ test('groups view has no detectable accessibility violations', async ({ page }) 
   await expectNoA11yViolations(page)
 })
 
+test('score dialog has no detectable accessibility violations', async ({ page }) => {
+  // M25 (Group A): Tschechien vs Südafrika — an as-yet-unplayed match, so the
+  // dialog opens in its default (0:0, no draw-guard error) state.
+  await groups.openScoreDialog('Tschechien', 'Südafrika')
+
+  await expectNoA11yViolations(page)
+})
+
 test('shows a third-place table with 12 rows, one per group', async () => {
   await expect(groups.thirdPlaceTable()).toBeVisible()
   await expect(groups.thirdPlaceRows()).toHaveCount(12)
