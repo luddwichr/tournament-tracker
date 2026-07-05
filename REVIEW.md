@@ -6,146 +6,23 @@ coverage 93.8 % statements / 89.8 % branches / 94.7 % lines.
 
 Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 
----
-
-## 1. Top priorities (cross-cutting)
-
-1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§2.1).
-2. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§2.2).
-
----
-
-## 2. TypeScript & domain logic
-
-### 2.1 🔴 The `possible-teams` enumeration is effectively unbounded in the worst case
-
-`possible-teams.ts:36-39,98` — `maxGoalsPerSide` returns `Math.max(base, gdSpread + 1)`.
-The "≤531k combos" claim in the header comment (line 8) only holds for the base caps.
-After one 8:0 result, `gdSpread = 16` → with 4 matches remaining, (17·17)⁴ ≈ **7×10⁹**
-leaf invocations of `computeGroupStandings` — a synchronous main-thread freeze measured
-in hours. The early exit doesn't save you precisely in the interesting case (a team
-mathematically excluded from the queried rank forces full enumeration). Users can enter
-arbitrary scores; a typo like 30:0 makes `maxGoals = 31`.
-**Fix:** clamp total work, not just per-side goals — e.g. reduce the cap while
-`(cap²)^remaining > ~10⁶` — or enumerate outcome classes {W/D/L × capped GD} instead of
-raw scorelines.
-
-### 2.2 🔴 `REQUIREMENTS.md` contradicts the (correct) implementation
-
-- §5.1 specifies the _old_ 2018/2022 tiebreaker order (overall GD before H2H, "restart
-  the full chain") — the code and `docs/tournament-rules.md` correctly implement the
-  2026 order (H2H before overall GD, no-restart d→g; verified against the regulations,
-  including `resolveH2H`'s subset recursion). Anyone "fixing" the code to match
-  REQUIREMENTS would introduce a real ranking bug.
-- §§ referencing `Result.penaltyWinner: 'home'|'away'` and an "Elfmeterschießen" toggle
-  describe a field that exists nowhere in the code.
-- §1 lists "Live score auto-fetch" as out of scope, contradicting the shipped ESPN sync.
-  **Fix:** correct §5.1 to mirror tournament-rules.md (or link instead of duplicating),
-  update the result model description to the "enter the decisive score" convention, move
-  live-sync into scope.
-
-### 2.3 🟡 Storing shootout scores corrupts downstream goal aggregates
-
-`espn.ts:120-128` + `results-sync/index.ts:64-72` — a 1:1 (4:2 pens) match is persisted
-as `homeGoals: 4, awayGoals: 2`; `computeTeamStats` then shows goals that never happened,
-and the match card displays a fabricated score (the `winner ? goals+1` branch invents
-data with no real-world referent).
-**Fix:** model it — an optional `decidedBy?: 'pens'` plus the real score and winner.
-The ESPN hack is evidence the current model is too lossy; this is the same gap as the
-removed `penaltyWinner`.
-
-### 2.4 🟡 Persisted state is rehydrated with zero validation
-
-`stores/tournament.ts:33-35` — file import goes through `parseImport`, but localStorage
-rehydration doesn't; a corrupted/hand-edited entry flows straight into
-`computeGroupStandings` (`'2' + 3` string-concat standings, no error surfaced).
-**Fix:** an `afterHydrate` hook that validates and resets — the validator already exists
-in `persistence.ts`, just trapped inside `isValidPersistedState`; export it.
-
-### 2.5 🟡 `parseImport` loopholes
-
-`persistence.ts:41-47` — accepts arrays (`typeof [] === 'object'`); never checks that
-keys are real fixture ids or that `key === result.matchId`; unknown ids import silently
-and sit invisible forever. Acknowledged as a loophole in REQUIREMENTS §9.8, but it's
-three lines: reject arrays, validate entries against a `fixtureIds` set, require
-`r.matchId === k`.
-
-### 2.6 🟡 Type-level misses
-
-- `data/teams.ts:19`: `teams: readonly Team[] = [...] as const` — the explicit
-  annotation wins, so `as const` is inert and `Team.id` stays `string`. Use
-  `as const satisfies readonly Team[]`, derive `type TeamId = (typeof teams)[number]['id']`,
-  and type `squads: Record<TeamId, readonly Player[]>` — a missing/typo'd squad key
-  becomes a compile error instead of a test failure.
-- `fixtures-2026.ts:1349`: the 495-entry allocation table is force-cast; the over-wide
-  `Partial<Record<GroupId, GroupId>>` forces dead `if (sourceGroup)` guards downstream
-  (`third-place.ts:82,103`). Use `satisfies` with an exact host-group union.
-- `types/tournament.ts:75-85`: `MatchSlot` isn't discriminated by stage, so "group
-  matches always have concrete team refs" lives in comments and 4 runtime guards.
-  A discriminated union deletes the guards and makes `match.group` non-optional where used.
-- ~32 occurrences of `Record<string, Result>` restated across files, never `Readonly`.
-  Add `export type ResultsMap = Readonly<Record<string, Result>>` and use it everywhere.
-- `Team`/`MatchSlot`/`Player`/`Result` fields are mutable although every instance is
-  shared static data or persisted state — one accidental `team.group = …` corrupts
-  `teamsById` app-wide. Mark fields `readonly`.
-- `tiebreakers.ts:122-160`: four `stats.get(...)!` assertions encode the "stats exist
-  for every team" precondition invisibly; a partial map gives NaN comparisons → silently
-  arbitrary order, not a crash. One guard at the top of `sortTeams` fixes it.
-- The exhaustiveness `default` block is copy-pasted in `knockout.ts`, `possible-teams.ts`,
-  `bracket-labels.ts` — extract a shared `assertNever`.
-
-### 2.7 🟡 Duplicated Annex-C plumbing
-
-`third-place.ts:72-85` vs `:91-106` — `buildGroupToThirdPlaceSlotMap` and
-`resolveThirdPlaceSlot` duplicate the top-8 → key → allocation pipeline with different
-iteration direction; two hand-rolled walks over the same table is where an inconsistency
-bug would live. **Fix:** implement one in terms of the other (or extract
-`qualifyingAllocation(ranked)`).
-
-### 2.8 🟢 Smaller logic/API nits
-
-- `espn.ts:99-101`: `detail.team?.id === homeTeamId` attributes a card to the home team
-  when both ids are `undefined`. Guard with `homeTeamId != null && …`.
-- `espn.ts:162-165`: blanket `catch { throw new Error(NETWORK_ERROR) }` erases the actual
-  failure; use `{ cause: e }` and rethrow `AbortError` untouched.
-- `espn.ts:52-53,187-196`: mutable module-level `nowImpl` + `_internal.setNow/reset` is a
-  global test seam, inconsistent with the clean `fetchImpl` injection two lines away —
-  add `now?: () => Date` to the options and delete the machinery.
-- `onProgress` (`espn.ts:167-177`, `use-results-sync.ts:43-45`) fires from a fully
-  synchronous loop after a single fetch — progress can only jump 0→100. Vestigial; drop
-  it (YAGNI) or fetch per-day chunks for real.
-- `stores/tournament.ts:20-28`: the `clearPossibleTeamsCache()` calls are redundant
-  coupling — the cache is fingerprint-keyed and can never serve stale data; drop them or
-  rename to `freePossibleTeamsMemory` so readers don't have to prove they're not load-bearing.
-- `knockout.ts:41` / `possible-teams.ts:197`: `fixtures.find(...)` linear scans inside a
-  recursive resolver — add `fixturesById` next to the existing `teamsById`.
-- `standings.ts:36`, `teams.ts:78-80`: full-array rescans sit in the innermost loop of the
-  possible-teams enumeration (~64M predicate calls at the honest worst case). Precompute
-  `groupMatchesByGroup` / `teamsByGroup` maps.
-- `squad.ts:3,16-17`: `NonNullable<Player['position']>` and the `!= null` fallbacks are
-  dead — `position` isn't optional; drift from an earlier model (REQUIREMENTS §3 still
-  says "optional"). Delete the dead defense.
-- `bracket-labels.ts:16,20`: `ref.matchId.replace('M', '')` encodes the id format as a
-  stringly assumption in a display helper; use `slice(1)` or a shared `matchNumber(id)`.
-- `possible-teams.ts:134`: cache eviction dumps all 500 entries to admit one; a one-line
-  FIFO delete keeps hot entries warm.
-
-### 2.9 🟡 Data files
-
-- **Six player names ship with Wikipedia disambiguation suffixes** — `'Matt Turner (soccer)'`,
-  `'Chris Richards (soccer)'`, etc. (`squads.ts:62,140,345,347,356,369`), rendered
-  verbatim in the squad list. Fix the generator (`scripts/fetch-squads.py`: strip
-  trailing ` (…)`), regenerate, and add a spec asserting no name matches `/\(/`.
-- 48 German team names are duplicated between `fifa-ranking.ts` and `teams.ts`, linked by
-  `flagCode` only, with no drift guard — a rename shows two different names across views.
-  Prefer `teamsById` names in the ranking view, or add a name-equality spec.
-- Everything else validates clean (verified programmatically: fixture ids, group
-  assignments, squad sizes/shirt numbers, all 495 allocation rows, bracket wiring
-  against the rules doc).
+All findings from §1 "Top priorities" and §2 "TypeScript & domain logic" in the
+previous version of this review have been addressed: the `possible-teams` enumeration
+is now clamped to a fixed combinatorial budget; REQUIREMENTS.md was corrected to match
+the (correct) implementation; penalty shootouts are modeled as a real score plus a
+`shootoutWinner` field instead of a fabricated goal; localStorage rehydration is
+validated via an `afterHydrate` hook; `parseImport` rejects arrays and validates fixture
+ids/`matchId` correspondence; `TeamId`, `ResultsMap`, a discriminated `MatchSlot`
+(`GroupMatchSlot`/`KnockoutMatchSlot`), and `readonly` domain fields close the
+type-level gaps; the Annex-C plumbing in `third-place.ts` is deduplicated; the smaller
+logic/API nits (ESPN card-attribution guard, error causes, `now` injection, dead
+`onProgress`, cache eviction/coupling, `fixturesById`, precomputed group-match maps, the
+dead `squad.ts` position guard, stringly match-number parsing) are fixed; and the squad
+name suffixes plus the fifa-ranking/teams name-drift guard are in place.
 
 ---
 
-## 3. How to improve: established techniques & feedback loops (especially for coding agents)
+## 1. How to improve: established techniques & feedback loops (especially for coding agents)
 
 The recurring failure mode in this codebase is not bad code — it's **drift**: comments,
 docs, and configs that describe a state the code has left (`main.ts` bundle comment,
@@ -168,16 +45,18 @@ humans/agents don't. Concrete program, in order of leverage:
    lint needs pile up. The house `toSorted()` rule shows the team already knows this
    works — extend the pattern.
 3. **Encode invariants as types or data-integrity tests, never as comments.**
-   `TeamId`-keyed squads (§2.6) turns a data bug into a compile error; the existing
-   `data.spec.ts` pattern should grow the missing guards (no `(` in player names,
-   ranking↔teams name equality, storage-key single-sourcing). Where a comment currently
-   states an invariant ("callers must not mutate"), promote it to `readonly`.
+   `TeamId`-keyed squads now turn a typo'd squad key into a compile error, and
+   `data.spec.ts`/`squads.spec.ts`/`fifa-ranking.spec.ts` grew the missing guards (no
+   `(` in player names, ranking↔teams name equality); `storage-key single-sourcing` was
+   already fine (`STORAGE_KEY` has one definition, imported everywhere). Comments that
+   stated an invariant ("callers must not mutate") are now `readonly` fields instead.
 4. **Keep executable docs, kill aspirational ones.** REQUIREMENTS.md's tiebreaker section
-   actively endangers the code it describes (§2.2). Rule of thumb: a doc may describe
-   _intent_ (tournament-rules.md does this well, with tests referencing it) but must not
-   _duplicate_ what code/tests already state — link instead. Add a README that documents
-   the feedback loops themselves (scripts, hooks, CI, deploy base path), because that's
-   the doc agents read first.
+   used to actively endanger the code it describes — now corrected and cross-linked to
+   `tournament-rules.md` instead of duplicating it. Rule of thumb going forward: a doc
+   may describe _intent_ (`tournament-rules.md` does this well, with tests referencing
+   it) but must not _duplicate_ what code/tests already state — link instead. A README
+   documenting the feedback loops themselves (scripts, hooks, CI, deploy base path) is
+   still missing — that's the doc agents read first.
 5. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard
    tab traps, inert live regions) were the worst a11y findings — both are now fixed, and
    the axe scans (ScoreDialog, dark theme, /ranking) have been added. Still missing: one
@@ -185,6 +64,6 @@ humans/agents don't. Concrete program, in order of leverage:
    sessions, `npm run dev` + playwright-cli screenshots is the strongest "did it actually
    work" loop — cheaper than reasoning about CSS in the abstract.
 6. **Close the loop on generated data.** `squads.ts` shipped `(soccer)` suffixes because
-   the generator's output is trusted blind. Every generator script should have a
-   validation step in the same run (the `data.spec.ts` suite is the natural home) so
-   regeneration can't ship garbage.
+   the generator's output was trusted blind — `fetch-squads.py` is now fixed and
+   `squads.spec.ts` guards against the suffix regressing. Every generator script should
+   have a validation step in the same run so regeneration can't ship garbage again.
