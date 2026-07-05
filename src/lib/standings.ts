@@ -1,10 +1,10 @@
 import type { GroupId, Result, Team } from '../types/tournament'
 import { teamsInGroup } from '../data/teams'
-import { groupMatches } from '../data/fixtures-2026'
+import { groupMatchesByGroup } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
 
 export function isGroupComplete(groupId: GroupId, results: Record<string, Result>): boolean {
-  return groupMatches.filter((m) => m.group === groupId).every((m) => results[m.id] != null)
+  return (groupMatchesByGroup.get(groupId) ?? []).every((m) => results[m.id] != null)
 }
 
 export type MatchOutcome = 'W' | 'D' | 'L'
@@ -34,8 +34,7 @@ export interface TeamStat {
 // ---------------------------------------------------------------------------
 
 export function resultFingerprint(groupId: GroupId, results: Record<string, Result>): string {
-  return groupMatches
-    .filter((m) => m.group === groupId)
+  return (groupMatchesByGroup.get(groupId) ?? [])
     .map((m) => {
       const r = results[m.id]
       // Include discipline counts: fair-play (yellow/red cards) breaks ties and
@@ -72,14 +71,19 @@ export function computeGroupStandings(groupId: GroupId, results: Record<string, 
   if (cached) return cached
 
   const computed = computeGroupStandingsUncached(groupId, results)
-  if (standingsCache.size >= MAX_CACHE_SIZE) standingsCache.clear()
+  if (standingsCache.size >= MAX_CACHE_SIZE) {
+    // FIFO eviction: a `Map` preserves insertion order, so the first key is
+    // the oldest entry — drop only that one instead of clearing everything.
+    const oldestKey = standingsCache.keys().next().value
+    if (oldestKey !== undefined) standingsCache.delete(oldestKey)
+  }
   standingsCache.set(cacheKey, computed)
   return computed
 }
 
 function computeGroupStandingsUncached(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
   const gTeams = teamsInGroup(groupId)
-  const gMatches = groupMatches.filter((m) => m.group === groupId)
+  const gMatches = groupMatchesByGroup.get(groupId) ?? []
 
   const statsMap = new Map<string, TeamStat>(
     gTeams.map((team) => [

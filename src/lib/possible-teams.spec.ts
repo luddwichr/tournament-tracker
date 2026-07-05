@@ -125,6 +125,47 @@ describe('possibleTeamsFor — groupRank, gdSpread cap lift', () => {
 })
 
 // ---------------------------------------------------------------------------
+// groupRank: pathological blowout + several remaining matches must not
+// combinatorially explode (regression for REVIEW.md issue 2.1).
+//
+// A single lopsided scoreline (or typo'd score) inflates gdSpread, and
+// `maxGoalsPerSide` lifts the per-side goal cap to `gdSpread + 1` with no
+// upper bound. With 5 of Group A's 6 matches still unplayed and only that
+// naive lift applied, the per-side cap would be 17 (gdSpread 16 from an 8–0
+// win), making the nested score enumeration (17*17)^5 ≈ 2×10^12 leaf calls
+// of computeGroupStandings — a multi-hour synchronous freeze, not merely a
+// slow test. The fix in `cappedMaxGoalsPerSide` clamps the cap down until
+// the total stays near the documented ~1e6-call budget, however large the
+// GD swing. This test would time out (well past the assertion below) if that
+// clamp were removed or reverted to the unclamped `maxGoalsPerSide`.
+// ---------------------------------------------------------------------------
+
+describe('possibleTeamsFor — pathological blowout does not blow up the enumeration', () => {
+  it('completes in well under a second even with a huge GD spread and 5 remaining matches', () => {
+    // Only M01 played, as an 8–0 blowout: mex +8 GD, rsa −8 GD, kor/cze untouched
+    // → gdSpread = 16. The other 5 Group A matches (M02, M25, M28, M53, M54)
+    // are all left unplayed, so the naive cap (gdSpread + 1 = 17) applies
+    // across all 5 remaining matches simultaneously.
+    const results: Record<string, Result> = {
+      M01: makeResult('M01', 8, 0),
+    }
+    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+
+    const start = Date.now()
+    const teams = possibleTeamsFor(ref, results)
+    const elapsedMs = Date.now() - start
+
+    // Generous margin — the clamped enumeration should take a few
+    // milliseconds; a regression to the unclamped cap would instead hang far
+    // beyond any test timeout, so this comfortably distinguishes the two.
+    expect(elapsedMs).toBeLessThan(500)
+    // Sanity: still returns a real, non-empty result (the fix must not
+    // silently degenerate to "no teams possible").
+    expect(teams.size).toBeGreaterThan(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // groupRank: no matches played — all 4 teams are possible for any rank
 // ---------------------------------------------------------------------------
 

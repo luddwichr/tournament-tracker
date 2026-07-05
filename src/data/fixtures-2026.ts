@@ -14,6 +14,7 @@
 //   - per-group fixtures: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
 
 import type { GroupId, MatchSlot, ThirdPlaceKey, ThirdPlaceSlot } from '../types/tournament'
+import { GROUP_IDS } from '../types/tournament'
 
 /**
  * The eight round-of-32 slots filled by a third-placed team, keyed by slot
@@ -841,6 +842,14 @@ export const knockoutMatches: readonly MatchSlot[] = [
 
 /** All 104 match slots in id order. */
 export const fixtures: readonly MatchSlot[] = [...groupMatches, ...knockoutMatches]
+
+/** Quick lookup of any match slot (group or knockout) by id. */
+export const fixturesById: ReadonlyMap<string, MatchSlot> = new Map(fixtures.map((f) => [f.id, f]))
+
+/** Group-stage matches grouped by `group`, precomputed once — avoids a `.filter` scan per lookup. */
+export const groupMatchesByGroup: ReadonlyMap<GroupId, readonly MatchSlot[]> = new Map(
+  GROUP_IDS.map((group) => [group, groupMatches.filter((m) => m.group === group)]),
+)
 
 /**
  * FIFA "Annex C" allocation of the eight best third-placed teams to round-of-32

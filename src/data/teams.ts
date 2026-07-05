@@ -15,6 +15,7 @@
 // the lower-case FIFA country code; `flagCode` is the `flag-icons` CSS code.
 
 import type { Team } from '../types/tournament'
+import { GROUP_IDS } from '../types/tournament'
 
 export const teams: readonly Team[] = [
   { id: 'mex', name: 'Mexiko', flagCode: 'mx', group: 'A', fifaRanking: 14 },
@@ -70,11 +71,16 @@ export const teams: readonly Team[] = [
 /** Quick lookup by team id. */
 export const teamsById: ReadonlyMap<string, Team> = new Map(teams.map((t) => [t.id, t]))
 
+/** Teams grouped by their `group`, precomputed once — backs `teamsInGroup`. */
+const teamsByGroup: ReadonlyMap<Team['group'], readonly Team[]> = new Map(
+  GROUP_IDS.map((group) => [group, teams.filter((t) => t.group === group)]),
+)
+
 /**
  * All teams in a given group, in the table order above. Returns a `readonly`
  * view: the elements are the shared singleton `Team` objects, so callers must
  * not mutate them (doing so would corrupt `teams`/`teamsById`).
  */
 export function teamsInGroup(group: Team['group']): readonly Team[] {
-  return teams.filter((t) => t.group === group)
+  return teamsByGroup.get(group) ?? []
 }

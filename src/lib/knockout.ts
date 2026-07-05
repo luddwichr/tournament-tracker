@@ -11,10 +11,11 @@
 
 import type { Stage, TeamRef, Team, Result } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
-import { fixtures, knockoutMatches } from '../data/fixtures-2026'
+import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
 import { computeGroupStandings, isGroupComplete } from './standings'
 import { resolveThirdPlaceSlot } from './third-place'
+import { assertNever } from './assert-never'
 
 /**
  * Resolve a TeamRef to a concrete Team given current results.
@@ -38,7 +39,7 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
 
     case 'matchWinner':
     case 'matchLoser': {
-      const match = fixtures.find((m) => m.id === ref.matchId)
+      const match = fixturesById.get(ref.matchId)
       if (!match) return null
       const matchResult = results[ref.matchId]
       if (!matchResult) return null
@@ -55,8 +56,7 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
     }
 
     default: {
-      const exhaustiveCheck: never = ref
-      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
+      return assertNever(ref, 'TeamRef kind')
     }
   }
 }

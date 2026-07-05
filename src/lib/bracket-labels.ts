@@ -1,5 +1,11 @@
 import type { TeamRef } from '../types/tournament'
 import { teamsById } from '../data/teams'
+import { assertNever } from './assert-never'
+
+/** Extract the display number from a match id (e.g. `'M73'` → `'73'`). */
+function matchNumber(matchId: string): string {
+  return matchId.slice(1)
+}
 
 export function teamRefLabel(ref: TeamRef): string {
   switch (ref.kind) {
@@ -13,17 +19,14 @@ export function teamRefLabel(ref: TeamRef): string {
       return 'Bester 3. Platz'
     }
     case 'matchWinner': {
-      const n = ref.matchId.replace('M', '')
-      return `Sieger Sp. ${n}`
+      return `Sieger Sp. ${matchNumber(ref.matchId)}`
     }
     case 'matchLoser': {
-      const n = ref.matchId.replace('M', '')
-      return `Verlierer Sp. ${n}`
+      return `Verlierer Sp. ${matchNumber(ref.matchId)}`
     }
 
     default: {
-      const exhaustiveCheck: never = ref
-      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
+      return assertNever(ref, 'TeamRef kind')
     }
   }
 }

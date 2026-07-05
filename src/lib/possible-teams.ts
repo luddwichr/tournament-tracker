@@ -5,9 +5,12 @@
  * groupRank: iterates plausible score combos for remaining group matches and
  * collects every team that can achieve the target rank in at least one scenario.
  * Score range is adaptive — wider when few matches remain (0..6 per side for
- * ≤3 remaining; 0..2 for all 6 remaining) — so worst-case combos are ≤531k.
- * Stops early once all group teams have been found at the target rank.
- * Results are memoized per (group, rank, played-result fingerprint).
+ * ≤3 remaining; 0..2 for all 6 remaining) — but is then clamped so the total
+ * number of enumerated (h, a) combinations across all remaining matches never
+ * exceeds MAX_ENUMERATION_COMBOS (see below), however large a single lopsided
+ * result makes the goal-difference spread. Stops early once all group teams
+ * have been found at the target rank. Results are memoized per (group, rank,
+ * played-result fingerprint).
  *
  * thirdPlace: approximation via the Annex C allocation table — collects all
  * groups that could be the source group for the given slot and returns teams
@@ -21,11 +24,12 @@
  */
 
 import type { Team, TeamRef, GroupId, Result, ThirdPlaceSlot } from '../types/tournament'
-import { groupMatches, knockoutMatches, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
+import { groupMatchesByGroup, fixturesById, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import { teamsById, teamsInGroup } from '../data/teams'
 import { computeGroupStandings, resultFingerprint } from './standings'
 import { resolveTeamRef } from './knockout'
 import { resolveThirdPlaceSlot } from './third-place'
+import { assertNever } from './assert-never'
 
 // ---------------------------------------------------------------------------
 // Adaptive score range — fewer remaining matches → wider range → more precise
@@ -36,6 +40,27 @@ import { resolveThirdPlaceSlot } from './third-place'
 function maxGoalsPerSide(remainingCount: number, gdSpread: number): number {
   const base = remainingCount <= 3 ? 7 : remainingCount <= 5 ? 4 : 3
   return Math.max(base, gdSpread + 1)
+}
+
+// Total (h, a) combinations explored across all remaining matches is
+// (maxGoals^2) ^ remainingCount. `computeGroupStandings` is a cheap,
+// synchronous, allocation-light function — a browser can run on the order of
+// 1e6 calls of it without a perceptible main-thread stall. The gdSpread lift
+// in `maxGoalsPerSide` is unbounded (a single lopsided or typo'd score, e.g.
+// 30:0, inflates it arbitrarily), so once several matches remain the naive
+// cap can blow this budget by many orders of magnitude. Clamp it down —
+// floor at 2 so precision doesn't collapse entirely — until the total stays
+// within budget. Small gdSpread / few remaining matches (the common case)
+// never hits this clamp: it only kicks in for the pathological combination.
+const MAX_ENUMERATION_COMBOS = 1_000_000
+const MIN_MAX_GOALS_PER_SIDE = 2
+
+function cappedMaxGoalsPerSide(remainingCount: number, gdSpread: number): number {
+  let cap = maxGoalsPerSide(remainingCount, gdSpread)
+  while (cap > MIN_MAX_GOALS_PER_SIDE && (cap * cap) ** remainingCount > MAX_ENUMERATION_COMBOS) {
+    cap -= 1
+  }
+  return cap
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +85,7 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
   const cached = cache.get(cacheKey)
   if (cached) return cached
 
-  const gMatches = groupMatches.filter((m) => m.group === group)
+  const gMatches = groupMatchesByGroup.get(group) ?? []
   const remaining = gMatches.filter((m) => !results[m.id])
   const groupTeamCount = teamsInGroup(group).length
   const possible = new Set<string>()
@@ -82,7 +107,7 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
     }
     const gds = [...gdByTeam.values()]
     const gdSpread = gds.length >= 2 ? Math.max(...gds) - Math.min(...gds) : 0
-    const maxGoals = maxGoalsPerSide(remaining.length, gdSpread)
+    const maxGoals = cappedMaxGoalsPerSide(remaining.length, gdSpread)
     const partial: Record<string, Result> = { ...results }
 
     const enumerate = (i: number) => {
@@ -118,7 +143,12 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
     enumerate(0)
   }
 
-  if (cache.size >= MAX_CACHE_SIZE) cache.clear()
+  if (cache.size >= MAX_CACHE_SIZE) {
+    // FIFO eviction: a `Map` preserves insertion order, so the first key is
+    // the oldest entry — drop only that one instead of clearing everything.
+    const oldestKey = cache.keys().next().value
+    if (oldestKey !== undefined) cache.delete(oldestKey)
+  }
   cache.set(cacheKey, possible)
   return possible
 }
@@ -181,7 +211,7 @@ function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<
         return resolved ? new Set([resolved.id]) : new Set()
       }
       // Match unplayed — either home or away team could win (or lose)
-      const match = knockoutMatches.find((m) => m.id === ref.matchId)
+      const match = fixturesById.get(ref.matchId)
       if (!match) return new Set()
       const homeIds = possibleTeamIdsFor(match.homeRef, results)
       const awayIds = possibleTeamIdsFor(match.awayRef, results)
@@ -192,8 +222,7 @@ function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<
     }
 
     default: {
-      const exhaustiveCheck: never = ref
-      throw new Error(`Unhandled TeamRef kind: ${JSON.stringify(exhaustiveCheck)}`)
+      return assertNever(ref, 'TeamRef kind')
     }
   }
 }
