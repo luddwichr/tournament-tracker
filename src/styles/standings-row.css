@@ -1,0 +1,86 @@
+/*
+ * Shared cell recipe for the standings-style table rows used by StandingsRow
+ * and ThirdPlaceRow (group standings vs. best-third-place ranking). Both
+ * components render structurally identical <th>/<td> cells — team, rank,
+ * numeric stat, points — plus the same left-edge status-color strip and
+ * background tint pattern. Loaded once (see main.ts) rather than duplicated
+ * as scoped CSS in each component.
+ *
+ * What stays local to each component instead: the exact status enum (7
+ * statuses for StandingsRow vs. 5 for ThirdPlaceRow), ThirdPlaceRow's extra
+ * __group badge cell, its cutoff dashed border, and the rank cell's
+ * width/flex-shrink (1ch vs 2ch).
+ */
+
+.standings-cell__team {
+  white-space: nowrap;
+  font-weight: inherit;
+  text-align: left;
+}
+
+.standings-cell__team-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  white-space: nowrap;
+}
+
+/* Allow long team names to truncate so the team column stays compact */
+.standings-cell__team-inner .team-label__name {
+  max-width: 6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.standings-cell__rank {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.standings-cell__num {
+  padding: var(--space-1) 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.standings-cell__pts {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+}
+
+/*
+ * Left-edge status strip: a 4px colored border on the team cell signals
+ * qualification status. Apply directly to the <th class="...__team">
+ * alongside the component-specific status class.
+ */
+.standings-cell--win-strip {
+  border-left: 4px solid var(--color-win);
+}
+
+.standings-cell--draw-strip {
+  border-left: 4px solid var(--color-draw);
+}
+
+.standings-cell--loss-strip {
+  border-left: 4px solid var(--color-loss);
+}
+
+/*
+ * Row background tint — apply to the <tr> alongside the component-specific
+ * status class; only used once a status is "locked in" (final qualified/
+ * eliminated), matching the original per-component behaviour.
+ */
+.standings-cell--win-tint td {
+  background-color: color-mix(in srgb, var(--color-win) 8%, transparent);
+}
+
+.standings-cell--draw-tint td {
+  background-color: color-mix(in srgb, var(--color-draw) 8%, transparent);
+}
+
+.standings-cell--muted td {
+  color: var(--color-text-muted);
+}

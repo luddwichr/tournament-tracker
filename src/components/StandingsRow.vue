@@ -31,37 +31,54 @@ const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
   eliminated: 'ausgeschieden',
   danger: 'gefährdet',
 }
+
+// Left-edge status strip on the team cell — see src/styles/standings-row.css
+// for the shared .standings-cell--*-strip recipes.
+const stripClass = computed((): string | undefined => {
+  if (status.value === 'qualified' || status.value === 'safe') return 'standings-cell--win-strip'
+  if (status.value === 'third' || status.value === 'potential') return 'standings-cell--draw-strip'
+  if (status.value === 'eliminated' || status.value === 'danger') return 'standings-cell--loss-strip'
+  return undefined
+})
+
+// Row background tint — only once a status is locked in (group decided).
+const tintClass = computed((): string | undefined => {
+  if (status.value === 'qualified') return 'standings-cell--win-tint'
+  if (status.value === 'third') return 'standings-cell--draw-tint'
+  if (status.value === 'eliminated') return 'standings-cell--muted'
+  return undefined
+})
 </script>
 
 <template>
-  <tr class="standings-row" :class="`standings-row--${status}`">
-    <th scope="row" class="standings-row__team">
-      <div class="standings-row__team-inner">
-        <span class="standings-row__rank" aria-hidden="true">{{ rank }}</span>
+  <tr class="standings-row" :class="[`standings-row--${status}`, tintClass]">
+    <th scope="row" class="standings-row__team standings-cell__team" :class="stripClass">
+      <div class="standings-row__team-inner standings-cell__team-inner">
+        <span class="standings-row__rank standings-cell__rank" aria-hidden="true">{{ rank }}</span>
         <TeamLabel :team="stat.team" clickable />
         <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
       </div>
     </th>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.played }}
     </td>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.wins }}
     </td>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.draws }}
     </td>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.losses }}
     </td>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.goalsFor }}
     </td>
-    <td class="standings-row__num">
+    <td class="standings-row__num standings-cell__num">
       {{ stat.goalsAgainst }}
     </td>
-    <td class="standings-row__num">{{ stat.goalDiff > 0 ? '+' : '' }}{{ stat.goalDiff }}</td>
-    <td class="standings-row__num standings-row__pts">
+    <td class="standings-row__num standings-cell__num">{{ stat.goalDiff > 0 ? '+' : '' }}{{ stat.goalDiff }}</td>
+    <td class="standings-row__num standings-cell__num standings-row__pts standings-cell__pts">
       {{ stat.points }}
     </td>
   </tr>
@@ -73,81 +90,17 @@ const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
 }
 
 /*
- * Left-edge strip: a 4px colored border on the team cell signals qualification
- * status. border-left on the first <td> in a border-collapse:collapse table
- * becomes the table's left edge for that row — clipped neatly by the card's
- * overflow:hidden + border-radius.
- */
-.standings-row--qualified .standings-row__team,
-.standings-row--safe .standings-row__team {
-  border-left: 4px solid var(--color-win);
-}
-
-.standings-row--third .standings-row__team,
-.standings-row--potential .standings-row__team {
-  border-left: 4px solid var(--color-draw);
-}
-
-.standings-row--eliminated .standings-row__team,
-.standings-row--danger .standings-row__team {
-  border-left: 4px solid var(--color-loss);
-}
-
-/* Background tints only when the group is decided */
-.standings-row--qualified td {
-  background-color: color-mix(in srgb, var(--color-win) 8%, transparent);
-}
-
-.standings-row--third td {
-  background-color: color-mix(in srgb, var(--color-draw) 8%, transparent);
-}
-
-.standings-row--eliminated td {
-  color: var(--color-text-muted);
-}
-
-/*
  * The <th> itself must stay as display:table-cell so the browser's table
  * layout stretches it to the full row height and the background fills
  * correctly. Flex layout goes on the inner wrapper instead.
+ *
+ * Shared team/team-inner/rank/num/pts cell recipes, the status-strip and
+ * background-tint utilities, and the team-name clamp all live in
+ * src/styles/standings-row.css (shared with ThirdPlaceRow.vue). Only the
+ * rank cell's width is genuinely component-specific (1ch here vs. 2ch in
+ * ThirdPlaceRow, which also reserves space for its group badge).
  */
-.standings-row__team {
-  white-space: nowrap;
-  font-weight: inherit;
-  text-align: left;
-}
-
-.standings-row__team-inner {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  white-space: nowrap;
-}
-
 .standings-row__rank {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
   min-width: 1ch;
-  text-align: right;
-}
-
-.standings-row__num {
-  padding: var(--space-1) 2px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* Allow long team names to truncate so the team column stays compact */
-.standings-row__team-inner :deep(.team-label__name) {
-  max-width: 6rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.standings-row__pts {
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-base);
 }
 </style>

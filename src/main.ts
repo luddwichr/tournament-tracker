@@ -11,6 +11,7 @@ import { router } from './router'
 import './styles/reset.css'
 import './styles/tokens.css'
 import './styles/base.css'
+import './styles/standings-row.css'
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
