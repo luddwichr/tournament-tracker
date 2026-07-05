@@ -107,10 +107,10 @@ function handleCancel(): void {
         <h2>Daten</h2>
 
         <div class="settings-view__actions">
-          <button type="button" class="settings-view__btn" @click="handleExport">Exportieren</button>
-          <button type="button" class="settings-view__btn" @click="handleImportClick">Importieren</button>
-          <button type="button" class="settings-view__btn" @click="openSync">Ergebnisse abrufen</button>
-          <button type="button" class="settings-view__btn btn--danger" @click="handleReset">Zurücksetzen</button>
+          <button type="button" class="btn btn--secondary" @click="handleExport">Exportieren</button>
+          <button type="button" class="btn btn--secondary" @click="handleImportClick">Importieren</button>
+          <button type="button" class="btn btn--secondary" @click="openSync">Ergebnisse abrufen</button>
+          <button type="button" class="btn btn--danger" @click="handleReset">Zurücksetzen</button>
         </div>
 
         <p v-if="importError" class="settings-view__error" role="alert">
@@ -183,23 +183,6 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-}
-
-.settings-view__btn {
-  padding: var(--space-3) var(--space-5);
-  min-height: var(--tap-target);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-family: inherit;
-}
-
-.settings-view__btn:hover {
-  background: var(--color-bg);
 }
 
 .settings-view__error {
