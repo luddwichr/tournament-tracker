@@ -37,6 +37,13 @@ describe('SyncDialog', () => {
     expect(wrapper.emitted('cancel')).toHaveLength(1)
   })
 
+  it('keeps a persistent role="status" element mounted before syncing starts, so the transition is announced', () => {
+    const wrapper = mountDialog({ status: 'confirm' })
+    const status = wrapper.find('[role="status"]')
+    expect(status.exists()).toBe(true)
+    expect(status.text()).toBe('')
+  })
+
   it('syncing: shows the football spinner and progress', () => {
     const wrapper = mountDialog({ status: 'syncing', progress: { done: 3, total: 7 } })
     expect(wrapper.find('.sync-dialog__spinner').text()).toBe('⚽')

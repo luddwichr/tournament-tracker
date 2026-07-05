@@ -189,6 +189,14 @@ describe('ScoreDialog', () => {
       expect(wrapper.find('.score-dialog__fetch').exists()).toBe(true)
     })
 
+    it('keeps a persistent role="status" fetch-message element in the DOM before any fetch runs', () => {
+      const wrapper = mountDialog()
+      const message = wrapper.find('.score-dialog__fetch-message')
+      expect(message.exists()).toBe(true)
+      expect(message.attributes('role')).toBe('status')
+      expect(message.text()).toBe('')
+    })
+
     it('fills the fields from the fetched result without saving to the store', async () => {
       const store = useTournamentStore()
       vi.mocked(syncResults).mockResolvedValue({
@@ -218,6 +226,20 @@ describe('ScoreDialog', () => {
       await flushPromises()
 
       expect(wrapper.find('.score-dialog__fetch-message').text()).toBe('Kein Live-Ergebnis gefunden.')
+    })
+
+    it('shows a visible confirmation once a live result is applied', async () => {
+      vi.mocked(syncResults).mockResolvedValue({
+        M01: { matchId: 'M01', homeGoals: 2, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+      })
+      const wrapper = mountDialog()
+
+      await wrapper.find('.score-dialog__fetch').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('.score-dialog__fetch-message').text()).toBe(
+        'Live-Ergebnis übernommen: Deutschland 2 : 0 Frankreich.',
+      )
     })
 
     it('shows the error message when the fetch fails', async () => {

@@ -61,11 +61,9 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
           {{ fetch.status === 'loading' ? 'Ergebnis wird geholt …' : 'Ergebnis holen' }}
         </button>
 
-        <p v-if="fetch.status === 'not-found'" class="score-dialog__fetch-message" role="status">
-          Kein Live-Ergebnis gefunden.
-        </p>
+        <p class="score-dialog__fetch-message" role="status">{{ fetch.message }}</p>
         <p
-          v-else-if="fetch.status === 'error'"
+          v-if="fetch.status === 'error'"
           class="score-dialog__fetch-message score-dialog__fetch-message--error"
           role="alert"
         >

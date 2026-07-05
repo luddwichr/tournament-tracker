@@ -57,6 +57,21 @@ export function useMatchResultForm(
   const controller = new AbortController()
   onUnmounted(() => controller.abort())
 
+  /** Visible confirmation for `success`/`not-found`, so the live-fetch outcome
+   * is perceivable even while `announce()`'s global `role="status"` region is
+   * inert (it lives outside the modal `<dialog>`, which `showModal()` makes
+   * `inert`). Empty for `idle`/`loading`/`error` — `error` has its own
+   * `role="alert"` element instead. */
+  const fetchMessage = computed(() => {
+    if (fetchStatus.value === 'success') {
+      return `Live-Ergebnis übernommen: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}.`
+    }
+    if (fetchStatus.value === 'not-found') {
+      return 'Kein Live-Ergebnis gefunden.'
+    }
+    return ''
+  })
+
   /** Fetches the whole results feed and plucks this match's result, filling
    * the fields for review — nothing is written to the store here, so there's
    * nothing to warn about overwriting. The fetch is aborted on unmount so a
@@ -96,6 +111,6 @@ export function useMatchResultForm(
     initial,
     save,
     clear,
-    fetch: reactive({ status: fetchStatus, error: fetchError, run: fetchLive }),
+    fetch: reactive({ status: fetchStatus, error: fetchError, message: fetchMessage, run: fetchLive }),
   }
 }

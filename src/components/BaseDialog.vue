@@ -45,7 +45,6 @@ defineExpose({ close })
     :aria-label="ariaLabel"
     :aria-labelledby="!ariaLabel && title ? titleId : undefined"
     :aria-describedby="ariaDescribedby"
-    aria-modal="true"
     @close="emit('close')"
   >
     <div class="base-dialog__inner">

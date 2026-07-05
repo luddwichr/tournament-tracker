@@ -15,9 +15,9 @@ describe('BaseDialog', () => {
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
-  it('always sets aria-modal="true"', () => {
+  it('omits aria-modal (redundant with native showModal() semantics)', () => {
     const wrapper = mount(BaseDialog)
-    expect(wrapper.find('dialog').attributes('aria-modal')).toBe('true')
+    expect(wrapper.find('dialog').attributes('aria-modal')).toBeUndefined()
   })
 
   describe('title prop', () => {

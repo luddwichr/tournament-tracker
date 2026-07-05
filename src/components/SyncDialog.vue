@@ -25,6 +25,21 @@ const TITLES: Record<SyncStatus, string> = {
 
 const title = computed(() => TITLES[props.status])
 
+/** Text for the persistent `role="status"` element below — kept as a single
+ * computed so the element itself stays mounted across the confirm → syncing →
+ * done transition instead of being freshly created by `v-if`/`v-else-if`,
+ * which most screen readers won't announce (the live region must already
+ * exist before its content changes). */
+const statusMessage = computed(() => {
+  if (props.status === 'syncing') {
+    return `Daten werden abgerufen${props.progress ? ` … ${props.progress.done}/${props.progress.total}` : ''}`
+  }
+  if (props.status === 'done') {
+    return `${props.count} Spiele wurden aktualisiert.`
+  }
+  return ''
+})
+
 /** Trigger the native close, which surfaces as `@close` → `cancel`. */
 function requestClose(): void {
   baseDialog.value?.close()
@@ -45,18 +60,13 @@ function requestClose(): void {
         Alle vorhandenen Ergebnisse werden durch die abgerufenen Daten (Tore und Karten) ersetzt.
       </p>
 
-      <template v-else-if="status === 'syncing'">
-        <span class="sync-dialog__spinner" role="img" aria-label="Wird geladen">⚽</span>
-        <p class="sync-dialog__status" role="status">
-          Daten werden abgerufen<span v-if="progress"> … {{ progress.done }}/{{ progress.total }}</span>
-        </p>
-      </template>
+      <span v-if="status === 'syncing'" class="sync-dialog__spinner" role="img" aria-label="Wird geladen">⚽</span>
 
-      <p v-else-if="status === 'done'" class="sync-dialog__done" role="status">
-        <span aria-hidden="true">✅ </span>{{ count }} Spiele wurden aktualisiert.
+      <p :class="status === 'done' ? 'sync-dialog__done' : 'sync-dialog__status'" role="status">
+        <span v-if="status === 'done'" aria-hidden="true">✅ </span>{{ statusMessage }}
       </p>
 
-      <p v-else-if="status === 'error'" class="sync-dialog__error" role="alert">
+      <p v-if="status === 'error'" class="sync-dialog__error" role="alert">
         {{ error ?? 'Abruf fehlgeschlagen.' }}
       </p>
     </div>
