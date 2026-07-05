@@ -40,7 +40,7 @@ function handleClose(): void {
     ref="baseDialog"
     :title="title"
     :aria-describedby="descId"
-    max-width="min(90vw, 24rem)"
+    max-width="var(--dialog-width-sm)"
     :show-close-button="false"
     @close="handleClose"
   >

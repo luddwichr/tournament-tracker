@@ -39,7 +39,7 @@ defineExpose({ close })
     class="base-dialog"
     :class="{ 'base-dialog--scrollable': !!maxHeight }"
     :style="{
-      '--dialog-max-width': maxWidth ?? 'min(90vw, 28rem)',
+      '--dialog-max-width': maxWidth ?? 'var(--dialog-width-sm)',
       ...(maxHeight ? { '--dialog-max-height': maxHeight } : {}),
     }"
     :aria-label="ariaLabel"
@@ -78,7 +78,7 @@ defineExpose({ close })
   background: var(--color-surface);
   color: var(--color-text);
   padding: 0;
-  max-width: var(--dialog-max-width, min(90vw, 28rem));
+  max-width: var(--dialog-max-width, var(--dialog-width-sm));
   width: 100%;
   box-shadow: var(--shadow-lg);
 }

@@ -48,6 +48,10 @@
 
   /* Responsive breakpoints */
   --breakpoint-sm: 640px;
+
+  /* Dialog widths — two recipes covering all BaseDialog consumers */
+  --dialog-width-sm: min(90vw, 24rem);
+  --dialog-width-lg: min(90vw, 32rem);
 }
 
 /* Light palette — default */

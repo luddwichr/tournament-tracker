@@ -12,7 +12,12 @@ const emit = defineEmits<{ close: [] }>()
 </script>
 
 <template>
-  <BaseDialog title="Mögliche Teams" max-width="min(92vw, 28rem)" max-height="min(90vh, 36rem)" @close="emit('close')">
+  <BaseDialog
+    title="Mögliche Teams"
+    max-width="var(--dialog-width-sm)"
+    max-height="min(90vh, 36rem)"
+    @close="emit('close')"
+  >
     <div class="possible-teams-dialog__content">
       <h3 class="possible-teams-dialog__section-title">
         {{ label }}

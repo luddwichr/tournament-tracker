@@ -36,7 +36,7 @@ function requestClose(): void {
     ref="baseDialog"
     :title="title"
     :aria-describedby="descId"
-    max-width="min(90vw, 26rem)"
+    max-width="var(--dialog-width-sm)"
     :show-close-button="false"
     @close="emit('cancel')"
   >

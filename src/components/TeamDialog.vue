@@ -33,7 +33,12 @@ const tabIds = tabs.map(() => useId())
 </script>
 
 <template>
-  <BaseDialog :aria-label="team.name" max-width="min(92vw, 32rem)" max-height="min(90vh, 40rem)" @close="emit('close')">
+  <BaseDialog
+    :aria-label="team.name"
+    max-width="var(--dialog-width-lg)"
+    max-height="min(90vh, 40rem)"
+    @close="emit('close')"
+  >
     <template #title>
       <div class="team-dialog__team-heading">
         <TeamFlag :flag-code="team.flagCode" size="2rem" />
