@@ -4,12 +4,6 @@ Reviewed: full source (`src/`, `e2e/`, configs, hooks, CI, docs) as of `62638e1`
 Objective baseline: `lint` and `typecheck` clean; 550 unit tests in 56 files, all passing;
 coverage 93.8 % statements / 89.8 % branches / 94.7 % lines.
 
-**Verdict:** a well-above-average codebase — strict TypeScript, pure derived-state
-architecture, real a11y investment, disciplined tests. The findings below are mostly
-drift (comments/docs that no longer match reality), a handful of genuine a11y bugs,
-one real performance landmine, and structural duplication that will tax the next
-feature. Findings are ordered by relevance within each section.
-
 Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 
 ---
@@ -219,9 +213,6 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 10. 🟢 **Touch targets** — `TeamLabel` and placeholder buttons are ~24 px tall, scraping
     WCAG 2.5.8 while the app's own `--tap-target` token is 44 px. Add min-height or
     document the exception.
-11. 🟢 **Infinite header spin** — `AppHeader.vue:66-75`: reduced-motion is honored (good),
-    but WCAG 2.2.2 asks for a pause affordance for _all_ users on >5 s auto-motion, and
-    a permanently spinning sticky-header element is distracting. Spin ~2 cycles and stop.
 
 ## 5. How to improve: established techniques & feedback loops (especially for coding agents)
 
@@ -237,14 +228,7 @@ humans/agents don't. Concrete program, in order of leverage:
    loop for agent workflows: it removes "which checks exist?" as a failure point, and
    CLAUDE.md should say exactly that ("run `npm run check` before committing; a task is
    not complete while it fails").
-2. **Make every threshold a ratchet, not a floor.** Coverage thresholds at 70 % while
-   reality is 94 % means the loop is disconnected — an agent can delete a module's tests
-   and stay green. Set thresholds to observed − 2-3 pts (or `thresholds.autoUpdate`
-   locally, committed), and _run coverage in CI_. Same principle now applied to bundle
-   size (a `size-limit` budget on `dist/assets/index-*` runs in CI on every push/PR) —
-   generalize it to the PWA precache payload as a whole, since for an offline-first app
-   that _is_ the product.
-3. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
+2. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
    Candidates from this review: `vuejs-accessibility` plugin (§4 findings), `oxlint
 --deny-warnings`, import ordering. A custom-property-must-exist check now exists as
@@ -252,29 +236,24 @@ humans/agents don't. Concrete program, in order of leverage:
    land given the codebase has no stylelint setup yet, worth revisiting if more CSS
    lint needs pile up. The house `toSorted()` rule shows the team already knows this
    works — extend the pattern.
-4. **Encode invariants as types or data-integrity tests, never as comments.**
+3. **Encode invariants as types or data-integrity tests, never as comments.**
    `TeamId`-keyed squads (§2.6) turns a data bug into a compile error; the existing
    `data.spec.ts` pattern should grow the missing guards (no `(` in player names,
    ranking↔teams name equality, storage-key single-sourcing). Where a comment currently
    states an invariant ("callers must not mutate"), promote it to `readonly`.
-5. **Keep executable docs, kill aspirational ones.** REQUIREMENTS.md's tiebreaker section
+4. **Keep executable docs, kill aspirational ones.** REQUIREMENTS.md's tiebreaker section
    actively endangers the code it describes (§2.2). Rule of thumb: a doc may describe
    _intent_ (tournament-rules.md does this well, with tests referencing it) but must not
    _duplicate_ what code/tests already state — link instead. Add a README that documents
    the feedback loops themselves (scripts, hooks, CI, deploy base path), because that's
    the doc agents read first.
-6. **Rebalance the hook pyramid** — fast, deterministic checks close to the keystroke
-   (format+oxlint pre-commit, `check` pre-push), slow ones in CI (e2e, PWA suite,
-   coverage, axe). A disabled-because-too-slow hook protects nothing; a 5-second
-   hook that always runs protects everything. And fix the pre-commit staging footgun —
-   agents doing scoped commits will silently sweep unrelated changes with it.
-7. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard
+5. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard
    tab traps, inert live regions) were the worst a11y findings. Add the missing
    axe scans (ScoreDialog, dark theme, /ranking), one keyboard-only e2e journey, and
    one mobile-viewport Playwright project. For agent sessions, `npm run dev` +
    playwright-cli screenshots is the strongest "did it actually work" loop — cheaper
    than reasoning about CSS in the abstract.
-8. **Close the loop on generated data.** `squads.ts` shipped `(soccer)` suffixes because
+6. **Close the loop on generated data.** `squads.ts` shipped `(soccer)` suffixes because
    the generator's output is trusted blind. Every generator script should have a
    validation step in the same run (the `data.spec.ts` suite is the natural home) so
    regeneration can't ship garbage.
