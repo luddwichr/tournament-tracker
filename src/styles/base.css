@@ -37,15 +37,6 @@ body {
   transform: translateY(0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-  }
-}
-
 /*
  * Shared surface-card recipe — used by GroupTable, BracketRound, OriginColumn,
  * RankingView. Components apply this class instead of copy-pasting the recipe.
