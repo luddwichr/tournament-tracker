@@ -23,4 +23,3 @@ function selectMatch(match: MatchSlot): void {
     <BracketView @match-click="selectMatch" />
   </div>
 </template>
-
