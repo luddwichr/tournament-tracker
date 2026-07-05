@@ -191,3 +191,22 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
     expect(ids[3]).toBe('kor') // worst H2H pts
   })
 })
+
+// ---------------------------------------------------------------------------
+// Missing-stats precondition (issue 2.6) — a team without an overallStats
+// entry must fail loudly, not silently produce a NaN-driven mis-ordering via
+// the internal `.get(id)!` assertions.
+// ---------------------------------------------------------------------------
+
+describe('sortTeams — missing overallStats entry', () => {
+  it('throws a descriptive error instead of silently mis-sorting when a team has no stats', () => {
+    // rsa is omitted from overallStats entirely.
+    const incompleteStats: Map<string, TiebreakerStat> = new Map([
+      ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+    ])
+
+    expect(() => sortTeams(groupATeams, groupAMatches, {}, incompleteStats)).toThrow(/rsa/)
+  })
+})

@@ -1,4 +1,5 @@
 import type { Result, PersistedState } from '../types/tournament'
+import { fixtures } from '../data/fixtures-2026'
 
 export const SCHEMA_VERSION = 1
 
@@ -8,6 +9,9 @@ export const SCHEMA_VERSION = 1
  * e2e seed helper can never silently drift from the real persisted key.
  */
 export const STORAGE_KEY = `wc2026:results:v${SCHEMA_VERSION}`
+
+/** Every real fixture id — used to reject a results map keyed by an unknown match. */
+const VALID_FIXTURE_IDS = new Set(fixtures.map((f) => f.id))
 
 /**
  * Trigger a browser download of the results as a JSON file.
@@ -49,8 +53,24 @@ function isValidPersistedState(value: unknown): value is PersistedState {
   if (typeof value !== 'object' || value === null) return false
   const obj = value as Record<string, unknown>
   if (obj['version'] !== SCHEMA_VERSION) return false
-  if (typeof obj['results'] !== 'object' || obj['results'] === null) return false
-  return Object.values(obj['results'] as Record<string, unknown>).every(isValidResult)
+  return isValidResultsMap(obj['results'])
+}
+
+/**
+ * Validate that `value` is a well-formed results map: a plain object (not an
+ * array — `typeof [] === 'object'` would otherwise slip past a naive check)
+ * keyed only by real fixture ids, where every entry is a structurally valid
+ * `Result` whose `matchId` matches the key it's stored under.
+ *
+ * Exported so `stores/tournament.ts` can reuse it in the persistence plugin's
+ * `afterHydrate` hook, giving localStorage rehydration the same validation
+ * that file import already gets via `parseImport`.
+ */
+export function isValidResultsMap(value: unknown): value is Record<string, Result> {
+  if (Array.isArray(value) || typeof value !== 'object' || value === null) return false
+  return Object.entries(value as Record<string, unknown>).every(
+    ([key, result]) => VALID_FIXTURE_IDS.has(key) && isValidResult(result) && result.matchId === key,
+  )
 }
 
 function isNonNegativeInteger(n: number): boolean {

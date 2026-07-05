@@ -155,6 +155,17 @@ export function sortTeams<S extends TiebreakerStat>(
   results: Record<string, Result>,
   overallStats: Map<string, S>,
 ): Team[] {
+  // Every `.get(id)!` below (here and in resolveH2H's recursion) assumes stats
+  // exist for every team passed in. Violating that precondition would
+  // otherwise silently produce `undefined`, and `undefined - 5` is `NaN` —
+  // which doesn't throw, it just makes the sort comparator return NaN and
+  // silently mis-order the group. Fail loudly at the boundary instead.
+  for (const team of teams) {
+    if (!overallStats.has(team.id)) {
+      throw new Error(`sortTeams: no stats for team '${team.id}' in overallStats.`)
+    }
+  }
+
   // Teams are first separated by points; only equal-points clusters go through
   // the Article 13 chain (head-to-head before overall goal difference).
   const pointClusters = clusterBy(teams, (a, b) => overallStats.get(b.id)!.points - overallStats.get(a.id)!.points)

@@ -23,11 +23,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
-import { possibleTeamsFor, clearPossibleTeamsCache } from './possible-teams'
+import { possibleTeamsFor, freePossibleTeamsMemory } from './possible-teams'
 import { makeResult, allGroupResults } from '../test-support/results'
 
 beforeEach(() => {
-  clearPossibleTeamsCache()
+  freePossibleTeamsMemory()
 })
 
 /**

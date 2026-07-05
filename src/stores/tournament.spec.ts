@@ -1,8 +1,12 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { createApp } from 'vue'
 import { useTournamentStore } from './tournament'
-import { clearPossibleTeamsCache } from '../lib/possible-teams'
+import { freePossibleTeamsMemory } from '../lib/possible-teams'
 import { clearStandingsCache } from '../lib/standings'
+import { STORAGE_KEY } from '../lib/persistence'
 import type { Result } from '../types/tournament'
 
 // Partial-mock: keep every real export (computeGroupStandings, resultFingerprint, …)
@@ -11,7 +15,7 @@ import type { Result } from '../types/tournament'
 // depending on cache-internal state.
 vi.mock('../lib/possible-teams', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/possible-teams')>()
-  return { ...original, clearPossibleTeamsCache: vi.fn() }
+  return { ...original, freePossibleTeamsMemory: vi.fn() }
 })
 
 vi.mock('../lib/standings', async (importOriginal) => {
@@ -21,6 +25,17 @@ vi.mock('../lib/standings', async (importOriginal) => {
 
 function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
   return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
+}
+
+// Pinia only activates plugins queued via `pinia.use(...)` once the pinia
+// instance is actually installed into an app (mirrors main.ts's
+// `createApp(App).use(pinia)`) — merely calling `setActivePinia` skips that
+// step, so the persistedstate plugin would silently never hydrate.
+function createPersistedPinia() {
+  const pinia = createPinia()
+  pinia.use(piniaPluginPersistedstate)
+  createApp({}).use(pinia)
+  return pinia
 }
 
 describe('tournament store', () => {
@@ -66,7 +81,7 @@ describe('tournament store', () => {
     store.reset()
 
     expect(store.results).toEqual({})
-    expect(clearPossibleTeamsCache).toHaveBeenCalledTimes(1)
+    expect(freePossibleTeamsMemory).toHaveBeenCalledTimes(1)
     expect(clearStandingsCache).toHaveBeenCalledTimes(1)
   })
 
@@ -77,7 +92,7 @@ describe('tournament store', () => {
     store.importResults({ M02: makeResult('M02', 3, 3) })
 
     expect(store.results).toEqual({ M02: makeResult('M02', 3, 3) })
-    expect(clearPossibleTeamsCache).toHaveBeenCalledTimes(1)
+    expect(freePossibleTeamsMemory).toHaveBeenCalledTimes(1)
     expect(clearStandingsCache).toHaveBeenCalledTimes(1)
   })
 
@@ -94,5 +109,60 @@ describe('tournament store', () => {
     expect(after?.played).toBe(1)
     expect(after?.points).toBe(3)
     expect(after?.goalsFor).toBe(3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// localStorage rehydration (issue 2.4) — the persistedstate plugin's automatic
+// rehydration bypasses parseImport's validation entirely, so the store's own
+// `afterHydrate` hook must catch a corrupted entry itself.
+// ---------------------------------------------------------------------------
+
+describe('tournament store — localStorage rehydration', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    setActivePinia(createPersistedPinia())
+    vi.clearAllMocks()
+  })
+
+  it('rehydrates a valid results map from localStorage', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: { M01: makeResult('M01', 2, 1) } }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({ M01: makeResult('M01', 2, 1) })
+  })
+
+  it('resets to an empty state instead of propagating a non-object results value', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: 'not-an-object' }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({})
+  })
+
+  it('resets to an empty state instead of propagating an array masquerading as results', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: [makeResult('M01', 2, 1)] }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({})
+  })
+
+  it('resets to an empty state when a persisted result has a corrupted field (string instead of number)', () => {
+    const corrupted = { ...makeResult('M01', 2, 1), homeGoals: '2' }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: { M01: corrupted } }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({})
+  })
+
+  it('resets to an empty state when a persisted result is keyed by an unknown match id', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: { NOPE: makeResult('NOPE', 2, 1) } }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({})
   })
 })

@@ -38,6 +38,22 @@ describe('parseImport', () => {
     expect(() => parseImport(json)).toThrow()
   })
 
+  it('throws when results is an array (typeof [] === "object" would otherwise slip through)', () => {
+    const json = JSON.stringify({ version: 1, results: [validResult('M01')] })
+    expect(() => parseImport(json)).toThrow()
+  })
+
+  it('throws when a result is keyed by an id that is not a real fixture', () => {
+    const json = JSON.stringify({ version: 1, results: { NOPE: validResult('NOPE') } })
+    expect(() => parseImport(json)).toThrow()
+  })
+
+  it("throws when a result's matchId does not match the key it's stored under", () => {
+    // Stored under M01 but claims to be M02 — invisible/unresolvable per REQUIREMENTS.md §9.8.
+    const json = JSON.stringify({ version: 1, results: { M01: validResult('M02') } })
+    expect(() => parseImport(json)).toThrow()
+  })
+
   it('throws when a result is missing required numeric fields', () => {
     const bad = { matchId: 'M01', homeGoals: 1, awayGoals: 0 } // missing card fields
     const json = JSON.stringify({ version: 1, results: { M01: bad } })

@@ -70,8 +70,17 @@ function cappedMaxGoalsPerSide(remainingCount: number, gdSpread: number): number
 const MAX_CACHE_SIZE = 500
 const cache = new Map<string, Set<string>>()
 
-/** Clear the memoization cache — call after resetting or importing results. */
-export function clearPossibleTeamsCache(): void {
+/**
+ * Free the memoization cache's memory — called after resetting or importing
+ * results.
+ *
+ * Not required for correctness: cache entries are keyed by
+ * `(group, rank, result-fingerprint)`, so a stale entry can only ever be
+ * returned for identical inputs, which is the correct result, not staleness.
+ * This call is purely memory hygiene (reclaim eagerly instead of waiting for
+ * `MAX_CACHE_SIZE` to be hit) — hence the name, not `clear...Cache`.
+ */
+export function freePossibleTeamsMemory(): void {
   cache.clear()
 }
 
