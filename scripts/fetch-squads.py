@@ -133,9 +133,13 @@ def strip_wiki(s: str) -> str:
     # XML refs
     s = re.sub(r'<ref[^>]*/>', '', s)
     s = re.sub(r'<ref[^>]*>.*?</ref>', '', s, flags=re.DOTALL)
-    # Parenthetical disambiguators that slipped through
-    s = re.sub(r'\s*\([^)]*footballer[^)]*\)', '', s)
-    s = re.sub(r'\s*\([^)]*born\s*\d+[^)]*\)', '', s)
+    # Trailing Wikipedia disambiguation suffix, e.g. a bare (non-piped) wikilink
+    # target or a plain name string carrying "Matt Turner (soccer)". Piped
+    # links (handled above) already resolve to their display text and never
+    # reach this point with a disambiguator attached, so this only fires for
+    # the unpiped-link / plain-text case: strip any "(...)" hanging off the
+    # very end of the name.
+    s = re.sub(r'\s*\([^)]*\)\s*$', '', s)
     return s.strip()
 
 
