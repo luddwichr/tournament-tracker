@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import type { Result } from '../types/tournament'
+import type { ResultsMap } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
 import { teamsInGroup } from '../data/teams'
 import { sortTeams } from './tiebreakers'
@@ -54,7 +54,7 @@ describe('sortTeams — Step 1 head-to-head outranks overall goal difference', (
       ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
       ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
     ])
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M28: makeResult('M28', 1, 0), // mex(h) 1-0 kor(a) — mex wins the head-to-head
     }
 
@@ -76,7 +76,7 @@ describe('sortTeams — Step 2 overall GD decides when head-to-head is level', (
       ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
       ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
     ])
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M28: makeResult('M28', 1, 1), // mex(h) 1-1 kor(a) — head-to-head level
     }
 
@@ -100,7 +100,7 @@ describe('sortTeams — H2H goal difference as tiebreaker', () => {
     //
     // H2H pts: mex=3, kor=3, cze=3 (tied)
     // H2H GD: mex=+3−1=+2, kor=−3+1=−2, cze=−1+1=0 → mex > cze > kor
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a)
       M02: makeResult('M02', 1, 0), // kor(h) 1-0 cze(a)
       M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
@@ -129,7 +129,7 @@ describe('sortTeams — H2H goals scored as tiebreaker', () => {
     // H2H pts: mex=3, kor=3, cze=3 (tied)
     // H2H GD: mex=+1−1=0, kor=−1+1=0, cze=−1+1=0 (tied)
     // H2H GF: mex=3+0=3, kor=2+2=4, cze=1+1=2 → kor > mex > cze
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M28: makeResult('M28', 3, 2), // mex(h) 3-2 kor(a)
       M02: makeResult('M02', 2, 1), // kor(h) 2-1 cze(a)
       M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
@@ -173,7 +173,7 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
       ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
       ['rsa', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
     ])
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a) — the one decisive H2H match
       M01: makeResult('M01', 0, 0), // mex(h) 0-0 rsa(a)
       M02: makeResult('M02', 0, 0), // kor(h) 0-0 cze(a)

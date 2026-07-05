@@ -1,4 +1,4 @@
-import type { Result, PersistedState } from '../types/tournament'
+import type { Result, ResultsMap, PersistedState } from '../types/tournament'
 import { fixtures } from '../data/fixtures-2026'
 
 export const SCHEMA_VERSION = 1
@@ -17,7 +17,7 @@ const VALID_FIXTURE_IDS = new Set(fixtures.map((f) => f.id))
  * Trigger a browser download of the results as a JSON file.
  * Exported format: `{ version, results }` — see PersistedState.
  */
-export function exportJson(results: Record<string, Result>): void {
+export function exportJson(results: ResultsMap): void {
   const payload: PersistedState = { version: SCHEMA_VERSION, results }
   const json = JSON.stringify(payload, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
@@ -36,7 +36,7 @@ export function exportJson(results: Record<string, Result>): void {
  * Parse and validate an import file's text content.
  * Returns the results map on success; throws a user-readable Error on failure.
  */
-export function parseImport(text: string): Record<string, Result> {
+export function parseImport(text: string): ResultsMap {
   let parsed: unknown
   try {
     parsed = JSON.parse(text)
@@ -66,7 +66,7 @@ function isValidPersistedState(value: unknown): value is PersistedState {
  * `afterHydrate` hook, giving localStorage rehydration the same validation
  * that file import already gets via `parseImport`.
  */
-export function isValidResultsMap(value: unknown): value is Record<string, Result> {
+export function isValidResultsMap(value: unknown): value is ResultsMap {
   if (Array.isArray(value) || typeof value !== 'object' || value === null) return false
   return Object.entries(value as Record<string, unknown>).every(
     ([key, result]) => VALID_FIXTURE_IDS.has(key) && isValidResult(result) && result.matchId === key,

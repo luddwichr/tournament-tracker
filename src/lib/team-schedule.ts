@@ -1,4 +1,4 @@
-import type { MatchSlot, Result, Stage, Team } from '../types/tournament'
+import type { MatchSlot, Result, ResultsMap, Stage, Team } from '../types/tournament'
 import { fixtures } from '../data/fixtures-2026'
 import { resolveTeamRef } from './knockout'
 
@@ -35,7 +35,7 @@ export interface TeamMatchEntry {
  * as this team's side of the bracket resolves to it, even while the other
  * side is still an unresolved placeholder (e.g. "Sieger Gruppe B").
  */
-export function matchesForTeam(team: Team, results: Record<string, Result>): TeamMatchEntry[] {
+export function matchesForTeam(team: Team, results: ResultsMap): TeamMatchEntry[] {
   return fixtures
     .map((match) => ({
       match,

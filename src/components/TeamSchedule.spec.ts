@@ -5,7 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import TeamSchedule from './TeamSchedule.vue'
 import MatchCard from './MatchCard.vue'
 import { scoreDialogKey } from '../composables/use-score-dialog'
-import type { MatchSlot, Team } from '../types/tournament'
+import type { GroupMatchSlot, KnockoutMatchSlot, Team } from '../types/tournament'
 import type { TeamMatchEntry } from '../lib/team-schedule'
 import { makeTeam } from '../test-support/teams'
 import { makeResult } from '../test-support/results'
@@ -17,7 +17,7 @@ beforeEach(() => {
 const ger = makeTeam({ id: 'ger', name: 'Deutschland' })
 const jpn = makeTeam({ id: 'jpn', name: 'Japan' })
 
-function groupMatch(id: string, kickoff: string, home: Team, away: Team): MatchSlot {
+function groupMatch(id: string, kickoff: string, home: Team, away: Team): GroupMatchSlot {
   return {
     id,
     stage: 'group',
@@ -28,7 +28,12 @@ function groupMatch(id: string, kickoff: string, home: Team, away: Team): MatchS
   }
 }
 
-function knockoutMatch(id: string, stage: MatchSlot['stage'], kickoff: string, home: Team | null): MatchSlot {
+function knockoutMatch(
+  id: string,
+  stage: KnockoutMatchSlot['stage'],
+  kickoff: string,
+  home: Team | null,
+): KnockoutMatchSlot {
   return {
     id,
     stage,

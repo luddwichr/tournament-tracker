@@ -1,9 +1,9 @@
-import type { GroupId, Result, Team } from '../types/tournament'
+import type { GroupId, ResultsMap, Team } from '../types/tournament'
 import { teamsInGroup } from '../data/teams'
 import { groupMatchesByGroup } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
 
-export function isGroupComplete(groupId: GroupId, results: Record<string, Result>): boolean {
+export function isGroupComplete(groupId: GroupId, results: ResultsMap): boolean {
   return (groupMatchesByGroup.get(groupId) ?? []).every((m) => results[m.id] != null)
 }
 
@@ -33,7 +33,7 @@ export interface TeamStat {
 // possible-teams.ts, which keys its own cache on (group, rank, fingerprint).
 // ---------------------------------------------------------------------------
 
-export function resultFingerprint(groupId: GroupId, results: Record<string, Result>): string {
+export function resultFingerprint(groupId: GroupId, results: ResultsMap): string {
   return (groupMatchesByGroup.get(groupId) ?? [])
     .map((m) => {
       const r = results[m.id]
@@ -65,7 +65,7 @@ export function clearStandingsCache(): void {
  * map. Teams with no results played appear last, ordered by FIFA ranking.
  * Memoized per (groupId, results fingerprint) — see `resultFingerprint`.
  */
-export function computeGroupStandings(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
+export function computeGroupStandings(groupId: GroupId, results: ResultsMap): TeamStat[] {
   const cacheKey = `${groupId}:${resultFingerprint(groupId, results)}`
   const cached = standingsCache.get(cacheKey)
   if (cached) return cached
@@ -81,7 +81,7 @@ export function computeGroupStandings(groupId: GroupId, results: Record<string, 
   return computed
 }
 
-function computeGroupStandingsUncached(groupId: GroupId, results: Record<string, Result>): TeamStat[] {
+function computeGroupStandingsUncached(groupId: GroupId, results: ResultsMap): TeamStat[] {
   const gTeams = teamsInGroup(groupId)
   const gMatches = groupMatchesByGroup.get(groupId) ?? []
 
@@ -109,7 +109,6 @@ function computeGroupStandingsUncached(groupId: GroupId, results: Record<string,
   for (const match of gMatches) {
     const result = results[match.id]
     if (!result) continue
-    if (match.homeRef.kind !== 'team' || match.awayRef.kind !== 'team') continue
 
     const home = statsMap.get(match.homeRef.teamId)
     const away = statsMap.get(match.awayRef.teamId)

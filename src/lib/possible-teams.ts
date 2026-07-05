@@ -23,7 +23,7 @@
  * possible home and away teams (either could win or lose).
  */
 
-import type { Team, TeamRef, GroupId, Result, ThirdPlaceSlot } from '../types/tournament'
+import type { Team, TeamRef, GroupId, Result, ResultsMap, ThirdPlaceSlot } from '../types/tournament'
 import { groupMatchesByGroup, fixturesById, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import { teamsById, teamsInGroup } from '../data/teams'
 import { computeGroupStandings, resultFingerprint } from './standings'
@@ -88,7 +88,7 @@ export function freePossibleTeamsMemory(): void {
 // Core: possible teams at a specific group rank
 // ---------------------------------------------------------------------------
 
-function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Record<string, Result>): Set<string> {
+function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: ResultsMap): Set<string> {
   const fp = resultFingerprint(group, results)
   const cacheKey = `${group}:${rank}:${fp}`
   const cached = cache.get(cacheKey)
@@ -109,7 +109,7 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Reco
     const gdByTeam = new Map<string, number>()
     for (const m of gMatches) {
       const r = results[m.id]
-      if (!r || m.homeRef.kind !== 'team' || m.awayRef.kind !== 'team') continue
+      if (!r) continue
       const diff = r.homeGoals - r.awayGoals
       gdByTeam.set(m.homeRef.teamId, (gdByTeam.get(m.homeRef.teamId) ?? 0) + diff)
       gdByTeam.set(m.awayRef.teamId, (gdByTeam.get(m.awayRef.teamId) ?? 0) - diff)
@@ -176,7 +176,7 @@ function possibleSourceGroupsForSlot(slot: ThirdPlaceSlot): Set<GroupId> {
   return groups
 }
 
-function possibleThirdPlaceTeamIds(slot: ThirdPlaceSlot, results: Record<string, Result>): Set<string> {
+function possibleThirdPlaceTeamIds(slot: ThirdPlaceSlot, results: ResultsMap): Set<string> {
   // When all groups are complete the slot is deterministic — use exact resolution.
   const resolved = resolveThirdPlaceSlot(slot, results)
   if (resolved) return new Set([resolved.id])
@@ -197,7 +197,7 @@ function possibleThirdPlaceTeamIds(slot: ThirdPlaceSlot, results: Record<string,
 // Internal dispatch
 // ---------------------------------------------------------------------------
 
-function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<string> {
+function possibleTeamIdsFor(ref: TeamRef, results: ResultsMap): Set<string> {
   switch (ref.kind) {
     case 'team': {
       return teamsById.has(ref.teamId) ? new Set([ref.teamId]) : new Set()
@@ -244,7 +244,7 @@ function possibleTeamIdsFor(ref: TeamRef, results: Record<string, Result>): Set<
  * Return the set of teams that could still fill `ref` given `results`.
  * Returns an empty set only for unresolvable refs (bad match id, etc.).
  */
-export function possibleTeamsFor(ref: TeamRef, results: Record<string, Result>): Set<Team> {
+export function possibleTeamsFor(ref: TeamRef, results: ResultsMap): Set<Team> {
   const ids = possibleTeamIdsFor(ref, results)
   const teams = new Set<Team>()
   for (const id of ids) {

@@ -10,7 +10,7 @@
  * score (e.g. the AET score when extra time settled it without a shootout).
  */
 
-import type { Stage, TeamRef, Team, Result } from '../types/tournament'
+import type { Stage, TeamRef, Team, ResultsMap } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
@@ -22,7 +22,7 @@ import { assertNever } from './assert-never'
  * Resolve a TeamRef to a concrete Team given current results.
  * Returns null when the referenced team cannot yet be determined.
  */
-export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): Team | null {
+export function resolveTeamRef(ref: TeamRef, results: ResultsMap): Team | null {
   switch (ref.kind) {
     case 'team': {
       return teamsById.get(ref.teamId) ?? null
@@ -87,7 +87,7 @@ const COLUMN_MATCH_STAGES: Record<BracketColumnStage, readonly Stage[]> = {
  * group stage is still ongoing (the bracket isn't the focus yet), and
  * 'final' once every knockout match has been decided.
  */
-export function currentBracketColumn(results: Record<string, Result>): BracketColumnStage | null {
+export function currentBracketColumn(results: ResultsMap): BracketColumnStage | null {
   if (!GROUP_IDS.every((group) => isGroupComplete(group, results))) return null
 
   return (

@@ -18,7 +18,7 @@
  * standings.ts). See docs/tournament-rules.md for the regulatory source.
  */
 
-import type { Team, MatchSlot, Result } from '../types/tournament'
+import type { Team, GroupMatchSlot, ResultsMap } from '../types/tournament'
 
 /** Minimum stat shape required by sortTeams. Covers all tiebreaker criteria. */
 export interface TiebreakerStat {
@@ -60,25 +60,21 @@ function clusterBy<T>(teams: readonly T[], compare: (a: T, b: T) => number): T[]
   return clusters
 }
 
-function h2hMatchesBetween(teams: readonly Team[], matches: readonly MatchSlot[]): MatchSlot[] {
+function h2hMatchesBetween(teams: readonly Team[], matches: readonly GroupMatchSlot[]): GroupMatchSlot[] {
   const ids = new Set(teams.map((t) => t.id))
-  return matches.filter(
-    (m) =>
-      m.homeRef.kind === 'team' && m.awayRef.kind === 'team' && ids.has(m.homeRef.teamId) && ids.has(m.awayRef.teamId),
-  )
+  return matches.filter((m) => ids.has(m.homeRef.teamId) && ids.has(m.awayRef.teamId))
 }
 
 function computeH2HStats(
   teams: readonly Team[],
-  h2hMatches: readonly MatchSlot[],
-  results: Record<string, Result>,
+  h2hMatches: readonly GroupMatchSlot[],
+  results: ResultsMap,
 ): Map<string, H2HStat> {
   const map = new Map<string, H2HStat>(teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]))
 
   for (const match of h2hMatches) {
     const result = results[match.id]
     if (!result) continue
-    if (match.homeRef.kind !== 'team' || match.awayRef.kind !== 'team') continue
 
     const home = map.get(match.homeRef.teamId)
     const away = map.get(match.awayRef.teamId)
@@ -113,8 +109,8 @@ function computeH2HStats(
  */
 function resolveH2H<S extends TiebreakerStat>(
   teams: Team[],
-  allGroupMatches: readonly MatchSlot[],
-  results: Record<string, Result>,
+  allGroupMatches: readonly GroupMatchSlot[],
+  results: ResultsMap,
   overallStats: Map<string, S>,
 ): Team[] {
   const h2hMatches = h2hMatchesBetween(teams, allGroupMatches)
@@ -151,8 +147,8 @@ function resolveH2H<S extends TiebreakerStat>(
  */
 export function sortTeams<S extends TiebreakerStat>(
   teams: readonly Team[],
-  allGroupMatches: readonly MatchSlot[],
-  results: Record<string, Result>,
+  allGroupMatches: readonly GroupMatchSlot[],
+  results: ResultsMap,
   overallStats: Map<string, S>,
 ): Team[] {
   // Every `.get(id)!` below (here and in resolveH2H's recursion) assumes stats

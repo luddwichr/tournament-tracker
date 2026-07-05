@@ -13,7 +13,14 @@
 //   - https://en.wikipedia.org/wiki/Template:2026_FIFA_World_Cup_third-place_table
 //   - per-group fixtures: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
 
-import type { GroupId, MatchSlot, ThirdPlaceKey, ThirdPlaceSlot } from '../types/tournament'
+import type {
+  GroupId,
+  GroupMatchSlot,
+  KnockoutMatchSlot,
+  MatchSlot,
+  ThirdPlaceKey,
+  ThirdPlaceSlot,
+} from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 
 /**
@@ -41,7 +48,7 @@ export const THIRD_PLACE_SLOT_HOST = {
 export type ThirdPlaceHostGroup = (typeof THIRD_PLACE_SLOT_HOST)[keyof typeof THIRD_PLACE_SLOT_HOST]
 
 /** The 72 group-stage matches. */
-export const groupMatches: readonly MatchSlot[] = [
+export const groupMatches: readonly GroupMatchSlot[] = [
   {
     id: 'M01',
     stage: 'group',
@@ -621,7 +628,7 @@ export const groupMatches: readonly MatchSlot[] = [
 ]
 
 /** The 32 knockout matches (round of 32 through the final). */
-export const knockoutMatches: readonly MatchSlot[] = [
+export const knockoutMatches: readonly KnockoutMatchSlot[] = [
   {
     id: 'M73',
     stage: 'r32',
@@ -855,7 +862,7 @@ export const fixtures: readonly MatchSlot[] = [...groupMatches, ...knockoutMatch
 export const fixturesById: ReadonlyMap<string, MatchSlot> = new Map(fixtures.map((f) => [f.id, f]))
 
 /** Group-stage matches grouped by `group`, precomputed once — avoids a `.filter` scan per lookup. */
-export const groupMatchesByGroup: ReadonlyMap<GroupId, readonly MatchSlot[]> = new Map(
+export const groupMatchesByGroup: ReadonlyMap<GroupId, readonly GroupMatchSlot[]> = new Map(
   GROUP_IDS.map((group) => [group, groupMatches.filter((m) => m.group === group)]),
 )
 

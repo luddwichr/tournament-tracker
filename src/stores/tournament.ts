@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { GroupId, Result } from '../types/tournament'
+import type { GroupId, Result, ResultsMap } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 import { STORAGE_KEY, isValidResultsMap } from '../lib/persistence'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
@@ -9,7 +9,7 @@ import { computeGroupStandings, clearStandingsCache, type TeamStat } from '../li
 export const useTournamentStore = defineStore(
   'tournament',
   () => {
-    const results = ref<Record<string, Result>>({})
+    const results = ref<ResultsMap>({})
 
     // Computed once and shared across every consumer (GroupTable ×12,
     // OriginColumn, …) instead of once per component instance; Vue only
@@ -19,11 +19,12 @@ export const useTournamentStore = defineStore(
     )
 
     function enterResult(result: Result): void {
-      results.value[result.matchId] = result
+      results.value = { ...results.value, [result.matchId]: result }
     }
 
     function clearResult(matchId: string): void {
-      delete results.value[matchId]
+      const { [matchId]: _removed, ...rest } = results.value
+      results.value = rest
     }
 
     function reset(): void {
@@ -32,7 +33,7 @@ export const useTournamentStore = defineStore(
       clearStandingsCache()
     }
 
-    function importResults(newResults: Record<string, Result>): void {
+    function importResults(newResults: ResultsMap): void {
       results.value = { ...newResults }
       freePossibleTeamsMemory()
       clearStandingsCache()

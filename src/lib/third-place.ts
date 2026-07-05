@@ -9,7 +9,7 @@
  * table (THIRD_PLACE_ALLOCATION in fixtures-2026.ts).
  */
 
-import type { GroupId, Result, Team, ThirdPlaceSlot } from '../types/tournament'
+import type { GroupId, ResultsMap, Team, ThirdPlaceSlot } from '../types/tournament'
 import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import type { TeamStat } from './standings'
@@ -28,7 +28,7 @@ function compareThirdPlaced(a: TeamStat, b: TeamStat): number {
   return a.team.fifaRanking - b.team.fifaRanking
 }
 
-function thirdPlacedStats(results: Record<string, Result>): TeamStat[] {
+function thirdPlacedStats(results: ResultsMap): TeamStat[] {
   return GROUP_IDS.map((groupId) => {
     const standings = computeGroupStandings(groupId, results)
     const third = standings.at(THIRD_PLACE_RANK)
@@ -50,7 +50,7 @@ export interface ThirdPlaceRanking {
  * "who currently qualifies" view; `final` tells the caller whether the order
  * is still provisional.
  */
-export function rankThirdPlacedLive(results: Record<string, Result>): ThirdPlaceRanking {
+export function rankThirdPlacedLive(results: ResultsMap): ThirdPlaceRanking {
   const final = GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
   return { ranked: thirdPlacedStats(results).toSorted(compareThirdPlaced), final }
 }
@@ -59,7 +59,7 @@ export function rankThirdPlacedLive(results: Record<string, Result>): ThirdPlace
  * Rank all 12 third-placed teams (best → worst) from current results.
  * Returns null if not all 12 groups have complete group-stage results.
  */
-export function rankThirdPlaced(results: Record<string, Result>): TeamStat[] | null {
+export function rankThirdPlaced(results: ResultsMap): TeamStat[] | null {
   const { ranked, final } = rankThirdPlacedLive(results)
   return final ? ranked : null
 }
@@ -101,7 +101,7 @@ export function buildGroupToThirdPlaceSlotMap(ranked: TeamStat[]): Map<GroupId, 
  * Resolve the team occupying `slot` (1–8) in the R32 third-place bracket.
  * Returns null if the slot cannot yet be determined.
  */
-export function resolveThirdPlaceSlot(slot: ThirdPlaceSlot, results: Record<string, Result>): Team | null {
+export function resolveThirdPlaceSlot(slot: ThirdPlaceSlot, results: ResultsMap): Team | null {
   const ranked = rankThirdPlaced(results)
   if (!ranked) return null
 

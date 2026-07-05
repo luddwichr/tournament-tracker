@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, useTemplateRef } from 'vue'
-import type { Result } from '../types/tournament'
+import type { ResultsMap } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useSettingsStore } from '../stores/settings'
 import { exportJson, parseImport } from '../lib/persistence'
@@ -20,7 +20,7 @@ const {
   cancel: cancelSync,
 } = useResultsSync((results) => store.importResults(results))
 
-type PendingAction = { kind: 'reset' } | { kind: 'import'; results: Record<string, Result> }
+type PendingAction = { kind: 'reset' } | { kind: 'import'; results: ResultsMap }
 
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 const importError = ref<string | null>(null)

@@ -18,16 +18,9 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
     ...original,
     groupMatches: [
       ...original.groupMatches,
-      // Non-team-ref match: covers the `return null` branch in resolveTeam
-      {
-        id: 'MOCK_NONTEAM',
-        stage: 'group' as const,
-        group: 'B' as const,
-        kickoff: '2026-06-01T18:00:00+00:00',
-        homeRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 1 as const },
-        awayRef: { kind: 'groupRank' as const, group: 'A' as const, rank: 2 as const },
-      },
-      // Team-kind ref with unknown teamId: covers the `?? null` branch in resolveTeam
+      // Unknown teamId: covers the `?? null` branch in resolveTeam. (A
+      // non-team-kind ref in a group match is no longer representable —
+      // `GroupMatchSlot`/`ResolvedTeamRef` rule it out at the type level.)
       {
         id: 'MOCK_UNKNOWN_TEAM',
         stage: 'group' as const,
@@ -134,14 +127,6 @@ describe('GroupTable – store.standingsByGroup getter', () => {
 })
 
 describe('GroupTable – resolveTeam null branch', () => {
-  it('does not call the score dialog opener when match refs are not team-kind', async () => {
-    const { wrapper, openScoreDialog } = mountGroupTable('B')
-    const cards = wrapper.findAllComponents(MatchCard)
-    // the injected non-team-ref match is appended last in group B
-    await cards[cards.length - 1]!.find('.match-card__body').trigger('click')
-    expect(openScoreDialog).not.toHaveBeenCalled()
-  })
-
   it('does not call the score dialog opener when team refs have an unknown teamId', async () => {
     const { wrapper, openScoreDialog } = mountGroupTable('C')
     const cards = wrapper.findAllComponents(MatchCard)

@@ -19,24 +19,24 @@ export type Stage = 'group' | 'r32' | 'r16' | 'qf' | 'sf' | 'third' | 'final'
 
 export interface Team {
   /** Stable id, lower-case FIFA country code (e.g. `'ger'`, `'eng'`). */
-  id: string
+  readonly id: string
   /** German display name (e.g. `'Deutschland'`). */
-  name: string
+  readonly name: string
   /** `flag-icons` CSS code, e.g. `'de'`, `'gb-eng'`. */
-  flagCode: string
+  readonly flagCode: string
   /** Group the team was drawn into. */
-  group: GroupId
+  readonly group: GroupId
   /**
    * FIFA World Ranking position (snapshot — see header of `teams.ts`).
    * Used as the deterministic last-resort group tiebreaker.
    */
-  fifaRanking: number
+  readonly fifaRanking: number
 }
 
 export interface Player {
-  number: number
-  name: string
-  position: 'GK' | 'DF' | 'MF' | 'FW'
+  readonly number: number
+  readonly name: string
+  readonly position: 'GK' | 'DF' | 'MF' | 'FW'
 }
 
 /**
@@ -72,28 +72,52 @@ export type TeamRef =
   | { kind: 'matchWinner'; matchId: string }
   | { kind: 'matchLoser'; matchId: string } // only for the third-place play-off
 
-export interface MatchSlot {
+/** A `TeamRef` already resolved to a concrete team — what group matches always have. */
+export type ResolvedTeamRef = Extract<TeamRef, { kind: 'team' }>
+
+interface BaseMatchSlot {
   /** Stable id, e.g. `'M01'` (group) … `'M104'` (final). */
-  id: string
-  stage: Stage
-  /** Present for group-stage matches only. */
-  group?: GroupId
+  readonly id: string
   /** Kickoff as an ISO 8601 string with the venue's UTC offset. */
-  kickoff: string
-  homeRef: TeamRef
-  awayRef: TeamRef
+  readonly kickoff: string
 }
 
+/**
+ * A group-stage match. Both sides are always concrete teams — there is
+ * nothing to resolve — so `homeRef`/`awayRef` are narrowed to
+ * `ResolvedTeamRef` and `group` is non-optional, instead of that invariant
+ * living only in comments and being re-checked at every call site.
+ */
+export interface GroupMatchSlot extends BaseMatchSlot {
+  readonly stage: 'group'
+  readonly group: GroupId
+  readonly homeRef: ResolvedTeamRef
+  readonly awayRef: ResolvedTeamRef
+}
+
+/**
+ * A knockout-stage match. Either side may reference an outcome that isn't
+ * determined yet (group rank, third place, winner/loser of an earlier tie).
+ */
+export interface KnockoutMatchSlot extends BaseMatchSlot {
+  readonly stage: Exclude<Stage, 'group'>
+  readonly group?: undefined
+  readonly homeRef: TeamRef
+  readonly awayRef: TeamRef
+}
+
+export type MatchSlot = GroupMatchSlot | KnockoutMatchSlot
+
 export interface Result {
-  matchId: string
-  homeGoals: number
-  awayGoals: number
+  readonly matchId: string
+  readonly homeGoals: number
+  readonly awayGoals: number
   // Discipline counts feed the FIFA fair-play tiebreaker.
   // See docs/tournament-rules.md for the rule.
-  homeYellow: number
-  homeRed: number // includes second-yellow send-offs
-  awayYellow: number
-  awayRed: number
+  readonly homeYellow: number
+  readonly homeRed: number // includes second-yellow send-offs
+  readonly awayYellow: number
+  readonly awayRed: number
   /**
    * Set only when a knockout match was decided by a penalty shootout.
    * `homeGoals`/`awayGoals` always stay the real regulation-time (or AET)
@@ -105,11 +129,14 @@ export interface Result {
    * level score is then a genuine draw (group stage) or unresolved
    * (knockout, pending a decisive score).
    */
-  shootoutWinner?: 'home' | 'away'
+  readonly shootoutWinner?: 'home' | 'away'
 }
+
+/** Results keyed by match id — the one piece of mutable/persisted app state. */
+export type ResultsMap = Readonly<Record<string, Result>>
 
 /** Persisted state: results keyed by match id, plus a schema version. */
 export interface PersistedState {
-  version: number
-  results: Record<string, Result>
+  readonly version: number
+  readonly results: ResultsMap
 }

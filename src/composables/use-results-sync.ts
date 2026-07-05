@@ -2,12 +2,12 @@
 // with cancellation. Hands mapped results to `apply` on success.
 
 import { ref } from 'vue'
-import type { Result } from '../types/tournament'
+import type { ResultsMap } from '../types/tournament'
 import { syncResults } from '../lib/results-sync'
 
 export type SyncStatus = 'idle' | 'confirm' | 'syncing' | 'done' | 'error'
 
-export function useResultsSync(apply: (results: Record<string, Result>) => void) {
+export function useResultsSync(apply: (results: ResultsMap) => void) {
   const status = ref<SyncStatus>('idle')
   const error = ref<string | null>(null)
   const count = ref(0)

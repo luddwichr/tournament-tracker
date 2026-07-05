@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { GroupId, MatchSlot, Team } from '../types/tournament'
+import type { GroupId, GroupMatchSlot, ResolvedTeamRef, Team } from '../types/tournament'
 import { teamsById } from '../data/teams'
 import { groupMatches } from '../data/fixtures-2026'
 import { useTournamentStore } from '../stores/tournament'
@@ -18,12 +18,13 @@ const matches = computed(() => groupMatches.filter((m) => m.group === props.grou
 const standings = computed(() => store.standingsByGroup.get(props.groupId) ?? [])
 const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
-function resolveTeam(teamRef: MatchSlot['homeRef']): Team | null {
-  if (teamRef.kind === 'team') return teamsById.get(teamRef.teamId) ?? null
-  return null
+// Group matches always reference concrete teams (`GroupMatchSlot`/`ResolvedTeamRef`
+// guarantee it at the type level), so the only way this misses is an unknown id.
+function resolveTeam(teamRef: ResolvedTeamRef): Team | null {
+  return teamsById.get(teamRef.teamId) ?? null
 }
 
-function selectMatch(match: MatchSlot): void {
+function selectMatch(match: GroupMatchSlot): void {
   const home = resolveTeam(match.homeRef)
   const away = resolveTeam(match.awayRef)
   if (home !== null && away !== null) openScoreDialog(match, home, away)

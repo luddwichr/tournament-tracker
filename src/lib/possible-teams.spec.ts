@@ -21,7 +21,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import type { Result, TeamRef } from '../types/tournament'
+import type { ResultsMap, TeamRef } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { possibleTeamsFor, freePossibleTeamsMemory } from './possible-teams'
 import { makeResult, allGroupResults } from '../test-support/results'
@@ -34,7 +34,7 @@ beforeEach(() => {
  * Build the 5-match Group A scenario where only mex and kor can reach rank 1.
  * M28 (mex vs kor) is intentionally left out.
  */
-function groupAFiveMatchResults(): Record<string, Result> {
+function groupAFiveMatchResults(): ResultsMap {
   return {
     M01: makeResult('M01', 3, 0), // mex(h) 3–0 rsa(a)
     M02: makeResult('M02', 3, 0), // kor(h) 3–0 cze(a)
@@ -109,7 +109,7 @@ describe('possibleTeamsFor — groupRank, gdSpread cap lift', () => {
     // used gdSpread instead of gdSpread + 1 (an off-by-one) — mex's rank-1
     // scenario (an 8–0 win, which also wins it the goals-scored tiebreaker)
     // would never be enumerated and mex would be silently excluded.
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M01: makeResult('M01', 0, 0),
       M28: makeResult('M28', 0, 4),
       M54: makeResult('M54', 5, 0),
@@ -146,7 +146,7 @@ describe('possibleTeamsFor — pathological blowout does not blow up the enumera
     // → gdSpread = 16. The other 5 Group A matches (M02, M25, M28, M53, M54)
     // are all left unplayed, so the naive cap (gdSpread + 1 = 17) applies
     // across all 5 remaining matches simultaneously.
-    const results: Record<string, Result> = {
+    const results: ResultsMap = {
       M01: makeResult('M01', 8, 0),
     }
     const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
@@ -297,7 +297,7 @@ describe('possibleTeamsFor — memoization respects card counts in the cache key
     // GD (+4) and GF (5), and their head-to-head (M28) is a 1–1 draw — a tie
     // all the way to the fair-play score. With no cards, fair play also ties,
     // so FIFA ranking (mex #14 vs kor #25) puts mex at rank 1.
-    const baseResults: Record<string, Result> = {
+    const baseResults: ResultsMap = {
       M01: makeResult('M01', 2, 0), // mex 2–0 rsa
       M02: makeResult('M02', 2, 0), // kor 2–0 cze
       M25: makeResult('M25', 0, 0), // cze 0–0 rsa
@@ -318,7 +318,7 @@ describe('possibleTeamsFor — memoization respects card counts in the cache key
     // (which is checked before FIFA ranking) now favors kor, so kor — not
     // mex — should be rank 1. If the cache key omitted card counts, this
     // call would incorrectly return the stale { mex } result cached above.
-    const cardedResults: Record<string, Result> = {
+    const cardedResults: ResultsMap = {
       ...baseResults,
       M28: makeResult('M28', 1, 1, { homeYellow: 2 }),
     }

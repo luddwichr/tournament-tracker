@@ -1,7 +1,7 @@
 // Provider-agnostic glue: maps a provider's `SourceMatch[]` onto match-slot ids.
 // Swapping the source means changing `defaultProvider`, nothing else.
 
-import type { Result } from '../../types/tournament'
+import type { Result, ResultsMap } from '../../types/tournament'
 import { fixtures } from '../../data/fixtures-2026'
 import { resolveTeamRef } from '../knockout'
 import type { FetchResultsOptions, ResultsProvider, SourceMatch } from './provider'
@@ -43,7 +43,7 @@ function nearestIndex(candidates: readonly SourceMatch[], kickoff: string): numb
 // Matches by unordered team pair; a recurring pair (group meeting + knockout
 // rematch) picks the candidate nearest the kickoff, consuming each fetched match
 // once so it can't be reused.
-export function buildResultsFromSource(fetched: readonly SourceMatch[]): Record<string, Result> {
+export function buildResultsFromSource(fetched: readonly SourceMatch[]): ResultsMap {
   const byPair = new Map<string, SourceMatch[]>()
   for (const match of fetched) {
     const key = pairKey(match.homeId, match.awayId)
@@ -85,7 +85,7 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Record<
 export async function syncResults(
   provider: ResultsProvider = defaultProvider,
   opts?: FetchResultsOptions,
-): Promise<Record<string, Result>> {
+): Promise<ResultsMap> {
   const fetched = await provider.fetchResults(opts)
   return buildResultsFromSource(fetched)
 }

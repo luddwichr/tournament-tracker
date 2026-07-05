@@ -7,6 +7,7 @@ import { useTournamentStore } from '../stores/tournament'
 import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
 import { syncResults } from '../lib/results-sync'
+import type { MatchSlot } from '../types/tournament'
 
 vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
 
@@ -28,7 +29,7 @@ const knockoutMatch = makeMatch({
   awayRef: { kind: 'matchWinner', matchId: 'M74' },
 })
 
-function mountDialog(match = groupMatch) {
+function mountDialog(match: MatchSlot = groupMatch) {
   return mount(ScoreDialog, { props: { match, homeTeam, awayTeam } })
 }
 
