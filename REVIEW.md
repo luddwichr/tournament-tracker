@@ -247,7 +247,7 @@ humans/agents don't. Concrete program, in order of leverage:
 3. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
    Candidates from this review: `vuejs-accessibility` plugin (§4 findings), `oxlint
-   --deny-warnings`, import ordering. A custom-property-must-exist check now exists as
+--deny-warnings`, import ordering. A custom-property-must-exist check now exists as
    a Vitest spec (`src/styles/tokens.spec.ts`) rather than a stylelint rule — cheaper to
    land given the codebase has no stylelint setup yet, worth revisiting if more CSS
    lint needs pile up. The house `toSorted()` rule shows the team already knows this
