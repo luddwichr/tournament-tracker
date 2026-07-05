@@ -14,7 +14,7 @@ const TOKENS_FILE = join(__dirname, 'tokens.css')
 // Custom properties that components legitimately define *and* consume
 // themselves (component-local "CSS variables", not global design tokens).
 // These live outside tokens.css on purpose and must not be flagged.
-const COMPONENT_LOCAL_EXCEPTIONS = new Set(['dialog-max-width', 'dialog-max-height'])
+const COMPONENT_LOCAL_EXCEPTIONS = new Set(['dialog-max-width', 'dialog-max-height', 'card-icon-count-size'])
 
 function walk(dir: string, files: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
