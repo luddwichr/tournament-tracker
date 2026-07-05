@@ -63,6 +63,18 @@ describe('buildResultsFromSource', () => {
     expect(results['M01']!.homeGoals).toBe(2)
   })
 
+  it('copies shootoutWinner through unchanged when sides line up', () => {
+    const results = buildResultsFromSource([src('mex', 'rsa', { homeGoals: 1, awayGoals: 1, shootoutWinner: 'home' })])
+    expect(results['M01']).toMatchObject({ homeGoals: 1, awayGoals: 1, shootoutWinner: 'home' })
+  })
+
+  it('flips shootoutWinner when the source reports the sides reversed', () => {
+    // M01 is mex (home) vs rsa (away); source lists rsa as home and rsa's shootout win
+    // must land on 'away' once re-oriented onto the fixture's home/away assignment.
+    const results = buildResultsFromSource([src('rsa', 'mex', { homeGoals: 1, awayGoals: 1, shootoutWinner: 'home' })])
+    expect(results['M01']).toMatchObject({ homeGoals: 1, awayGoals: 1, shootoutWinner: 'away' })
+  })
+
   it('resolves a knockout slot once its feeder group results are present', () => {
     const groupSources = groupMatches.map((m) =>
       src((m.homeRef as { teamId: string }).teamId, (m.awayRef as { teamId: string }).teamId, {

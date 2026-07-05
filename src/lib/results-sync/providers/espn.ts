@@ -50,7 +50,6 @@ interface CardTally {
 }
 
 const defaultNow = (): Date => new Date()
-let nowImpl = defaultNow
 
 function teamIdFromAbbr(abbr: string | undefined): string | null {
   if (!abbr) return null
@@ -96,8 +95,8 @@ function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTe
   const tally: CardTally = { homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
   for (const detail of details) {
     if (!detail.redCard && !detail.yellowCard) continue
-    const isHome = detail.team?.id === homeTeamId
-    const isAway = detail.team?.id === awayTeamId
+    const isHome = homeTeamId != null && detail.team?.id === homeTeamId
+    const isAway = awayTeamId != null && detail.team?.id === awayTeamId
     if (!isHome && !isAway) continue
     if (detail.redCard) {
       if (isHome) tally.homeRed++
@@ -110,21 +109,33 @@ function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTe
   return tally
 }
 
-/** ESPN's `score` is the goal count after extra time, which is level when a
- * shootout decided the match — but our `Result` has no penalty field (a level
- * knockout score is unresolvable, see `knockout.ts`). When a shootout
- * happened, ESPN reports it separately as `shootoutScore`; use that as the
- * stored score instead, matching the "enter the decisive score" convention
- * used for manual AET entries. `winner` is a last-resort tiebreak for the
- * (unobserved) case of a level shootout score. */
-function decisiveGoals(home: RawCompetitor, away: RawCompetitor): { homeGoals: number; awayGoals: number } {
+interface DecisiveGoals {
+  homeGoals: number
+  awayGoals: number
+  shootoutWinner?: 'home' | 'away'
+}
+
+/** ESPN's `score` is the real goal count after extra time — which is level
+ * when a shootout decided the match — so it's always used as-is for
+ * `homeGoals`/`awayGoals`; a shootout never fabricates a goal that was never
+ * scored (see `Result.shootoutWinner`). When a shootout happened, ESPN
+ * reports it separately as `shootoutScore`; the higher of the two decides
+ * `shootoutWinner`. `winner` is a last-resort tiebreak for the (unobserved)
+ * case of a level or missing shootout score. */
+function decisiveGoals(home: RawCompetitor, away: RawCompetitor): DecisiveGoals {
+  const homeGoals = nonNegativeInt(home.score)
+  const awayGoals = nonNegativeInt(away.score)
   const hadShootout = home.shootoutScore != null || away.shootoutScore != null
-  const homeGoals = hadShootout ? nonNegativeNumber(home.shootoutScore) : nonNegativeInt(home.score)
-  const awayGoals = hadShootout ? nonNegativeNumber(away.shootoutScore) : nonNegativeInt(away.score)
-  if (homeGoals !== awayGoals) return { homeGoals, awayGoals }
-  if (home.winner) return { homeGoals: awayGoals + 1, awayGoals }
-  if (away.winner) return { homeGoals, awayGoals: homeGoals + 1 }
-  return { homeGoals, awayGoals }
+  if (!hadShootout) return { homeGoals, awayGoals }
+
+  const homeShootout = nonNegativeNumber(home.shootoutScore)
+  const awayShootout = nonNegativeNumber(away.shootoutScore)
+  let shootoutWinner: 'home' | 'away' | undefined
+  if (homeShootout !== awayShootout) shootoutWinner = homeShootout > awayShootout ? 'home' : 'away'
+  else if (home.winner) shootoutWinner = 'home'
+  else if (away.winner) shootoutWinner = 'away'
+
+  return { homeGoals, awayGoals, ...(shootoutWinner ? { shootoutWinner } : {}) }
 }
 
 function toSourceMatch(event: RawEvent): SourceMatch | null {
@@ -150,7 +161,8 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
 
 async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch[]> {
   const fetchImpl = opts.fetchImpl ?? fetch
-  const range = fixtureDateRange(nowImpl())
+  const now = opts.now ?? defaultNow
+  const range = fixtureDateRange(now())
   if (!range) return []
 
   const start = range.start.replaceAll('-', '')
@@ -160,19 +172,18 @@ async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch
   let data: ScoreboardResponse
   try {
     data = await fetchJson<ScoreboardResponse>(fetchImpl, `${SCOREBOARD}?dates=${dates}`, opts.signal)
-  } catch {
-    throw new Error(NETWORK_ERROR)
+  } catch (e) {
+    // Cancellation isn't a fetch failure — let AbortError propagate as-is so
+    // callers can tell "the user cancelled" from "the network is broken".
+    if (e instanceof Error && e.name === 'AbortError') throw e
+    throw new Error(NETWORK_ERROR, { cause: e })
   }
 
   const finished = (data.events ?? []).filter((event) => event.status?.type?.completed)
-  const total = finished.length
   const matches: SourceMatch[] = []
-  let done = 0
   for (const event of finished) {
     const match = toSourceMatch(event)
     if (match) matches.push(match)
-    done++
-    opts.onProgress?.(done, total)
   }
   return matches
 }
@@ -188,10 +199,4 @@ export const espnProvider: ResultsProvider = {
 export const _internal = {
   teamIdFromAbbr,
   fixtureDateRange,
-  setNow: (fn: () => Date) => {
-    nowImpl = fn
-  },
-  reset: () => {
-    nowImpl = defaultNow
-  },
 }

@@ -5,7 +5,6 @@ import type { SyncStatus } from '../composables/use-results-sync'
 
 const props = defineProps<{
   status: SyncStatus
-  progress: { done: number; total: number } | null
   error: string | null
   count: number
 }>()
@@ -32,7 +31,7 @@ const title = computed(() => TITLES[props.status])
  * exist before its content changes). */
 const statusMessage = computed(() => {
   if (props.status === 'syncing') {
-    return `Daten werden abgerufen${props.progress ? ` … ${props.progress.done}/${props.progress.total}` : ''}`
+    return 'Daten werden abgerufen …'
   }
   if (props.status === 'done') {
     return `${props.count} Spiele wurden aktualisiert.`

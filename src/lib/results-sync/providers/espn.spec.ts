@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { espnProvider, _internal } from './espn'
 
 interface TeamSide {
@@ -56,14 +56,11 @@ function recordingFetch(data: unknown) {
   return { impl, calls }
 }
 
-beforeEach(() => {
-  // Pin "now" to mid-tournament so the query range is deterministic.
-  _internal.setNow(() => new Date('2026-07-02T00:00:00Z'))
-})
+// Pin "now" to mid-tournament so the query range is deterministic.
+const pinnedNow = () => new Date('2026-07-02T00:00:00Z')
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  _internal.reset()
 })
 
 describe('espnProvider.fetchResults', () => {
@@ -96,10 +93,9 @@ describe('espnProvider.fetchResults', () => {
         }),
       ],
     }
-    const onProgress = vi.fn()
     const { impl } = recordingFetch(data)
 
-    const matches = await espnProvider.fetchResults({ fetchImpl: impl, onProgress })
+    const matches = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
 
     expect(matches).toEqual([
       {
@@ -114,9 +110,6 @@ describe('espnProvider.fetchResults', () => {
         date: '2026-06-11',
       },
     ])
-    // Progress counts every completed event; the final tick has done === total.
-    const last = onProgress.mock.calls.at(-1)!
-    expect(last[0]).toBe(last[1])
   })
 
   it('clamps missing or negative scores and tolerates a missing date', async () => {
@@ -138,11 +131,11 @@ describe('espnProvider.fetchResults', () => {
       ],
     }
     const { impl } = recordingFetch(data)
-    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     expect(match).toMatchObject({ homeId: 'ger', homeGoals: 0, awayGoals: 0, date: '' })
   })
 
-  it('uses the shootout score when a knockout match went to penalties', async () => {
+  it('uses the real (regulation-time) score even when a shootout decided the match', async () => {
     const data = {
       events: [
         ev({
@@ -152,11 +145,12 @@ describe('espnProvider.fetchResults', () => {
       ],
     }
     const { impl } = recordingFetch(data)
-    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
-    expect(match).toMatchObject({ homeGoals: 3, awayGoals: 4 })
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
+    // The real score (1:1) is stored, never the shootout score — no fabricated goal.
+    expect(match).toMatchObject({ homeGoals: 1, awayGoals: 1, shootoutWinner: 'away' })
   })
 
-  it('nudges a level shootout score to a one-goal edge for the flagged winner', async () => {
+  it('falls back to the winner flag for a level shootout score', async () => {
     const data = {
       events: [
         ev({
@@ -166,11 +160,11 @@ describe('espnProvider.fetchResults', () => {
       ],
     }
     const { impl } = recordingFetch(data)
-    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
-    expect(match).toMatchObject({ homeGoals: 3, awayGoals: 4 })
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
+    expect(match).toMatchObject({ homeGoals: 1, awayGoals: 1, shootoutWinner: 'away' })
   })
 
-  it('leaves a level score untouched when there was no shootout', async () => {
+  it('leaves a level score untouched and unresolved when there was no shootout', async () => {
     const data = {
       events: [
         ev({
@@ -180,21 +174,45 @@ describe('espnProvider.fetchResults', () => {
       ],
     }
     const { impl } = recordingFetch(data)
-    const [match] = await espnProvider.fetchResults({ fetchImpl: impl })
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     expect(match).toMatchObject({ homeGoals: 1, awayGoals: 1 })
+    expect(match?.shootoutWinner).toBeUndefined()
+  })
+
+  it('does not attribute a card to either side when both team ids are unknown', async () => {
+    const data = {
+      events: [
+        {
+          date: '2026-06-11T19:00Z',
+          status: { type: { completed: true } },
+          competitions: [
+            {
+              competitors: [
+                { homeAway: 'home', score: '1', team: { abbreviation: 'MEX' } },
+                { homeAway: 'away', score: '0', team: { abbreviation: 'RSA' } },
+              ],
+              // Neither detail carries a team id, matching the competitors above (also id-less).
+              details: [{ yellowCard: true, team: {} }, { redCard: true }],
+            },
+          ],
+        },
+      ],
+    }
+    const { impl } = recordingFetch(data)
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
+    expect(match).toMatchObject({ homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 })
   })
 
   it('requests the whole elapsed range in a single call', async () => {
     const { impl, calls } = recordingFetch({ events: [] })
-    await espnProvider.fetchResults({ fetchImpl: impl })
+    await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     expect(calls).toHaveLength(1)
     expect(calls[0]).toContain('dates=20260611-20260702')
   })
 
   it('uses a single date when the range spans one day', async () => {
-    _internal.setNow(() => new Date('2026-06-11T23:00:00Z'))
     const { impl, calls } = recordingFetch({ events: [] })
-    await espnProvider.fetchResults({ fetchImpl: impl })
+    await espnProvider.fetchResults({ fetchImpl: impl, now: () => new Date('2026-06-11T23:00:00Z') })
     expect(calls[0]).toContain('dates=20260611')
     expect(calls[0]).not.toContain('20260611-')
   })
@@ -206,33 +224,44 @@ describe('espnProvider.fetchResults', () => {
       seen = init?.signal
       return okResponse({ events: [] })
     }) as unknown as typeof fetch
-    await espnProvider.fetchResults({ fetchImpl, signal: controller.signal })
+    await espnProvider.fetchResults({ fetchImpl, signal: controller.signal, now: pinnedNow })
     expect(seen).toBe(controller.signal)
   })
 
   it('fetches nothing before the tournament starts', async () => {
-    _internal.setNow(() => new Date('2020-01-01T00:00:00Z'))
     const fetchImpl = vi.fn()
-    expect(await espnProvider.fetchResults({ fetchImpl })).toEqual([])
+    expect(await espnProvider.fetchResults({ fetchImpl, now: () => new Date('2020-01-01T00:00:00Z') })).toEqual([])
     expect(fetchImpl).not.toHaveBeenCalled()
   })
 
   it('rejects with a user-readable error when the request is not ok', async () => {
     const fetchImpl = (async () => ({ ok: false, status: 503, json: async () => ({}) })) as unknown as typeof fetch
-    await expect(espnProvider.fetchResults({ fetchImpl })).rejects.toThrow(/nicht abgerufen werden/)
+    await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toThrow(/nicht abgerufen werden/)
   })
 
-  it('rejects with a user-readable error when the network throws', async () => {
+  it('rejects with a user-readable error preserving the original failure as `cause`', async () => {
+    const networkFailure = new Error('offline')
     const fetchImpl = (async () => {
-      throw new Error('offline')
+      throw networkFailure
     }) as unknown as typeof fetch
-    await expect(espnProvider.fetchResults({ fetchImpl })).rejects.toThrow(/Internetverbindung/)
+    await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toThrow(/Internetverbindung/)
+    await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toMatchObject({
+      cause: networkFailure,
+    })
+  })
+
+  it('rethrows an AbortError as-is instead of masking it as a network error', async () => {
+    const abortError = new DOMException('The operation was aborted.', 'AbortError')
+    const fetchImpl = (async () => {
+      throw abortError
+    }) as unknown as typeof fetch
+    await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toBe(abortError)
   })
 
   it('uses the global fetch when no fetchImpl is supplied', async () => {
     const { impl } = recordingFetch({ events: [] })
     vi.stubGlobal('fetch', impl)
-    expect(await espnProvider.fetchResults()).toEqual([])
+    expect(await espnProvider.fetchResults({ now: pinnedNow })).toEqual([])
   })
 })
 

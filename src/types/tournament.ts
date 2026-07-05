@@ -94,6 +94,18 @@ export interface Result {
   homeRed: number // includes second-yellow send-offs
   awayYellow: number
   awayRed: number
+  /**
+   * Set only when a knockout match was decided by a penalty shootout.
+   * `homeGoals`/`awayGoals` always stay the real regulation-time (or AET)
+   * score — for a shootout-decided match that means they're level; the
+   * shootout itself has no goals in this model. Winner/loser resolution
+   * (`resolveTeamRef` in `knockout.ts`) and win/loss classification
+   * (`computeTeamStats` in `team-schedule.ts`) fall back to this field
+   * when goals are level. Absent/undefined means "not a shootout" — a
+   * level score is then a genuine draw (group stage) or unresolved
+   * (knockout, pending a decisive score).
+   */
+  shootoutWinner?: 'home' | 'away'
 }
 
 /** Persisted state: results keyed by match id, plus a schema version. */

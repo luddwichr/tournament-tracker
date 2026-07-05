@@ -1,4 +1,4 @@
-import { ref, computed, reactive, toValue, onUnmounted } from 'vue'
+import { ref, computed, reactive, toValue, onUnmounted, watch } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
@@ -27,7 +27,26 @@ export function useMatchResultForm(
     awayYellow: initial.value?.awayYellow ?? 0,
     awayRed: initial.value?.awayRed ?? 0,
   })
-  const knockoutDraw = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
+  /** Winner of a penalty shootout, only meaningful while `goals.home === goals.away`
+   * in a knockout match — see `Result.shootoutWinner`. Cleared automatically
+   * once the scores diverge again so it never lingers as stale state. */
+  const shootoutWinner = ref<'home' | 'away' | null>(initial.value?.shootoutWinner ?? null)
+
+  watch(
+    () => [goals.home, goals.away] as const,
+    ([home, away]) => {
+      if (home !== away) shootoutWinner.value = null
+    },
+  )
+
+  /** Toggle button handler: picking the already-chosen side deselects it. */
+  function chooseShootoutWinner(side: 'home' | 'away'): void {
+    shootoutWinner.value = shootoutWinner.value === side ? null : side
+  }
+
+  const knockoutDraw = computed(
+    () => toValue(match).stage !== 'group' && goals.home === goals.away && shootoutWinner.value == null,
+  )
 
   const title = computed(() => `Ergebnis: ${toValue(homeTeam).name} – ${toValue(awayTeam).name}`)
 
@@ -41,6 +60,7 @@ export function useMatchResultForm(
       homeRed: cards.homeRed,
       awayYellow: cards.awayYellow,
       awayRed: cards.awayRed,
+      ...(shootoutWinner.value ? { shootoutWinner: shootoutWinner.value } : {}),
     })
     announce(`Ergebnis gespeichert: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}`)
     close()
@@ -92,6 +112,7 @@ export function useMatchResultForm(
       cards.homeRed = result.homeRed
       cards.awayYellow = result.awayYellow
       cards.awayRed = result.awayRed
+      shootoutWinner.value = result.shootoutWinner ?? null
       fetchStatus.value = 'success'
       announce(
         `Live-Ergebnis übernommen: ${toValue(homeTeam).name} ${result.homeGoals} : ${result.awayGoals} ${toValue(awayTeam).name}`,
@@ -106,6 +127,8 @@ export function useMatchResultForm(
   return {
     goals,
     cards,
+    shootoutWinner,
+    chooseShootoutWinner,
     knockoutDraw,
     title,
     initial,

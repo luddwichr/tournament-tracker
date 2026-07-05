@@ -79,4 +79,27 @@ describe('computeTeamStats', () => {
     expect(stats.draws).toBe(0)
     expect(stats.losses).toBe(0)
   })
+
+  it('counts a shootout win as a win, not a draw, while goals stay level', () => {
+    // M09: ger plays at home; level score decided by a shootout ger won.
+    const entries = matchesForTeam(ger, resultsMap(makeResult('M09', 1, 1, { shootoutWinner: 'home' })))
+    const stats = computeTeamStats(ger, entries)
+    expect(stats.wins).toBe(1)
+    expect(stats.draws).toBe(0)
+    expect(stats.losses).toBe(0)
+    // The shootout itself contributes no goals — goalsFor/goalsAgainst stay the real, level score.
+    expect(stats.goalsFor).toBe(1)
+    expect(stats.goalsAgainst).toBe(1)
+  })
+
+  it('counts a shootout loss as a loss, not a draw, when the team plays away', () => {
+    // M56: ger plays away; level score decided by a shootout the home side won.
+    const entries = matchesForTeam(ger, resultsMap(makeResult('M56', 1, 1, { shootoutWinner: 'home' })))
+    const stats = computeTeamStats(ger, entries)
+    expect(stats.wins).toBe(0)
+    expect(stats.draws).toBe(0)
+    expect(stats.losses).toBe(1)
+    expect(stats.goalsFor).toBe(1)
+    expect(stats.goalsAgainst).toBe(1)
+  })
 })

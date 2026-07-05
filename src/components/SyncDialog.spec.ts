@@ -6,7 +6,7 @@ import type { SyncStatus } from '../composables/use-results-sync'
 
 function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> = {}) {
   return mount(SyncDialog, {
-    props: { status: 'confirm' as SyncStatus, progress: null, error: null, count: 0, ...props },
+    props: { status: 'confirm' as SyncStatus, error: null, count: 0, ...props },
   })
 }
 
@@ -44,15 +44,14 @@ describe('SyncDialog', () => {
     expect(status.text()).toBe('')
   })
 
-  it('syncing: shows the football spinner and progress', () => {
-    const wrapper = mountDialog({ status: 'syncing', progress: { done: 3, total: 7 } })
+  it('syncing: shows the football spinner and status message', () => {
+    const wrapper = mountDialog({ status: 'syncing' })
     expect(wrapper.find('.sync-dialog__spinner').text()).toBe('⚽')
-    expect(wrapper.find('.sync-dialog__status').text()).toContain('3/7')
+    expect(wrapper.find('.sync-dialog__status').text()).toContain('Daten werden abgerufen')
   })
 
   it('syncing: can be cancelled', async () => {
-    const wrapper = mountDialog({ status: 'syncing', progress: null })
-    expect(wrapper.find('.sync-dialog__status').text()).not.toContain('/')
+    const wrapper = mountDialog({ status: 'syncing' })
     await button(wrapper, 'Abbrechen').trigger('click')
     expect(wrapper.emitted('cancel')).toHaveLength(1)
   })

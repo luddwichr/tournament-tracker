@@ -17,14 +17,20 @@ const emit = defineEmits<{ close: [] }>()
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const close = () => baseDialog.value?.close()
 
-const { goals, cards, knockoutDraw, title, initial, save, clear, fetch } = useMatchResultForm(
-  () => props.match,
-  () => props.homeTeam,
-  () => props.awayTeam,
-)
+const { goals, cards, shootoutWinner, chooseShootoutWinner, knockoutDraw, title, initial, save, clear, fetch } =
+  useMatchResultForm(
+    () => props.match,
+    () => props.homeTeam,
+    () => props.awayTeam,
+  )
 
 const attemptedDrawSave = ref(false)
 const showDrawError = computed(() => attemptedDrawSave.value && knockoutDraw.value)
+
+/** A shootout can only have happened in a knockout match with a level score
+ * — shown as soon as that's true, so the user can disambiguate before the
+ * draw-error even appears. */
+const showShootoutPicker = computed(() => props.match.stage !== 'group' && goals.home === goals.away)
 
 const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 </script>
@@ -38,6 +44,30 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
       </div>
 
       <ScoreInput v-model:home="goals.home" v-model:away="goals.away" :home-team="homeTeam" :away-team="awayTeam" />
+
+      <fieldset v-if="showShootoutPicker" class="score-dialog__shootout">
+        <legend class="score-dialog__shootout-legend">🥅 Elfmeterschießen — Sieger</legend>
+        <div class="score-dialog__shootout-options">
+          <button
+            type="button"
+            class="score-dialog__shootout-btn"
+            :class="{ 'score-dialog__shootout-btn--active': shootoutWinner === 'home' }"
+            :aria-pressed="shootoutWinner === 'home'"
+            @click="chooseShootoutWinner('home')"
+          >
+            {{ homeTeam.name }}
+          </button>
+          <button
+            type="button"
+            class="score-dialog__shootout-btn"
+            :class="{ 'score-dialog__shootout-btn--active': shootoutWinner === 'away' }"
+            :aria-pressed="shootoutWinner === 'away'"
+            @click="chooseShootoutWinner('away')"
+          >
+            {{ awayTeam.name }}
+          </button>
+        </div>
+      </fieldset>
 
       <p v-if="showDrawError" class="score-dialog__draw-error" role="alert">
         Unentschieden geht nicht! Wer hat gewonnen?
@@ -109,6 +139,49 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   line-height: 1.2;
+}
+
+.score-dialog__shootout {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  margin: 0;
+}
+
+.score-dialog__shootout-legend {
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  margin-inline: auto;
+}
+
+.score-dialog__shootout-options {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.score-dialog__shootout-btn {
+  flex: 1;
+  min-height: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background var(--motion-duration-base) var(--motion-easing-standard),
+    color var(--motion-duration-base) var(--motion-easing-standard),
+    border-color var(--motion-duration-base) var(--motion-easing-standard);
+}
+
+.score-dialog__shootout-btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 .score-dialog__draw-error {

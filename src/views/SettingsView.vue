@@ -13,7 +13,6 @@ const store = useTournamentStore()
 const settings = useSettingsStore()
 const {
   status: syncStatus,
-  progress: syncProgress,
   error: syncError,
   count: syncCount,
   open: openSync,
@@ -142,7 +141,6 @@ function handleCancel(): void {
   <SyncDialog
     v-if="syncStatus !== 'idle'"
     :status="syncStatus"
-    :progress="syncProgress"
     :error="syncError"
     :count="syncCount"
     @confirm="runSync"

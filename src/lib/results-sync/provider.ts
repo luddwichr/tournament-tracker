@@ -13,16 +13,19 @@ export interface SourceMatch {
   homeRed: number
   awayYellow: number
   awayRed: number
+  /** Set when a knockout match was decided by a penalty shootout — see `Result.shootoutWinner`. */
+  shootoutWinner?: 'home' | 'away'
   /** ISO date (`YYYY-MM-DD`), used to disambiguate rematches. */
   date: string
 }
 
 export interface FetchResultsOptions {
-  onProgress?: (done: number, total: number) => void
   /** Aborts the in-flight request(s) so a sync can be cancelled. */
   signal?: AbortSignal
   /** Injectable `fetch` for tests; defaults to the global `fetch`. */
   fetchImpl?: typeof fetch
+  /** Injectable clock for tests; defaults to `() => new Date()`. */
+  now?: () => Date
 }
 
 export interface ResultsProvider {

@@ -5,8 +5,9 @@
  * matchWinner/matchLoser — returning null at any step that is not yet
  * determinable from current results.
  *
- * A draw result in a knockout match leaves winner/loser unresolvable — users
- * must enter the decisive score (e.g. the AET score when extra time settled it).
+ * A level result in a knockout match leaves winner/loser unresolvable unless
+ * `Result.shootoutWinner` is set — otherwise users must enter the decisive
+ * score (e.g. the AET score when extra time settled it without a shootout).
  */
 
 import type { Stage, TeamRef, Team, Result } from '../types/tournament'
@@ -48,9 +49,15 @@ export function resolveTeamRef(ref: TeamRef, results: Record<string, Result>): T
       const awayTeam = resolveTeamRef(match.awayRef, results)
       if (!homeTeam || !awayTeam) return null
 
-      if (matchResult.homeGoals === matchResult.awayGoals) return null
+      let homeWon: boolean
+      if (matchResult.homeGoals !== matchResult.awayGoals) {
+        homeWon = matchResult.homeGoals > matchResult.awayGoals
+      } else if (matchResult.shootoutWinner) {
+        homeWon = matchResult.shootoutWinner === 'home'
+      } else {
+        return null
+      }
 
-      const homeWon = matchResult.homeGoals > matchResult.awayGoals
       if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam
       return homeWon ? awayTeam : homeTeam
     }

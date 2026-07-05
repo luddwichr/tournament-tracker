@@ -38,28 +38,6 @@ describe('useResultsSync', () => {
     expect(apply).toHaveBeenCalledWith(results)
     expect(sync.status.value).toBe('done')
     expect(sync.count.value).toBe(2)
-    expect(sync.progress.value).toBeNull()
-  })
-
-  it('exposes live progress while syncing', async () => {
-    let finish!: () => void
-    vi.mocked(syncResults).mockImplementation((_provider, opts) => {
-      opts?.onProgress?.(3, 7)
-      return new Promise((resolve) => {
-        finish = () => resolve({})
-      })
-    })
-
-    const sync = useResultsSync(vi.fn())
-    const running = sync.run()
-    await nextTick()
-
-    expect(sync.status.value).toBe('syncing')
-    expect(sync.progress.value).toEqual({ done: 3, total: 7 })
-
-    finish()
-    await running
-    expect(sync.status.value).toBe('done')
   })
 
   it('surfaces a failure message', async () => {

@@ -84,7 +84,15 @@ export function computeTeamStats(team: Team, entries: TeamMatchEntry[]): TeamOve
 
     if (goalsFor > goalsAgainst) stats.wins++
     else if (goalsFor < goalsAgainst) stats.losses++
-    else stats.draws++
+    else if (result.shootoutWinner) {
+      // Goals are level but a shootout decided it — never a draw, and the
+      // shootout itself contributes no goals (goalsFor/goalsAgainst above
+      // already reflect only the real regulation-time score).
+      const teamWonShootout =
+        (isHome && result.shootoutWinner === 'home') || (!isHome && result.shootoutWinner === 'away')
+      if (teamWonShootout) stats.wins++
+      else stats.losses++
+    } else stats.draws++
   }
 
   return stats
