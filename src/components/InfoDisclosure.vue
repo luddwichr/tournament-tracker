@@ -39,11 +39,6 @@ defineProps<{
   display: none;
 }
 
-.info-disclosure__summary:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
 .info-disclosure__chevron {
   transition: transform var(--motion-duration-base) var(--motion-easing-standard);
 }

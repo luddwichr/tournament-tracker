@@ -104,11 +104,6 @@ function handleKeydown(e: KeyboardEvent): void {
   background-color: color-mix(in srgb, var(--color-text) var(--state-hover), transparent);
 }
 
-.app-header__burger:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
 .app-header__burger-icon {
   display: flex;
   flex-direction: column;
