@@ -13,7 +13,7 @@ const themes: { value: Theme; label: string; icon: string }[] = [
 <template>
   <fieldset class="theme-picker">
     <legend class="visually-hidden">Design</legend>
-    <div class="theme-picker__options" role="group">
+    <div class="theme-picker__options">
       <label
         v-for="t in themes"
         :key="t.value"

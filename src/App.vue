@@ -66,7 +66,7 @@ watch(
   <main id="main" ref="mainRef" class="app-main" tabindex="-1">
     <RouterView />
   </main>
-  <div class="visually-hidden" role="status" aria-live="polite">
+  <div class="visually-hidden" role="status">
     {{ announcement }}
   </div>
 
