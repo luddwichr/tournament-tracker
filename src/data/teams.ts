@@ -17,7 +17,7 @@
 import type { Team } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
 
-export const teams: readonly Team[] = [
+export const teams = [
   { id: 'mex', name: 'Mexiko', flagCode: 'mx', group: 'A', fifaRanking: 14 },
   { id: 'rsa', name: 'Südafrika', flagCode: 'za', group: 'A', fifaRanking: 60 },
   { id: 'kor', name: 'Südkorea', flagCode: 'kr', group: 'A', fifaRanking: 25 },
@@ -66,9 +66,17 @@ export const teams: readonly Team[] = [
   { id: 'cro', name: 'Kroatien', flagCode: 'hr', group: 'L', fifaRanking: 11 },
   { id: 'gha', name: 'Ghana', flagCode: 'gh', group: 'L', fifaRanking: 73 },
   { id: 'pan', name: 'Panama', flagCode: 'pa', group: 'L', fifaRanking: 34 },
-] as const
+] as const satisfies readonly Team[]
 
-/** Quick lookup by team id. */
+/** Union of all 48 literal team id strings. */
+export type TeamId = (typeof teams)[number]['id']
+
+/**
+ * Quick lookup by team id. Keyed by plain `string` (not `TeamId`): callers
+ * look this up with ids coming from `TeamRef.teamId`, which is runtime data
+ * (parsed match fixtures / results-sync input), not a compile-time literal,
+ * so a narrower key type would only force casts without adding real safety.
+ */
 export const teamsById: ReadonlyMap<string, Team> = new Map(teams.map((t) => [t.id, t]))
 
 /** Teams grouped by their `group`, precomputed once — backs `teamsInGroup`. */

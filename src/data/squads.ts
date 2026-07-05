@@ -3,8 +3,9 @@
 // Player names in Latin script per Wikipedia. Shirt numbers per official FIFA list.
 
 import type { Player } from '../types/tournament'
+import type { TeamId } from './teams'
 
-export const squads: Record<string, Player[]> = {
+export const squads: Record<TeamId, readonly Player[]> = {
   mex: [
     { number: 1, name: 'Raúl Rangel', position: 'GK' },
     { number: 2, name: 'Jorge Sánchez', position: 'DF' },
@@ -1349,4 +1350,13 @@ export const squads: Record<string, Player[]> = {
     { number: 25, name: 'Roderick Miller', position: 'DF' },
     { number: 26, name: 'Jorge Gutiérrez', position: 'DF' },
   ],
+}
+
+/**
+ * Look up a squad by a team id that is only known as a plain `string` at the
+ * call site (e.g. from a `Team` prop, whose `id` field is `string` rather
+ * than the narrower `TeamId`). Returns an empty array for an unknown id.
+ */
+export function squadFor(teamId: string): readonly Player[] {
+  return (squads as Record<string, readonly Player[] | undefined>)[teamId] ?? []
 }

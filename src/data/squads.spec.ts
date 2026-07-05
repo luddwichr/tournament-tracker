@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { teams } from './teams'
-import { squads } from './squads'
+import { squads, squadFor } from './squads'
 
 describe('squads', () => {
   it('has an entry for every team in teams.ts', () => {
@@ -55,5 +55,15 @@ describe('squads', () => {
         }
       }
     }
+  })
+})
+
+describe('squadFor', () => {
+  it('returns the squad for a known team id', () => {
+    expect(squadFor('ger')).toBe(squads.ger)
+  })
+
+  it('returns an empty array for an id with no squad', () => {
+    expect(squadFor('not-a-team-id')).toEqual([])
   })
 })

@@ -11,7 +11,7 @@ export const POSITION_LABEL = {
 
 const POSITION_ORDER: Record<Position, number> = { GK: 0, DF: 1, MF: 2, FW: 3 }
 
-export function sortBySquadPosition(players: Player[]): Player[] {
+export function sortBySquadPosition(players: readonly Player[]): readonly Player[] {
   return players.toSorted((a, b) => {
     const pa = a.position != null ? POSITION_ORDER[a.position] : 99
     const pb = b.position != null ? POSITION_ORDER[b.position] : 99

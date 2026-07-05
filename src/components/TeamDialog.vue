@@ -10,7 +10,7 @@ import TeamIcon from './icons/TeamIcon.vue'
 import ScheduleIcon from './icons/ScheduleIcon.vue'
 import { useTournamentStore } from '../stores/tournament'
 import { matchesForTeam, computeTeamStats } from '../lib/team-schedule'
-import { squads } from '../data/squads'
+import { squadFor } from '../data/squads'
 
 const props = defineProps<{
   team: Team
@@ -19,7 +19,7 @@ const props = defineProps<{
 const emit = defineEmits<{ close: [] }>()
 
 const store = useTournamentStore()
-const players = computed(() => squads[props.team.id] ?? [])
+const players = computed(() => squadFor(props.team.id))
 const entries = computed(() => matchesForTeam(props.team, store.results))
 const stats = computed(() => computeTeamStats(props.team, entries.value))
 

@@ -21,7 +21,7 @@ import { GROUP_IDS } from '../types/tournament'
  * number, mapped to the group whose *winner* hosts that slot. Used together
  * with THIRD_PLACE_ALLOCATION to resolve a `thirdPlace` team reference.
  */
-export const THIRD_PLACE_SLOT_HOST: Readonly<Record<ThirdPlaceSlot, GroupId>> = {
+export const THIRD_PLACE_SLOT_HOST = {
   1: 'A',
   2: 'B',
   3: 'D',
@@ -30,7 +30,15 @@ export const THIRD_PLACE_SLOT_HOST: Readonly<Record<ThirdPlaceSlot, GroupId>> = 
   6: 'I',
   7: 'K',
   8: 'L',
-}
+} as const satisfies Readonly<Record<ThirdPlaceSlot, GroupId>>
+
+/**
+ * The exact set of eight group letters that host a third-place R32 slot
+ * (the values of `THIRD_PLACE_SLOT_HOST`). Every entry in
+ * `THIRD_PLACE_ALLOCATION` has exactly these eight keys — never more, never
+ * fewer — so this is narrower than `GroupId`.
+ */
+export type ThirdPlaceHostGroup = (typeof THIRD_PLACE_SLOT_HOST)[keyof typeof THIRD_PLACE_SLOT_HOST]
 
 /** The 72 group-stage matches. */
 export const groupMatches: readonly MatchSlot[] = [
@@ -858,8 +866,20 @@ export const groupMatchesByGroup: ReadonlyMap<GroupId, readonly MatchSlot[]> = n
  * (e.g. `'ABCEFGHI'`). The value maps each third-place host group (the winner's
  * group, per THIRD_PLACE_SLOT_HOST) to the group whose third-placed team it
  * faces. Source: Template:2026_FIFA_World_Cup_third-place_table.
+ *
+ * Declared with a plain `string` outer key (checked via `satisfies`) rather
+ * than `ThirdPlaceKey` directly: `ThirdPlaceKey` is a branded string, and a
+ * fresh object literal's keys can never structurally satisfy a brand, so
+ * `satisfies Record<ThirdPlaceKey, ...>` would fail to compile here even
+ * though every key is a validly-constructed `ThirdPlaceKey` value. The
+ * `satisfies` check below still verifies the part the review cares about:
+ * every one of the 495 entries has exactly the eight `ThirdPlaceHostGroup`
+ * keys (no more, no fewer), so the value type is exact instead of
+ * `Partial`. The final `THIRD_PLACE_ALLOCATION` export re-types the already
+ * checked object to the branded key, which is a safe widening (every key
+ * here is a sorted, valid group-letter combination).
  */
-export const THIRD_PLACE_ALLOCATION = {
+const THIRD_PLACE_ALLOCATION_TABLE = {
   ABCDEFGH: { A: 'H', B: 'G', D: 'B', E: 'C', G: 'A', I: 'F', K: 'D', L: 'E' },
   ABCDEFGI: { A: 'C', B: 'G', D: 'B', E: 'D', G: 'A', I: 'F', K: 'E', L: 'I' },
   ABCDEFGJ: { A: 'C', B: 'G', D: 'B', E: 'D', G: 'A', I: 'F', K: 'E', L: 'J' },
@@ -1355,4 +1375,7 @@ export const THIRD_PLACE_ALLOCATION = {
   DEGHIJKL: { A: 'E', B: 'J', D: 'I', E: 'D', G: 'H', I: 'G', K: 'L', L: 'K' },
   DFGHIJKL: { A: 'H', B: 'G', D: 'I', E: 'D', G: 'J', I: 'F', K: 'L', L: 'K' },
   EFGHIJKL: { A: 'E', B: 'J', D: 'I', E: 'F', G: 'H', I: 'G', K: 'L', L: 'K' },
-} as Readonly<Record<ThirdPlaceKey, Readonly<Partial<Record<GroupId, GroupId>>>>>
+} satisfies Record<string, Record<ThirdPlaceHostGroup, GroupId>>
+
+export const THIRD_PLACE_ALLOCATION: Readonly<Record<ThirdPlaceKey, Readonly<Record<ThirdPlaceHostGroup, GroupId>>>> =
+  THIRD_PLACE_ALLOCATION_TABLE

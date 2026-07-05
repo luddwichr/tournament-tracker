@@ -16,7 +16,10 @@ const { players } = vi.hoisted(() => {
   return { players: hoistedPlayers }
 })
 
-vi.mock('../data/squads', () => ({ squads: { ger: players } }))
+vi.mock('../data/squads', () => ({
+  squads: { ger: players },
+  squadFor: (teamId: string) => (teamId === 'ger' ? players : []),
+}))
 
 beforeEach(() => {
   setActivePinia(createPinia())
