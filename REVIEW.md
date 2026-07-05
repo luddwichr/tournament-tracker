@@ -11,8 +11,7 @@ Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 ## 1. Top priorities (cross-cutting)
 
 1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§2.1).
-2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§4.1).
-3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§2.2).
+2. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§2.2).
 
 ---
 
@@ -146,75 +145,7 @@ bug would live. **Fix:** implement one in terms of the other (or extract
 
 ---
 
-## 3. HTML semantics
-
-1. 🔴 **Nested `<main>` landmarks** — `RankingView.vue:29` and `SettingsView.vue:92` use
-   `<main>` as their root inside App.vue's `<main id="main">`. Invalid HTML, duplicate
-   landmark navigation — and the axe helper's tag set excludes the rule that would have
-   caught it (§4.9). GroupsView/KnockoutView correctly use `<div>`; make it 4 of 4.
-2. 🟡 **Abbreviated table headers rely on `title` only** — 19 occurrences across
-   `GroupStandingsTable.vue:20-27`, `TeamStats.vue:15-20`, `ThirdPlaceTable.vue:51-55`
-   (`<th title="Siege">S</th>`). `title` isn't announced by most screen readers and is
-   invisible to touch users. Use `<abbr>` + `visually-hidden` full label — the pattern
-   TeamStats already uses for its card-icon headers.
-3. 🟡 **Static toggle rendered as a focusable no-op button** — `MatchCardMeta.vue:26-37`:
-   with `hideLinkIcon`, the kickoff meta is still a `<button aria-pressed>` neutralized
-   only with `pointer-events: none`, which does not remove it from tab order or the
-   accessibility tree. Keyboard/SR users get a "highlight match connections" toggle on
-   every group card that does nothing. Render a plain element in static mode; also
-   `hideLinkIcon` names a visual side effect while actually switching interactivity —
-   name it `interactive`/`static`.
-4. 🟢 **Generic duplicated caption** — `GroupStandingsTable.vue:12-15`:
-   `<section aria-label="Tabelle">` wrapping `<caption>Tabelle</caption>` announces
-   "Tabelle … Tabelle" and never says which group. Caption it "Tabelle Gruppe A"; keep
-   one of the two labels.
-5. 🟢 **SquadList row headers styled as column headers** — `.squad-list th` paints player
-   names in muted color; scope to `thead th`.
-
-## 4. ARIA & accessibility
-
-1. 🔴 **TeamDialog tabs keyboard-unreachable** — `TeamDialog.vue:47-65`: roving tabindex
-   (`:tabindex="activeTab === tab.id ? 0 : -1"`) with no arrow-key handler; a keyboard
-   user can never reach the "Spielplan" tab — half the dialog is inaccessible. WCAG 2.1.1
-   failure that axe cannot detect. Fix: `@keydown.left/.right` moving focus + selection,
-   or drop the roving tabindex (all tabs `tabindex="0"`) as the simpler compliant option.
-2. 🔴 **Live announcements fired while a modal is open are inert** —
-   `use-match-result-form.ts:69` announces through the global announcer in `App.vue`,
-   but `showModal()` makes everything outside the dialog inert — SR users get no
-   confirmation that "Ergebnis holen" filled the fields. Fix: a live region inside
-   `BaseDialog`, or a visible `role="status"` success message inside ScoreDialog (the
-   not-found/error slots already exist).
-3. 🔴 **Card counts are invisible to screen readers** — `MatchCard.vue:69-92`: both card
-   clusters are `aria-hidden` and the computed label only includes goals; an SR user
-   cannot learn a match had cards at all. Append "2 gelbe Karten, 1 rote Karte" per side
-   to the score-button label.
-4. 🟡 **Freshly-inserted `role="status"` elements won't announce** — `SyncDialog.vue:49,54`,
-   `ScoreDialog.vue:77`: the status `<p>` is created by `v-if` at the same moment its
-   text appears; live regions must exist before content changes. Keep one persistent
-   status container mounted and swap its text.
-5. 🟡 **Focusable non-interactive rows** — `OriginColumn.vue:82-86`: 36 team rows get
-   `tabindex="0"` + `cursor: pointer` but no role, no accessible purpose, no Enter/Space
-   behavior. Make them real buttons with `aria-pressed` and a purpose label, or drop the
-   tabindex and cursor.
-6. 🟡 **Stepper gaps** — `StepperInput.vue:16-20`: the `−` button silently no-ops at 0
-   (no disabled state, nothing to announce), and the value span has `aria-live` but no
-   name — a naked number. `:disabled="model === 0"` + `role="group"` with a label (or
-   the full spinbutton pattern).
-7. 🟢 **Redundant ARIA** — `aria-modal="true"` on native `showModal()` dialog
-   (`BaseDialog.vue`), `role="group"` inside `<fieldset>` (`ThemePicker.vue:16`),
-   `role="status"` + `aria-live="polite"` together (`App.vue:50`). Delete all three.
-8. 🟢 **`aria-label` erases the kickoff time** — `MatchCardMeta.vue:33`: the label
-   replaces the accessible name, so the `<time>` content isn't announced. Include the
-   formatted kickoff in the label.
-9. 🟡 **axe integration gaps** — `e2e/support/a11y.ts:5`: the tag set excludes
-   `best-practice` (exactly what would have caught nested-`main`); no scan covers
-   `/ranking`, ScoreDialog (the app's core form), SyncDialog, or the dark theme.
-   Add the tag, the missing scans, and one dark-theme run.
-10. 🟢 **Touch targets** — `TeamLabel` and placeholder buttons are ~24 px tall, scraping
-    WCAG 2.5.8 while the app's own `--tap-target` token is 44 px. Add min-height or
-    document the exception.
-
-## 5. How to improve: established techniques & feedback loops (especially for coding agents)
+## 3. How to improve: established techniques & feedback loops (especially for coding agents)
 
 The recurring failure mode in this codebase is not bad code — it's **drift**: comments,
 docs, and configs that describe a state the code has left (`main.ts` bundle comment,
@@ -230,7 +161,7 @@ humans/agents don't. Concrete program, in order of leverage:
    not complete while it fails").
 2. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
-   Candidates from this review: `vuejs-accessibility` plugin (§4 findings), `oxlint
+   Candidates from this review: `vuejs-accessibility` plugin, `oxlint
 --deny-warnings`, import ordering. A custom-property-must-exist check now exists as
    a Vitest spec (`src/styles/tokens.spec.ts`) rather than a stylelint rule — cheaper to
    land given the codebase has no stylelint setup yet, worth revisiting if more CSS
@@ -248,11 +179,11 @@ humans/agents don't. Concrete program, in order of leverage:
    the feedback loops themselves (scripts, hooks, CI, deploy base path), because that's
    the doc agents read first.
 5. **Give agents a runnable ground truth for the UI.** The gaps axe can't see (keyboard
-   tab traps, inert live regions) were the worst a11y findings. Add the missing
-   axe scans (ScoreDialog, dark theme, /ranking), one keyboard-only e2e journey, and
-   one mobile-viewport Playwright project. For agent sessions, `npm run dev` +
-   playwright-cli screenshots is the strongest "did it actually work" loop — cheaper
-   than reasoning about CSS in the abstract.
+   tab traps, inert live regions) were the worst a11y findings — both are now fixed, and
+   the axe scans (ScoreDialog, dark theme, /ranking) have been added. Still missing: one
+   keyboard-only e2e journey and one mobile-viewport Playwright project. For agent
+   sessions, `npm run dev` + playwright-cli screenshots is the strongest "did it actually
+   work" loop — cheaper than reasoning about CSS in the abstract.
 6. **Close the loop on generated data.** `squads.ts` shipped `(soccer)` suffixes because
    the generator's output is trusted blind. Every generator script should have a
    validation step in the same run (the `data.spec.ts` suite is the natural home) so
