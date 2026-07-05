@@ -19,7 +19,6 @@ Severity legend: 🔴 critical/high · 🟡 medium · 🟢 low/nit
 1. 🔴 **Browser-freeze risk in `possible-teams` enumeration** — the GD-spread cap lift makes the worst case ~10⁹ evaluations (§2.1).
 2. 🔴 **TeamDialog tabs are keyboard-unreachable** — roving tabindex without arrow-key handling; WCAG 2.1.1 failure axe can't catch (§4.1).
 3. 🔴 **`REQUIREMENTS.md` is dangerously stale** — documents the wrong (2018/2022) tiebreaker order and a `penaltyWinner` field that doesn't exist; anyone "fixing" the code to match the doc would introduce a real bug (§2.2).
-4. 🔴 **Dead dark theme** — the `prefers-color-scheme` palette in `tokens.css` can never apply because `data-theme` is always set explicitly with default `'light'`; OS-dark users get a blinding light app (§5.2).
 
 ---
 
@@ -224,84 +223,13 @@ bug would live. **Fix:** implement one in terms of the other (or extract
     but WCAG 2.2.2 asks for a pause affordance for _all_ users on >5 s auto-motion, and
     a permanently spinning sticky-header element is distracting. Spin ~2 cycles and stop.
 
-## 5. CSS & Material Design alignment
-
-1. 🔴 **Undefined design token** — `ScoreDialog.vue:123` references `var(--font-size-md)`;
-   the scale is xs/sm/base/lg/xl/score. The declaration resolves to unset — team names
-   silently render at the inherited size, and the token system loses its
-   single-source-of-truth guarantee. Fix the reference; add a guard (grep/stylelint) that
-   every `var(--…)` exists in tokens.css.
-2. 🔴 **The dark `prefers-color-scheme` palette is dead code** — `tokens.css:80-101`
-   defines it, but `App.vue:12-14` unconditionally sets `data-theme` from the settings
-   store (default `'light'`), and `[data-theme='light']` always overrides the media
-   query. OS-dark users get a light app; ThemePicker offers no "System" option. Fix:
-   default theme `'system'`, set `data-theme` only for explicit choices.
-3. 🟡 **`btn--danger` neutralized by scoped specificity** — `SettingsView.vue:108` pairs
-   `settings-view__btn` (scoped, higher specificity) with global `.btn--danger`, so the
-   destructive "Zurücksetzen" renders like a neutral button; `.settings-view__btn` is
-   also a wholesale duplicate of `.btn` from base.css. Use `btn btn--danger` and delete
-   the duplicate.
-4. 🟡 **State layers half-adopted; primary hover is an opacity hack** — `base.css:80-82`
-   fades the whole button including its label (reducing text contrast — the opposite of a
-   Material state layer), and `.btn` has no `:active` state, while the
-   `--state-hover/focus/pressed` tokens are used correctly in StepperInput and AppHeader.
-   Use `color-mix()` state tints uniformly on all `.btn` variants.
-5. 🟡 **1.45:1 component boundaries in light theme** — `--color-border: #cbd5e1` on white
-   is the sole boundary of `.btn--secondary`, the ThemePicker segmented control, and the
-   steppers; WCAG 1.4.11 wants 3:1 for UI component boundaries. Add a
-   `--color-border-strong` (~`#94a3b8`) for interactive outlines.
-6. 🟡 **Elevation system has two vocabularies** — one `--elevation-1` alias used once,
-   while AppHeader and BaseDialog reach for raw `--shadow-sm`/`--shadow-lg`. Define
-   `--elevation-1/2/3`, use only those in components, and pair dark-theme elevation with
-   surface tint (shadows barely read on `#0f172a`).
-7. 🟡 **Duplicated recipes base.css exists to prevent** — GroupTable and ThirdPlaceTable
-   re-implement `.sticky-card-header` minus stickiness; StandingsRow vs ThirdPlaceRow
-   share ~40 near-identical lines (edge strip, rank/num/pts cells, identical `:deep()`
-   clamp); the reduced-motion kill-switch is declared in both reset.css and base.css.
-   Extract a shared standings stylesheet/component; delete the duplicate block.
-8. 🟢 **Motion tokens bypassed** — hard-coded `0.15s` without the easing token in
-   `MatchScoreButton.vue:63-65` and `MatchCardMeta.vue:52` while other components use the
-   tokens correctly.
-9. 🟢 **Breakpoint token is unusable dead weight** — `--breakpoint-sm: 640px` (custom
-   properties can't appear in media queries) while `640px` is hard-coded in 3 files and
-   GroupsView uses `49rem`. Delete the token; standardize breakpoint units.
-10. 🟢 **Magic icon sizes** — CardIcon is sized with three ad-hoc aspect ratios across
-    MatchCard/DisciplineInput/TeamStats (a 12:16 viewBox), and its in-icon count text
-    renders at ~7 px in MatchCard — illegible. Give the icon a ratio-honoring default
-    and scale via `em`; move counts outside the glyph.
-
-## 6. Stylistic consistency
-
-1. 🟡 **Physical vs logical properties mixed** — 21 physical occurrences
-   (`border-left`, `padding-left`, `margin-left/right`, `text-align: left`) against 5
-   files already using logical properties; the same visual concept (left accent strip)
-   is `border-left` in StandingsRow and `border-inline-start` in RankingView. Standardize
-   on logical (the codebase clearly aims there).
-2. 🟡 **Per-view gutter/heading anarchy** — `.app-main` pads the page, but RankingView
-   and SettingsView add their own padding on top (doubled gutters vs Groups/Knockout);
-   GroupsView/KnockoutView carry byte-identical `__heading` CSS while Ranking/Settings
-   style bare `h1`/`h2` element selectors against the otherwise-impeccable BEM
-   convention. One `.view-heading` utility; `.app-main` owns the gutter.
-3. 🟢 **Five unrelated dialog width pairs** — `min(90vw,28rem)`, `min(95vw,28rem)`,
-   `min(90vw,26rem)`, `min(90vw,24rem)`, `min(92vw,32rem)` across the dialogs; two
-   tokens cover all six call sites.
-4. 🟢 **BEM block boundary violation** — `BracketMatchItem.vue:61` defines
-   `.bracket-round__section-label`, an element of the BracketRound block, in the wrong
-   component.
-5. 🟢 **Focus-ring rule duplicated** — the global `:focus-visible` (base.css:16-20) is
-   re-declared verbatim in AppHeader and InfoDisclosure; delete the copies.
-6. 🟢 44 declarations of font-weight 600/700 — a `--font-weight-semibold/bold` token pair
-   would finish the otherwise token-complete typography story.
-
----
-
-## 7. How to improve: established techniques & feedback loops (especially for coding agents)
+## 5. How to improve: established techniques & feedback loops (especially for coding agents)
 
 The recurring failure mode in this codebase is not bad code — it's **drift**: comments,
 docs, and configs that describe a state the code has left (`main.ts` bundle comment,
-REQUIREMENTS.md tiebreakers, dead dark theme, dead coverage thresholds, disabled
-pre-push hook, squad-name suffixes). Drift is exactly what mechanical feedback loops
-catch and humans/agents don't. Concrete program, in order of leverage:
+REQUIREMENTS.md tiebreakers, dead coverage thresholds, disabled pre-push hook,
+squad-name suffixes). Drift is exactly what mechanical feedback loops catch and
+humans/agents don't. Concrete program, in order of leverage:
 
 1. **One `npm run check` as the single contract** — `typecheck && format:check && lint
 && test:unit:coverage`, called by CI, by pre-push, and by any coding agent before it
@@ -318,10 +246,12 @@ catch and humans/agents don't. Concrete program, in order of leverage:
    that _is_ the product.
 3. **Turn conventions into lint rules; delete them from prose.** Every rule that lives
    only in CLAUDE.md or a reviewer's head will be violated by the next agent session.
-   Candidates from this review: `vuejs-accessibility` plugin (§4 findings), stylelint
-   with `plugin/use-logical` + a custom-property-must-exist check (§5.1, §6.1),
-   `oxlint --deny-warnings`, import ordering. The house `toSorted()` rule shows the team
-   already knows this works — extend the pattern.
+   Candidates from this review: `vuejs-accessibility` plugin (§4 findings), `oxlint
+   --deny-warnings`, import ordering. A custom-property-must-exist check now exists as
+   a Vitest spec (`src/styles/tokens.spec.ts`) rather than a stylelint rule — cheaper to
+   land given the codebase has no stylelint setup yet, worth revisiting if more CSS
+   lint needs pile up. The house `toSorted()` rule shows the team already knows this
+   works — extend the pattern.
 4. **Encode invariants as types or data-integrity tests, never as comments.**
    `TeamId`-keyed squads (§2.6) turns a data bug into a compile error; the existing
    `data.spec.ts` pattern should grow the missing guards (no `(` in player names,
