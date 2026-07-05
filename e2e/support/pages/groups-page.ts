@@ -33,11 +33,11 @@ export class GroupsPage {
   }
 
   standings(groupId: GroupId): Locator {
-    return this.group(groupId).getByRole('region', { name: 'Tabelle' })
+    return this.group(groupId).getByRole('table', { name: `Tabelle Gruppe ${groupId}` })
   }
 
   matches(groupId: GroupId): Locator {
-    return this.group(groupId).getByRole('region', { name: 'Spiele' })
+    return this.group(groupId).getByRole('region', { name: `Spiele Gruppe ${groupId}` })
   }
 
   teamRows(groupId: GroupId): Locator {

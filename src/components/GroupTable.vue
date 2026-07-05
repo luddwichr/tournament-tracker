@@ -38,7 +38,7 @@ function selectMatch(match: MatchSlot): void {
 
     <GroupStandingsTable :standings="standings" :group-done="groupDone" :group-id="groupId" />
 
-    <section class="group-table__matches" aria-label="Spiele">
+    <section class="group-table__matches" :aria-label="`Spiele Gruppe ${groupId}`">
       <MatchCard
         v-for="match in matches"
         :key="match.id"
