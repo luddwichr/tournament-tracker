@@ -33,11 +33,23 @@ function onBodyClick(): void {
   if (!blocked.value) emit('openScore')
 }
 
+// Appended to a side's goal count in `ariaLabel` so a screen reader user can
+// learn about bookings too — the visual card badges next to the score are
+// `aria-hidden`, so this text is the only place that information exists.
+function cardSummary(yellow: number, red: number): string {
+  const parts: string[] = []
+  if (yellow) parts.push(`${yellow} ${yellow === 1 ? 'gelbe Karte' : 'gelbe Karten'}`)
+  if (red) parts.push(`${red} ${red === 1 ? 'rote Karte' : 'rote Karten'}`)
+  return parts.length ? `, ${parts.join(', ')}` : ''
+}
+
 const ariaLabel = computed(() => {
   const home = props.homeTeam?.name ?? 'Heim'
   const away = props.awayTeam?.name ?? 'Gast'
   if (props.result) {
-    return `${home} ${props.result.homeGoals} : ${props.result.awayGoals} ${away} – Ergebnis bearbeiten`
+    const homeCards = cardSummary(props.result.homeYellow, props.result.homeRed)
+    const awayCards = cardSummary(props.result.awayYellow, props.result.awayRed)
+    return `${home} ${props.result.homeGoals}${homeCards} : ${props.result.awayGoals}${awayCards} ${away} – Ergebnis bearbeiten`
   }
   return `${home} – ${away}: Ergebnis eingeben`
 })

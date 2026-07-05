@@ -62,6 +62,39 @@ describe('MatchCard – composition', () => {
   })
 })
 
+describe('MatchCard – accessible score label', () => {
+  it('includes card counts for both sides, pluralized correctly', () => {
+    const wrapper = mountCard({ result })
+    // home: 1 yellow (singular); away: 2 yellow (plural) + 1 red (singular)
+    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
+      'Deutschland 2, 1 gelbe Karte : 1, 2 gelbe Karten, 1 rote Karte Frankreich – Ergebnis bearbeiten',
+    )
+  })
+
+  it('omits card mentions entirely when neither side has any bookings', () => {
+    const wrapper = mountCard({
+      result: { ...result, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+    })
+    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
+      'Deutschland 2 : 1 Frankreich – Ergebnis bearbeiten',
+    )
+  })
+
+  it('pluralizes red cards too, and keeps sides independent', () => {
+    const wrapper = mountCard({
+      result: { ...result, homeYellow: 0, homeRed: 2, awayYellow: 1, awayRed: 0 },
+    })
+    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
+      'Deutschland 2, 2 rote Karten : 1, 1 gelbe Karte Frankreich – Ergebnis bearbeiten',
+    )
+  })
+
+  it('falls back to the no-result label (no card info) when there is no result yet', () => {
+    const wrapper = mountCard()
+    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe('Deutschland – Frankreich: Ergebnis eingeben')
+  })
+})
+
 describe('MatchCard – state classes', () => {
   it('is not blocked when both teams are resolved', () => {
     const wrapper = mountCard()
