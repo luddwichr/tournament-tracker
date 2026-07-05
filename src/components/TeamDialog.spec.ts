@@ -24,8 +24,11 @@ beforeEach(() => {
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
 
-function mountDialog(overrides: { team?: Team } = {}) {
-  return mount(TeamDialog, { props: { team, ...overrides } })
+function mountDialog(overrides: { team?: Team } = {}, attachToDocument = false) {
+  return mount(TeamDialog, {
+    props: { team, ...overrides },
+    ...(attachToDocument ? { attachTo: document.body } : {}),
+  })
 }
 
 function tabs(wrapper: ReturnType<typeof mountDialog>) {
@@ -95,6 +98,48 @@ describe('TeamDialog', () => {
     it('renders the overall stats table', () => {
       const wrapper = mountDialog()
       expect(wrapper.find('.team-stats').exists()).toBe(true)
+    })
+  })
+
+  describe('keyboard navigation', () => {
+    it('moves focus and selection to the next tab on ArrowRight, wrapping at the end', async () => {
+      const wrapper = mountDialog({}, true)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+
+      await teamTab!.trigger('keydown', { key: 'ArrowRight' })
+
+      expect(scheduleTab!.attributes('aria-selected')).toBe('true')
+      expect(scheduleTab!.attributes('tabindex')).toBe('0')
+      expect(teamTab!.attributes('aria-selected')).toBe('false')
+      expect(teamTab!.attributes('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(scheduleTab!.element)
+    })
+
+    it('wraps back to the last tab on ArrowLeft from the first tab', async () => {
+      const wrapper = mountDialog({}, true)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+
+      await teamTab!.trigger('keydown', { key: 'ArrowLeft' })
+
+      expect(scheduleTab!.attributes('aria-selected')).toBe('true')
+      expect(scheduleTab!.attributes('tabindex')).toBe('0')
+      expect(teamTab!.attributes('aria-selected')).toBe('false')
+      expect(teamTab!.attributes('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(scheduleTab!.element)
+    })
+
+    it('moves focus and selection back to the first tab on ArrowLeft from the last tab', async () => {
+      const wrapper = mountDialog({}, true)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+
+      await scheduleTab!.trigger('keydown', { key: 'ArrowRight' })
+      await scheduleTab!.trigger('keydown', { key: 'ArrowLeft' })
+
+      expect(teamTab!.attributes('aria-selected')).toBe('true')
+      expect(teamTab!.attributes('tabindex')).toBe('0')
+      expect(scheduleTab!.attributes('aria-selected')).toBe('false')
+      expect(scheduleTab!.attributes('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(teamTab!.element)
     })
   })
 

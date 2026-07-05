@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, useId } from 'vue'
+import { ref, computed, useId, useTemplateRef } from 'vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import SquadList from './SquadList.vue'
@@ -30,6 +30,29 @@ const tabs: { id: TabId; label: string }[] = [
 ]
 const activeTab = ref<TabId>('team')
 const tabIds = tabs.map(() => useId())
+
+const tabButtons = useTemplateRef<HTMLButtonElement[]>('tabButtons')
+
+function focusTab(index: number) {
+  activeTab.value = tabs[index]!.id
+  tabButtons.value?.[index]?.focus()
+}
+
+function onTabKeydown(event: KeyboardEvent, index: number) {
+  if (event.key === 'ArrowRight') {
+    event.preventDefault()
+    focusTab((index + 1) % tabs.length)
+  } else if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    focusTab((index - 1 + tabs.length) % tabs.length)
+  } else if (event.key === 'Home') {
+    event.preventDefault()
+    focusTab(0)
+  } else if (event.key === 'End') {
+    event.preventDefault()
+    focusTab(tabs.length - 1)
+  }
+}
 </script>
 
 <template>
@@ -55,6 +78,7 @@ const tabIds = tabs.map(() => useId())
       <button
         v-for="(tab, index) in tabs"
         :id="`${tabIds[index]}-tab`"
+        ref="tabButtons"
         :key="tab.id"
         type="button"
         role="tab"
@@ -64,6 +88,7 @@ const tabIds = tabs.map(() => useId())
         :aria-controls="`${tabIds[index]}-panel`"
         :tabindex="activeTab === tab.id ? 0 : -1"
         @click="activeTab = tab.id"
+        @keydown="onTabKeydown($event, index)"
       >
         <TeamIcon v-if="tab.id === 'team'" class="team-dialog__tab-icon" />
         <ScheduleIcon v-else class="team-dialog__tab-icon" />
