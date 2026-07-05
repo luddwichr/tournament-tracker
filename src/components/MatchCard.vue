@@ -170,8 +170,10 @@ const ariaLabel = computed(() => {
 }
 
 .match-card__card-icon {
-  width: 0.7rem;
   height: 0.93rem;
+  /* Bump only the in-badge count's legibility, independent of the icon's
+     own (small, ratio-locked) footprint. */
+  --card-icon-count-size: 0.7rem;
 }
 
 .match-card__score {

@@ -64,8 +64,7 @@ defineProps<{ stats: TeamOverallStats }>()
 }
 
 .team-stats__card-icon {
-  width: 0.6rem;
-  height: 1.1rem;
+  height: 1.2em;
   vertical-align: middle;
 }
 </style>

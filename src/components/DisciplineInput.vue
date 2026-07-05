@@ -97,7 +97,6 @@ const awayRed = defineModel<number>('awayRed', { required: true })
 
 .discipline-input__card {
   flex-shrink: 0;
-  width: 0.75rem;
-  height: 1.375rem;
+  height: 1.25em;
 }
 </style>
