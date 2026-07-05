@@ -53,7 +53,7 @@ function handleKeydown(e: KeyboardEvent): void {
   top: 0;
   z-index: var(--z-overlay);
   background-color: var(--color-surface);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elevation-1);
 }
 
 .app-header__bar {
@@ -65,7 +65,7 @@ function handleKeydown(e: KeyboardEvent): void {
 .app-header__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .app-header__ball {

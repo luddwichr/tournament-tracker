@@ -50,7 +50,7 @@ const links = [
   text-decoration: none;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background-color: var(--color-bg);
 }
 

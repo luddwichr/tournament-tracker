@@ -80,7 +80,7 @@ defineExpose({ close })
   padding: 0;
   max-width: var(--dialog-max-width, var(--dialog-width-sm));
   width: 100%;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--elevation-3);
 }
 
 .base-dialog::backdrop {
@@ -105,7 +105,7 @@ defineExpose({ close })
 .base-dialog__title {
   margin: 0;
   font-size: var(--font-size-base);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1.2;
 }
 

@@ -54,7 +54,7 @@ defineProps<{
 .standings-table th {
   padding: var(--space-1) var(--space-1);
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   white-space: nowrap;
 }

@@ -78,7 +78,7 @@ const emit = defineEmits<{
 .bracket-round__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .bracket-round__matches {
@@ -92,7 +92,7 @@ const emit = defineEmits<{
   margin: 0;
   padding: var(--space-1) 0;
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;

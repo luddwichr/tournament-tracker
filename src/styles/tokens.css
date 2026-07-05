@@ -23,6 +23,10 @@
   --font-size-xl: 1.75rem; /* 28px */
   --font-size-score: 2rem; /* ≥ 32px numerals on mobile */
 
+  /* Font weights */
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
   /* Minimum interactive target (WCAG 2.5.5) */
   --tap-target: 2.75rem; /* 44px */
 
@@ -43,11 +47,10 @@
   --z-overlay: 10;
   --z-modal: 100;
 
-  /* Elevation alias */
+  /* Elevation aliases */
   --elevation-1: var(--shadow-sm);
-
-  /* Responsive breakpoints */
-  --breakpoint-sm: 640px;
+  --elevation-2: var(--shadow-md);
+  --elevation-3: var(--shadow-lg);
 
   /* Dialog widths — two recipes covering all BaseDialog consumers */
   --dialog-width-sm: min(90vw, 24rem);
@@ -61,6 +64,7 @@
   --color-text: #0f172a;
   --color-text-muted: #475569;
   --color-border: #cbd5e1;
+  --color-border-strong: #64748b;
   --color-primary: #1d4ed8;
   --color-primary-contrast: #ffffff;
 
@@ -88,6 +92,7 @@
     --color-text: #f1f5f9;
     --color-text-muted: #94a3b8;
     --color-border: #334155;
+    --color-border-strong: #7c8aa1;
     --color-primary: #60a5fa;
     --color-primary-contrast: #0f172a;
 
@@ -98,9 +103,13 @@
     --color-focus: #93c5fd;
     --color-scrim: rgb(0 0 0 / 0.65);
 
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5);
-    --shadow-lg: 0 8px 32px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4);
+    /* Pure-black shadows barely read on dark surfaces, so pair them with a
+       subtle border-tinted ring to keep elevated surfaces legible. */
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5), 0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
+    --shadow-lg:
+      0 8px 32px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4),
+      0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
   }
 }
 
@@ -112,6 +121,7 @@
   --color-text: #0f172a;
   --color-text-muted: #475569;
   --color-border: #cbd5e1;
+  --color-border-strong: #64748b;
   --color-primary: #1d4ed8;
   --color-primary-contrast: #ffffff;
 
@@ -133,6 +143,7 @@
   --color-text: #f1f5f9;
   --color-text-muted: #94a3b8;
   --color-border: #334155;
+  --color-border-strong: #7c8aa1;
   --color-primary: #60a5fa;
   --color-primary-contrast: #0f172a;
 
@@ -143,7 +154,9 @@
   --color-focus: #93c5fd;
   --color-scrim: rgb(0 0 0 / 0.65);
 
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5);
-  --shadow-lg: 0 8px 32px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5), 0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
+  --shadow-lg:
+    0 8px 32px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4),
+    0 0 0 1px color-mix(in srgb, var(--color-border) 40%, transparent);
 }

@@ -79,7 +79,7 @@ const emit = defineEmits<{ openScore: [] }>()
 }
 
 .match-score-btn__value {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }

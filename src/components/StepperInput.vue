@@ -35,10 +35,10 @@ const model = defineModel<number>({ required: true })
 .stepper__step {
   width: var(--tap-target);
   height: var(--tap-target);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1;
   background: var(--color-bg);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   cursor: pointer;
   color: var(--color-primary);
@@ -66,7 +66,7 @@ const model = defineModel<number>({ required: true })
 }
 
 .stepper__value {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }

@@ -76,7 +76,7 @@ const emit = defineEmits<{
 .origin-column__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .origin-column__groups {
@@ -93,7 +93,7 @@ const emit = defineEmits<{
 
 .origin-column__group-label {
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   padding: var(--space-1) var(--space-2);
   border-bottom: 1px solid var(--color-border);
@@ -168,7 +168,7 @@ const emit = defineEmits<{
 .origin-column__name {
   flex: 1;
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

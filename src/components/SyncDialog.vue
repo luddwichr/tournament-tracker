@@ -119,7 +119,7 @@ function requestClose(): void {
 
 .sync-dialog__done {
   margin: 0;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .sync-dialog__error {

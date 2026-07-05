@@ -120,7 +120,7 @@ h1 {
 .ranking-table th {
   padding: var(--space-3) var(--space-3);
   text-align: left;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   white-space: nowrap;
@@ -145,7 +145,7 @@ h1 {
   text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .ranking-row__team {
@@ -159,7 +159,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .ranking-row__pts {

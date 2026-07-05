@@ -104,7 +104,7 @@ const tabIds = tabs.map(() => useId())
 .team-dialog__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1.2;
 }
 
@@ -131,7 +131,7 @@ const tabIds = tabs.map(() => useId())
   border: none;
   border-bottom: 2px solid transparent;
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   cursor: pointer;
 }

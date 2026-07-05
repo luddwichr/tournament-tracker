@@ -43,7 +43,7 @@ const emit = defineEmits<{ close: [] }>()
 .possible-teams-dialog__section-title {
   margin: 0;
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;

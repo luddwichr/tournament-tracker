@@ -63,7 +63,7 @@ function selectMatch(match: MatchSlot): void {
 .group-table__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .group-table__matches {

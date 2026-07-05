@@ -108,7 +108,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
   flex: 1;
   text-align: center;
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   line-height: 1.2;
 }
@@ -118,7 +118,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background: color-mix(in srgb, var(--color-draw) 12%, transparent);
   color: var(--color-draw);
   border: 2px solid var(--color-draw);

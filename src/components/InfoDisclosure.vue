@@ -28,7 +28,7 @@ defineProps<{
   gap: var(--space-1);
   cursor: pointer;
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   min-height: var(--tap-target);

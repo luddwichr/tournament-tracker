@@ -64,7 +64,7 @@ const awayRed = defineModel<number>('awayRed', { required: true })
   padding: 0 var(--space-2);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-left: auto;
   margin-right: auto;
 }

@@ -78,7 +78,7 @@ defineProps<{
 .third-place-table__title {
   margin: 0;
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .third-place-table__scroll {
@@ -94,7 +94,7 @@ defineProps<{
 .third-place-table__table th {
   padding: var(--space-1) var(--space-1);
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   white-space: nowrap;
 }

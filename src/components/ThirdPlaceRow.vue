@@ -102,7 +102,7 @@ const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
 
 .third-place-row__group {
   font-size: var(--font-size-xs);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-muted);
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -126,7 +126,7 @@ const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
 }
 
 .third-place-row__pts {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: var(--font-size-base);
 }
 </style>

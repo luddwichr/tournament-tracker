@@ -73,7 +73,7 @@ function selectEntry(entry: TeamMatchEntry): void {
   margin: 0;
   padding: 0 var(--space-1);
   font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
 }
 

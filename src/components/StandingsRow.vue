@@ -147,7 +147,7 @@ const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
 }
 
 .standings-row__pts {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: var(--font-size-base);
 }
 </style>

@@ -25,7 +25,7 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 .groups-view__heading {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .groups-view__grid {

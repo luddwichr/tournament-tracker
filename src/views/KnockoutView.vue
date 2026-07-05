@@ -28,6 +28,6 @@ function selectMatch(match: MatchSlot): void {
 .knockout-view__heading {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 </style>

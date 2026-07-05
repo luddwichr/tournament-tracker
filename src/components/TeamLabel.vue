@@ -60,7 +60,7 @@ function handleClick(e: MouseEvent): void {
 }
 
 .team-label__name {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: 1.2;
 }
 </style>
