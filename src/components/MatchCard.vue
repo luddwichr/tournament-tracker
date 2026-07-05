@@ -15,7 +15,7 @@ const props = defineProps<{
   awayPlaceholder?: string
   highlighted?: boolean
   pinned?: boolean
-  hideLinkIcon?: boolean
+  static?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -67,7 +67,7 @@ const ariaLabel = computed(() => {
     <MatchCardMeta
       :kickoff="match.kickoff"
       :pinned="!!pinned"
-      :hide-link-icon="hideLinkIcon"
+      :static="static"
       @toggle="emit('toggleHighlight')"
     />
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -- mouse-only convenience click zone around the real MatchScoreButton control, which is already keyboard-accessible; see REVIEW.md §6 -->

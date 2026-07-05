@@ -116,11 +116,11 @@ describe('TeamDialog', () => {
       expect(wrapper.findAllComponents(MatchCard)).toHaveLength(3)
     })
 
-    it('passes hide-link-icon to disable the connector icon and datetime toggle', async () => {
+    it('passes static to disable the connector icon and datetime toggle', async () => {
       const wrapper = mountDialog()
       await tabs(wrapper)[1]!.trigger('click')
       for (const card of wrapper.findAllComponents(MatchCard)) {
-        expect(card.props('hideLinkIcon')).toBe(true)
+        expect(card.props('static')).toBe(true)
       }
     })
   })

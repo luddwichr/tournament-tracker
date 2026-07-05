@@ -49,7 +49,7 @@ function selectEntry(entry: TeamMatchEntry): void {
         :result="row.entry.result"
         :home-placeholder="teamRefLabel(row.entry.match.homeRef)"
         :away-placeholder="teamRefLabel(row.entry.match.awayRef)"
-        hide-link-icon
+        static
         @open-score="selectEntry(row.entry)"
       />
     </div>

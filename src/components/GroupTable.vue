@@ -46,7 +46,7 @@ function selectMatch(match: MatchSlot): void {
         :home-team="resolveTeam(match.homeRef)"
         :away-team="resolveTeam(match.awayRef)"
         :result="store.results[match.id] ?? null"
-        hide-link-icon
+        static
         @open-score="selectMatch(match)"
       />
     </section>

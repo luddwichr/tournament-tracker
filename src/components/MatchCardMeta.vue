@@ -12,11 +12,14 @@ const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
 import { computed } from 'vue'
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 
-const props = defineProps<{
-  kickoff: string
-  pinned?: boolean
-  hideLinkIcon?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    kickoff: string
+    pinned?: boolean
+    static?: boolean
+  }>(),
+  { static: false },
+)
 
 const emit = defineEmits<{ toggle: [] }>()
 
@@ -24,16 +27,20 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
 </script>
 
 <template>
+  <div v-if="static" class="match-card-meta match-card-meta--static">
+    <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
+  </div>
   <button
+    v-else
     type="button"
     class="match-card-meta"
-    :class="{ 'match-card-meta--active': pinned, 'match-card-meta--static': hideLinkIcon }"
+    :class="{ 'match-card-meta--active': pinned }"
     :aria-pressed="pinned ? true : false"
-    aria-label="Spielverbindungen hervorheben"
+    :aria-label="`Spielverbindungen hervorheben (Anstoß ${formatted})`"
     @click="emit('toggle')"
   >
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
-    <MatchLinkIcon v-if="!hideLinkIcon" class="match-card-meta__icon" />
+    <MatchLinkIcon class="match-card-meta__icon" />
   </button>
 </template>
 

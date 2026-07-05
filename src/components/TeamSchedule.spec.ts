@@ -53,7 +53,7 @@ describe('TeamSchedule', () => {
     expect(wrapper.findComponent(MatchCard).exists()).toBe(false)
   })
 
-  it('renders a MatchCard per entry, latest kickoff first, with hideLinkIcon', () => {
+  it('renders a MatchCard per entry, latest kickoff first, as static', () => {
     const entries: TeamMatchEntry[] = [
       { match: groupMatch('M2', '2026-06-15T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
       { match: groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
@@ -61,7 +61,7 @@ describe('TeamSchedule', () => {
     const wrapper = mount(TeamSchedule, { props: { entries } })
     const cards = wrapper.findAllComponents(MatchCard)
     expect(cards.map((c) => c.props('match').id)).toEqual(['M2', 'M1'])
-    expect(cards.every((c) => c.props('hideLinkIcon') === true)).toBe(true)
+    expect(cards.every((c) => c.props('static') === true)).toBe(true)
   })
 
   it('numbers group matches "Gruppenspiel n/3" per team chronologically, but lists them latest-first', () => {

@@ -79,10 +79,10 @@ describe('GroupTable – layout', () => {
     expect(wrapper.findAllComponents(MatchCard)).toHaveLength(expected)
   })
 
-  it('renders all MatchCards with hideLinkIcon', () => {
+  it('renders all MatchCards as static', () => {
     const { wrapper } = mountGroupTable('A')
     const cards = wrapper.findAllComponents(MatchCard)
-    expect(cards.every((c) => c.props('hideLinkIcon') === true)).toBe(true)
+    expect(cards.every((c) => c.props('static') === true)).toBe(true)
   })
 })
 

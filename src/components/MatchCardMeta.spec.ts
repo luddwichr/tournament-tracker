@@ -46,9 +46,28 @@ describe('MatchCardMeta', () => {
     expect(wrapper.classes()).not.toContain('match-card-meta--static')
   })
 
-  it('hides the link icon and marks itself static when hideLinkIcon is true', () => {
-    const wrapper = mount(MatchCardMeta, { props: { kickoff, hideLinkIcon: true } })
+  it("includes the formatted kickoff time in the toggle button's aria-label", () => {
+    const wrapper = mount(MatchCardMeta, { props: { kickoff } })
+    expect(wrapper.get('button').attributes('aria-label')).toBe(
+      `Spielverbindungen hervorheben (Anstoß ${expectedKickoff})`,
+    )
+  })
+
+  it('renders a non-interactive element with no toggle affordance when static is true', () => {
+    const wrapper = mount(MatchCardMeta, { props: { kickoff, static: true } })
+    expect(wrapper.find('button').exists()).toBe(false)
     expect(wrapper.find('svg').exists()).toBe(false)
     expect(wrapper.classes()).toContain('match-card-meta--static')
+    expect(wrapper.attributes('aria-pressed')).toBeUndefined()
+    expect(wrapper.attributes('aria-label')).toBeUndefined()
+    const time = wrapper.get('time')
+    expect(time.attributes('datetime')).toBe(kickoff)
+    expect(time.text()).toBe(expectedKickoff)
+  })
+
+  it('does not emit "toggle" when static (no click handler is wired up)', async () => {
+    const wrapper = mount(MatchCardMeta, { props: { kickoff, static: true } })
+    await wrapper.trigger('click')
+    expect(wrapper.emitted('toggle')).toBeUndefined()
   })
 })
