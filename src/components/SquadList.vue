@@ -43,7 +43,7 @@ const sorted = computed(() => sortBySquadPosition(props.players))
   font-size: var(--font-size-sm);
 }
 
-.squad-list th {
+.squad-list thead th {
   padding: var(--space-1) var(--space-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
