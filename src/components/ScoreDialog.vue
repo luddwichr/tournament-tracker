@@ -30,7 +30,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 </script>
 
 <template>
-  <BaseDialog ref="baseDialog" :title="title" max-width="min(95vw, 28rem)" @close="emit('close')">
+  <BaseDialog ref="baseDialog" :title="title" max-width="var(--dialog-width-lg)" @close="emit('close')">
     <div class="score-dialog__body">
       <div class="score-dialog__teams" aria-hidden="true">
         <span class="score-dialog__team-name">{{ homeTeam.name }}</span>
@@ -107,7 +107,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 .score-dialog__team-name {
   flex: 1;
   text-align: center;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-text-muted);
   line-height: 1.2;
