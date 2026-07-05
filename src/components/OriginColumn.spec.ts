@@ -124,23 +124,11 @@ describe('OriginColumn', () => {
     expect(wrapper.findAll('.origin-column__team-row')[0]!.classes()).not.toContain('highlight-ring')
   })
 
-  it('focusin on a row with refKey emits teamRefHover with that refKey', async () => {
+  it('rows are not focusable (no tabindex), since they have no keyboard-actionable behavior', () => {
     const wrapper = mount(OriginColumn, { props: { groupData: incompleteGroupData() } })
-    await wrapper.findAll('.origin-column__team-row')[0]!.trigger('focusin')
-    expect(wrapper.emitted('teamRefHover')).toEqual([['groupRank:A:1']])
-  })
-
-  it('focusin on a row without refKey does not emit teamRefHover', async () => {
-    const wrapper = mount(OriginColumn, { props: { groupData: incompleteGroupData() } })
-    // rank-3 row has no refKey when groups are not complete
-    await wrapper.findAll('.origin-column__team-row')[2]!.trigger('focusin')
-    expect(wrapper.emitted('teamRefHover')).toBeUndefined()
-  })
-
-  it('focusout emits teamRefHoverEnd', async () => {
-    const wrapper = mount(OriginColumn, { props: { groupData: incompleteGroupData() } })
-    await wrapper.findAll('.origin-column__team-row')[0]!.trigger('focusout')
-    expect(wrapper.emitted('teamRefHoverEnd')).toHaveLength(1)
+    for (const row of wrapper.findAll('.origin-column__team-row')) {
+      expect(row.attributes('tabindex')).toBeUndefined()
+    }
   })
 
   it('rows with a refKey show a link icon', () => {

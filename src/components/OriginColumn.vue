@@ -34,7 +34,7 @@ const emit = defineEmits<{
     <div class="origin-column__groups">
       <div v-for="group in groupData" :key="group.id" class="origin-column__group">
         <div class="origin-column__group-label">Gruppe {{ group.id }}</div>
-        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- hover/focus-highlight sync already reachable via tabindex + focusin/focusout; no click action is triggered, see REVIEW.md §6 -->
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/mouse-events-have-key-events -- purely a mouse-hover highlight sync with elsewhere in the bracket view; not focusable/keyboard-actionable on purpose (no click/select action, nothing to activate), see REVIEW.md §4 finding 5 -->
         <div
           v-for="row in group.teams"
           :key="row.team.id"
@@ -47,11 +47,8 @@ const emit = defineEmits<{
             'origin-column__team-row--no-link': !row.refKey,
           }"
           :data-ref-key="row.refKey"
-          :tabindex="row.refKey ? 0 : undefined"
           @mouseenter="row.refKey && emit('teamRefHover', row.refKey)"
           @mouseleave="emit('teamRefHoverEnd')"
-          @focusin="row.refKey && emit('teamRefHover', row.refKey)"
-          @focusout="emit('teamRefHoverEnd')"
         >
           <span class="origin-column__rank" aria-hidden="true">{{ row.rank }}</span>
           <TeamFlag :flag-code="row.team.flagCode" size="1.25rem" />
@@ -107,7 +104,6 @@ const emit = defineEmits<{
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  cursor: pointer;
   user-select: none;
 }
 
@@ -134,10 +130,6 @@ const emit = defineEmits<{
 }
 
 /* No hover effect for rows with no R32 link */
-.origin-column__team-row--no-link {
-  cursor: default;
-}
-
 .origin-column__team-row--no-link:hover {
   background: none;
   border-color: transparent;
@@ -147,7 +139,6 @@ const emit = defineEmits<{
 /* Rank-3 teams that did not make the top 8 */
 .origin-column__team-row--eliminated {
   opacity: 0.4;
-  cursor: default;
 }
 
 .origin-column__team-row--eliminated:hover {
