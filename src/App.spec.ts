@@ -106,11 +106,21 @@ describe('App', () => {
   it('sets data-theme on the document element from the settings store', async () => {
     const { wrapper } = await mountApp()
     const settings = useSettingsStore()
-    expect(document.documentElement.dataset['theme']).toBe('light')
+    // Default theme is 'system' — no explicit data-theme attribute, so the
+    // `@media (prefers-color-scheme: dark)` block in tokens.css can apply.
+    expect(document.documentElement.dataset['theme']).toBeUndefined()
 
     settings.theme = 'dark'
     await wrapper.vm.$nextTick()
     expect(document.documentElement.dataset['theme']).toBe('dark')
+
+    settings.theme = 'light'
+    await wrapper.vm.$nextTick()
+    expect(document.documentElement.dataset['theme']).toBe('light')
+
+    settings.theme = 'system'
+    await wrapper.vm.$nextTick()
+    expect(document.documentElement.dataset['theme']).toBeUndefined()
   })
 
   it('announces the new page title and focuses main on route change', async () => {

@@ -22,9 +22,9 @@ describe('settings store', () => {
     setActivePinia(createPersistedPinia())
   })
 
-  it('defaults to light theme', () => {
+  it('defaults to system theme', () => {
     const store = useSettingsStore()
-    expect(store.theme).toBe('light')
+    expect(store.theme).toBe('system')
   })
 
   // The store's one real piece of behavior is `persist: true` — everything

@@ -20,7 +20,15 @@ const ScoreDialog = defineAsyncComponent(() => import('./components/ScoreDialog.
 
 const settings = useSettingsStore()
 watchEffect(() => {
-  document.documentElement.dataset['theme'] = settings.theme
+  // 'system' means no explicit user choice — remove the attribute so the
+  // unscoped `@media (prefers-color-scheme: dark)` block in tokens.css can
+  // apply based on the OS preference instead of being overridden by the
+  // `[data-theme='light']` block.
+  if (settings.theme === 'system') {
+    delete document.documentElement.dataset['theme']
+  } else {
+    document.documentElement.dataset['theme'] = settings.theme
+  }
 })
 
 const route = useRoute()

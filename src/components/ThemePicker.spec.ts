@@ -4,16 +4,17 @@ import { mount } from '@vue/test-utils'
 import ThemePicker from './ThemePicker.vue'
 
 describe('ThemePicker', () => {
-  it('renders two theme options', () => {
+  it('renders three theme options', () => {
     const wrapper = mount(ThemePicker, { props: { modelValue: 'light' } })
-    expect(wrapper.findAll('.theme-picker__option')).toHaveLength(2)
+    expect(wrapper.findAll('.theme-picker__option')).toHaveLength(3)
   })
 
-  it('renders option labels "Hell" and "Dunkel"', () => {
+  it('renders option labels "Hell", "Dunkel" and "System"', () => {
     const wrapper = mount(ThemePicker, { props: { modelValue: 'light' } })
     const labels = wrapper.findAll('.theme-picker__option').map((el) => el.text())
     expect(labels[0]).toContain('Hell')
     expect(labels[1]).toContain('Dunkel')
+    expect(labels[2]).toContain('System')
   })
 
   it('applies --active class only to the option matching modelValue', () => {

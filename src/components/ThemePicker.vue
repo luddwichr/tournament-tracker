@@ -6,6 +6,7 @@ const model = defineModel<Theme>({ required: true })
 const themes: { value: Theme; label: string; icon: string }[] = [
   { value: 'light', label: 'Hell', icon: '☀️' },
   { value: 'dark', label: 'Dunkel', icon: '🌙' },
+  { value: 'system', label: 'System', icon: '🖥️' },
 ]
 </script>
 
@@ -44,7 +45,7 @@ const themes: { value: Theme; label: string; icon: string }[] = [
 
 .theme-picker__options {
   display: flex;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -58,10 +59,10 @@ const themes: { value: Theme; label: string; icon: string }[] = [
   min-height: var(--tap-target);
   padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-base);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   user-select: none;
-  border-inline-end: 2px solid var(--color-border);
+  border-inline-end: 2px solid var(--color-border-strong);
   background: var(--color-surface);
   color: var(--color-text-muted);
   transition:
