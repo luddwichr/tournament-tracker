@@ -15,8 +15,17 @@ describe('ThirdPlaceTable', () => {
 
   it('renders the tiebreaker columns in breaking order', () => {
     const wrapper = mount(ThirdPlaceTable, { props: { liveRanking: rankThirdPlacedLive({}) } })
-    const headers = wrapper.findAll('th[scope="col"]').map((th) => th.text())
-    expect(headers).toEqual(['Team', 'Pkt', 'TD', 'Tore', 'FP', 'FIFA'])
+    const headerCells = wrapper.findAll('th[scope="col"]')
+    const abbreviations = headerCells.map((th) => (th.find('abbr').exists() ? th.get('abbr').text() : th.text()))
+    expect(abbreviations).toEqual(['Team', 'Pkt', 'TD', 'Tore', 'FP', 'FIFA'])
+  })
+
+  it('gives each abbreviated tiebreaker header a visually-hidden full label', () => {
+    const wrapper = mount(ThirdPlaceTable, { props: { liveRanking: rankThirdPlacedLive({}) } })
+    const fullLabels = wrapper
+      .findAll('th[scope="col"] abbr')
+      .map((abbr) => abbr.element.nextElementSibling?.textContent)
+    expect(fullLabels).toEqual(['Punkte', 'Tordifferenz', 'Erzielte Tore', 'Fair-Play-Punkte', 'FIFA-Weltrangliste'])
   })
 
   it('renders the title naming the qualifying count', () => {

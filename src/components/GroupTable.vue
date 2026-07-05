@@ -36,7 +36,7 @@ function selectMatch(match: MatchSlot): void {
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
 
-    <GroupStandingsTable :standings="standings" :group-done="groupDone" />
+    <GroupStandingsTable :standings="standings" :group-done="groupDone" :group-id="groupId" />
 
     <section class="group-table__matches" aria-label="Spiele">
       <MatchCard

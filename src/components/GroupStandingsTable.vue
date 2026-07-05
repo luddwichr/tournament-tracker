@@ -1,30 +1,59 @@
 <script setup lang="ts">
 import type { TeamStat } from '../lib/standings'
+import type { GroupId } from '../types/tournament'
 import StandingsRow from './StandingsRow.vue'
 
 defineProps<{
   standings: TeamStat[]
   groupDone: boolean
+  groupId: GroupId
 }>()
 </script>
 
 <template>
-  <section class="group-standings" aria-label="Tabelle" tabindex="0">
+  <section class="group-standings" tabindex="0">
     <table class="standings-table tinted-header">
       <caption class="visually-hidden">
-        Tabelle
+        Tabelle Gruppe
+        {{
+          groupId
+        }}
       </caption>
       <thead>
         <tr>
           <th scope="col" class="standings-table__team-col">Team</th>
-          <th scope="col" class="standings-table__num-col" title="Spiele">Sp</th>
-          <th scope="col" class="standings-table__num-col" title="Siege">S</th>
-          <th scope="col" class="standings-table__num-col" title="Unentschieden">U</th>
-          <th scope="col" class="standings-table__num-col" title="Niederlagen">N</th>
-          <th scope="col" class="standings-table__num-col" title="Tore">T+</th>
-          <th scope="col" class="standings-table__num-col" title="Gegentore">T-</th>
-          <th scope="col" class="standings-table__num-col" title="Tordifferenz">TD</th>
-          <th scope="col" class="standings-table__num-col" title="Punkte">Pkt</th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Spiele">Sp</abbr>
+            <span class="visually-hidden">Spiele</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Siege">S</abbr>
+            <span class="visually-hidden">Siege</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Unentschieden">U</abbr>
+            <span class="visually-hidden">Unentschieden</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Niederlagen">N</abbr>
+            <span class="visually-hidden">Niederlagen</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Tore">T+</abbr>
+            <span class="visually-hidden">Tore</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Gegentore">T-</abbr>
+            <span class="visually-hidden">Gegentore</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Tordifferenz">TD</abbr>
+            <span class="visually-hidden">Tordifferenz</span>
+          </th>
+          <th scope="col" class="standings-table__num-col">
+            <abbr title="Punkte">Pkt</abbr>
+            <span class="visually-hidden">Punkte</span>
+          </th>
         </tr>
       </thead>
       <tbody>

@@ -68,6 +68,11 @@ describe('GroupTable – layout', () => {
     expect(wrapper.findComponent(GroupStandingsTable).exists()).toBe(true)
   })
 
+  it('passes the groupId prop through to the standings table', () => {
+    const { wrapper } = mountGroupTable('E')
+    expect(wrapper.findComponent(GroupStandingsTable).props('groupId')).toBe('E')
+  })
+
   it('renders one MatchCard per match in the group', () => {
     const { wrapper } = mountGroupTable('A')
     const expected = groupMatches.filter((m) => m.group === 'A').length

@@ -12,12 +12,30 @@ defineProps<{ stats: TeamOverallStats }>()
     </caption>
     <thead>
       <tr>
-        <th scope="col" title="Spiele">Sp</th>
-        <th scope="col" title="Siege">S</th>
-        <th scope="col" title="Unentschieden">U</th>
-        <th scope="col" title="Niederlagen">N</th>
-        <th scope="col" title="Tore">T+</th>
-        <th scope="col" title="Gegentore">T-</th>
+        <th scope="col">
+          <abbr title="Spiele">Sp</abbr>
+          <span class="visually-hidden">Spiele</span>
+        </th>
+        <th scope="col">
+          <abbr title="Siege">S</abbr>
+          <span class="visually-hidden">Siege</span>
+        </th>
+        <th scope="col">
+          <abbr title="Unentschieden">U</abbr>
+          <span class="visually-hidden">Unentschieden</span>
+        </th>
+        <th scope="col">
+          <abbr title="Niederlagen">N</abbr>
+          <span class="visually-hidden">Niederlagen</span>
+        </th>
+        <th scope="col">
+          <abbr title="Tore">T+</abbr>
+          <span class="visually-hidden">Tore</span>
+        </th>
+        <th scope="col">
+          <abbr title="Gegentore">T-</abbr>
+          <span class="visually-hidden">Gegentore</span>
+        </th>
         <th scope="col">
           <CardIcon color="yellow" class="team-stats__card-icon" />
           <span class="visually-hidden">Gelbe Karten</span>

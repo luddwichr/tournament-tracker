@@ -47,11 +47,26 @@ defineProps<{
         <thead>
           <tr>
             <th scope="col" class="third-place-table__team-col">Team</th>
-            <th scope="col" class="third-place-table__num-col" title="Punkte">Pkt</th>
-            <th scope="col" class="third-place-table__num-col" title="Tordifferenz">TD</th>
-            <th scope="col" class="third-place-table__num-col" title="Erzielte Tore">Tore</th>
-            <th scope="col" class="third-place-table__num-col" title="Fair-Play-Punkte">FP</th>
-            <th scope="col" class="third-place-table__num-col" title="FIFA-Weltrangliste">FIFA</th>
+            <th scope="col" class="third-place-table__num-col">
+              <abbr title="Punkte">Pkt</abbr>
+              <span class="visually-hidden">Punkte</span>
+            </th>
+            <th scope="col" class="third-place-table__num-col">
+              <abbr title="Tordifferenz">TD</abbr>
+              <span class="visually-hidden">Tordifferenz</span>
+            </th>
+            <th scope="col" class="third-place-table__num-col">
+              <abbr title="Erzielte Tore">Tore</abbr>
+              <span class="visually-hidden">Erzielte Tore</span>
+            </th>
+            <th scope="col" class="third-place-table__num-col">
+              <abbr title="Fair-Play-Punkte">FP</abbr>
+              <span class="visually-hidden">Fair-Play-Punkte</span>
+            </th>
+            <th scope="col" class="third-place-table__num-col">
+              <abbr title="FIFA-Weltrangliste">FIFA</abbr>
+              <span class="visually-hidden">FIFA-Weltrangliste</span>
+            </th>
           </tr>
         </thead>
         <tbody>
