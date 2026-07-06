@@ -63,5 +63,6 @@ function handleClose(): void {
   padding: var(--space-4);
   line-height: 1.5;
   color: var(--color-text-muted);
+  white-space: pre-line;
 }
 </style>

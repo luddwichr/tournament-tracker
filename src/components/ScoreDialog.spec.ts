@@ -3,9 +3,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ScoreDialog from './ScoreDialog.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import { useTournamentStore } from '../stores/tournament'
 import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
+import { allGroupResults, makeResult } from '../test-support/results'
 import { syncResults } from '../lib/results-sync'
 import type { MatchSlot } from '../types/tournament'
 
@@ -47,6 +49,24 @@ function deleteButton(wrapper: ReturnType<typeof mountDialog>) {
 
 function shootoutButtons(wrapper: ReturnType<typeof mountDialog>) {
   return wrapper.findAll('.score-dialog__shootout-btn')
+}
+
+// Helpers for the cascade-confirmation suite; see the scenario comment there.
+function seedGroupInvalidationScenario() {
+  const store = useTournamentStore()
+  for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
+  store.enterResult(makeResult('M79', 2, 1))
+  store.enterResult(makeResult('M92', 1, 0))
+  return store
+}
+
+async function flipM53ToAwayWin(wrapper: ReturnType<typeof mountDialog>) {
+  const decHome = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
+  await decHome!.trigger('click')
+  const incAway = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
+  await incAway!.trigger('click')
+  await incAway!.trigger('click')
+  await incAway!.trigger('click')
 }
 
 beforeEach(() => {
@@ -389,6 +409,115 @@ describe('ScoreDialog', () => {
       // Level again, but the picker must not remember the earlier selection.
       expect(shootoutButtons(wrapper)[0]!.attributes('aria-pressed')).toBe('false')
       expect(shootoutButtons(wrapper)[1]!.attributes('aria-pressed')).toBe('false')
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // Cascade confirmation (REVIEW.md §9.1) — editing/clearing a result must not
+  // silently re-attribute a downstream knockout result to a different pairing.
+  // -------------------------------------------------------------------------
+  describe('cascade confirmation', () => {
+    // M53 (group A) real fixture data: with every group match a 1:0 home win,
+    // Tschechien beats Mexiko head-to-head and takes Group A's rank 1. Group
+    // A's rank-1 R32 slot (M79) and the R16 slot fed by M79's winner (M92)
+    // are seeded with stored results, so flipping M53 invalidates both — see
+    // invalidation.spec.ts for the standings math behind this scenario.
+    const m53Match = makeMatch({
+      id: 'M53',
+      stage: 'group',
+      group: 'A',
+      homeRef: { kind: 'team', teamId: 'ger' },
+      awayRef: { kind: 'team', teamId: 'fra' },
+    })
+
+    it('shows a ConfirmDialog instead of writing when saving would invalidate downstream results', async () => {
+      const store = seedGroupInvalidationScenario()
+      const wrapper = mountDialog(m53Match)
+      await flipM53ToAwayWin(wrapper)
+
+      await saveButton(wrapper).trigger('click')
+
+      expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(true)
+      expect(store.results['M53']).toEqual(makeResult('M53', 1, 0))
+      expect(store.results['M79']).toBeDefined()
+      expect(store.results['M92']).toBeDefined()
+      expect(wrapper.emitted('close')).toBeUndefined()
+    })
+
+    it('cancelling the ConfirmDialog leaves the store unchanged and keeps ScoreDialog open', async () => {
+      const store = seedGroupInvalidationScenario()
+      const wrapper = mountDialog(m53Match)
+      await flipM53ToAwayWin(wrapper)
+      await saveButton(wrapper).trigger('click')
+
+      await wrapper
+        .findComponent(ConfirmDialog)
+        .findAll('button')
+        .find((b) => b.text() === 'Abbrechen')!
+        .trigger('click')
+
+      expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
+      expect(store.results['M53']).toEqual(makeResult('M53', 1, 0))
+      expect(store.results['M79']).toBeDefined()
+      expect(store.results['M92']).toBeDefined()
+      expect(wrapper.emitted('close')).toBeUndefined()
+    })
+
+    it('confirming the ConfirmDialog writes the store, drops the invalidated results, and closes', async () => {
+      const store = seedGroupInvalidationScenario()
+      const wrapper = mountDialog(m53Match)
+      await flipM53ToAwayWin(wrapper)
+      await saveButton(wrapper).trigger('click')
+
+      await wrapper
+        .findComponent(ConfirmDialog)
+        .findAll('button')
+        .find((b) => b.text() === 'Trotzdem speichern')!
+        .trigger('click')
+
+      expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
+      expect(store.results['M53']).toEqual(makeResult('M53', 0, 3))
+      expect(store.results['M79']).toBeUndefined()
+      expect(store.results['M92']).toBeUndefined()
+      expect(wrapper.emitted('close')).toHaveLength(1)
+    })
+
+    it('a harmless save shows no ConfirmDialog and behaves as before', async () => {
+      const store = seedGroupInvalidationScenario()
+      const wrapper = mountDialog(m53Match)
+      // M53: 1:0 → 2:0 — Tschechien still wins, group order is unaffected.
+      const incHome = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
+      await incHome!.trigger('click')
+
+      await saveButton(wrapper).trigger('click')
+
+      expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
+      expect(store.results['M53']).toEqual(makeResult('M53', 2, 0))
+      expect(wrapper.emitted('close')).toHaveLength(1)
+    })
+
+    it('shows the same confirm flow with a "Trotzdem löschen" label when deleting a group match with dependent knockout results', async () => {
+      const store = seedGroupInvalidationScenario()
+      const wrapper = mountDialog(m53Match)
+
+      await deleteButton(wrapper)!.trigger('click')
+
+      const confirmDialog = wrapper.findComponent(ConfirmDialog)
+      expect(confirmDialog.exists()).toBe(true)
+      expect(confirmDialog.find('.btn--danger').text()).toBe('Trotzdem löschen')
+      expect(store.results['M53']).toBeDefined()
+
+      await confirmDialog
+        .findAll('button')
+        .find((b) => b.text() === 'Trotzdem löschen')!
+        .trigger('click')
+
+      expect(store.results['M53']).toBeUndefined()
+      expect(store.results['M79']).toBeUndefined()
+      expect(store.results['M92']).toBeUndefined()
+      expect(wrapper.emitted('close')).toHaveLength(1)
     })
   })
 })

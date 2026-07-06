@@ -1,9 +1,17 @@
 import { ref, computed, reactive, toValue, onUnmounted, watch } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
-import type { MatchSlot, Team } from '../types/tournament'
+import type { MatchSlot, Result, Team } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useAnnounce } from './use-announce'
 import { syncResults } from '../lib/results-sync'
+import { invalidatedDownstream, invalidatedMatchLabel } from '../lib/invalidation'
+
+/** A save/clear whose write is on hold pending user confirmation (REVIEW.md §9.1) —
+ * the write would silently re-attribute the results of these later knockout matches. */
+interface PendingAction {
+  kind: 'save' | 'clear'
+  invalidatedIds: readonly string[]
+}
 
 export type FetchLiveStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'
 
@@ -50,9 +58,8 @@ export function useMatchResultForm(
 
   const title = computed(() => `Ergebnis: ${toValue(homeTeam).name} – ${toValue(awayTeam).name}`)
 
-  function save(close: () => void): void {
-    if (knockoutDraw.value) return
-    store.enterResult({
+  function buildResult(): Result {
+    return {
       matchId: toValue(match).id,
       homeGoals: goals.home,
       awayGoals: goals.away,
@@ -61,15 +68,69 @@ export function useMatchResultForm(
       awayYellow: cards.awayYellow,
       awayRed: cards.awayRed,
       ...(shootoutWinner.value ? { shootoutWinner: shootoutWinner.value } : {}),
-    })
+    }
+  }
+
+  const pendingAction = ref<PendingAction | null>(null)
+
+  /** German multi-line message for the confirm dialog, '' while nothing is pending. */
+  const pendingMessage = computed(() => {
+    const action = pendingAction.value
+    if (!action) return ''
+    const n = action.invalidatedIds.length
+    const intro =
+      n === 1
+        ? 'Diese Änderung ändert, welche Teams in einem späteren Spiel aufeinandertreffen. Dieses Ergebnis wird gelöscht:'
+        : `Diese Änderung ändert, welche Teams in ${n} späteren Spielen aufeinandertreffen. Diese Ergebnisse werden gelöscht:`
+    const lines = action.invalidatedIds.map((id) => invalidatedMatchLabel(id, store.results))
+    return [intro, ...lines].join('\n')
+  })
+
+  function commitSave(close: () => void): void {
+    store.enterResult(buildResult())
     announce(`Ergebnis gespeichert: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}`)
     close()
   }
 
-  function clear(close: () => void): void {
+  function commitClear(close: () => void): void {
     store.clearResult(toValue(match).id)
     announce('Ergebnis gelöscht')
     close()
+  }
+
+  function save(close: () => void): void {
+    if (knockoutDraw.value) return
+    // Computed before the store write (the store recomputes the same thing
+    // internally) — state hasn't changed in between, so the results are
+    // identical either way.
+    const invalidated = invalidatedDownstream(store.results, toValue(match).id, buildResult())
+    if (invalidated.length > 0) {
+      pendingAction.value = { kind: 'save', invalidatedIds: invalidated }
+      return
+    }
+    commitSave(close)
+  }
+
+  function clear(close: () => void): void {
+    const invalidated = invalidatedDownstream(store.results, toValue(match).id, null)
+    if (invalidated.length > 0) {
+      pendingAction.value = { kind: 'clear', invalidatedIds: invalidated }
+      return
+    }
+    commitClear(close)
+  }
+
+  /** Runs the held-back save/clear after the user confirms discarding the downstream results. */
+  function confirmPending(close: () => void): void {
+    const action = pendingAction.value
+    pendingAction.value = null
+    if (!action) return
+    if (action.kind === 'save') commitSave(close)
+    else commitClear(close)
+  }
+
+  function cancelPending(): void {
+    pendingAction.value = null
   }
 
   const fetchStatus = ref<FetchLiveStatus>('idle')
@@ -134,6 +195,10 @@ export function useMatchResultForm(
     initial,
     save,
     clear,
+    pendingAction,
+    pendingMessage,
+    confirmPending,
+    cancelPending,
     fetch: reactive({ status: fetchStatus, error: fetchError, message: fetchMessage, run: fetchLive }),
   }
 }

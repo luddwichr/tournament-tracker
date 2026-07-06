@@ -4,6 +4,7 @@ import type { MatchSlot, Team } from '../types/tournament'
 import ScoreInput from './ScoreInput.vue'
 import DisciplineInput from './DisciplineInput.vue'
 import BaseDialog from './BaseDialog.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import { useMatchResultForm } from '../composables/use-match-result-form'
 
 const props = defineProps<{
@@ -17,12 +18,26 @@ const emit = defineEmits<{ close: [] }>()
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const close = () => baseDialog.value?.close()
 
-const { goals, cards, shootoutWinner, chooseShootoutWinner, knockoutDraw, title, initial, save, clear, fetch } =
-  useMatchResultForm(
-    () => props.match,
-    () => props.homeTeam,
-    () => props.awayTeam,
-  )
+const {
+  goals,
+  cards,
+  shootoutWinner,
+  chooseShootoutWinner,
+  knockoutDraw,
+  title,
+  initial,
+  save,
+  clear,
+  pendingAction,
+  pendingMessage,
+  confirmPending,
+  cancelPending,
+  fetch,
+} = useMatchResultForm(
+  () => props.match,
+  () => props.homeTeam,
+  () => props.awayTeam,
+)
 
 const attemptedDrawSave = ref(false)
 const showDrawError = computed(() => attemptedDrawSave.value && knockoutDraw.value)
@@ -116,6 +131,15 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
       </div>
     </template>
   </BaseDialog>
+
+  <ConfirmDialog
+    v-if="pendingAction"
+    title="Spätere Spiele betroffen"
+    :message="pendingMessage"
+    :confirm-label="pendingAction.kind === 'save' ? 'Trotzdem speichern' : 'Trotzdem löschen'"
+    @confirm="confirmPending(close)"
+    @cancel="cancelPending"
+  />
 </template>
 
 <style scoped>

@@ -8,6 +8,7 @@ import { freePossibleTeamsMemory } from '../lib/possible-teams'
 import { clearStandingsCache } from '../lib/standings'
 import { STORAGE_KEY } from '../lib/persistence'
 import type { Result } from '../types/tournament'
+import { allGroupResults } from '../test-support/results'
 
 // Partial-mock: keep every real export (computeGroupStandings, resultFingerprint, …)
 // so standingsByGroup still computes correctly, but replace the cache-clearing
@@ -109,6 +110,52 @@ describe('tournament store', () => {
     expect(after?.played).toBe(1)
     expect(after?.points).toBe(3)
     expect(after?.goalsFor).toBe(3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// enterResult/clearResult enforce the "no stale downstream knockout result"
+// invariant themselves (REVIEW.md §9.1) — see src/lib/invalidation.ts for the
+// detection logic and its own spec for the standings math behind these
+// specific matches/scores.
+// ---------------------------------------------------------------------------
+
+describe('tournament store — invalidation invariant', () => {
+  it('enterResult drops invalidated downstream knockout results in the same write', () => {
+    const store = useTournamentStore()
+    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
+    // M79: R32 slot for Group A's rank-1 team; M92: R16 slot fed by M79's winner.
+    store.enterResult(makeResult('M79', 2, 1))
+    store.enterResult(makeResult('M92', 1, 0))
+
+    // M53: Tschechien (home) vs Mexiko (away) — flips Group A's rank 1/2.
+    store.enterResult(makeResult('M53', 0, 3))
+
+    expect(store.results['M53']).toEqual(makeResult('M53', 0, 3))
+    expect(store.results['M79']).toBeUndefined()
+    expect(store.results['M92']).toBeUndefined()
+  })
+
+  it('enterResult keeps downstream results for a harmless edit', () => {
+    const store = useTournamentStore()
+    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
+    store.enterResult(makeResult('M79', 2, 1))
+
+    // M01: Mexiko 1:0 → 2:0 — order-preserving (see invalidation.spec.ts).
+    store.enterResult(makeResult('M01', 2, 0))
+
+    expect(store.results['M79']).toEqual(makeResult('M79', 2, 1))
+  })
+
+  it('clearResult drops orphaned R32 results when clearing a group match makes the group incomplete', () => {
+    const store = useTournamentStore()
+    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
+    store.enterResult(makeResult('M73', 2, 1))
+
+    store.clearResult('M01')
+
+    expect(store.results['M01']).toBeUndefined()
+    expect(store.results['M73']).toBeUndefined()
   })
 })
 

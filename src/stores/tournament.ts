@@ -5,6 +5,7 @@ import { GROUP_IDS } from '../types/tournament'
 import { STORAGE_KEY, isValidResultsMap } from '../lib/persistence'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
 import { computeGroupStandings, clearStandingsCache, type TeamStat } from '../lib/standings'
+import { invalidatedDownstream } from '../lib/invalidation'
 
 export const useTournamentStore = defineStore(
   'tournament',
@@ -18,13 +19,24 @@ export const useTournamentStore = defineStore(
       (): Map<GroupId, TeamStat[]> => new Map(GROUP_IDS.map((id) => [id, computeGroupStandings(id, results.value)])),
     )
 
+    // Invariant: the store never keeps a knockout result whose participants
+    // no longer match what it was entered for — enterResult/clearResult
+    // compute the invalidated set (see invalidation.ts) and drop those
+    // entries in the same atomic write, so no caller can forget. The UI is
+    // responsible for asking the user first (see use-match-result-form.ts).
     function enterResult(result: Result): void {
-      results.value = { ...results.value, [result.matchId]: result }
+      const invalidated = invalidatedDownstream(results.value, result.matchId, result)
+      const next: Record<string, Result> = { ...results.value, [result.matchId]: result }
+      for (const id of invalidated) delete next[id]
+      results.value = next
     }
 
     function clearResult(matchId: string): void {
+      const invalidated = invalidatedDownstream(results.value, matchId, null)
       const { [matchId]: _removed, ...rest } = results.value
-      results.value = rest
+      const next: Record<string, Result> = { ...rest }
+      for (const id of invalidated) delete next[id]
+      results.value = next
     }
 
     function reset(): void {

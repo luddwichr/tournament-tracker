@@ -257,7 +257,9 @@ level it shows an "🥅 Elfmeterschießen — Sieger" toggle (two `aria-pressed`
 buttons) that sets `shootoutWinner`; it clears itself when scores diverge.
 Pre-fills an existing result; "Löschen" clears it. Saving pushes an ARIA-live
 announcement ("Ergebnis gespeichert: …"). Knockout cards are disabled while
-either side is unresolved.
+either side is unresolved. If saving or clearing would change which teams a
+later knockout match's stored result applies to, a confirm dialog lists the
+affected matches and cascade-clears them only on confirmation.
 
 ### 7.3 Knockout view
 
