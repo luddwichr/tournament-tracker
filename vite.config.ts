@@ -120,6 +120,12 @@ export default defineConfig({
   build: {
     // keep tsconfig.base.json target in sync with libs in tsconfig.*.json files and vite.config.ts `build.target`
     target: 'es2025',
+    // Never inline assets as data URIs. The default (4 KB) would bake ~150 of
+    // the flag SVGs referenced by styles/flags.scss into the flag CSS chunk as
+    // base64, putting a huge blob on the critical path of every flag-rendering
+    // view. As individual content-hashed files they are fetched on demand and
+    // precached exactly once by the service worker.
+    assetsInlineLimit: 0,
   },
   test: {
     environment: 'node',

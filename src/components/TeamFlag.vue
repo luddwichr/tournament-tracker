@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// flag-icons CSS is loaded here (lazy, rides the groups chunk) per main.ts note.
-import 'flag-icons/css/flag-icons.min.css'
+// The flag-icons subset is loaded here (lazy, rides the groups chunk) per main.ts note.
+import '../styles/flags.scss'
 
 const props = defineProps<{
   flagCode: string

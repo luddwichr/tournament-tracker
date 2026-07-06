@@ -17,17 +17,16 @@ but most of it is drift, polish, and a handful of genuine traps — not rot.
 | # | Severity | Finding | Section |
 |---|----------|---------|---------|
 | 1 | HIGH | Editing a group result silently re-attributes already-entered knockout results to different teams | §9.1 |
-| 2 | HIGH | Flag-icons CSS ships as a 421 KB chunk of inlined data-URI SVGs (+3.8 MB of partly duplicated SVG assets) on the critical path of nearly every screen | §6.10 |
-| 3 | HIGH | `.githooks/pre-push` has no `set -e` — a failing `check:code` does not block the push | §6.11 |
-| 4 | HIGH | `shootoutWinner` is never validated on import/rehydration; garbage values silently decide knockout matches | §2.1 |
-| 5 | HIGH | Mobile navigation hides all four views behind a hamburger — unusable for the pre-reader audience, and the requirements specify a bottom tab bar | §9.5 |
-| 6 | HIGH | The score-entry dialog identifies teams by muted text only — no flags, on the one screen where a child acts | §9.6 |
-| 7 | HIGH | ES2025 build target with no fallback, no `<noscript>`, no error handler, no telemetry — incompatible devices get a silent white screen nobody hears about | §6.12 |
-| 8 | HIGH | CLAUDE.md is 10 lines and answers none of the questions an agent has on turn one | §8.1 |
-| 9 | HIGH | `docs/requirements.md` has drifted from the code in at least five places while presenting itself as authoritative-adjacent | §8.2 |
-| 10 | HIGH | No `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA on modern iPhones | §4.1/§4.2 |
-| 11 | HIGH | The `MatchCardMeta` toggle is a ~20 px tap target in an app where everything else honors 44 px | §3.5 |
-| 12 | HIGH | Standings tables communicate through bare two-letter abbreviations (`Sp`, `U`, `TD`, `Pkt`) — the one major screen that defeats a non-reading child | §9.7 |
+| 2 | HIGH | `.githooks/pre-push` has no `set -e` — a failing `check:code` does not block the push | §6.11 |
+| 3 | HIGH | `shootoutWinner` is never validated on import/rehydration; garbage values silently decide knockout matches | §2.1 |
+| 4 | HIGH | Mobile navigation hides all four views behind a hamburger — unusable for the pre-reader audience, and the requirements specify a bottom tab bar | §9.5 |
+| 5 | HIGH | The score-entry dialog identifies teams by muted text only — no flags, on the one screen where a child acts | §9.6 |
+| 6 | HIGH | ES2025 build target with no fallback, no `<noscript>`, no error handler, no telemetry — incompatible devices get a silent white screen nobody hears about | §6.12 |
+| 7 | HIGH | CLAUDE.md is 10 lines and answers none of the questions an agent has on turn one | §8.1 |
+| 8 | HIGH | `docs/requirements.md` has drifted from the code in at least five places while presenting itself as authoritative-adjacent | §8.2 |
+| 9 | HIGH | No `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA on modern iPhones | §4.1/§4.2 |
+| 10 | HIGH | The `MatchCardMeta` toggle is a ~20 px tap target in an app where everything else honors 44 px | §3.5 |
+| 11 | HIGH | Standings tables communicate through bare two-letter abbreviations (`Sp`, `U`, `TD`, `Pkt`) — the one major screen that defeats a non-reading child | §9.7 |
 
 ---
 
@@ -525,19 +524,10 @@ Two nits:
 
 ### PWA & bundle
 
-6. **[HIGH] The flag-icons bundle defeats the offline-first performance story.**
-   `TeamFlag.vue` imports `flag-icons/css/flag-icons.min.css` (28 KB source); Vite's default
-   `assetsInlineLimit` (4096 B) inlines every small flag SVG as a data URI, producing a
-   verified **421 KB** CSS chunk (`dist/assets/TeamLabel-*.css`) plus **3.8 MB** of hashed
-   SVGs — many duplicated (4x3 *and* 1x1 variants of the same flag). TeamFlag/TeamLabel are
-   used by StandingsRow, MatchTeamSlot, PossibleTeamsDialog, RankingView — this chunk is on
-   the critical path of nearly every screen. Fix: `build.assetsInlineLimit: 0` (or below the
-   smallest flag) so flags stay cacheable static files, and dedupe the variant set.
-
-7. **[MEDIUM] size-limit budgets only watch the smallest, already-fine chunks.**
-   `package.json` size-limit covers `index-*.js` (35 KB) and `index-*.css` (12 KB) — not the
-   421 KB flag CSS or the 66 KB `TeamDialog-*.js` where the actual risk lives. A budget that
-   ignores the lazy chunks gives false confidence.
+7. **[MEDIUM] size-limit budgets don't cover the 66 KB `TeamDialog-*.js` chunk.**
+   `package.json` size-limit covers the entry JS/CSS and the flag CSS subset, but not
+   `TeamDialog-*.js` — the largest remaining lazy chunk and where regressions would
+   accumulate unnoticed.
 
 8. **[MEDIUM] No runtime caching for the ESPN API.** `vite.config.ts` workbox config has only
    the navigation route; `site.api.espn.com` calls bypass the SW entirely. If falling back to
