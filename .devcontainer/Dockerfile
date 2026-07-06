@@ -35,7 +35,14 @@ ENV TZ="$TZ" \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # common utilities
     ca-certificates git curl jq nano unzip zip xz-utils htop procps gh \
+    # ssh client so git can push via the host's ssh-agent (VS Code forwards
+    # SSH_AUTH_SOCK into the container automatically; no keys live in here)
+    openssh-client \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Pin GitHub's published ed25519 host key (https://api.github.com/meta) so the
+# first push doesn't hit an interactive host-key prompt
+RUN printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' >> /etc/ssh/ssh_known_hosts
 
 # install Node.js
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \

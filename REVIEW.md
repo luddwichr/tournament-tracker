@@ -7,26 +7,24 @@ relevance within each section. Cross-cutting findings live in their most natural
 are cross-referenced elsewhere.
 
 **Calibration up front:** this codebase is in the top few percent of hobby-project quality —
-the domain core is *correct* (the Article-13 tiebreaker chain, the 495-entry Annex-C
+the domain core is _correct_ (the Article-13 tiebreaker chain, the 495-entry Annex-C
 third-place allocation table, and the R32 slot mapping were all verified against
 `docs/tournament-rules.md`, the allocation table programmatically). The roast below is real,
 but most of it is drift, polish, and a handful of genuine traps — not rot.
 
 ## Top findings (the ones to fix first)
 
-| # | Severity | Finding | Section |
-|---|----------|---------|---------|
-| 1 | HIGH | Editing a group result silently re-attributes already-entered knockout results to different teams | §9.1 |
-| 2 | HIGH | `.githooks/pre-push` has no `set -e` — a failing `check:code` does not block the push | §6.11 |
-| 3 | HIGH | `shootoutWinner` is never validated on import/rehydration; garbage values silently decide knockout matches | §2.1 |
-| 4 | HIGH | Mobile navigation hides all four views behind a hamburger — unusable for the pre-reader audience, and the requirements specify a bottom tab bar | §9.5 |
-| 5 | HIGH | The score-entry dialog identifies teams by muted text only — no flags, on the one screen where a child acts | §9.6 |
-| 6 | HIGH | ES2025 build target with no fallback, no `<noscript>`, no error handler, no telemetry — incompatible devices get a silent white screen nobody hears about | §6.12 |
-| 7 | HIGH | CLAUDE.md is 10 lines and answers none of the questions an agent has on turn one | §8.1 |
-| 8 | HIGH | `docs/requirements.md` has drifted from the code in at least five places while presenting itself as authoritative-adjacent | §8.2 |
-| 9 | HIGH | No `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA on modern iPhones | §4.1/§4.2 |
-| 10 | HIGH | The `MatchCardMeta` toggle is a ~20 px tap target in an app where everything else honors 44 px | §3.5 |
-| 11 | HIGH | Standings tables communicate through bare two-letter abbreviations (`Sp`, `U`, `TD`, `Pkt`) — the one major screen that defeats a non-reading child | §9.7 |
+| #   | Severity | Finding                                                                                                                                                   | Section   |
+| --- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1   | HIGH     | `shootoutWinner` is never validated on import/rehydration; garbage values silently decide knockout matches                                                | §2.1      |
+| 2   | HIGH     | Mobile navigation hides all four views behind a hamburger — unusable for the pre-reader audience, and the requirements specify a bottom tab bar           | §9.5      |
+| 3   | HIGH     | The score-entry dialog identifies teams by muted text only — no flags, on the one screen where a child acts                                               | §9.6      |
+| 4   | HIGH     | ES2025 build target with no fallback, no `<noscript>`, no error handler, no telemetry — incompatible devices get a silent white screen nobody hears about | §6.12     |
+| 5   | HIGH     | CLAUDE.md is 10 lines and answers none of the questions an agent has on turn one                                                                          | §8.1      |
+| 6   | HIGH     | `docs/requirements.md` has drifted from the code in at least five places while presenting itself as authoritative-adjacent                                | §8.2      |
+| 7   | HIGH     | No `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA on modern iPhones                                     | §4.1/§4.2 |
+| 8   | HIGH     | The `MatchCardMeta` toggle is a ~20 px tap target in an app where everything else honors 44 px                                                            | §3.5      |
+| 9   | HIGH     | Standings tables communicate through bare two-letter abbreviations (`Sp`, `U`, `TD`, `Pkt`) — the one major screen that defeats a non-reading child       | §9.7      |
 
 ---
 
@@ -221,7 +219,7 @@ but most of it is drift, polish, and a handful of genuine traps — not rot.
    `refKeyFor(ref)` builder from bracket-graph.ts; type the maps `Map<RefKey, string>`.
 
 2. **[MEDIUM] Memoized shared arrays exposed as mutable `TeamStat[]` with mutable fields.**
-   `src/lib/standings.ts:68` return type. The cache hands the *same* array instance to every
+   `src/lib/standings.ts:68` return type. The cache hands the _same_ array instance to every
    caller (12 group tables, third-place ranking, bracket resolution, the store computed). One
    caller doing `standings.sort(...)` or `stat.points++` poisons the cache globally, and the
    types invite it. Return `readonly TeamStat[]` with `readonly` fields (mutable internal type
@@ -453,7 +451,7 @@ The only template bloat is the triplicated table headers (§1-Simplicity-1).
 2. **[LOW] `assert-never.spec.ts` is coverage-filler.** A one-line throw helper whose only
    plausible regression is already caught by `tsc` at call sites; it reads like it exists for
    the 96 % gate. (Counterpoint kept deliberately: `tokens.spec.ts` and CardIcon's contrast
-   assertions *look* like trivia but guard real regression classes — keep those.)
+   assertions _look_ like trivia but guard real regression classes — keep those.)
 
 ### Pyramid
 
@@ -539,17 +537,6 @@ Two nits:
 
 ### CI/CD
 
-10. **[HIGH] Pre-push hook doesn't fail the push on `check:code` failure.**
-    `.githooks/pre-push` is `npm run check:code` then `npm run check:build` with **no
-    `set -e`** — in `sh`, a non-zero exit from the first command doesn't stop the script, and
-    the hook's exit status is whatever the *last* command returns. A lint or unit-test
-    failure sails through if the build+e2e happens to pass. Add `set -eu`.
-
-11. **[MEDIUM] Pre-push duplicates 100 % of CI with no fast path.**
-    Every `git push` pays build + both Playwright suites + size-limit twice (locally and in
-    Actions), with no skip for docs-only changes. Make the hook `check:code` only and let
-    CI own the expensive gate — or document why full duplication is intentional.
-
 12. **[HIGH] No failure telemetry, no `<noscript>`, no legacy path — silent white screens.**
     ES2025 build target with no `@vitejs/plugin-legacy`/browserslist, no
     `app.config.errorHandler` / `window.onerror` / `unhandledrejection` hook anywhere in
@@ -603,7 +590,7 @@ Two nits:
 
 4. **[LOW/MEDIUM] YAGNI in results-sync: the abstraction is right, its surface isn't.**
    `src/lib/results-sync/provider.ts` isolating ESPN's raw JSON behind `SourceMatch` is
-   *justified* — keep the boundary. But `ResultsProvider.id` and `label` ("User-facing label
+   _justified_ — keep the boundary. But `ResultsProvider.id` and `label` ("User-facing label
    (German)") are read nowhere, and `syncResults(provider = defaultProvider, opts?)` exists
    only for tests, which already have an injection seam via `FetchResultsOptions.fetchImpl` —
    two injection mechanisms for one need. Delete `id`/`label`, make it `syncResults(opts?)`,
@@ -619,12 +606,12 @@ Two nits:
    `'.match-card'`, a scoped style class owned by MatchCard.vue — a rename breaks the SVG
    connectors with no error. Use a dedicated `data-connector-anchor` attribute. Also: the
    bezier construction (lines 3-13) is the one piece of non-obvious math in the repo
-   *without* a comment.
+   _without_ a comment.
 
 7. **[LOW] A comment that justifies an extraction with a lint rule that doesn't exist.**
    `use-origin-group-data.ts:13-16` claims the composable exists "purely to keep that
    component's `<script setup>` block under the lint's line limit" — no `max-lines` rule
-   exists in `.oxlintrc.json` or `eslint.config.js`. A misleading *why* comment is worse than
+   exists in `.oxlintrc.json` or `eslint.config.js`. A misleading _why_ comment is worse than
    none. Same category: five references to the **deleted** REVIEW.md
    (`MatchCard.vue:68`, `OriginColumn.vue:37`, `AppHeader.vue:26`, `BracketRound.vue:42`,
    `possible-teams.spec.ts:129`) and one to the moved `REQUIREMENTS.md §9.8`
@@ -634,7 +621,7 @@ Two nits:
 
 Explicitly checked and fine (anti-findings): the three stat-accumulation loops
 (`standings.ts` / `tiebreakers.ts` / `team-schedule.ts`) compute different scopes per the
-regulations — merging them would be over-DRY. The tournament store is *not* a god object
+regulations — merging them would be over-DRY. The tournament store is _not_ a god object
 (65 lines, one piece of state). `src/lib` has zero Vue/Pinia imports (grep-verified).
 
 ---
@@ -645,17 +632,17 @@ regulations — merging them would be over-DRY. The tournament store is *not* a 
    Both existing conventions (pin deps, non-mutating array methods) are good; missing:
    - **Verification workflow:** `check:code` as the one-shot gate; how to run a single test
      file (`npx vitest run src/lib/standings.spec.ts`); that `test:e2e:pwa` needs
-     `npm run build` first; that the 96 % coverage gate means *new untested code fails
-     `check:code`* — a classic agent trap.
+     `npm run build` first; that the 96 % coverage gate means _new untested code fails
+     `check:code`_ — a classic agent trap.
    - **Architecture map:** `src/data (static) → src/lib (pure) → stores → composables →
-     components`; "only `ResultsMap` is persisted, everything else derived".
+components`; "only `ResultsMap` is persisted, everything else derived".
    - **Domain glossary:** `TeamRef` kinds, Annex C / `THIRD_PLACE_ALLOCATION` ("source of
      truth — never recompute by intuition"), fair-play score, shootout modeling.
    - **Conventions living elsewhere:** UI strings German / code English (only in
      requirements.md §1); `src/data/squads.ts` and `fifa-ranking.ts` are **generated** by
      `scripts/*.py` — hand-editing them is a mistake an agent will absolutely make.
    - Pointers to `docs/requirements.md` and `docs/tournament-rules.md`.
-   A ~60-line CLAUDE.md with those five sections transforms first-contact effectiveness.
+     A ~60-line CLAUDE.md with those five sections transforms first-contact effectiveness.
 
 2. **[HIGH] `docs/requirements.md` has drifted in at least five places while agents will trust it.**
    - §2/§8 claim `registerType: 'autoUpdate'`; code uses `'prompt'` + UpdateDialog
@@ -670,14 +657,12 @@ regulations — merging them would be over-DRY. The tournament store is *not* a 
    - §2 claims "one note file per significant dependency under `docs/`" — `docs/` has two
      files, neither per-dependency. §7 promises bottom navigation; the app has a hamburger.
      The preamble references a section that doesn't exist in the file.
-   Fix the drift, then *reduce drift surface*: strip restated implementation detail
-   (plugin options) the code already owns, and add a "last reconciled at commit …" header.
+     Fix the drift, then _reduce drift surface_: strip restated implementation detail
+     (plugin options) the code already owns, and add a "last reconciled at commit …" header.
 
 3. **[MEDIUM] Stop hook and permission allowlist have gaps against the actual CI gate.**
    `.claude/hooks/check-ts-vue.sh` is a genuinely good guardrail (~14 s: typecheck, lint,
-   642 unit tests), but: it omits `format:check`, which **is** in CI's `check:code` — an
-   agent can satisfy every Stop hook and still fail CI on formatting (add `npm run format`,
-   auto-fix, to the chain); the dirty-check greps only `\.(ts|vue)$`, so edits to
+   642 unit tests), but: the dirty-check greps only `\.(ts|vue)$`, so edits to
    `.oxlintrc.json`, `eslint.config.js`, or `package.json` skip verification entirely.
    `.claude/settings.json:8-16` allowlists `Bash(npm run dev)` (long-running; will hang a
    foreground agent) but not the fast-iteration commands agents actually need:
@@ -690,13 +675,13 @@ regulations — merging them would be over-DRY. The tournament store is *not* a 
 
 5. **[MEDIUM] No project verify/run skills; only the vendored generic playwright-cli skill.**
    The knowledge an agent needs — `check:code` as verify; `test:e2e:pwa` needs a build first;
-   pre-push runs the multi-minute `check:build`; dev on 5173 / preview on 4173;
+   dev on 5173 / preview on 4173;
    `DEPLOY_BASE_PATH` — exists only spread across README and two Playwright configs. Package
    it as project skills.
 
 6. **[LOW] Repo hygiene for agents.** `.claude/scheduled_tasks.lock` is runtime junk, not
    gitignored (add `.claude/*.lock`); stale `coverage/`/`dist/` trees pollute naive greps;
-   `defaultMode: "acceptEdits"` in the *checked-in* `.claude/settings.json` imposes
+   `defaultMode: "acceptEdits"` in the _checked-in_ `.claude/settings.json` imposes
    auto-accepted edits on every contributor — that's a per-user preference for
    `settings.local.json`.
 
@@ -714,47 +699,36 @@ membership, no duplicate assignments, per-host constraint sets matching the docs
 line-for-line) are **correct**. The domain core's complexity is almost entirely inherent.
 The problems are at the edges:
 
-1. **[HIGH] Editing a group result silently re-attributes downstream knockout results.**
-   `src/stores/tournament.ts:21` (`enterResult`), `src/lib/knockout.ts:25`. Scenario: all
-   groups complete; user enters R32 M73 as 2:1; later fixes a typo in a Group A match that
-   flips who finishes A2. M73's stored 2:1 now applies to a *different pairing* — bracket,
-   R16 seeding, and team stats recompute as if the new team won, with zero warning.
-   `MatchCard` only blocks entry while a side is *unresolved*, not when a recorded result's
-   participants have *changed*. For a back-filling tracker (an explicit day-one use case,
-   requirements §1) this is the most likely real-world data-corruption path. Better: on
-   saving a result, diff resolved participants of downstream matches that have results;
-   prompt to clear the invalidated ones.
-
-2. **[MEDIUM] Destructive whole-tournament sync replaces manual entries.**
+1. **[MEDIUM] Destructive whole-tournament sync replaces manual entries.**
    `src/views/SettingsView.vue:21` (`store.importResults(results)`),
    `src/components/SyncDialog.vue:59`. "Ergebnisse abrufen" builds a fresh map from the ESPN
    feed and **replaces the entire store** — any match the feed is missing, mis-maps (the
    pair+date matching in `results-sync/index.ts` is heuristic), or that the user entered
    manually is destroyed. Also outside documented scope (requirements §1: live fetch is
-   opt-in *per match*). Better: merge — only overwrite matchIds present in the feed; report
+   opt-in _per match_). Better: merge — only overwrite matchIds present in the feed; report
    "N Spiele aktualisiert".
 
-3. **[MEDIUM] Double-layer standings caching; the fingerprint cache taxes the hot path that justifies it.**
+2. **[MEDIUM] Double-layer standings caching; the fingerprint cache taxes the hot path that justifies it.**
    `src/lib/standings.ts:36-82` + `src/stores/tournament.ts:17-19`. Standings are memoized
    twice: the store's shared computed (which already deduplicates the reactive consumers)
-   *and* a module-level fingerprint-keyed FIFO cache. During possible-teams enumeration
+   _and_ a module-level fingerprint-keyed FIFO cache. During possible-teams enumeration
    every simulated combo is a guaranteed cache miss that still pays fingerprint string
    construction plus 200-entry Map churn — potentially hundreds of thousands of times. Keep
    one layer: an uncached fast path for the enumeration, or drop the store computed.
 
-4. **[MEDIUM] The 1,000,000-combination synchronous enumeration budget will freeze mid-range phones.**
+3. **[MEDIUM] The 1,000,000-combination synchronous enumeration budget will freeze mid-range phones.**
    `src/lib/possible-teams.ts:55`. At a realistic 1–4 µs per `computeGroupStandings` call
    that's 1–4 s of main-thread block. Concrete trigger: a lopsided/typo'd score (25:0) with
    2 matches remaining ⇒ cap 26 ⇒ 26⁴ ≈ 457k combos on a placeholder tap. Budget ~50–100k,
    or chunk via `requestIdleCallback`/worker.
 
-5. **[LOW] `possibleTeamsFor` returns an empty set for a played-but-undecided knockout match.**
+4. **[LOW] `possibleTeamsFor` returns an empty set for a played-but-undecided knockout match.**
    `src/lib/possible-teams.ts:215-221` — a level knockout result without `shootoutWinner`
    (importable; cross-field consistency isn't validated, see §2.1) short-circuits to exact
-   resolution, resolves `null`, and the dialog claims *no* team can fill the slot. Fall
+   resolution, resolves `null`, and the dialog claims _no_ team can fill the slot. Fall
    through to the home∪away union.
 
-6. **[LOW] Dead feature residue: `TeamStat.form` computed, never rendered.**
+5. **[LOW] Dead feature residue: `TeamStat.form` computed, never rendered.**
    `src/lib/standings.ts:27,104,133-147` — three pushes per match in the hottest function
    for a removed feature the requirements (§7.1) still describe.
 
@@ -770,7 +744,7 @@ The problems are at the edges:
 6. **[HIGH] The score dialog identifies teams by muted text only.**
    `src/components/ScoreDialog.vue:41-44`, `src/components/ScoreInput.vue:23-25`. The app's
    own design principle is "big flags as the primary identifier" (requirements §8) — honored
-   everywhere except the one screen where a child *acts*. `ScoreInput` receives
+   everywhere except the one screen where a child _acts_. `ScoreInput` receives
    `homeTeam`/`awayTeam` and uses them only in aria-labels; the shootout buttons
    (`ScoreDialog.vue:51-68`) are text-only too. Put a large flag above each stepper and
    inside each shootout button. Same defect in `DisciplineInput.vue:20,35`: the Heim/Gast
@@ -789,7 +763,7 @@ The problems are at the edges:
    `src/components/MatchScoreButton.vue:44` (`--font-size-sm`), `MatchCard.vue:146`.
    Requirements: "large score numerals (≥ 32 px mobile)". Only the dialog's steppers use
    `--font-size-score`; the entered result on every match card — what the family looks at
-   all tournament — is 15 px. Digits are the one thing early readers *can* read; give them
+   all tournament — is 15 px. Digits are the one thing early readers _can_ read; give them
    size.
 
 9. **[MEDIUM] Abbreviation-heavy labels defeat early readers.**
@@ -853,7 +827,7 @@ The problems are at the edges:
 
 1. **The domain core is correct, and honest about its deviations.** The 2026 Article-13
    chain — including the subtle H2H-before-GD reorder and the Step-2 no-restart rule — is
-   implemented correctly and documented *at the point of implementation*
+   implemented correctly and documented _at the point of implementation_
    (`src/lib/tiebreakers.ts` header maps code paths to regulation criteria a–g). The Annex-C
    table is verbatim FIFA, 495/495 entries verified consistent. Simplifications (fair-play
    weights, ranking-instead-of-lots) are declared in `docs/tournament-rules.md`, not hidden.
@@ -874,7 +848,7 @@ The problems are at the edges:
 4. **Accessibility is engineered, not sprinkled.** Native `<dialog>` + `showModal()` for
    every modal (no focus-trap library, no z-index wars), with ConfirmDialog's `wasConfirmed`
    folding Escape/backdrop/cancel into one path; route-change focus + polite announcement in
-   App.vue; the team *understood* the `showModal()`-inert-live-region trap and built
+   App.vue; the team _understood_ the `showModal()`-inert-live-region trap and built
    SyncDialog's persistent `role="status"` and ScoreDialog's `fetchMessage` around it;
    status colors always paired with text; reduced motion honored globally and per-animation;
    contrast comfortably AA in both themes (spot-checked).
@@ -883,7 +857,7 @@ The problems are at the edges:
    `afterHydrate` rationale, the "dead-looking but load-bearing" `void measureVersion.value`
    note (`use-bracket-highlight.ts:64-66`), the enumeration-budget analysis
    (`possible-teams.ts:48-55`), and the 49rem grid-math derivation (`GroupsView.vue:37-49`)
-   are model *why* comments.
+   are model _why_ comments.
 
 6. **Test suite substance.** Domain tests include a documented regression test for a
    combinatorial-explosion bug with a runtime budget assertion
