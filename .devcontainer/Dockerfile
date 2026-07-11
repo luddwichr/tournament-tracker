@@ -11,7 +11,7 @@ ARG PYTHON_VERSION=3.14.6
 ARG PLAYWRIGHT_VERSION=1.61.1
 # https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
 # independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
-ARG PLAYWRIGHT_CLI_VERSION=0.1.15
+ARG PLAYWRIGHT_CLI_VERSION=0.1.17
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
