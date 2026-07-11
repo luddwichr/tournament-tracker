@@ -63,8 +63,11 @@ USER ${USERNAME}
 # Pre-install Playwright browsers
 RUN npx playwright@${PLAYWRIGHT_VERSION} install
 
-# Install playwright cli
-RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION}
+# Install playwright cli and the browser matching its vendored playwright-core
+# (versioned independently of the project's playwright, so it needs its own
+# browser build; they coexist in ~/.cache/ms-playwright keyed by revision)
+RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
+    && playwright-cli install-browser chromium
 
 # install uv (Python package manager)
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \

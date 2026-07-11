@@ -3,7 +3,13 @@
   "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "postCreateCommand": "npm ci",
+  /*
+  Install the playwright-cli skill at user level (~/.claude/skills). This must happen
+  after the claude-code-config volume is mounted (a Dockerfile RUN would be shadowed by
+  the volume on rebuilds) and re-runs on every rebuild, keeping the skill in sync with
+  the pinned @playwright/cli version.
+  */
+  "postCreateCommand": "npm ci && cd ~ && playwright-cli install --skills",
   "forwardPorts": [5173, 4173],
   "customizations": {
     "vscode": {
