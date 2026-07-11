@@ -27,6 +27,8 @@ jobs:
       - name: Install npm pinned in engines.npm
         run: npm install -g "npm@$(node -p 'require("./package.json").engines.npm')"
       - run: npm ci
+      - name: Verify registry signatures and provenance
+        run: npm audit signatures
       - run: npm run check:code
       - name: Cache Playwright browsers
         id: playwright-cache
