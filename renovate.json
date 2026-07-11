@@ -12,6 +12,10 @@
       "groupName": "node",
       "matchManagers": ["nvm", "custom.regex"],
       "matchDepNames": ["node"]
+    },
+    {
+      "groupName": "npm",
+      "matchDepNames": ["npm"]
     }
   ],
   "customManagers": [
@@ -21,6 +25,13 @@
       "matchStrings": ["ARG NODE_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG NPM_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "npm",
+      "datasourceTemplate": "npm"
     },
     {
       "customType": "regex",

@@ -3,6 +3,10 @@ FROM docker.io/library/debian:trixie-slim@sha256:28de0877c2189802884ccd20f15ee41
 
 # https://nodejs.org/en/about/previous-releases
 ARG NODE_VERSION=24.18.0
+# https://github.com/npm/cli/releases — installed over the Node-bundled npm (Node no
+# longer bumps npm majors within a release line); keep in sync with engines.npm in
+# package.json (Renovate groups both under "npm")
+ARG NPM_VERSION=12.0.1
 # https://github.com/astral-sh/uv/releases
 ARG UV_VERSION=0.11.28
 # https://www.python.org/downloads/
@@ -59,6 +63,10 @@ RUN groupadd --gid=${USER_GID} ${USERNAME} \
 RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps
 
 USER ${USERNAME}
+
+# Install the pinned npm into NPM_CONFIG_PREFIX (~/.npm-global), which precedes
+# /usr/local/bin on PATH and thus shadows the Node-bundled npm
+RUN npm install -g npm@${NPM_VERSION}
 
 # Pre-install Playwright browsers
 RUN npx playwright@${PLAYWRIGHT_VERSION} install

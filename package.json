@@ -19,7 +19,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "size": "size-limit",
-    "renovate:validate": "npx --yes --package renovate -- renovate-config-validator",
+    "renovate:validate": "npx --yes --ignore-scripts --package renovate -- renovate-config-validator",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage",
     "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
     "prepare": "git config core.hooksPath .githooks"
@@ -77,9 +77,9 @@
     }
   ],
   "engines": {
-    "node": "24.18.0"
+    "node": "24.18.0",
+    "npm": "12.0.1"
   },
-  "packageManager": "npm@11.18.0",
   "allowScripts": {
     "fsevents@2.3.2": true,
     "fsevents@2.3.3": true,
