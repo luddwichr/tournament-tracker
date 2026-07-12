@@ -36,6 +36,16 @@ npm run dev
 | `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size — run this before pushing               |
 | `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first               |
 
+## TypeScript 6 + 7 side-by-side
+
+The `typescript` dependency is aliased to the TS 6 compatibility repackage
+while TypeScript 7 is installed as `@typescript/native`, because
+typescript-eslint and vue-tsc cannot use TS 7 until it ships a programmatic
+API (expected in TS 7.1). See
+[`docs/typescript-7-side-by-side.md`](./docs/typescript-7-side-by-side.md)
+for the tracking issues, the `scripts/vue-tsc6.mjs` workaround, and how to
+unwind the setup once upstream support lands.
+
 ## Two Playwright configs
 
 - `playwright.config.ts` — the regular e2e suite, run against the Vite **dev
