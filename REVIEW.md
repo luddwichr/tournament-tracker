@@ -808,29 +808,23 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
    bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
    state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
 
-4. **[MEDIUM] Python scrapers remain an ungoverned island.** `scripts/fetch-fifa-ranking.py`,
-   `scripts/fetch-squads.py` (~350 lines generating `.ts` data). Prior §6.15, unchanged: the
-   devcontainer pins Python 3.14.6 + `uv` and Renovate tracks them, but there is no
-   `ruff`/`mypy`/test/CI step — while the TS side has four quality tools on every push. Add
-   `ruff check`/`ruff format` and wire into `check:code`.
-
-5. **[LOW] `lint` and `lint:fix` run the two engines in opposite order.** `package.json:17-18`
+4. **[LOW] `lint` and `lint:fix` run the two engines in opposite order.** `package.json:17-18`
    — check is `oxlint → eslint`, fix is `eslint → oxlint`. Two auto-fixers rewriting the same
    files in reversed order is a footgun. Align the order or add a comment.
 
-6. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+5. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-7. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+6. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-8. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+7. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -852,7 +846,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | No noscript/error handler/legacy (top #4) | STILL OPEN | no `<noscript>`; no error handler in `src`                       |
 | `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
 | `dist` artifact no retention-days         | STILL OPEN | `ci.yml:48-53`                                                   |
-| Python tooling ungoverned                 | STILL OPEN | no ruff/mypy; `check:code` TS-only                               |
 | No CSP meta                               | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
 | Versioning invisible                      | STILL OPEN | `package.json:3` still `0.1.0`, no CHANGELOG                     |
 | ESPN dependency risk undocumented         | STILL OPEN | no shape guard/monitoring beyond provider parsing                |

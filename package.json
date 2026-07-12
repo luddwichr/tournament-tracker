@@ -22,6 +22,8 @@
     "format:check": "oxfmt --check",
     "size": "size-limit",
     "renovate:validate": "npx --yes --ignore-scripts --package renovate -- renovate-config-validator",
+    "fetch:fifa-ranking": "node scripts/fetch-fifa-ranking.ts",
+    "fetch:squads": "node scripts/fetch-squads.ts",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage",
     "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
     "prepare": "git config core.hooksPath .githooks"

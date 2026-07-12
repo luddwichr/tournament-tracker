@@ -57,7 +57,7 @@ describe('squads', () => {
     }
   })
 
-  // fetch-squads.py must strip Wikipedia disambiguation suffixes, e.g.
+  // fetch-squads.ts must strip Wikipedia disambiguation suffixes, e.g.
   // "Matt Turner (soccer)" → "Matt Turner", before writing this file.
   it('has no leftover Wikipedia disambiguation suffix in any player name', () => {
     for (const team of teams) {
