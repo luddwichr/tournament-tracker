@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/vue-tsc6.mjs -b && vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview",
-    "typecheck": "node scripts/vue-tsc6.mjs -b",
+    "typecheck": "run-p -c typecheck:vue typecheck:ts7",
+    "typecheck:vue": "node scripts/vue-tsc6.mjs -b tsconfig.app.json tsconfig.vitest.json",
+    "typecheck:ts7": "tsc -b tsconfig.node.json tsconfig.e2e.json",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",

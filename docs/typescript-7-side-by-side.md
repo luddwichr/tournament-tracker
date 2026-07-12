@@ -1,8 +1,26 @@
 # TypeScript 6 + 7 side-by-side setup
 
-This project compiles with TypeScript 7 but keeps TypeScript 6 installed alongside it, following the setup from the
-[TypeScript 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
-This file documents why, what the workarounds are, and when they can be removed.
+This project type-checks with **both** compilers side by side, following the setup from the
+[TypeScript 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0):
+TypeScript 7 (`tsc`) checks the Vue-free projects, and TypeScript 6 (via vue-tsc) checks
+everything that touches a `.vue` SFC. This file documents why, what the workarounds are, and when
+they can be removed.
+
+## Which compiler checks what
+
+`npm run typecheck` runs both halves in parallel (`typecheck:vue` + `typecheck:ts7`):
+
+| Project                                     | Compiler       | Why                                                             |
+| ------------------------------------------- | -------------- | --------------------------------------------------------------- |
+| `tsconfig.app.json`, `tsconfig.vitest.json` | vue-tsc (TS 6) | contain / import `.vue` SFCs — only vue-tsc understands them    |
+| `tsconfig.node.json`, `tsconfig.e2e.json`   | `tsc` (TS 7)   | Vue-free (build config, Playwright e2e) — TS 7 checks them fast |
+
+The two compilers have opposite
+blind spots: vue-tsc must load every `.ts` a `.vue` imports (so the app layer can't be handed to
+`tsc`), and `tsc` cannot parse a `.vue` at all (so any project whose import graph reaches an SFC —
+even transitively, e.g. `router.ts` → view SFCs — must stay on vue-tsc). The two TS 7 projects earn
+their place by importing **only** the pure-TS domain layer (`src/data`, `src/types`, `src/lib`);
+`tsconfig.e2e.json`'s `include` is deliberately narrowed to keep it that way.
 
 ## Why
 
@@ -32,7 +50,8 @@ In `package.json` (JSON allows no comments, hence this file):
   `require("typescript")` gets the full TS 6 JS API. It ships its binary as
   `tsc6` (not `tsc`) to avoid a bin collision.
 - `"@typescript/native": "npm:typescript@7.…"` — the real TypeScript 7;
-  owns the `tsc` binary.
+  owns the `tsc` binary, which `typecheck:ts7` runs against the Vue-free
+  projects (`tsc -b tsconfig.node.json tsconfig.e2e.json`).
 - `scripts/vue-tsc6.mjs` — wrapper used by `npm run typecheck` and
   `npm run build`. vue-tsc cannot use the alias directly: it patches the file
   behind `typescript/lib/tsc`, and the repackage ships that as a one-line
@@ -54,6 +73,7 @@ Once both tracking issues above are resolved (expected earliest: TS 7.1):
    `"typescript": "7.x"`.
 2. Bump `typescript-eslint` and `vue-tsc` to releases whose peer ranges /
    runtime support TS 7 (watch the two tracking issues for the versions).
-3. Delete `scripts/vue-tsc6.mjs` and point the `build` and `typecheck`
-   scripts back at `vue-tsc -b`.
+3. Delete `scripts/vue-tsc6.mjs`, collapse `typecheck:vue`/`typecheck:ts7`
+   back into a single `typecheck` running `vue-tsc -b` over the whole
+   solution, and drop the `include` narrowing in `tsconfig.e2e.json`.
 4. Delete this file and the README section referencing it.
