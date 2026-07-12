@@ -765,11 +765,10 @@ yellow/red` tests that each mount, click one aria-labelled button, save, and ass
 verification, a hardened `.npmrc`, exact-version pinning end to end, and a genuinely exemplary
 write-up of the TS6/7 workaround with an exit checklist. The tooling changes since `56037b5`
 are almost all net improvements (npm-pin install + `npm audit signatures` in CI, the vue-tsc6
-wrapper, a leaner pre-push). Very little here is wrong; the open items are (a) one
-production-readiness gap the prior review already flagged and nobody closed, and (b) a new
-question of whether the TS7 half of the side-by-side earns its complexity, since nothing
-actually runs it. Claims verified by running `npm run lint`, `size-limit`, inspecting the built
-`dist/`, and reading npm's own `min-release-age` definition.
+wrapper, a leaner pre-push). Very little here is wrong; the main open item is one
+production-readiness gap the prior review already flagged and nobody closed. Claims verified by
+running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading npm's own
+`min-release-age` definition.
 
 ### Genuinely good
 
@@ -804,49 +803,39 @@ actually runs it. Claims verified by running `npm run lint`, `size-limit`, inspe
    Minimum: a `<noscript>` line in `index.html`, `app.config.errorHandler` + a `window.onerror`
    handler that logs to `localStorage` and surfaces in Settings.
 
-2. **[MEDIUM] The TS7 half of the side-by-side is installed but exercised by nothing.**
-   `package.json:41,57`, `docs/typescript-7-side-by-side.md:3`. The doc says "compiles with
-   TypeScript 7," but every actual gate uses TS6: `typecheck`/`build` call `vue-tsc6.mjs` (TS6
-   via vue-tsc), and the bundle is built by vite/esbuild (version-agnostic). No script invokes
-   the `tsc` binary — `node_modules/.bin/tsc` points at `@typescript/native` (TS7) and is dead.
-   So TS7 is a second full compiler downloaded for editor use the doc explicitly tells you not
-   to enable. Either add a non-blocking `tsc -p tsconfig.app.json --noEmit` TS7 CI job (real
-   TS7 type-checking value, de-risks the migration, makes the doc's claim true) or drop
-   `@typescript/native` until upstream support lands.
-
-3. **[MEDIUM] size-limit still leaves the 66 KB `TeamDialog-*.js` chunk uncovered.**
+2. **[MEDIUM] size-limit still leaves the 66 KB `TeamDialog-*.js` chunk uncovered.**
    `package.json:64-80`. Prior §6.7, still open — `dist/assets/TeamDialog-*.js` is 66.8 KB raw
    and the largest lazy chunk, yet the three budgets cover only entry JS/CSS and
    `TeamLabel-*.css`. Add a budget for it.
 
-4. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
+3. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
    Prior §6.8, unchanged: `runtimeCaching` has only the navigate route; `site.api.espn.com`
    bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
    state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
 
-5. **[MEDIUM] Python scrapers remain an ungoverned island.** `scripts/fetch-fifa-ranking.py`,
+4. **[MEDIUM] Python scrapers remain an ungoverned island.** `scripts/fetch-fifa-ranking.py`,
    `scripts/fetch-squads.py` (~350 lines generating `.ts` data). Prior §6.15, unchanged: the
    devcontainer pins Python 3.14.6 + `uv` and Renovate tracks them, but there is no
    `ruff`/`mypy`/test/CI step — while the TS side has four quality tools on every push. Add
    `ruff check`/`ruff format` and wire into `check:code`.
 
-6. **[LOW] `lint` and `lint:fix` run the two engines in opposite order.** `package.json:17-18`
+5. **[LOW] `lint` and `lint:fix` run the two engines in opposite order.** `package.json:17-18`
    — check is `oxlint → eslint`, fix is `eslint → oxlint`. Two auto-fixers rewriting the same
    files in reversed order is a footgun. Align the order or add a comment.
 
-7. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+6. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-8. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+7. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-9. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+8. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
