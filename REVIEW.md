@@ -130,97 +130,86 @@ not user-facing bugs, and are ranked accordingly.
    3.5 idiom. Worst case is `MatchCardMeta.vue:21` — `withDefaults(…, { static: false })`
    defaults an optional boolean to `false`, a no-op; the wrapper buys nothing.
 
-5. **[LOW] `useId()` called inside `Array.map`.** `TeamDialog.vue:32` —
-   `const tabIds = tabs.map(() => useId())`. Works only because `.map` runs synchronously during
-   setup with a static two-element `tabs`; it silently breaks the day tabs become dynamic. Call
-   `useId()` once and derive `` `${id}-tab-${tab.id}` ``.
-
-6. **[LOW] Continuation-passing `save(close)` / `clear(close)` / `confirmPending(close)` is
+5. **[LOW] Continuation-passing `save(close)` / `clear(close)` / `confirmPending(close)` is
    needless indirection, now threaded through three functions.**
    `use-match-result-form.ts:69-110`, called from `ScoreDialog.vue:90,97,109`. The composable
    owns the data; the component owns its dialog lifecycle. Have `save()`/`clear()` return a
    boolean (or `'saved' | 'pending'`) and let the component decide whether to `close()`. The
    rewrite added a third `close`-taking function rather than removing the pattern.
 
-7. **[LOW] Side-effect assignment buried in a template ternary.** `ScoreDialog.vue:97` —
+6. **[LOW] Side-effect assignment buried in a template ternary.** `ScoreDialog.vue:97` —
    `@click="knockoutDraw ? (attemptedDrawSave = true) : save(close)"`. Extract a `handleSave()`
    so the branch is greppable and unit-testable. Related nit: line 94's cancel button calls
    `baseDialog?.close()` directly while lines 90/97 use the local `close` helper — pick one
    within the file.
 
-8. **[LOW] Immutable lookup tables recreated per instance instead of at module scope.**
+7. **[LOW] Immutable lookup tables recreated per instance instead of at module scope.**
    `StandingsRow.vue:26-33` (`statusLabel`) mounts 48× on the groups page;
    `ThirdPlaceRow.vue:24-29`, `SyncDialog.vue:17-23` (`TITLES`) do the same.
    `MatchCardMeta.vue:1-9` already shows the fix (plain `<script>` block). StandingsRow is the
    one where the 48× churn is measurable.
 
-9. **[LOW] `computed` with no reactive dependencies.** `RankingView.vue:15-20` — `rows` maps
-   over module-const `fifaRanking` keyed against module-const `teamByFlag`; nothing reactive is
-   read, so it can never recompute. A plain `const rows = fifaRanking.map(…)` states the truth.
+8. **[LOW] `static` prop name is a strict-mode reserved word.** `MatchCard.vue:18`,
+   `MatchCardMeta.vue:19`. The moment anyone adopts props destructure (finding 4),
+   `const { static } = defineProps…` is a syntax error; it also under-describes intent. Rename
+   to `plain` or invert to `interactive`.
 
-10. **[LOW] `static` prop name is a strict-mode reserved word.** `MatchCard.vue:18`,
-    `MatchCardMeta.vue:19`. The moment anyone adopts props destructure (finding 4),
-    `const { static } = defineProps…` is a syntax error; it also under-describes intent. Rename
-    to `plain` or invert to `interactive`.
+9. **[LOW] Three coexisting prop-declaration styles.** Bare `defineProps` (most files),
+   `const props = defineProps` even when the value is only read in the template
+   (`TeamFlag.vue:5` → `props.size` at line 12; `icons/CardIcon.vue:2` → `props.color` at lines
+   8/10), and `withDefaults`. `TeamLabel.vue:6` legitimately needs `const props` (script
+   access), TeamFlag/CardIcon do not. Standardize.
 
-11. **[LOW] Three coexisting prop-declaration styles.** Bare `defineProps` (most files),
-    `const props = defineProps` even when the value is only read in the template
-    (`TeamFlag.vue:5` → `props.size` at line 12; `icons/CardIcon.vue:2` → `props.color` at lines
-    8/10), and `withDefaults`. `TeamLabel.vue:6` legitimately needs `const props` (script
-    access), TeamFlag/CardIcon do not. Standardize.
-
-12. **[LOW] `announce` is the one provide/inject pair not packaged in its composable.**
+10. **[LOW] `announce` is the one provide/inject pair not packaged in its composable.**
     `use-team-viewer.ts` and `use-score-dialog.ts` each export both `provideX()` and `useX()`;
     `use-announce.ts:1-8` exports only `useAnnounce`, so App.vue hand-rolls the provider inline
     (`App.vue:36-46`). A `provideAnnounce()` restores symmetry and removes ~10 lines from
     App.vue.
 
-13. **[LOW] Four names for "close this dialog," all `baseDialog.value?.close()`.** `dismiss`
+11. **[LOW] Four names for "close this dialog," all `baseDialog.value?.close()`.** `dismiss`
     (`UpdateDialog.vue:14`), `requestClose` (`SyncDialog.vue:43`), `close`
     (`ScoreDialog.vue:19`), `handleCancel` (`ConfirmDialog.vue:25`). Pick one.
 
-14. **[LOW] `cancel` emitted for non-cancellation closes.** `SyncDialog.vue:55` maps `@close` →
+12. **[LOW] `cancel` emitted for non-cancellation closes.** `SyncDialog.vue:55` maps `@close` →
     `emit('cancel')`, so pressing "Schließen" in the `done` state (line 83) fires `cancel` →
     `cancelSync()`, "aborting" a completed request. Name the event `close`.
 
-15. **[LOW] Redundant `<Teleport to="body">` around a native `<dialog>`.**
+13. **[LOW] Redundant `<Teleport to="body">` around a native `<dialog>`.**
     `BracketView.vue:126-133`. `showModal()` renders in the top layer regardless of DOM
     position, and no other BaseDialog consumer teleports. Drop it.
 
-16. **[LOW] Score-dialog config prop names drift from the component's.**
+14. **[LOW] Score-dialog config prop names drift from the component's.**
     `use-score-dialog.ts:6-8` uses `home`/`away`; `ScoreDialog.vue:12-13` uses
     `homeTeam`/`awayTeam`; App.vue manually re-maps (`:home-team="scoreDialogConfig.home"`,
     `App.vue:79-80`). Align the names so the call site collapses toward `v-bind`.
 
-17. **[LOW] Inline conditional-spread style object in template.** `BaseDialog.vue:41-44` builds
+15. **[LOW] Inline conditional-spread style object in template.** `BaseDialog.vue:41-44` builds
     `{ '--dialog-max-width': …, ...(maxHeight ? {…} : {}) }` inline; a `computed dialogStyle`
     reads better and is testable.
 
 ### Prior-findings status
 
-| Prior finding (§1 Vue)                         | Status     | Evidence                                                                                      |
-| ---------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------- |
-| Triplicated table headers                      | STILL OPEN | `GroupStandingsTable.vue:24-56`, `TeamStats.vue:14-46`, `ThirdPlaceTable.vue:48-69` unchanged |
-| Knockout double-resolve, 3-hop chain           | STILL OPEN | `KnockoutView.vue:12-16` re-runs `resolveTeamRef`; `BracketView.vue:23-24` already resolved   |
-| `save(close)`/`clear(close)` CPS               | STILL OPEN | now 3 fns take `close`: `use-match-result-form.ts:69,81,104`                                  |
-| Side-effect ternary in template                | STILL OPEN | `ScoreDialog.vue:97`                                                                          |
-| Redundant Teleport around `<dialog>`           | STILL OPEN | `BracketView.vue:126-133`                                                                     |
-| Composable extracted for lint limit            | STILL OPEN | `use-origin-group-data.ts` confessional comment persists (see §7)                             |
-| `withDefaults` / no reactive destructure       | STILL OPEN | `BaseDialog.vue:5-17`, `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11`                     |
-| `computed` with no reactive deps (RankingView) | STILL OPEN | `RankingView.vue:15-20`                                                                       |
-| Common-prefix label hack                       | STILL OPEN | `StepperInput.vue:18-23`                                                                      |
-| `useId()` in `Array.map`                       | STILL OPEN | `TeamDialog.vue:32`                                                                           |
-| Snapshot `isPastKickoff`                       | STILL OPEN | `ScoreDialog.vue:43`                                                                          |
-| Inline conditional-spread style                | STILL OPEN | `BaseDialog.vue:41-44`                                                                        |
-| Per-instance constant tables                   | STILL OPEN | `StandingsRow.vue:26-33`, `ThirdPlaceRow.vue:24-29`, `SyncDialog.vue:17-23`                   |
-| Three prop-declaration styles                  | STILL OPEN | `TeamFlag.vue:5`, `icons/CardIcon.vue:2` vs bare vs `withDefaults`                            |
-| `announce` breaks provide/inject packaging     | STILL OPEN | `App.vue:38-46` inline provider; no `provideAnnounce`                                         |
-| `static` reserved-word prop                    | STILL OPEN | `MatchCard.vue:18`, `MatchCardMeta.vue:19`                                                    |
-| Four names for "close"                         | STILL OPEN | `UpdateDialog.vue:14`/`SyncDialog.vue:43`/`ScoreDialog.vue:19`/`ConfirmDialog.vue:25`         |
-| Redundant `max-width` default                  | STILL OPEN | `ConfirmDialog.vue:43`, `SyncDialog.vue:53`, `PossibleTeamsDialog.vue:17`                     |
-| `cancel` fired for non-cancel closes           | STILL OPEN | `SyncDialog.vue:55` `@close="emit('cancel')"`, done state line 83                             |
-| Config prop-name drift home/away               | STILL OPEN | `use-score-dialog.ts:6-8` vs `ScoreDialog.vue:12-13`, remap `App.vue:79-80`                   |
-| Doubled BEM classes                            | STILL OPEN | `StandingsRow.vue:62-83`, `ThirdPlaceRow.vue:64-70`                                           |
+| Prior finding (§1 Vue)                     | Status     | Evidence                                                                                      |
+| ------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------- |
+| Triplicated table headers                  | STILL OPEN | `GroupStandingsTable.vue:24-56`, `TeamStats.vue:14-46`, `ThirdPlaceTable.vue:48-69` unchanged |
+| Knockout double-resolve, 3-hop chain       | STILL OPEN | `KnockoutView.vue:12-16` re-runs `resolveTeamRef`; `BracketView.vue:23-24` already resolved   |
+| `save(close)`/`clear(close)` CPS           | STILL OPEN | now 3 fns take `close`: `use-match-result-form.ts:69,81,104`                                  |
+| Side-effect ternary in template            | STILL OPEN | `ScoreDialog.vue:97`                                                                          |
+| Redundant Teleport around `<dialog>`       | STILL OPEN | `BracketView.vue:126-133`                                                                     |
+| Composable extracted for lint limit        | STILL OPEN | `use-origin-group-data.ts` confessional comment persists (see §7)                             |
+| `withDefaults` / no reactive destructure   | STILL OPEN | `BaseDialog.vue:5-17`, `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11`                     |
+| Common-prefix label hack                   | STILL OPEN | `StepperInput.vue:18-23`                                                                      |
+| Snapshot `isPastKickoff`                   | STILL OPEN | `ScoreDialog.vue:43`                                                                          |
+| Inline conditional-spread style            | STILL OPEN | `BaseDialog.vue:41-44`                                                                        |
+| Per-instance constant tables               | STILL OPEN | `StandingsRow.vue:26-33`, `ThirdPlaceRow.vue:24-29`, `SyncDialog.vue:17-23`                   |
+| Three prop-declaration styles              | STILL OPEN | `TeamFlag.vue:5`, `icons/CardIcon.vue:2` vs bare vs `withDefaults`                            |
+| `announce` breaks provide/inject packaging | STILL OPEN | `App.vue:38-46` inline provider; no `provideAnnounce`                                         |
+| `static` reserved-word prop                | STILL OPEN | `MatchCard.vue:18`, `MatchCardMeta.vue:19`                                                    |
+| Four names for "close"                     | STILL OPEN | `UpdateDialog.vue:14`/`SyncDialog.vue:43`/`ScoreDialog.vue:19`/`ConfirmDialog.vue:25`         |
+| Redundant `max-width` default              | STILL OPEN | `ConfirmDialog.vue:43`, `SyncDialog.vue:53`, `PossibleTeamsDialog.vue:17`                     |
+| `cancel` fired for non-cancel closes       | STILL OPEN | `SyncDialog.vue:55` `@close="emit('cancel')"`, done state line 83                             |
+| Config prop-name drift home/away           | STILL OPEN | `use-score-dialog.ts:6-8` vs `ScoreDialog.vue:12-13`, remap `App.vue:79-80`                   |
+| Doubled BEM classes                        | STILL OPEN | `StandingsRow.vue:62-83`, `ThirdPlaceRow.vue:64-70`                                           |
 
 ---
 
@@ -293,55 +282,40 @@ the old report.
    inverse relations of each other. One `feederMatchId(ref): string | null` helper plus deriving
    one map from the other removes both duplications in one pass.
 
-5. **[MEDIUM] `Set.prototype.union` unused despite `lib: ES2025`.**
-   `src/lib/possible-teams.ts:227-230` hand-rolls `for (const id of homeIds) union.add(id)` /
-   `for (const id of awayIds) union.add(id)` where `return homeIds.union(awayIds)` is available
-   and type-correct under `tsconfig.app.json:8`'s `"lib": ["ES2025", "DOM"]`.
-
-6. **[LOW] `H2HStat` (interface) and `PointGDGF` (type alias) are the same shape declared
-   twice.** `src/lib/tiebreakers.ts:31,37` —
-   `{ points: number; goalDiff: number; goalsFor: number }` verbatim both times. Delete one —
-   also resolves the interface-vs-type-alias inconsistency for identical shapes.
-
-7. **[LOW] `toThirdPlaceKey` takes a mutable `GroupId[]` where every other lib function takes
+5. **[LOW] `toThirdPlaceKey` takes a mutable `GroupId[]` where every other lib function takes
    `readonly`.** `src/types/tournament.ts:59` — it calls `.toSorted()` (non-mutating), so
    `readonly GroupId[]` costs nothing and matches the module's readonly discipline.
 
-8. **[LOW] `context.store as unknown as {…}` double cast for a single-method need.**
+6. **[LOW] `context.store as unknown as {…}` double cast for a single-method need.**
    `src/stores/tournament.ts:70` — `isValidResultsMap` already accepts `unknown`, so only the
    `.reset()` call needs a typed shape: `(context.store as { reset: () => void }).reset()`.
 
-9. **[LOW] `possibleTeamsFor` returns `Set<Team>` although its only caller spreads it
+7. **[LOW] `possibleTeamsFor` returns `Set<Team>` although its only caller spreads it
    immediately.** `src/lib/possible-teams.ts:247-255` — dedup already happens on `id` inside
    `possibleTeamIdsFor`; return `readonly Team[]`.
 
-10. **[LOW] `isValidResult` is two six-way boolean walls with repeated `as number` casts.**
-    `src/lib/persistence.ts:83-103` — a single
-    `(['homeGoals', …] as const).every((k) => typeof r[k] === 'number' && isNonNegativeInteger(r[k] as number))`
-    loop removes both walls and all six casts; also collapses `isNonNegativeInteger`'s redundant
-    `Number.isFinite` next to `Number.isInteger`.
+8. **[LOW] `isValidResult` is two six-way boolean walls with repeated `as number` casts.**
+   `src/lib/persistence.ts:83-103` — a single
+   `(['homeGoals', …] as const).every((k) => typeof r[k] === 'number' && isNonNegativeInteger(r[k] as number))`
+   loop removes both walls and all six casts; also collapses `isNonNegativeInteger`'s redundant
+   `Number.isFinite` next to `Number.isInteger`.
 
-11. **[LOW] "All groups complete" re-derived independently in three modules.**
-    `src/lib/knockout.ts:85`, `src/lib/third-place.ts:54`, `src/router.ts:13` each write
-    `GROUP_IDS.every((g) => isGroupComplete(g, results))`. Export
-    `isGroupStageComplete(results)` once (natural home: `standings.ts`) and import it.
+9. **[LOW] `syncResults`'s `provider` parameter is dead surface forcing `undefined` at both
+   call sites.** `src/lib/results-sync/index.ts:77-83` — both real callers
+   (`use-match-result-form.ts:144`, `use-results-sync.ts:37`) write
+   `syncResults(undefined, { signal })`. `ResultsProvider.id`/`label`
+   (`results-sync/provider.ts:33-35`) are likewise read nowhere (grep-verified). Drop the
+   parameter and the two fields until a second provider actually needs them (YAGNI); tests
+   already have `FetchResultsOptions.fetchImpl` as an injection seam. (Cross-referenced in
+   §7.3.)
 
-12. **[LOW] `syncResults`'s `provider` parameter is dead surface forcing `undefined` at both
-    call sites.** `src/lib/results-sync/index.ts:77-83` — both real callers
-    (`use-match-result-form.ts:144`, `use-results-sync.ts:37`) write
-    `syncResults(undefined, { signal })`. `ResultsProvider.id`/`label`
-    (`results-sync/provider.ts:33-35`) are likewise read nowhere (grep-verified). Drop the
-    parameter and the two fields until a second provider actually needs them (YAGNI); tests
-    already have `FetchResultsOptions.fetchImpl` as an injection seam. (Cross-referenced in
-    §7.3.)
-
-13. **[LOW] German label helpers split across two modules with no ownership rule.**
+10. **[LOW] German label helpers split across two modules with no ownership rule.**
     `src/lib/team-schedule.ts:6-13` carries `KNOCKOUT_STAGE_LABEL` while
     `src/lib/bracket-labels.ts` owns `teamRefLabel`. Both are pure label lookups keyed off the
     same domain types; consolidating removes one file boundary a new contributor has to guess
     at.
 
-14. **[LOW] `RankingEntry` is mutable and annotation-typed while `Team` next door is
+11. **[LOW] `RankingEntry` is mutable and annotation-typed while `Team` next door is
     `readonly` + `satisfies`.** `src/data/fifa-ranking.ts:18-27` declares mutable fields, then
     types the array `readonly RankingEntry[] = [...] as const` — an explicit annotation layered
     on top of `as const`, rather than `teams.ts:69`'s `as const satisfies readonly Team[]`.
@@ -353,7 +327,6 @@ the old report.
 | -------------------------------------- | ---------- | --------------------------------------------------------------- |
 | `qualifyingAllocation` inversion       | STILL OPEN | `third-place.ts:112` unchanged                                  |
 | bounded-cache duplication              | STILL OPEN | `standings.ts:55-82`, `possible-teams.ts:70-163` byte-identical |
-| hand-rolled `Set` union w/ ES2025      | STILL OPEN | `possible-teams.ts:227-230` unchanged                           |
 | feeder-kind predicate ×4               | STILL OPEN | `bracket-graph.ts:13,18,31,32` unchanged                        |
 | defensive re-check in `flatMap`        | STILL OPEN | `standings.ts:158-161` unchanged                                |
 | `refKey` template-literal case         | STILL OPEN | `bracket-graph.ts:5-6` + `use-origin-group-data.ts:37-39`       |
@@ -361,10 +334,8 @@ the old report.
 | untyped route `meta`                   | STILL OPEN | no `declare module 'vue-router'` augmentation in `src/`         |
 | `Number(slotStr) as ThirdPlaceSlot`    | STILL OPEN | `third-place.ts:85` unchanged                                   |
 | `context.store as unknown as {…}`      | STILL OPEN | `tournament.ts:70` unchanged                                    |
-| `H2HStat`/`PointGDGF` duplicate shape  | STILL OPEN | `tiebreakers.ts:31,37` unchanged                                |
 | `toThirdPlaceKey` non-readonly param   | STILL OPEN | `types/tournament.ts:59` unchanged                              |
 | `possibleTeamsFor` returns `Set<Team>` | STILL OPEN | `possible-teams.ts:247` unchanged                               |
-| "all groups complete" ×3               | STILL OPEN | `knockout.ts:85`, `third-place.ts:54`, `router.ts:13`           |
 | composable imports types from `.vue`   | STILL OPEN | `use-origin-group-data.ts`/`OriginColumn.vue` (see §7)          |
 | `syncResults` dead `provider` param    | STILL OPEN | `results-sync/index.ts:77-83`; both call sites pass `undefined` |
 | label helpers split across 2 modules   | STILL OPEN | `team-schedule.ts:6-13` + `bracket-labels.ts`                   |
@@ -442,18 +413,7 @@ structure.
    text — only the aria-label carries it. Thread the team names through `DisciplineInput` and
    render a visible side label.
 
-6. **[MEDIUM] Raw emoji in an accessible `<legend>`.** `ScoreInput.vue:16` —
-   `<legend>⚽ Tore</legend>`; VoiceOver announces "Fußball, Tore". Every other glyph pairing
-   wraps it (`AppNav.vue:17`, `ThemePicker.vue:32`, `ScoreDialog.vue:74,91`,
-   `DisciplineInput.vue:15`). Wrap it: `<span aria-hidden="true">⚽</span> Tore`.
-
-7. **[MEDIUM] Dead `announce()` in `fetchLive` contradicts the comment above it.**
-   `use-match-result-form.ts:157-159` calls `announce(…)` on success, but the comment at
-   `:121-125` explains that the global `role="status"` region is inert while the modal is open
-   — which is exactly why `fetchMessage` (rendered inside the dialog at `ScoreDialog.vue:78`)
-   exists. The `announce` call fires into an inert region; delete it.
-
-8. **[LOW] Custom `role="spinbutton"` re-implements a native numeric input, with a redundant
+6. **[LOW] Custom `role="spinbutton"` re-implements a native numeric input, with a redundant
    live region.** `StepperInput.vue:52-64` — a `<span role="spinbutton" tabindex="0">` with
    hand-rolled Arrow/Home handling, no way to type an exact value, and 3 tab stops each (12 per
    score dialog). `aria-live="polite"` + `aria-atomic` (`:59-60`) on the spinbutton itself
@@ -461,19 +421,19 @@ structure.
    `<input type="number" inputmode="numeric">` with the ± buttons as enhancement removes both
    problems; at minimum drop the redundant `aria-live`.
 
-9. **[LOW] `aria-hidden="true"` on a focusable native file input.** `SettingsView.vue:119-127`
+7. **[LOW] `aria-hidden="true"` on a focusable native file input.** `SettingsView.vue:119-127`
    — the documented `aria-hidden-focus` anti-pattern; `tabindex="-1"` plus the `visually-hidden`
    clip already remove it from tab order and view. Drop `aria-hidden`.
 
-10. **[LOW] `<article>` vs `<section>` drift for structurally identical labeled cards.**
-    `GroupTable.vue:35` uses `<article aria-label>`; `BracketRound.vue:33`,
-    `OriginColumn.vue:30`, `ThirdPlaceTable.vue:13` use `<section aria-label>` for the same
-    "titled surface-card" role. Pick one.
+8. **[LOW] `<article>` vs `<section>` drift for structurally identical labeled cards.**
+   `GroupTable.vue:35` uses `<article aria-label>`; `BracketRound.vue:33`,
+   `OriginColumn.vue:30`, `ThirdPlaceTable.vue:13` use `<section aria-label>` for the same
+   "titled surface-card" role. Pick one.
 
-11. **[LOW] axe gate omits WCAG 2.2, so Target Size is structurally invisible.**
-    `e2e/support/a11y.ts:5` — `AXE_TAGS` ends at `wcag21aa` (+ `best-practice`). SC 2.5.8
-    Target Size (2.2 AA) — the rule that would mechanically catch the `MatchCardMeta` finding —
-    is not in the set. Add `'wcag22aa'`.
+9. **[LOW] axe gate omits WCAG 2.2, so Target Size is structurally invisible.**
+   `e2e/support/a11y.ts:5` — `AXE_TAGS` ends at `wcag21aa` (+ `best-practice`). SC 2.5.8
+   Target Size (2.2 AA) — the rule that would mechanically catch the `MatchCardMeta` finding —
+   is not in the set. Add `'wcag22aa'`.
 
 **What the axe pass does and doesn't cover:** the suite calls `expectNoA11yViolations` on the
 four main views and on several open-dialog states (import confirm, possible-teams, knockout) —
@@ -491,8 +451,6 @@ checkmark implies.
 | numeric rank aria-hidden, no substitute            | STILL OPEN  | `StandingsRow.vue:57`, `ThirdPlaceRow.vue:58`                                                      |
 | MatchCardMeta ~20 px target                        | STILL OPEN  | `MatchCardMeta.vue:49-60` no `min-height`                                                          |
 | custom role=spinbutton                             | STILL OPEN  | `StepperInput.vue:52-64` unchanged                                                                 |
-| raw emoji in legend                                | PARTIAL     | `ScoreInput.vue:16` ⚽ raw; 🥅 case OBSOLETE (removed)                                             |
-| dead announce() in fetchLive                       | STILL OPEN  | `use-match-result-form.ts:157-159` vs comment `:121-125`                                           |
 | aria-hidden on focusable file input                | STILL OPEN  | `SettingsView.vue:124`                                                                             |
 | axe missing wcag22aa                               | STILL OPEN  | `e2e/support/a11y.ts:5`                                                                            |
 | article vs section drift                           | STILL OPEN  | `GroupTable.vue:35` vs `BracketRound.vue:33` etc.                                                  |
@@ -808,23 +766,19 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
    bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
    state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
 
-4. **[LOW] `lint` and `lint:fix` run the two engines in opposite order.** `package.json:17-18`
-   — check is `oxlint → eslint`, fix is `eslint → oxlint`. Two auto-fixers rewriting the same
-   files in reversed order is a footgun. Align the order or add a comment.
-
-5. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+4. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-6. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+5. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-7. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+6. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -835,7 +789,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 | Prior finding (§6)                        | Status     | Evidence                                                         |
 | ----------------------------------------- | ---------- | ---------------------------------------------------------------- |
-| lint/lint:fix reversed engine order       | STILL OPEN | `package.json:17-18` unchanged                                   |
 | No type-aware linting                     | STILL OPEN | `eslint.config.js:15` still non-typed `recommended`              |
 | oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
 | Three-way `target` sync unenforced        | STILL OPEN | comments only, no guard                                          |
@@ -914,7 +867,7 @@ almost every §7 finding from the prior review that wasn't fixed _by deletion_ i
    `syncResults(provider = defaultProvider, opts?)` now pass a literal `undefined` first
    argument (`use-results-sync.ts:37`, `use-match-result-form.ts:144`). `d46bd91` touched all
    four files and was the natural moment. Make it `syncResults(opts?)`, delete `id`/`label`;
-   `FetchResultsOptions.fetchImpl` already covers test injection. (Details in §2.12.)
+   `FetchResultsOptions.fetchImpl` already covers test injection. (Details in §2.9.)
 
 4. **[LOW] `useMatchResultForm` got a fifth concern instead of a split.**
    `src/composables/use-match-result-form.ts` (181 lines) now mixes form state, store writes,
