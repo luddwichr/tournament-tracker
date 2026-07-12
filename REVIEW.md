@@ -205,7 +205,6 @@ not user-facing bugs, and are ranked accordingly.
 | `save(close)`/`clear(close)` CPS               | STILL OPEN | now 3 fns take `close`: `use-match-result-form.ts:69,81,104`                                  |
 | Side-effect ternary in template                | STILL OPEN | `ScoreDialog.vue:97`                                                                          |
 | Redundant Teleport around `<dialog>`           | STILL OPEN | `BracketView.vue:126-133`                                                                     |
-| Duplicated shootout buttons                    | OBSOLETE   | shootout removed (`d46bd91`); fieldset gone from ScoreDialog                                  |
 | Composable extracted for lint limit            | STILL OPEN | `use-origin-group-data.ts` confessional comment persists (see §7)                             |
 | `withDefaults` / no reactive destructure       | STILL OPEN | `BaseDialog.vue:5-17`, `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11`                     |
 | `computed` with no reactive deps (RankingView) | STILL OPEN | `RankingView.vue:15-20`                                                                       |
@@ -350,28 +349,27 @@ the old report.
 
 ### Prior-findings status
 
-| Prior finding (§2 TS)                                     | Status     | Evidence                                                                                                                         |
-| --------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `isValidResult` never validates `shootoutWinner` (top #1) | OBSOLETE   | `shootoutWinner` removed from `Result` entirely (`types/tournament.ts:111-126`) — but see §7.1 for the migration gap this leaves |
-| `qualifyingAllocation` inversion                          | STILL OPEN | `third-place.ts:112` unchanged                                                                                                   |
-| bounded-cache duplication                                 | STILL OPEN | `standings.ts:55-82`, `possible-teams.ts:70-163` byte-identical                                                                  |
-| hand-rolled `Set` union w/ ES2025                         | STILL OPEN | `possible-teams.ts:227-230` unchanged                                                                                            |
-| feeder-kind predicate ×4                                  | STILL OPEN | `bracket-graph.ts:13,18,31,32` unchanged                                                                                         |
-| defensive re-check in `flatMap`                           | STILL OPEN | `standings.ts:158-161` unchanged                                                                                                 |
-| `refKey` template-literal case                            | STILL OPEN | `bracket-graph.ts:5-6` + `use-origin-group-data.ts:37-39`                                                                        |
-| mutable shared `TeamStat[]` cache                         | STILL OPEN | `standings.ts:68` return type still non-readonly                                                                                 |
-| untyped route `meta`                                      | STILL OPEN | no `declare module 'vue-router'` augmentation in `src/`                                                                          |
-| `Number(slotStr) as ThirdPlaceSlot`                       | STILL OPEN | `third-place.ts:85` unchanged                                                                                                    |
-| `context.store as unknown as {…}`                         | STILL OPEN | `tournament.ts:70` unchanged                                                                                                     |
-| `H2HStat`/`PointGDGF` duplicate shape                     | STILL OPEN | `tiebreakers.ts:31,37` unchanged                                                                                                 |
-| `toThirdPlaceKey` non-readonly param                      | STILL OPEN | `types/tournament.ts:59` unchanged                                                                                               |
-| `possibleTeamsFor` returns `Set<Team>`                    | STILL OPEN | `possible-teams.ts:247` unchanged                                                                                                |
-| "all groups complete" ×3                                  | STILL OPEN | `knockout.ts:85`, `third-place.ts:54`, `router.ts:13`                                                                            |
-| composable imports types from `.vue`                      | STILL OPEN | `use-origin-group-data.ts`/`OriginColumn.vue` (see §7)                                                                           |
-| `syncResults` dead `provider` param                       | STILL OPEN | `results-sync/index.ts:77-83`; both call sites pass `undefined`                                                                  |
-| label helpers split across 2 modules                      | STILL OPEN | `team-schedule.ts:6-13` + `bracket-labels.ts`                                                                                    |
-| `isValidResult` boolean walls + casts                     | STILL OPEN | `persistence.ts:83-103` unchanged                                                                                                |
-| `fetch` key shadows global                                | STILL OPEN | `use-match-result-form.ts:179`                                                                                                   |
+| Prior finding (§2 TS)                  | Status     | Evidence                                                        |
+| -------------------------------------- | ---------- | --------------------------------------------------------------- |
+| `qualifyingAllocation` inversion       | STILL OPEN | `third-place.ts:112` unchanged                                  |
+| bounded-cache duplication              | STILL OPEN | `standings.ts:55-82`, `possible-teams.ts:70-163` byte-identical |
+| hand-rolled `Set` union w/ ES2025      | STILL OPEN | `possible-teams.ts:227-230` unchanged                           |
+| feeder-kind predicate ×4               | STILL OPEN | `bracket-graph.ts:13,18,31,32` unchanged                        |
+| defensive re-check in `flatMap`        | STILL OPEN | `standings.ts:158-161` unchanged                                |
+| `refKey` template-literal case         | STILL OPEN | `bracket-graph.ts:5-6` + `use-origin-group-data.ts:37-39`       |
+| mutable shared `TeamStat[]` cache      | STILL OPEN | `standings.ts:68` return type still non-readonly                |
+| untyped route `meta`                   | STILL OPEN | no `declare module 'vue-router'` augmentation in `src/`         |
+| `Number(slotStr) as ThirdPlaceSlot`    | STILL OPEN | `third-place.ts:85` unchanged                                   |
+| `context.store as unknown as {…}`      | STILL OPEN | `tournament.ts:70` unchanged                                    |
+| `H2HStat`/`PointGDGF` duplicate shape  | STILL OPEN | `tiebreakers.ts:31,37` unchanged                                |
+| `toThirdPlaceKey` non-readonly param   | STILL OPEN | `types/tournament.ts:59` unchanged                              |
+| `possibleTeamsFor` returns `Set<Team>` | STILL OPEN | `possible-teams.ts:247` unchanged                               |
+| "all groups complete" ×3               | STILL OPEN | `knockout.ts:85`, `third-place.ts:54`, `router.ts:13`           |
+| composable imports types from `.vue`   | STILL OPEN | `use-origin-group-data.ts`/`OriginColumn.vue` (see §7)          |
+| `syncResults` dead `provider` param    | STILL OPEN | `results-sync/index.ts:77-83`; both call sites pass `undefined` |
+| label helpers split across 2 modules   | STILL OPEN | `team-schedule.ts:6-13` + `bracket-labels.ts`                   |
+| `isValidResult` boolean walls + casts  | STILL OPEN | `persistence.ts:83-103` unchanged                               |
+| `fetch` key shadows global             | STILL OPEN | `use-match-result-form.ts:179`                                  |
 
 ---
 
@@ -490,7 +488,6 @@ checkmark implies.
 | -------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
 | group badge aria-hidden, no substitute             | STILL OPEN  | `ThirdPlaceRow.vue:59`; `:61` span has only status                                                 |
 | 12 unlabeled focusable scroll wrappers             | STILL OPEN  | `GroupStandingsTable.vue:14` still no `aria-label`                                                 |
-| penalty shootout invisible in cards                | OBSOLETE    | shootout modelling removed (`d46bd91`) — but see §9.1                                              |
 | numeric rank aria-hidden, no substitute            | STILL OPEN  | `StandingsRow.vue:57`, `ThirdPlaceRow.vue:58`                                                      |
 | MatchCardMeta ~20 px target                        | STILL OPEN  | `MatchCardMeta.vue:49-60` no `min-height`                                                          |
 | custom role=spinbutton                             | STILL OPEN  | `StepperInput.vue:52-64` unchanged                                                                 |
@@ -656,7 +653,6 @@ stands. The worst offenders were confirmed visually at 390×844.
 | `640px` untokenized ×3 vs `49rem`     | STILL OPEN      | `AppNav.vue:66`, `AppHeader.vue:121`, `App.vue:94`                          |
 | Token-scale strays                    | STILL OPEN      | `base.css:142`, `SquadList.vue:87`, `AppHeader.vue:118`                     |
 | Elevation/motion under-used           | STILL OPEN      | BaseDialog no transition; menu toggles `display`                            |
-| Segmented toggle hand-rolled twice    | OBSOLETE        | shootout picker removed; only ThemePicker remains                           |
 | MatchCardMeta ~20px target (top #8)   | STILL OPEN      | `MatchCardMeta.vue:49-60`, no `min-height`                                  |
 | Score dialog flag-less (top #3)       | STILL OPEN      | `ScoreDialog.vue:49-52`, `DisciplineInput.vue:20-48`, verified visually     |
 | Score renders at 15px                 | STILL OPEN      | `MatchScoreButton.vue:44`                                                   |
@@ -749,7 +745,6 @@ yellow/red` tests that each mount, click one aria-labelled button, save, and ass
 
 | Prior finding (§5)                                | Status               | Evidence                                                          |
 | ------------------------------------------------- | -------------------- | ----------------------------------------------------------------- |
-| `shootoutWinner` corrupt-import gap               | OBSOLETE             | shootout modelling removed (`d46bd91`)                            |
 | `assert-never.spec.ts` coverage-filler            | STILL OPEN           | unchanged, 14 lines, two trivial cases                            |
 | e2e re-derives BracketView structural facts       | STILL OPEN           | `e2e/knockout.spec.ts:25-43` ⟷ `BracketView.spec.ts:41,55-79,121` |
 | Factory opt-outs / shadowing `makeResult`         | STILL OPEN (partial) | shadow at `tournament.spec.ts:27`; ScoreDialog now imports it     |
@@ -861,7 +856,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | No CSP meta                               | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
 | Versioning invisible                      | STILL OPEN | `package.json:3` still `0.1.0`, no CHANGELOG                     |
 | ESPN dependency risk undocumented         | STILL OPEN | no shape guard/monitoring beyond provider parsing                |
-| Toolchain discipline (prior praise)       | IMPROVED   | now adds CI npm-pin + `npm audit signatures` + hardened `.npmrc` |
 
 ---
 
@@ -1016,7 +1010,6 @@ context, and the non-automatable content the prior review asked for was never wr
 
 | Prior finding                                     | Status                 | Evidence                                                                                                                 |
 | ------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `shootoutWinner` never validated (top #1)         | FIXED (by removal)     | `d46bd91` deleted the field entirely — but see §7.1: no migration for existing v1 data                                   |
 | store must clear lib-internal caches              | STILL OPEN             | `tournament.ts:44-45,50-51` unchanged; two invalidator calls per bulk action                                             |
 | `refKey` seam, two implementations                | STILL OPEN             | `use-origin-group-data.ts:36-39` vs `bracket-graph.ts:4-8`                                                               |
 | bounded-cache eviction duplicated                 | STILL OPEN             | `standings.ts:74-79` ≡ `possible-teams.ts:155-161`                                                                       |
@@ -1024,7 +1017,6 @@ context, and the non-automatable content the prior review asked for was never wr
 | two hand-rolled fetch machines / mixed concerns   | STILL OPEN (worse)     | `use-match-result-form.ts` grew 140→181 lines, added a third state machine                                               |
 | `.match-card` DOM coupling                        | STILL OPEN             | `use-bracket-connectors.ts:22,33`                                                                                        |
 | misleading "lint line limit" comment              | STILL OPEN             | `use-origin-group-data.ts:13-16`; no `max-lines` rule in either lint config                                              |
-| ghost references to deleted REVIEW.md             | OBSOLETE               | REVIEW.md committed in `2c835d0`; refs resolve (`persistence.spec.ts:52` filename still wrong)                           |
 | CLAUDE.md 10 lines, answers nothing (top #5)      | STILL OPEN (substance) | file deleted (`dbc5b76`); its 2 rules genuinely automated, but the missing turn-one content was never added anywhere     |
 | requirements.md drift, 5+ places (top #6)         | PARTIALLY FIXED        | shootout + live-fetch sections reconciled in `d46bd91`; 5 errors remain + new `/`-redirect drift                         |
 | Stop-hook grep + allowlist gaps                   | STILL OPEN             | `check-ts-vue.sh:6` still ts/vue-only; `settings.json:9-16` allowlist unchanged incl. `npm run dev`                      |
@@ -1146,19 +1138,18 @@ claims in place.
 
 ### Prior-findings status
 
-| Prior finding (§9 + cross-ref)                      | Status                              | Evidence                                                                                   |
-| --------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| group edit silently re-attributes knockout results  | **FIXED**                           | `invalidation.ts` + atomic cascade in `tournament.ts:27-40` + confirm flow                 |
-| `shootoutWinner` never validated on import (top #1) | OBSOLETE                            | field deleted in `d46bd91`; validator covers all remaining fields — see §7.1               |
-| destructive whole-tournament sync                   | STILL OPEN (consent added)          | `SettingsView.vue:21` wholesale replace; "Abrufen & ersetzen" is new, but no merge         |
-| double-layer standings caching                      | STILL OPEN                          | `standings.ts:55,74` module cache + store computed `tournament.ts:18-20`                   |
-| 1M-combo synchronous budget                         | STILL OPEN                          | `possible-teams.ts:55` `MAX_ENUMERATION_COMBOS = 1_000_000`                                |
-| empty set for level knockout result                 | STILL OPEN                          | `possible-teams.ts:216-221` (now cheaper to justify fixing)                                |
-| dead `TeamStat.form`                                | STILL OPEN                          | `standings.ts:27,104,133-148`, never rendered                                              |
-| hamburger nav vs pre-readers + spec (top #2)        | STILL OPEN                          | `AppNav.vue:27`; `requirements.md:218` still promises bottom nav                           |
-| score dialog teams text-only (top #3)               | STILL OPEN (shootout half obsolete) | `ScoreDialog.vue:49-52` muted `aria-hidden` names                                          |
-| standings abbreviation walls (top #9)               | STILL OPEN                          | `GroupStandingsTable.vue:24-38` `<abbr title>` headers                                     |
-| 15 px score on match cards                          | STILL OPEN                          | `MatchScoreButton.vue:44` `--font-size-sm`                                                 |
-| "K.-o.-Runde" / "Sieger Sp. 73" / "Bosnien H."      | STILL OPEN                          | `router.ts:27`, `bracket-labels.ts:22-25`, `teams.ts:26`                                   |
-| no "Heute" entry point, no champion payoff          | STILL OPEN                          | `grep -rn "Heute\|Weltmeister" src/` (views/components) returns nothing                    |
-| requirements.md drift, 5 places (top #6)            | PARTIALLY FIXED                     | shootout sections rewritten; autoUpdate/navigateFallback/theme/bottom-nav/§7.6 still wrong |
+| Prior finding (§9 + cross-ref)                     | Status                              | Evidence                                                                                   |
+| -------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| group edit silently re-attributes knockout results | **FIXED**                           | `invalidation.ts` + atomic cascade in `tournament.ts:27-40` + confirm flow                 |
+| destructive whole-tournament sync                  | STILL OPEN (consent added)          | `SettingsView.vue:21` wholesale replace; "Abrufen & ersetzen" is new, but no merge         |
+| double-layer standings caching                     | STILL OPEN                          | `standings.ts:55,74` module cache + store computed `tournament.ts:18-20`                   |
+| 1M-combo synchronous budget                        | STILL OPEN                          | `possible-teams.ts:55` `MAX_ENUMERATION_COMBOS = 1_000_000`                                |
+| empty set for level knockout result                | STILL OPEN                          | `possible-teams.ts:216-221` (now cheaper to justify fixing)                                |
+| dead `TeamStat.form`                               | STILL OPEN                          | `standings.ts:27,104,133-148`, never rendered                                              |
+| hamburger nav vs pre-readers + spec (top #2)       | STILL OPEN                          | `AppNav.vue:27`; `requirements.md:218` still promises bottom nav                           |
+| score dialog teams text-only (top #3)              | STILL OPEN (shootout half obsolete) | `ScoreDialog.vue:49-52` muted `aria-hidden` names                                          |
+| standings abbreviation walls (top #9)              | STILL OPEN                          | `GroupStandingsTable.vue:24-38` `<abbr title>` headers                                     |
+| 15 px score on match cards                         | STILL OPEN                          | `MatchScoreButton.vue:44` `--font-size-sm`                                                 |
+| "K.-o.-Runde" / "Sieger Sp. 73" / "Bosnien H."     | STILL OPEN                          | `router.ts:27`, `bracket-labels.ts:22-25`, `teams.ts:26`                                   |
+| no "Heute" entry point, no champion payoff         | STILL OPEN                          | `grep -rn "Heute\|Weltmeister" src/` (views/components) returns nothing                    |
+| requirements.md drift, 5 places (top #6)           | PARTIALLY FIXED                     | shootout sections rewritten; autoUpdate/navigateFallback/theme/bottom-nav/§7.6 still wrong |
