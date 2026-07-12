@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { fifaRanking } from '../data/fifa-ranking'
 import { teams } from '../data/teams'
 import type { Team } from '../types/tournament'
@@ -12,12 +11,10 @@ import TeamLabel from '../components/TeamLabel.vue'
 // resolves.
 const teamByFlag = new Map<string, Team>(teams.map((t) => [t.flagCode, t]))
 
-const rows = computed(() =>
-  fifaRanking.map((entry) => ({
-    entry,
-    team: teamByFlag.get(entry.flagCode) ?? null,
-  })),
-)
+const rows = fifaRanking.map((entry) => ({
+  entry,
+  team: teamByFlag.get(entry.flagCode) ?? null,
+}))
 
 const numberFormat = new Intl.NumberFormat('de-DE', {
   minimumFractionDigits: 2,
