@@ -28,13 +28,11 @@ export interface TiebreakerStat {
   fairPlayScore: number
 }
 
-interface H2HStat {
+interface PointGDGF {
   points: number
   goalDiff: number
   goalsFor: number
 }
-
-type PointGDGF = { points: number; goalDiff: number; goalsFor: number }
 
 export function compareByPointsGdGf(a: PointGDGF, b: PointGDGF): number {
   if (b.points !== a.points) return b.points - a.points
@@ -69,8 +67,8 @@ function computeH2HStats(
   teams: readonly Team[],
   h2hMatches: readonly GroupMatchSlot[],
   results: ResultsMap,
-): Map<string, H2HStat> {
-  const map = new Map<string, H2HStat>(teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]))
+): Map<string, PointGDGF> {
+  const map = new Map<string, PointGDGF>(teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]))
 
   for (const match of h2hMatches) {
     const result = results[match.id]
