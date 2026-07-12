@@ -224,10 +224,7 @@ function possibleTeamIdsFor(ref: TeamRef, results: ResultsMap): Set<string> {
       if (!match) return new Set()
       const homeIds = possibleTeamIdsFor(match.homeRef, results)
       const awayIds = possibleTeamIdsFor(match.awayRef, results)
-      const union = new Set<string>()
-      for (const id of homeIds) union.add(id)
-      for (const id of awayIds) union.add(id)
-      return union
+      return homeIds.union(awayIds)
     }
 
     default: {
