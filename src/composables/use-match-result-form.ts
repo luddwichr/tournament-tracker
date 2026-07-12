@@ -154,9 +154,6 @@ export function useMatchResultForm(
       cards.awayYellow = result.awayYellow
       cards.awayRed = result.awayRed
       fetchStatus.value = 'success'
-      announce(
-        `Live-Ergebnis übernommen: ${toValue(homeTeam).name} ${result.homeGoals} : ${result.awayGoals} ${toValue(awayTeam).name}`,
-      )
     } catch (e) {
       if (controller.signal.aborted) return
       fetchError.value = e instanceof Error ? e.message : 'Abruf fehlgeschlagen.'
