@@ -29,7 +29,7 @@ const tabs: { id: TabId; label: string }[] = [
   { id: 'schedule', label: 'Spielplan' },
 ]
 const activeTab = ref<TabId>('team')
-const tabIds = tabs.map(() => useId())
+const id = useId()
 
 const tabButtons = useTemplateRef<HTMLButtonElement[]>('tabButtons')
 
@@ -77,7 +77,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
     <div class="team-dialog__tabs" role="tablist" aria-label="Ansicht">
       <button
         v-for="(tab, index) in tabs"
-        :id="`${tabIds[index]}-tab`"
+        :id="`${id}-${tab.id}-tab`"
         ref="tabButtons"
         :key="tab.id"
         type="button"
@@ -85,7 +85,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
         class="team-dialog__tab"
         :class="{ 'team-dialog__tab--active': activeTab === tab.id }"
         :aria-selected="activeTab === tab.id"
-        :aria-controls="`${tabIds[index]}-panel`"
+        :aria-controls="`${id}-${tab.id}-panel`"
         :tabindex="activeTab === tab.id ? 0 : -1"
         @click="activeTab = tab.id"
         @keydown="onTabKeydown($event, index)"
@@ -98,9 +98,9 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
 
     <div
       v-show="activeTab === 'team'"
-      :id="`${tabIds[0]}-panel`"
+      :id="`${id}-team-panel`"
       role="tabpanel"
-      :aria-labelledby="`${tabIds[0]}-tab`"
+      :aria-labelledby="`${id}-team-tab`"
       class="team-dialog__panel"
     >
       <TeamStats :stats="stats" />
@@ -109,9 +109,9 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
 
     <div
       v-show="activeTab === 'schedule'"
-      :id="`${tabIds[1]}-panel`"
+      :id="`${id}-schedule-panel`"
       role="tabpanel"
-      :aria-labelledby="`${tabIds[1]}-tab`"
+      :aria-labelledby="`${id}-schedule-tab`"
       class="team-dialog__panel"
     >
       <TeamSchedule :entries="entries" />
