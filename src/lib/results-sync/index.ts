@@ -16,12 +16,6 @@ function pairKey(a: string, b: string): string {
   return [a, b].toSorted().join('|')
 }
 
-/** Swap a home/away-relative side to match a reversed home/away assignment. */
-function swapSide(side: 'home' | 'away' | undefined, homeFirst: boolean): 'home' | 'away' | undefined {
-  if (side == null || homeFirst) return side
-  return side === 'home' ? 'away' : 'home'
-}
-
 /** Index of the candidate whose date sits closest to `kickoff`. */
 function nearestIndex(candidates: readonly SourceMatch[], kickoff: string): number {
   if (candidates.length === 1) return 0
@@ -67,7 +61,6 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
     byPair.set(key, candidates.toSpliced(index, 1))
 
     const homeFirst = source.homeId === home.id
-    const shootoutWinner = swapSide(source.shootoutWinner, homeFirst)
     results[slot.id] = {
       matchId: slot.id,
       homeGoals: homeFirst ? source.homeGoals : source.awayGoals,
@@ -76,7 +69,6 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
       homeRed: homeFirst ? source.homeRed : source.awayRed,
       awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
       awayRed: homeFirst ? source.awayRed : source.homeRed,
-      ...(shootoutWinner ? { shootoutWinner } : {}),
     }
   }
   return results

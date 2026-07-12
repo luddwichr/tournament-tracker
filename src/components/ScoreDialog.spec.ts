@@ -47,10 +47,6 @@ function deleteButton(wrapper: ReturnType<typeof mountDialog>) {
   return wrapper.findAll('button').find((b) => b.text().includes('Löschen'))
 }
 
-function shootoutButtons(wrapper: ReturnType<typeof mountDialog>) {
-  return wrapper.findAll('.score-dialog__shootout-btn')
-}
-
 // Helpers for the cascade-confirmation suite; see the scenario comment there.
 function seedGroupInvalidationScenario() {
   const store = useTournamentStore()
@@ -276,31 +272,6 @@ describe('ScoreDialog', () => {
 
       expect(wrapper.find('.score-dialog__fetch-message--error').text()).toBe('Netzfehler')
     })
-
-    it('copies a fetched shootout winner into the form and persists it on save', async () => {
-      const store = useTournamentStore()
-      vi.mocked(syncResults).mockResolvedValue({
-        M90: {
-          matchId: 'M90',
-          homeGoals: 1,
-          awayGoals: 1,
-          homeYellow: 0,
-          homeRed: 0,
-          awayYellow: 0,
-          awayRed: 0,
-          shootoutWinner: 'away',
-        },
-      })
-      const wrapper = mountDialog(knockoutMatch)
-
-      await wrapper.find('.score-dialog__fetch').trigger('click')
-      await flushPromises()
-
-      expect(wrapper.find('.score-dialog__shootout-btn--active').text()).toBe('Frankreich')
-
-      await saveButton(wrapper).trigger('click')
-      expect(store.results['M90']).toMatchObject({ homeGoals: 1, awayGoals: 1, shootoutWinner: 'away' })
-    })
   })
 
   describe('knockout draw validation', () => {
@@ -351,64 +322,6 @@ describe('ScoreDialog', () => {
       // (attempted-save && knockoutDraw), so it reappears rather than staying
       // latched false.
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
-    })
-  })
-
-  describe('shootout winner', () => {
-    it('shows the shootout picker for a level knockout score', () => {
-      const wrapper = mountDialog(knockoutMatch)
-      const buttons = shootoutButtons(wrapper)
-      expect(buttons).toHaveLength(2)
-      expect(buttons[0]!.text()).toBe('Deutschland')
-      expect(buttons[1]!.text()).toBe('Frankreich')
-    })
-
-    it('does not show the shootout picker for a group-stage draw', () => {
-      const wrapper = mountDialog(groupMatch)
-      expect(shootoutButtons(wrapper)).toHaveLength(0)
-    })
-
-    it('neither button is pressed by default', () => {
-      const wrapper = mountDialog(knockoutMatch)
-      const buttons = shootoutButtons(wrapper)
-      expect(buttons[0]!.attributes('aria-pressed')).toBe('false')
-      expect(buttons[1]!.attributes('aria-pressed')).toBe('false')
-    })
-
-    it('picking a side unblocks saving and persists the winner alongside the level score', async () => {
-      const store = useTournamentStore()
-      const wrapper = mountDialog(knockoutMatch)
-      await shootoutButtons(wrapper)[0]!.trigger('click')
-      expect(shootoutButtons(wrapper)[0]!.attributes('aria-pressed')).toBe('true')
-
-      await saveButton(wrapper).trigger('click')
-      expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
-      expect(store.results['M90']).toMatchObject({ homeGoals: 0, awayGoals: 0, shootoutWinner: 'home' })
-      expect(wrapper.emitted('close')).toHaveLength(1)
-    })
-
-    it('clicking the already-selected button deselects it', async () => {
-      const wrapper = mountDialog(knockoutMatch)
-      await shootoutButtons(wrapper)[1]!.trigger('click')
-      expect(shootoutButtons(wrapper)[1]!.attributes('aria-pressed')).toBe('true')
-      await shootoutButtons(wrapper)[1]!.trigger('click')
-      expect(shootoutButtons(wrapper)[1]!.attributes('aria-pressed')).toBe('false')
-    })
-
-    it('clears the chosen winner once the score diverges, so it does not linger as stale state', async () => {
-      const wrapper = mountDialog(knockoutMatch)
-      await shootoutButtons(wrapper)[0]!.trigger('click')
-      expect(shootoutButtons(wrapper)[0]!.attributes('aria-pressed')).toBe('true')
-
-      const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await inc!.trigger('click')
-      expect(shootoutButtons(wrapper)).toHaveLength(0)
-
-      const dec = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
-      await dec!.trigger('click')
-      // Level again, but the picker must not remember the earlier selection.
-      expect(shootoutButtons(wrapper)[0]!.attributes('aria-pressed')).toBe('false')
-      expect(shootoutButtons(wrapper)[1]!.attributes('aria-pressed')).toBe('false')
     })
   })
 

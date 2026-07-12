@@ -3,7 +3,10 @@
 // on a concrete source's JSON shape, so a source can be swapped by adding a new
 // `ResultsProvider` implementation.
 
-/** One finished match, normalised to app team ids and non-negative counts. */
+/** One finished match, normalised to app team ids and non-negative counts.
+ * Goals follow the app's model (see `Result`): a shootout-decided match
+ * reports its penalty goals folded into `homeGoals`/`awayGoals`, so the
+ * score of a decided match is always decisive. */
 export interface SourceMatch {
   homeId: string
   awayId: string
@@ -13,8 +16,6 @@ export interface SourceMatch {
   homeRed: number
   awayYellow: number
   awayRed: number
-  /** Set when a knockout match was decided by a penalty shootout — see `Result.shootoutWinner`. */
-  shootoutWinner?: 'home' | 'away'
   /** ISO date (`YYYY-MM-DD`), used to disambiguate rematches. */
   date: string
 }

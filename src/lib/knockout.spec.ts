@@ -154,22 +154,6 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     expect(resolveTeamRef(ref, results)).toBeNull()
   })
-
-  it('resolves the winner from shootoutWinner when goals are level', () => {
-    const results: Record<string, Result> = {}
-    groupMatches
-      .filter((m) => m.group === 'A' || m.group === 'B')
-      .forEach((m) => {
-        results[m.id] = makeResult(m.id, 1, 0)
-      })
-    results['M73'] = makeResult('M73', 1, 1, { shootoutWinner: 'away' })
-    const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
-    const winner = resolveTeamRef(ref, results)
-    expect(winner).not.toBeNull()
-    const awayRef = knockoutMatches.find((m) => m.id === 'M73')!.awayRef
-    const b2 = resolveTeamRef(awayRef, results)
-    expect(winner!.id).toBe(b2!.id)
-  })
 })
 
 describe("resolveTeamRef — kind 'matchLoser'", () => {
@@ -194,7 +178,7 @@ describe("resolveTeamRef — kind 'matchLoser'", () => {
     expect(loser!.id).toBe(b2!.id)
   })
 
-  it('returns null for a level score with no shootoutWinner set', () => {
+  it('returns null for a level score', () => {
     const results: Record<string, Result> = {}
     groupMatches
       .filter((m) => m.group === 'A' || m.group === 'B')
@@ -204,22 +188,6 @@ describe("resolveTeamRef — kind 'matchLoser'", () => {
     results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchLoser', matchId: 'M73' }
     expect(resolveTeamRef(ref, results)).toBeNull()
-  })
-
-  it('resolves the loser from shootoutWinner when goals are level', () => {
-    const results: Record<string, Result> = {}
-    groupMatches
-      .filter((m) => m.group === 'A' || m.group === 'B')
-      .forEach((m) => {
-        results[m.id] = makeResult(m.id, 1, 0)
-      })
-    results['M73'] = makeResult('M73', 1, 1, { shootoutWinner: 'home' }) // home (A2) wins on penalties
-    const loserRef: TeamRef = { kind: 'matchLoser', matchId: 'M73' }
-    const loser = resolveTeamRef(loserRef, results)
-    expect(loser).not.toBeNull()
-    const awayRef = knockoutMatches.find((m) => m.id === 'M73')!.awayRef
-    const b2 = resolveTeamRef(awayRef, results)
-    expect(loser!.id).toBe(b2!.id)
   })
 })
 

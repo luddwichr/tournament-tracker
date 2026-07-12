@@ -65,15 +65,6 @@ describe('invalidatedDownstream', () => {
     expect(invalidatedDownstream(results, 'M73', makeResult('M73', 3, 1))).toEqual([])
   })
 
-  it('flags downstream matches when a shootoutWinner flip changes the winner of a level knockout score', () => {
-    const results: Record<string, Result> = { ...allGroupResults(1, 0) }
-    results['M73'] = makeResult('M73', 1, 1, { shootoutWinner: 'home' })
-    results['M75'] = makeResult('M75', 2, 1) // M90's other feeder — needed so M90 itself resolves
-    results['M90'] = makeResult('M90', 2, 1)
-
-    expect(invalidatedDownstream(results, 'M73', makeResult('M73', 1, 1, { shootoutWinner: 'away' }))).toEqual(['M90'])
-  })
-
   it('flags groupRank-fed and thirdPlace-fed R32 matches when clearing a group result makes that group incomplete', () => {
     const results: Record<string, Result> = { ...allGroupResults(1, 0) }
     results['M73'] = makeResult('M73', 2, 1) // groupRank-fed: home = Group A rank 2

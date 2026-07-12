@@ -21,7 +21,6 @@ interface RawCompetitor {
   homeAway?: string
   score?: string | null
   shootoutScore?: number | null
-  winner?: boolean
   team?: RawTeam
 }
 interface RawDetail {
@@ -109,33 +108,12 @@ function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTe
   return tally
 }
 
-interface DecisiveGoals {
-  homeGoals: number
-  awayGoals: number
-  shootoutWinner?: 'home' | 'away'
-}
-
 /** ESPN's `score` is the real goal count after extra time — which is level
- * when a shootout decided the match — so it's always used as-is for
- * `homeGoals`/`awayGoals`; a shootout never fabricates a goal that was never
- * scored (see `Result.shootoutWinner`). When a shootout happened, ESPN
- * reports it separately as `shootoutScore`; the higher of the two decides
- * `shootoutWinner`. `winner` is a last-resort tiebreak for the (unobserved)
- * case of a level or missing shootout score. */
-function decisiveGoals(home: RawCompetitor, away: RawCompetitor): DecisiveGoals {
-  const homeGoals = nonNegativeInt(home.score)
-  const awayGoals = nonNegativeInt(away.score)
-  const hadShootout = home.shootoutScore != null || away.shootoutScore != null
-  if (!hadShootout) return { homeGoals, awayGoals }
-
-  const homeShootout = nonNegativeNumber(home.shootoutScore)
-  const awayShootout = nonNegativeNumber(away.shootoutScore)
-  let shootoutWinner: 'home' | 'away' | undefined
-  if (homeShootout !== awayShootout) shootoutWinner = homeShootout > awayShootout ? 'home' : 'away'
-  else if (home.winner) shootoutWinner = 'home'
-  else if (away.winner) shootoutWinner = 'away'
-
-  return { homeGoals, awayGoals, ...(shootoutWinner ? { shootoutWinner } : {}) }
+ * when a shootout decided the match — with the shootout reported separately
+ * as `shootoutScore`. The app's model wants one decisive final score (see
+ * `Result`), so the two are summed per side. */
+function finalGoals(competitor: RawCompetitor): number {
+  return nonNegativeInt(competitor.score) + nonNegativeNumber(competitor.shootoutScore)
 }
 
 function toSourceMatch(event: RawEvent): SourceMatch | null {
@@ -153,7 +131,8 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
   return {
     homeId,
     awayId,
-    ...decisiveGoals(home, away),
+    homeGoals: finalGoals(home),
+    awayGoals: finalGoals(away),
     ...cards,
     date: (event.date ?? '').slice(0, 10),
   }

@@ -31,9 +31,9 @@ disagree, the **code is authoritative** and the gap is listed in
 - Venue / stadium / referee data
 - UI languages other than German
 - Manual override of deduced knockout matchups
-- Penalty-shootout _kick-by-kick_ scores as data (only the shootout winner is
-  recorded, via `Result.shootoutWinner`; `homeGoals`/`awayGoals` always stay
-  the real regulation/AET score)
+- Penalty shootouts as separate data (no shootout winner or kick-by-kick
+  score is recorded; the user enters one final score with any penalty goals
+  folded into `homeGoals`/`awayGoals`)
 - Disciplinary suspensions
 - Squad changes
 
@@ -80,11 +80,10 @@ disagree, the **code is authoritative** and the gap is listed in
   full `TeamRef`). Both carry `id` (`'M01'..'M104'`) and ISO-8601 `kickoff`
   (with venue UTC offset).
 - `Result` — `matchId`, `homeGoals`, `awayGoals`, `homeYellow/homeRed`,
-  `awayYellow/awayRed` (red includes second-yellow), optional
-  `shootoutWinner: 'home'|'away'` — set only when a knockout match was decided
-  by a penalty shootout; `homeGoals`/`awayGoals` stay the real regulation/AET
-  score (typically level in that case) rather than encoding the shootout
-  result as goals.
+  `awayYellow/awayRed` (red includes second-yellow). `homeGoals`/`awayGoals`
+  are the one final score; for a knockout match decided by a penalty shootout
+  the penalty goals are folded in, so a decided knockout score is always
+  decisive.
 - `ResultsMap` — `Readonly<Record<string, Result>>`; used at every read-only
   call site instead of restating the `Record` shape.
 - `PersistedState` — `{ version, results: ResultsMap }`.
@@ -159,9 +158,9 @@ sorted key, looks up `THIRD_PLACE_ALLOCATION`, maps host group → source group
 ### 5.3 Knockout resolution (`knockout.ts`)
 
 `resolveTeamRef(ref, results) → Team | null` walks the full `TeamRef` chain,
-returning `null` at any unresolved step. For a level knockout match it falls
-back to `shootoutWinner`; returns `null` if scores are level and no shootout
-winner is set. `MatchCard` disables result entry (`blocked`, derived from
+returning `null` at any unresolved step. A level knockout score is unresolved
+(the winner is unknown until a decisive score is entered). `MatchCard`
+disables result entry (`blocked`, derived from
 `resolveTeamRef` returning `null` for either side) while either side is
 unresolved.
 
@@ -193,8 +192,8 @@ can never serve stale data.
 - `exportJson(results)` downloads `wc2026-results-YYYY-MM-DD.json`
   (`{ version, results }`).
 - `parseImport(text)` parses and **validates**: version match, rejects arrays,
-  per-result field validation (all six counts non-negative integers, optional
-  `shootoutWinner`), every key must be a real fixture id, and `result.matchId`
+  per-result field validation (all six counts non-negative integers), every
+  key must be a real fixture id, and `result.matchId`
   must equal its own key — throws a German error on any violation.
 - localStorage rehydration on app load goes through the same validator
   (`isValidResultsMap`, exported from `persistence.ts`) via an `afterHydrate`
@@ -252,9 +251,9 @@ FIFA ranking) in plain, icon-illustrated language.
 Clicking a `MatchCard` opens `ScoreDialog` (native `<dialog>` `showModal()`,
 focus-trapped, Esc closes, scroll-locked). Contains `ScoreInput` (two
 `StepperInput` goal counters, non-negative integers) and `DisciplineInput`
-(Gelb/Rot steppers for Heim & Gast, default 0). For knockout matches that are
-level it shows an "🥅 Elfmeterschießen — Sieger" toggle (two `aria-pressed`
-buttons) that sets `shootoutWinner`; it clears itself when scores diverge.
+(Gelb/Rot steppers for Heim & Gast, default 0). Knockout results must have a
+decisive score (a match decided by shootout is entered with the penalty goals
+included); attempting to save a level knockout score shows an error.
 Pre-fills an existing result; "Löschen" clears it. Saving pushes an ARIA-live
 announcement ("Ergebnis gespeichert: …"). Knockout cards are disabled while
 either side is unresolved. If saving or clearing would change which teams a
@@ -372,9 +371,9 @@ Import errors shown as German messages.
    could be missed. Practically adequate; bound chosen for performance.
 4. **`thirdPlace` possible-teams is approximate** while groups are incomplete
    (Annex-C source-group scan), only becoming exact once all groups finish.
-5. **Penalty shootouts store the real regulation/AET score plus a winner**
-   (`Result.shootoutWinner`), not a kick-by-kick shootout score; a level
-   knockout result without `shootoutWinner` leaves the slot unresolved.
+5. **Penalty shootouts are not modelled separately** — the user enters one
+   final score with the penalty goals folded in; a level knockout result
+   leaves the slot unresolved.
 6. **No live/finished status** is surfaced anymore (badges removed) — a match's
    state is implicit (has a result or not); kickoff time is shown but not used to
    label progress.
@@ -384,7 +383,7 @@ Import errors shown as German messages.
 8. **Import/rehydration trust boundary.** `parseImport` and the localStorage
    `afterHydrate` hook both check that every key is a real fixture id and that
    `result.matchId` matches its key, but don't check cross-field consistency
-   (e.g. a `shootoutWinner` set on a non-level score, or set on a group-stage
-   match).
+   (e.g. a level score on a knockout match — accepted, but leaves the slot
+   unresolved).
 9. **Schema migrations** are specified (versioned key) but only `version 1`
    exists; no migration code path is exercised yet.
