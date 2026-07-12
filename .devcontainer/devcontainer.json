@@ -4,12 +4,20 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   /*
+  npm ci runs as updateContentCommand (not postCreateCommand) because waitFor defaults
+  to updateContentCommand: VS Code blocks connecting/activating extensions until it
+  finishes. Extensions like oxc's language server spawn node_modules binaries on
+  activation, so if npm ci ran later (in the background, after postCreateCommand) those
+  binaries could still be mid-write, crashing the server with SIGBUS.
+  */
+  "updateContentCommand": "npm ci",
+  /*
   Install the playwright-cli skill at user level (~/.claude/skills). This must happen
   after the claude-code-config volume is mounted (a Dockerfile RUN would be shadowed by
   the volume on rebuilds) and re-runs on every rebuild, keeping the skill in sync with
   the pinned @playwright/cli version.
   */
-  "postCreateCommand": "npm ci && cd ~ && playwright-cli install --skills",
+  "postCreateCommand": "cd ~ && playwright-cli install --skills",
   "forwardPorts": [5173, 4173],
   "customizations": {
     "vscode": {
