@@ -1,10 +1,16 @@
 import type { GroupId, ResultsMap, Team } from '../types/tournament'
+import { GROUP_IDS } from '../types/tournament'
 import { teamsInGroup } from '../data/teams'
 import { groupMatchesByGroup } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
 
 export function isGroupComplete(groupId: GroupId, results: ResultsMap): boolean {
   return (groupMatchesByGroup.get(groupId) ?? []).every((m) => results[m.id] != null)
+}
+
+/** True once every group has complete group-stage results. */
+export function isGroupStageComplete(results: ResultsMap): boolean {
+  return GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
 }
 
 export type MatchOutcome = 'W' | 'D' | 'L'
