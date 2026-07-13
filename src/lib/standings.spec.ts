@@ -8,9 +8,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { computeGroupStandings, resultFingerprint, clearStandingsCache } from './standings'
+import { computeGroupStandings, resultFingerprint, clearStandingsCache, isGroupStageComplete } from './standings'
 import { groupMatches } from '../data/fixtures-2026'
-import { makeResult, resultsMap } from '../test-support/results'
+import { makeResult, resultsMap, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // Group A fixtures (real IDs from fixtures-2026.ts, chronological order)
@@ -267,5 +267,25 @@ describe('computeGroupStandings — memoization', () => {
     expect(second).not.toBe(first)
     // Content is still equivalent — only the cache identity changed.
     expect(second.map((s) => s.team.id)).toEqual(first.map((s) => s.team.id))
+  })
+})
+
+// ---------------------------------------------------------------------------
+// isGroupStageComplete — true once every one of the 12 groups is complete
+// ---------------------------------------------------------------------------
+
+describe('isGroupStageComplete', () => {
+  it('is false for an empty results map', () => {
+    expect(isGroupStageComplete({})).toBe(false)
+  })
+
+  it('is false while a single group match is still missing a result', () => {
+    const results = allGroupResults()
+    delete results[groupMatches[0]!.id]
+    expect(isGroupStageComplete(results)).toBe(false)
+  })
+
+  it('is true once every group match has a result', () => {
+    expect(isGroupStageComplete(allGroupResults())).toBe(true)
   })
 })
