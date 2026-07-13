@@ -48,7 +48,7 @@ function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
     y: 0,
     toJSON: () => ({}),
     ...rect,
-  } as DOMRect)
+  })
 }
 
 function buildContainer(): { container: HTMLElement; matchCard: HTMLElement } {

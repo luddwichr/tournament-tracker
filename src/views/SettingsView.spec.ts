@@ -126,6 +126,7 @@ describe('SettingsView – import', () => {
 
   it('shows fallback error message when thrown value is not an Error instance', async () => {
     vi.mocked(persistence.parseImport).mockImplementation(() => {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- a non-Error throw is the scenario under test
       throw 'unexpected'
     })
     const wrapper = mountView()

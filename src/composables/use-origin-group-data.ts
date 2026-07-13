@@ -23,7 +23,7 @@ export function useOriginGroupData(): ComputedRef<OriginGroupData[]> {
 
   const thirdPlaceGroupToSlot = computed((): Map<GroupId, ThirdPlaceSlot> => {
     const ranked = rankedThirds.value
-    return ranked ? buildGroupToThirdPlaceSlotMap(ranked) : new Map()
+    return ranked ? buildGroupToThirdPlaceSlotMap(ranked) : new Map<GroupId, ThirdPlaceSlot>()
   })
 
   return computed((): OriginGroupData[] =>

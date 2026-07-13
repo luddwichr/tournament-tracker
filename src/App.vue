@@ -38,7 +38,7 @@ const announcement = ref('')
 function announce(msg: string): void {
   // Clear then set on next tick so the same message can be re-announced.
   announcement.value = ''
-  nextTick(() => {
+  void nextTick(() => {
     announcement.value = msg
   })
 }

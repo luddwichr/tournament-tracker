@@ -1,9 +1,15 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "oxc", "vue", "unicorn"],
+  // `pedantic` stays off deliberately: it is dominated by style opinions that
+  // conflict with this codebase's conventions — no-inline-comments alone would
+  // flag every inline why-comment (~100+), plus require-unicode-regexp and
+  // max-lines-per-function noise. Cherry-pick individual pedantic rules into
+  // "rules" instead if they prove valuable.
   "categories": {
     "correctness": "error",
-    "suspicious": "error"
+    "suspicious": "error",
+    "perf": "error"
   },
   "rules": {
     "unicorn/consistent-function-scoping": "error",
@@ -14,6 +20,16 @@
     "unicorn/no-null": "off",
     "unicorn/filename-case": ["error", { "cases": { "pascalCase": true, "kebabCase": true } }]
   },
+  "overrides": [
+    {
+      // Playwright steps are inherently sequential — each await depends on the
+      // page state left by the previous one, so Promise.all is not an option.
+      "files": ["e2e/**"],
+      "rules": {
+        "no-await-in-loop": "off"
+      }
+    }
+  ],
   "env": {
     "builtin": true,
     "browser": true,
