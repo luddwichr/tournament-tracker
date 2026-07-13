@@ -52,12 +52,17 @@ jobs:
       - name: Verify registry signatures and provenance
         run: npm audit signatures
       - run: npm run check:code
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
+          # keyed on the Playwright version rather than the whole lockfile so
+          # unrelated dependency bumps don't re-download browsers
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - run: npx playwright install-deps chromium
       - run: npx playwright install chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
