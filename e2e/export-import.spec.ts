@@ -63,6 +63,18 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   // Step 2: Reset — click settings button, then confirm in the custom dialog
   await settings.resetAndConfirm()
 
+  // Wait for the store to persist the cleared state — navigating earlier lets
+  // the next page load rehydrate the stale results (flaky on mobile-chrome CI)
+  await page.waitForFunction(
+    ([key]) => {
+      const stored = localStorage.getItem(key as string)
+      if (!stored) return true
+      const parsed = JSON.parse(stored) as { results?: Record<string, unknown> }
+      return parsed.results?.['M01'] === undefined
+    },
+    [STORAGE_KEY],
+  )
+
   // Verify reset cleared results
   await groups.goto()
   await expect(groups.emptyMatchButton('Mexiko', 'Südafrika')).toBeVisible()
