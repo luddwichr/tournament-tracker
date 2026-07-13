@@ -747,13 +747,7 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Findings
 
-1. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
-   `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
-   broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
-   default though it is consumed by the `deploy` job in the same run. Add a validator step and
-   `retention-days: 1`.
-
-2. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+1. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -767,8 +761,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | No type-aware linting                     | STILL OPEN | `eslint.config.js:15` still non-typed `recommended`              |
 | oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
 | Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
-| `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
-| `dist` artifact no retention-days         | STILL OPEN | `ci.yml:48-53`                                                   |
 | No CSP meta                               | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
 | Versioning invisible                      | STILL OPEN | `package.json:3` still `0.1.0`, no CHANGELOG                     |
 | ESPN dependency risk undocumented         | STILL OPEN | no shape guard/monitoring beyond provider parsing                |
