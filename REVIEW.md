@@ -747,29 +747,24 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Findings
 
-1. **[MEDIUM] size-limit still leaves the 66 KB `TeamDialog-*.js` chunk uncovered.**
-   `package.json:64-80`. Prior §6.7, still open — `dist/assets/TeamDialog-*.js` is 66.8 KB raw
-   and the largest lazy chunk, yet the three budgets cover only entry JS/CSS and
-   `TeamLabel-*.css`. Add a budget for it.
-
-2. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
+1. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
    Prior §6.8, unchanged: `runtimeCaching` has only the navigate route; `site.api.espn.com`
    bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
    state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
 
-3. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+2. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-4. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+3. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-5. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+4. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -784,7 +779,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
 | Three-way `target` sync unenforced        | STILL OPEN | comments only, no guard                                          |
 | vitest `composite:false` vs e2e `true`    | STILL OPEN | unchanged                                                        |
-| size-limit misses `TeamDialog-*.js`       | STILL OPEN | 66.8 KB chunk, no budget                                         |
 | No SW runtime caching for ESPN            | STILL OPEN | `vite.config.ts:54-85` navigate route only                       |
 | Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
 | `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
@@ -814,7 +808,7 @@ almost every §7 finding from the prior review that wasn't fixed _by deletion_ i
   sound (`invalidation.ts:42-46`).
 - **Prose conventions replaced by machines, done right:** exact-pin now enforced by `.npmrc:32`
   (`save-exact=true`) _and_ `renovate.json:4` (`rangeStrategy: "pin"`); phantom deps fail fast
-  via `install-strategy=linked`; the flag-CSS size-limit entry (`package.json:76-79`) exists
+  via `install-strategy=linked`; the flag-CSS size-limit entry (`package.json:81-85`) exists
   specifically to catch a re-import regression of the full flag catalog.
 - **Comment quality is top-percentile.** Sampled broadly: `vite.config.ts:22-30` (why `prompt`
   not `autoUpdate`), `stores/tournament.ts:59-68` (rehydration trust boundary),
