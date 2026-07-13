@@ -13,7 +13,7 @@ import type { GroupId, ResultsMap, Team, ThirdPlaceSlot } from '../types/tournam
 import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import type { TeamStat } from './standings'
-import { computeGroupStandings, isGroupComplete } from './standings'
+import { computeGroupStandings, isGroupStageComplete } from './standings'
 import { compareByPointsGdGf } from './tiebreakers'
 
 // 0-indexed position of the third-placed team in sorted group standings.
@@ -51,7 +51,7 @@ export interface ThirdPlaceRanking {
  * is still provisional.
  */
 export function rankThirdPlacedLive(results: ResultsMap): ThirdPlaceRanking {
-  const final = GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
+  const final = isGroupStageComplete(results)
   return { ranked: thirdPlacedStats(results).toSorted(compareThirdPlaced), final }
 }
 
