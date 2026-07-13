@@ -20,7 +20,7 @@ already-pinned version; shared runners regularly hit the 60 req/h/IP limit
 `releases/download/v<version>/opengrep_manylinux_x86` URL with `--retry`.
 Done in commit `328af0f`.
 
-## 2. Devcontainer Dockerfile uses the same fragile install.sh
+## 2. ✅ Devcontainer Dockerfile uses the same fragile install.sh
 
 `.devcontainer/Dockerfile:91` pipes the same `install.sh`, so container builds can
 fail on the same rate limit (and it warns "cosign … not installed. Skipping
@@ -29,7 +29,7 @@ signature validation" on every build).
 **Fix:** switch to the same direct-download pattern as CI (comment in both files
 already demands they stay in sync).
 
-## 3. No integrity verification of the opengrep binary
+## 3. ✅ No integrity verification of the opengrep binary
 
 The installer's signature verification was always skipped in CI (cosign not
 installed), and the new direct download doesn't verify either. A compromised
@@ -38,16 +38,16 @@ release asset would run with repo read access.
 **Fix:** pin the release asset's SHA-256 next to `OPENGREP_VERSION` and verify with
 `sha256sum -c` in both the CI step and the Dockerfile.
 
-## 4. `playwright install-deps` runs a full apt update/install every run (~38s)
+## 4. ✅ `playwright install-deps` runs a full apt update/install every run (~38s)
 
-It runs unconditionally and installs system deps for *all* browsers, even though
+It runs unconditionally and installs system deps for _all_ browsers, even though
 only chromium is used and the browser cache hit.
 
 **Fix:** `npx playwright install-deps chromium` to limit the package set. (The step
 must stay unconditional — system libs aren't part of the `~/.cache/ms-playwright`
 cache — but chromium-only shrinks the apt transaction.)
 
-## 5. Triple typecheck / double vite build on main pushes
+## 5. ✅ Triple typecheck / double vite build on main pushes
 
 - `check:code` runs `typecheck` (1st).
 - `check:build` runs `npm run build` = `typecheck && vite build` (2nd).
@@ -59,7 +59,7 @@ deploy" step; typechecking already gates the run twice by that point. (Optionall
 also use it inside `check:build` in CI, but that changes local semantics — keep
 scope small first.)
 
-## 6. `cancel-in-progress: true` also cancels main builds → deploys can be skipped
+## 6. ✅ `cancel-in-progress: true` also cancels main builds → deploys can be skipped
 
 Run 29244481401 (push to main, "Hide decorative emoji…") was cancelled by the
 following push. If the newer run had then failed before deploy, Pages would have
@@ -68,7 +68,7 @@ stayed stale with no successful deploy for either commit.
 **Fix:** `cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}` so PR runs
 still cancel but main runs queue.
 
-## 7. Flaky e2e test with no debugging artifacts
+## 7. ✅ Flaky e2e test with no debugging artifacts
 
 `e2e/export-import.spec.ts:53` ("export → Zurücksetzen → Importieren restores
 state", mobile-chrome) was flaky in run 29243518411 — `emptyMatchButton('Mexiko',
@@ -76,13 +76,14 @@ state", mobile-chrome) was flaky in run 29243518411 — `emptyMatchButton('Mexik
 the HTML report are discarded, so flakes/failures can't be diagnosed after the fact.
 
 **Fix (two parts):**
+
 1. Upload `playwright-report/` + `test-results/` as an artifact with
    `if: failure()` (and consider `!cancelled()` to also capture flaky retries).
 2. Investigate the flake itself: the assertion races the post-reset re-render;
    check whether reset state propagation needs an explicit await in the page
    object / test.
 
-## 8. Playwright browser cache invalidated by any dependency change
+## 8. ✅ Playwright browser cache invalidated by any dependency change
 
 Cache key is `playwright-${{ hashFiles('package-lock.json') }}`, so every
 unrelated dep bump re-downloads chromium (~1 min penalty on those runs).
