@@ -82,6 +82,11 @@
       "name": "Flag CSS (subset built from styles/flags.scss; catches a re-import of the full flag-icons catalog)",
       "path": "dist/assets/TeamLabel-*.css",
       "limit": "5 KB"
+    },
+    {
+      "name": "Total dist (whole build output; catches overall bloat regardless of hot vs. lazy path)",
+      "path": "dist/**/*",
+      "limit": "1 MB"
     }
   ],
   "engines": {
