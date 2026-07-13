@@ -40,15 +40,15 @@ function ev(opts: {
 }
 
 function okResponse(data: unknown) {
-  return { ok: true, status: 200, json: async () => data }
+  return { ok: true, status: 200, json: () => Promise.resolve(data) }
 }
 
 /** A fake `fetch` returning `data`, recording the URLs it was called with. */
 function recordingFetch(data: unknown) {
   const calls: string[] = []
-  const impl = (async (input: RequestInfo | URL) => {
-    calls.push(String(input))
-    return okResponse(data)
+  const impl = ((input: RequestInfo | URL) => {
+    calls.push(input instanceof Request ? input.url : String(input))
+    return Promise.resolve(okResponse(data))
   }) as unknown as typeof fetch
   return { impl, calls }
 }
@@ -202,9 +202,9 @@ describe('espnProvider.fetchResults', () => {
   it('forwards the abort signal to fetch', async () => {
     const controller = new AbortController()
     let seen: AbortSignal | null | undefined
-    const fetchImpl = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchImpl = ((_input: RequestInfo | URL, init?: RequestInit) => {
       seen = init?.signal
-      return okResponse({ events: [] })
+      return Promise.resolve(okResponse({ events: [] }))
     }) as unknown as typeof fetch
     await espnProvider.fetchResults({ fetchImpl, signal: controller.signal, now: pinnedNow })
     expect(seen).toBe(controller.signal)
@@ -217,15 +217,14 @@ describe('espnProvider.fetchResults', () => {
   })
 
   it('rejects with a user-readable error when the request is not ok', async () => {
-    const fetchImpl = (async () => ({ ok: false, status: 503, json: async () => ({}) })) as unknown as typeof fetch
+    const fetchImpl = (() =>
+      Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) })) as unknown as typeof fetch
     await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toThrow(/nicht abgerufen werden/)
   })
 
   it('rejects with a user-readable error preserving the original failure as `cause`', async () => {
     const networkFailure = new Error('offline')
-    const fetchImpl = (async () => {
-      throw networkFailure
-    }) as unknown as typeof fetch
+    const fetchImpl = (() => Promise.reject(networkFailure)) as unknown as typeof fetch
     await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toThrow(/Internetverbindung/)
     await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toMatchObject({
       cause: networkFailure,
@@ -234,9 +233,7 @@ describe('espnProvider.fetchResults', () => {
 
   it('rethrows an AbortError as-is instead of masking it as a network error', async () => {
     const abortError = new DOMException('The operation was aborted.', 'AbortError')
-    const fetchImpl = (async () => {
-      throw abortError
-    }) as unknown as typeof fetch
+    const fetchImpl = (() => Promise.reject(abortError)) as unknown as typeof fetch
     await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toBe(abortError)
   })
 

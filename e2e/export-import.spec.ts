@@ -42,7 +42,7 @@ test('Exportieren downloads a valid JSON file', async ({ page }) => {
   expect(download.suggestedFilename()).toMatch(/^wc2026-results-\d{4}-\d{2}-\d{2}\.json$/)
 
   const filePath = await download.path()
-  const content = JSON.parse(await readFile(filePath!, 'utf-8')) as {
+  const content = JSON.parse(await readFile(filePath, 'utf-8')) as {
     version: number
     results: Record<string, unknown>
   }
@@ -58,7 +58,7 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   // Step 1: Export
   const download = await settings.export()
   const filePath = await download.path()
-  const fileContent = await readFile(filePath!, 'utf-8')
+  const fileContent = await readFile(filePath, 'utf-8')
 
   // Step 2: Reset — click settings button, then confirm in the custom dialog
   await settings.resetAndConfirm()

@@ -69,12 +69,13 @@ export default defineConfig({
                   // GitHub Pages 404s deep-link paths it can't resolve server-side;
                   // treat that like a network failure so we fall back to the
                   // cached shell instead of caching/showing the 404 page.
-                  fetchDidSucceed: async ({ response }: { response: Response }) => {
-                    if (!response.ok) {
-                      throw new Error(`Bad navigation response: ${response.status}`)
-                    }
-                    return response
-                  },
+                  // Not async (Workbox awaits the returned promise either way):
+                  // rejecting instead of throwing keeps the failure inside the
+                  // promise even if a caller chains .then() without awaiting.
+                  fetchDidSucceed: ({ response }: { response: Response }) =>
+                    response.ok
+                      ? Promise.resolve(response)
+                      : Promise.reject(new Error(`Bad navigation response: ${response.status}`)),
                   // Last resort when offline and this exact path was never
                   // cached at runtime: fall back to the precached shell.
                   // `ignoreSearch` skips over Workbox's `__WB_REVISION__`

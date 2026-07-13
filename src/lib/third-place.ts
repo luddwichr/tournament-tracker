@@ -94,7 +94,7 @@ function qualifyingAllocation(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> 
  * with valid ranked input but guards against unknown combinations).
  */
 export function buildGroupToThirdPlaceSlotMap(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> {
-  return qualifyingAllocation(ranked) ?? new Map()
+  return qualifyingAllocation(ranked) ?? new Map<GroupId, ThirdPlaceSlot>()
 }
 
 /**

@@ -51,7 +51,7 @@ describe('squads', () => {
     for (const team of teams) {
       for (const player of squads[team.id] ?? []) {
         if (player.position !== undefined) {
-          expect(VALID.has(player.position!), `${team.id} pos ${player.position}`).toBe(true)
+          expect(VALID.has(player.position), `${team.id} pos ${player.position}`).toBe(true)
         }
       }
     }

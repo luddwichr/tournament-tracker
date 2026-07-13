@@ -19,7 +19,7 @@ function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
     y: 0,
     toJSON: () => ({}),
     ...rect,
-  } as DOMRect)
+  })
 }
 
 describe('useBracketConnectors', () => {
