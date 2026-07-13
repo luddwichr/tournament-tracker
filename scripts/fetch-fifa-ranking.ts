@@ -257,6 +257,18 @@ async function fetchHtml(): Promise<string> {
   return html
 }
 
+/** Strip HTML tags, reapplying the regex until no more matches remain so that
+ *  overlapping/nested markup (e.g. `<scr<script>ipt>`) can't survive a single pass. */
+function stripTags(html: string): string {
+  let stripped = html
+  let previous: string
+  do {
+    previous = stripped
+    stripped = stripped.replace(/<[^>]+>/g, '')
+  } while (stripped !== previous)
+  return stripped
+}
+
 /** Return [{rank, englishName, points}] for all 211 teams, rank-sorted. */
 function parseRanking(html: string): RankingRow[] {
   // The page has multiple tables whose header starts with a "Rank" column
@@ -274,7 +286,7 @@ function parseRanking(html: string): RankingRow[] {
     const rows: RankingRow[] = []
     for (const m of table.matchAll(/<tr><td>(\d+)<\/td><td>(.*?)<\/td><td>([\d.]+)<\/td>/g)) {
       const [, rank, teamCell, points] = m as unknown as [string, string, string, string]
-      const englishName = teamCell.replace(/<[^>]+>/g, '').trim() // strip any <a> wrapper
+      const englishName = stripTags(teamCell).trim() // strip any <a> wrapper
       rows.push({ rank: Number(rank), englishName, points: Number(points) })
     }
     if (rows.length > best.length) best = rows
