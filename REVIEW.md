@@ -747,24 +747,19 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Findings
 
-1. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
-   Prior §6.8, unchanged: `runtimeCaching` has only the navigate route; `site.api.espn.com`
-   bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
-   state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
-
-2. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+1. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-3. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+2. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-4. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+3. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -779,7 +774,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
 | Three-way `target` sync unenforced        | STILL OPEN | comments only, no guard                                          |
 | vitest `composite:false` vs e2e `true`    | STILL OPEN | unchanged                                                        |
-| No SW runtime caching for ESPN            | STILL OPEN | `vite.config.ts:54-85` navigate route only                       |
 | Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
 | `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
 | `dist` artifact no retention-days         | STILL OPEN | `ci.yml:48-53`                                                   |
