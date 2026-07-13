@@ -4,6 +4,7 @@ import type { ResultsMap } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 import { useSettingsStore } from '../stores/settings'
 import { exportJson, parseImport } from '../lib/persistence'
+import { readErrorLog, clearErrorLog } from '../lib/error-log'
 import { useResultsSync } from '../composables/use-results-sync'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SyncDialog from '../components/SyncDialog.vue'
@@ -90,6 +91,20 @@ function handleConfirm(): void {
 function handleCancel(): void {
   pending.value = null
 }
+
+// Snapshot on mount is enough: new errors can only be logged while this view
+// is not being interacted with (a component crash unmounts it anyway).
+const errorLog = ref(readErrorLog())
+
+function handleClearErrorLog(): void {
+  clearErrorLog()
+  errorLog.value = []
+}
+
+function formatErrorTime(isoTime: string): string {
+  const date = new Date(isoTime)
+  return Number.isNaN(date.getTime()) ? isoTime : date.toLocaleString('de-DE')
+}
 </script>
 
 <template>
@@ -125,6 +140,25 @@ function handleCancel(): void {
           tabindex="-1"
           @change="handleFileChange"
         />
+      </section>
+
+      <section class="settings-view__section">
+        <h2>Diagnose</h2>
+
+        <p v-if="errorLog.length === 0" class="settings-view__log-empty">Keine Fehler aufgezeichnet.</p>
+
+        <template v-else>
+          <ul class="settings-view__log">
+            <li v-for="(entry, index) in errorLog" :key="index" class="settings-view__log-entry">
+              <time :datetime="entry.time" class="settings-view__log-time">{{ formatErrorTime(entry.time) }}</time>
+              <span class="settings-view__log-message">{{ entry.message }}</span>
+            </li>
+          </ul>
+
+          <div class="settings-view__actions">
+            <button type="button" class="btn btn--secondary" @click="handleClearErrorLog">Protokoll löschen</button>
+          </div>
+        </template>
       </section>
     </div>
   </div>
@@ -192,5 +226,34 @@ h2 {
   color: var(--color-loss);
   margin: 0;
   font-size: var(--font-size-sm);
+}
+
+.settings-view__log-empty {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.settings-view__log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-view__log-entry {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-size-sm);
+}
+
+.settings-view__log-time {
+  color: var(--color-text-muted);
+}
+
+.settings-view__log-message {
+  overflow-wrap: anywhere;
 }
 </style>
