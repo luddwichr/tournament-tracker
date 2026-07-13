@@ -11,10 +11,9 @@
  */
 
 import type { Stage, TeamRef, Team, ResultsMap } from '../types/tournament'
-import { GROUP_IDS } from '../types/tournament'
 import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
-import { computeGroupStandings, isGroupComplete } from './standings'
+import { computeGroupStandings, isGroupComplete, isGroupStageComplete } from './standings'
 import { resolveThirdPlaceSlot } from './third-place'
 import { assertNever } from './assert-never'
 
@@ -82,7 +81,7 @@ const COLUMN_MATCH_STAGES: Record<BracketColumnStage, readonly Stage[]> = {
  * 'final' once every knockout match has been decided.
  */
 export function currentBracketColumn(results: ResultsMap): BracketColumnStage | null {
-  if (!GROUP_IDS.every((group) => isGroupComplete(group, results))) return null
+  if (!isGroupStageComplete(results)) return null
 
   return (
     COLUMN_STAGE_ORDER.find((column) =>

@@ -16,6 +16,10 @@ ARG PLAYWRIGHT_VERSION=1.61.1
 # https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
 # independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
 ARG PLAYWRIGHT_CLI_VERSION=0.1.17
+# https://github.com/opengrep/opengrep/releases — open-source (LGPL-2.1)
+# static analysis engine with cross-function taint tracking, used by
+# `npm run security`; keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml
+ARG OPENGREP_VERSION=1.25.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -24,7 +28,7 @@ ARG USER_GID=1000
 ARG TZ=UTC
 
 # Set environment variables
-# TZ: Set system-wide timezone (default UTC, otherwise what's given in docker-compose.yml (taking the local timezTZ=${TZ:-Europe/Berlin}))
+# TZ: Set system-wide timezone
 # DEVCONTAINER: signal to processes that running in a dev container setup - may be used for conditional execution
 ENV TZ="$TZ" \
     EDITOR=nano \
@@ -48,24 +52,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # first push doesn't hit an interactive host-key prompt
 RUN printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' >> /etc/ssh/ssh_known_hosts
 
-# install Node.js
+# Install Node.js - core dependency for this typescript based project
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
     | tar -xJ -C /usr/local --strip-components=1
 
 # Create user, directories, files and set ownership
-RUN groupadd --gid=${USER_GID} ${USERNAME} \
+RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && useradd --uid ${USER_UID} --gid ${USER_GID} --create-home --shell /bin/bash ${USERNAME} \
     && mkdir -p ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} \
     && touch ${COMMAND_HISTORY_FOLDER}/.bash_history \
     && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR}
 
-# Install Playwright system dependencies (requires root)
-RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps
+# Install Playwright system dependencies (requires root); clean up the apt lists
+# left behind by its internal apt-get update and root's npm cache from npx
+# (never reused — all later npm activity runs as ${USERNAME})
+RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps \
+    && rm -rf /var/lib/apt/lists/* /root/.npm
 
 USER ${USERNAME}
 
-# Install the pinned npm into NPM_CONFIG_PREFIX (~/.npm-global), which precedes
-# /usr/local/bin on PATH and thus shadows the Node-bundled npm
+# Install pinned npm into NPM_CONFIG_PREFIX, which precedes /usr/local/bin on PATH and thus shadows the Node-bundled npm
 RUN npm install -g npm@${NPM_VERSION}
 
 # Pre-install Playwright browsers
@@ -77,11 +83,20 @@ RUN npx playwright@${PLAYWRIGHT_VERSION} install
 RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
     && playwright-cli install-browser chromium
 
-# install uv (Python package manager)
+# Install uv (Python package manager) - useful for coding agents that use Python code for temporary scripting tasks
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
-  && uv python install ${PYTHON_VERSION} --default
+    && uv python install ${PYTHON_VERSION} --default
 
-# install claude (version not pinned since it auto-updates itself and update is released more or less daily)
+# Install opengrep - used for static code analysis
+# The upstream install.sh is avoided on purpose: it lists releases via the unauthenticated
+# GitHub API (rate-limited); downloading the pinned release directly avoids that.
+RUN curl -fsSL --retry 3 --retry-all-errors -o /tmp/opengrep \
+        https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_manylinux_x86 \
+    && install -Dm755 /tmp/opengrep ~/.local/bin/opengrep \
+    && rm /tmp/opengrep \
+    && opengrep --version
+
+# Install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \
     && claude plugin marketplace add anthropics/claude-plugins-official
 

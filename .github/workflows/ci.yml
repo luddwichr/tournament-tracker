@@ -8,7 +8,10 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Superseded PR runs are cancelled, but pushes to main queue instead: a
+  # cancelled main run deploys nothing, and if the newer run then fails, Pages
+  # would be left without a successful deploy for either commit.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   ci:
@@ -26,23 +29,55 @@ jobs:
           cache: npm
       - name: Install npm pinned in engines.npm
         run: npm install -g "npm@$(node -p 'require("./package.json").engines.npm')"
+      - name: Install opengrep
+        env:
+          # keep in sync with OPENGREP_VERSION in .devcontainer/Dockerfile
+          OPENGREP_VERSION: 1.25.0
+        # Download the pinned release binary directly instead of using install.sh:
+        # the installer lists releases via the unauthenticated GitHub API, which
+        # gets rate-limited on shared runners (HTTP 403 -> "Failed to fetch
+        # available versions from GitHub").
+        run: |
+          install_dir="$HOME/.opengrep/cli/latest"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o "$install_dir/opengrep" \
+            "https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_manylinux_x86"
+          chmod +x "$install_dir/opengrep"
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/opengrep" --version
       - run: npm ci
       - name: Verify registry signatures and provenance
         run: npm audit signatures
       - run: npm run check:code
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install-deps
+          # keyed on the Playwright version rather than the whole lockfile so
+          # unrelated dependency bumps don't re-download browsers
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - run: npx playwright install-deps chromium
       - run: npx playwright install chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npm run check:build
+      - name: Upload Playwright traces (failures and flaky retries)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-test-results
+          path: test-results
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Build for deploy
         if: github.ref == 'refs/heads/main'
-        run: npm run build
+        # build:only skips the typecheck that already gated check:code and
+        # check:build earlier in this job
+        run: npm run build:only
         env:
           DEPLOY_BASE_PATH: /${{ github.event.repository.name }}/
       - name: Upload dist

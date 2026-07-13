@@ -36,23 +36,13 @@ export default tseslint.config(
       // only needed when Vue's boolean-casting behaviour requires one (handled
       // case-by-case with withDefaults).
       'vue/require-default-prop': 'off',
-
-      // Enforce <script setup> API style throughout.
       'vue/component-api-style': ['error', ['script-setup']],
-
-      // Macro call order: defineProps before defineEmits.
       'vue/define-macros-order': ['error', { order: ['defineProps', 'defineEmits'] }],
-
-      // Require TypeScript type-based prop and emit declarations — consistent with
-      // the TS-first approach and redundant with vue/require-default-prop: off.
       'vue/define-props-declaration': ['error', 'type-based'],
       'vue/define-emits-declaration': ['error', 'type-literal'],
-
-      // Catch template refs that are declared but never read in <script setup>.
       'vue/no-unused-refs': 'error',
-
-      // Enforce useTemplateRef() over ref<T | null>(null) for template refs.
       'vue/prefer-use-template-ref': 'error',
+      'vue/prefer-true-attribute-shorthand': 'error',
 
       // oxfmt owns HTML formatting; disable conflicting vue layout rules.
       'vue/max-attributes-per-line': 'off',
@@ -60,8 +50,6 @@ export default tseslint.config(
       'vue/html-self-closing': 'off',
       'vue/html-indent': 'off',
       'vue/html-closing-bracket-newline': 'off',
-
-      'vue/prefer-true-attribute-shorthand': 'error',
     },
   },
   {

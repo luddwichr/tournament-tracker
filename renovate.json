@@ -16,6 +16,11 @@
     {
       "groupName": "npm",
       "matchDepNames": ["npm"]
+    },
+    {
+      "groupName": "opengrep",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["opengrep"]
     }
   ],
   "customManagers": [
@@ -61,6 +66,22 @@
       "matchStrings": ["ARG PLAYWRIGHT_CLI_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "@playwright/cli",
       "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG OPENGREP_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "opengrep",
+      "packageNameTemplate": "opengrep/opengrep",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
+      "matchStrings": ["OPENGREP_VERSION: (?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "opengrep",
+      "packageNameTemplate": "opengrep/opengrep",
+      "datasourceTemplate": "github-releases"
     }
   ]
 }
