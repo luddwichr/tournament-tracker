@@ -753,13 +753,7 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-2. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
-   comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
-   (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
-   end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
-   `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
-
-3. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+2. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -772,8 +766,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | ----------------------------------------- | ---------- | ---------------------------------------------------------------- |
 | No type-aware linting                     | STILL OPEN | `eslint.config.js:15` still non-typed `recommended`              |
 | oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
-| Three-way `target` sync unenforced        | STILL OPEN | comments only, no guard                                          |
-| vitest `composite:false` vs e2e `true`    | STILL OPEN | unchanged                                                        |
 | Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
 | `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
 | `dist` artifact no retention-days         | STILL OPEN | `ci.yml:48-53`                                                   |
