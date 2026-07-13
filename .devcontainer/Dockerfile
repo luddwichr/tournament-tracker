@@ -18,9 +18,10 @@ ARG PLAYWRIGHT_VERSION=1.61.1
 ARG PLAYWRIGHT_CLI_VERSION=0.1.17
 # https://github.com/opengrep/opengrep/releases — open-source (LGPL-2.1)
 # static analysis engine with cross-function taint tracking, used by
-# `npm run security`; keep in sync with the OPENGREP_VERSION env var in
-# .github/workflows/ci.yml
+# `npm run security`; keep version and checksum in sync with the OPENGREP_*
+# env vars in .github/workflows/ci.yml
 ARG OPENGREP_VERSION=1.25.0
+ARG OPENGREP_SHA256=9ac4aebb47ba3f7b0d8fc641ac8749cb6c2f253f616131a67d9631e00d4bea33
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -86,10 +87,17 @@ RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
   && uv python install ${PYTHON_VERSION} --default
 
-# Install opengrep (npm run security / check:code); the installer places the
-# binary at ~/.opengrep/cli and symlinks it onto PATH via ~/.local/bin
-RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/v${OPENGREP_VERSION}/install.sh \
-    | bash -s -- -v v${OPENGREP_VERSION}
+# Install opengrep (npm run security / check:code) straight into ~/.local/bin,
+# which is on PATH. The upstream install.sh is avoided on purpose: it lists
+# releases via the unauthenticated GitHub API (rate-limited) and skips
+# signature validation without cosign anyway; a pinned checksum verifies the
+# download instead.
+RUN mkdir -p ~/.local/bin \
+    && curl -fsSL --retry 3 --retry-all-errors -o ~/.local/bin/opengrep \
+        https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_manylinux_x86 \
+    && echo "${OPENGREP_SHA256}  $HOME/.local/bin/opengrep" | sha256sum -c - \
+    && chmod +x ~/.local/bin/opengrep \
+    && ~/.local/bin/opengrep --version
 
 # install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \
