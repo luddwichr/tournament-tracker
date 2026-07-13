@@ -63,4 +63,19 @@ export class SettingsPage {
   alert(): Locator {
     return this.page.getByRole('alert')
   }
+
+  /** The entries listed in the Diagnose section's error log. */
+  errorLogEntries(): Locator {
+    return this.page.locator('.settings-view__log-entry')
+  }
+
+  /** The Diagnose section's empty-state message. */
+  errorLogEmptyState(): Locator {
+    return this.page.getByText('Keine Fehler aufgezeichnet.')
+  }
+
+  /** Clicks "Protokoll löschen" in the Diagnose section. */
+  async clearErrorLog(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Protokoll löschen' }).click()
+  }
 }

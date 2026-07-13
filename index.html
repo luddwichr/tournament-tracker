@@ -8,6 +8,20 @@
     <link rel="icon" type="image/png" href="%BASE_URL%icons/icon-192.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.png" />
     <title>WM 2026 Tracker</title>
+    <style>
+      /*
+       * Styles the boot-failure messages (<noscript> and the two fallback
+       * paths below). Deliberately inline in index.html: when these show,
+       * the app bundle — and with it every app stylesheet — never loaded.
+       */
+      .boot-fallback {
+        margin: 2rem auto;
+        max-width: 26rem;
+        padding: 0 1rem;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+    </style>
     <script type="text/javascript">
       // Boot-error safety net: the app bundle targets es2025, so on an older
       // browser the module fails to parse and Vue (including its errorHandler)
@@ -31,10 +45,11 @@
           var app = document.getElementById('app')
           if (!app || app.childNodes.length > 0) return // Vue mounted; it owns the screen now
           app.innerHTML =
-            '<p style="margin: 2rem auto; max-width: 26rem; padding: 0 1rem; font-family: system-ui, sans-serif; text-align: center;">' +
-            'Die App konnte nicht geladen werden. Möglicherweise ist dein Browser zu alt. ' +
+            '<p class="boot-fallback">Die App konnte nicht geladen werden. Möglicherweise ist dein Browser zu alt. ' +
             'Bitte versuche es mit einem aktuellen Browser erneut.</p>'
         }
+        // Also called by the <script nomodule> fallback at the end of <body>.
+        window.__showBootFallback = showFallbackIfNotMounted
         window.addEventListener('error', function (event) {
           log('window', event.message || 'Unbekannter Fehler')
           showFallbackIfNotMounted()
@@ -65,15 +80,7 @@
   </head>
   <body>
     <noscript>
-      <p
-        style="
-          margin: 2rem auto;
-          max-width: 26rem;
-          padding: 0 1rem;
-          font-family: system-ui, sans-serif;
-          text-align: center;
-        "
-      >
+      <p class="boot-fallback">
         Der WM 2026 Tracker benötigt JavaScript. Bitte aktiviere JavaScript in deinem Browser.
       </p>
     </noscript>
@@ -81,12 +88,9 @@
     <script type="module" src="/src/main.ts"></script>
     <script type="text/javascript" nomodule>
       // Browsers without ES-module support skip the bundle without firing any
-      // error event, so the safety net above never triggers — show the
-      // fallback message directly.
-      document.getElementById('app').innerHTML =
-        '<p style="margin: 2rem auto; max-width: 26rem; padding: 0 1rem; font-family: system-ui, sans-serif; text-align: center;">' +
-        'Die App konnte nicht geladen werden. Möglicherweise ist dein Browser zu alt. ' +
-        'Bitte versuche es mit einem aktuellen Browser erneut.</p>'
+      // error event, so the error listener in the safety net never triggers —
+      // show its fallback message directly.
+      window.__showBootFallback()
     </script>
   </body>
 </html>
