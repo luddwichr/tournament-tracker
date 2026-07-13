@@ -167,9 +167,14 @@ function stripWiki(s: string): string {
   s = s.replace(/\{\{[^}]*\}\}/g, '')
   // Bold / italic
   s = s.replace(/'''?/g, '')
-  // XML refs
-  s = s.replace(/<ref[^>]*\/>/g, '')
-  s = s.replace(/<ref[^>]*>.*?<\/ref>/gs, '')
+  // XML refs — loop until stable so adversarial/nested <ref> markup can't
+  // survive a single pass (see stripTags in fetch-fifa-ranking.ts)
+  let prev: string
+  do {
+    prev = s
+    s = s.replace(/<ref[^>]*\/>/g, '')
+    s = s.replace(/<ref[^>]*>.*?<\/ref>/gs, '')
+  } while (s !== prev)
   // Trailing Wikipedia disambiguation suffix, e.g. a bare (non-piped) wikilink
   // target or a plain name string carrying "Matt Turner (soccer)". Piped
   // links (handled above) already resolve to their display text and never
