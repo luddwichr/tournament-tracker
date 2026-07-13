@@ -16,8 +16,8 @@ own regression test, and the npm/CI supply-chain hardening is layered and real. 
 spent on the _review findings_: of the ~75 prior findings re-checked, exactly **1 was fixed
 outright** (the re-attribution guard), **~7 became obsolete** (almost all because the shootout
 feature vanished), **~4 are partially addressed**, and the rest are still open at the same
-lines — including all four user-facing HIGHs (hamburger nav, flag-less score dialog,
-abbreviation-wall standings, silent white screen). And the shootout simplification, clean as
+lines — including three user-facing HIGHs (hamburger nav, flag-less score dialog,
+abbreviation-wall standings). And the shootout simplification, clean as
 the code is, introduced the two most urgent new findings itself: persisted v1 data silently
 changed meaning with no migration, and the folding convention is invisible in the product —
 one week before the final.
@@ -28,15 +28,14 @@ one week before the final.
 | --- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
 | 1   | HIGH     | **NEW:** Shootout removal changed the meaning of persisted data with no migration — `SCHEMA_VERSION` still 1, legacy `shootoutWinner` entries silently regress live users' brackets        | §7.1      |
 | 2   | HIGH     | **NEW:** A shootout result can be neither entered nor read faithfully — the folding rule exists only in docs, ESPN sync writes unmarked synthetic scores, and the semifinals are Jul 14/15 | §9.1      |
-| 3   | HIGH     | ES2025 target with no `<noscript>`, no error handler, no telemetry — incompatible devices get a silent white screen nobody hears about (carried over)                                      | §6.1      |
-| 4   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over)                           | §4.2      |
-| 5   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                                           | §4.3      |
-| 6   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                                            | §4.4      |
-| 7   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                                                   | §4.1      |
-| 8   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                                           | §3.1      |
-| 9   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                                                     | §3.3      |
-| 10  | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere                                    | §8.1      |
-| 11  | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                                                       | §8.3/§9.3 |
+| 3   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over)                           | §4.2      |
+| 4   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                                           | §4.3      |
+| 5   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                                            | §4.4      |
+| 6   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                                                   | §4.1      |
+| 7   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                                           | §3.1      |
+| 8   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                                                     | §3.3      |
+| 9   | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere                                    | §8.1      |
+| 10  | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                                                       | §8.3/§9.3 |
 
 ## What is genuinely good
 
@@ -718,8 +717,8 @@ yellow/red` tests that each mount, click one aria-labelled button, save, and ass
 verification, a hardened `.npmrc`, exact-version pinning end to end, and a genuinely exemplary
 write-up of the TS6/7 workaround with an exit checklist. The tooling changes since `56037b5`
 are almost all net improvements (npm-pin install + `npm audit signatures` in CI, the vue-tsc6
-wrapper, a leaner pre-push). Very little here is wrong; the main open item is one
-production-readiness gap the prior review already flagged and nobody closed. Claims verified by
+wrapper, a leaner pre-push). Very little here is wrong; what remains are budget/caching
+mediums and small LOWs. Claims verified by
 running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading npm's own
 `min-release-age` definition.
 
@@ -748,37 +747,29 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Findings
 
-1. **[HIGH] No error visibility, `<noscript>`, or legacy path — silent white screen on old
-   devices.** `index.html:29`, `src/main.ts` (whole file), `vite.config.ts:122`. Prior §6.12,
-   still unfixed: `es2025` target with no `browserslist`/`@vitejs/plugin-legacy`, no
-   `<noscript>`, and zero `app.config.errorHandler`/`window.onerror`/`unhandledrejection` in
-   `src`. A user on an incompatible device gets a blank page and the maintainer never hears.
-   Minimum: a `<noscript>` line in `index.html`, `app.config.errorHandler` + a `window.onerror`
-   handler that logs to `localStorage` and surfaces in Settings.
-
-2. **[MEDIUM] size-limit still leaves the 66 KB `TeamDialog-*.js` chunk uncovered.**
+1. **[MEDIUM] size-limit still leaves the 66 KB `TeamDialog-*.js` chunk uncovered.**
    `package.json:64-80`. Prior §6.7, still open — `dist/assets/TeamDialog-*.js` is 66.8 KB raw
    and the largest lazy chunk, yet the three budgets cover only entry JS/CSS and
    `TeamLabel-*.css`. Add a budget for it.
 
-3. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
+2. **[MEDIUM] No SW runtime caching for the ESPN sync endpoint.** `vite.config.ts:54-85`.
    Prior §6.8, unchanged: `runtimeCaching` has only the navigate route; `site.api.espn.com`
    bypasses the SW. If "fall back to persisted Pinia state offline" is the intended story,
    state that boundary in a comment; otherwise add a `NetworkFirst` route for the API host.
 
-4. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
+3. **[LOW] `renovate:validate` never runs in CI, and the `dist` artifact has no
    `retention-days`.** `package.json:22` defines the validator but `ci.yml` never calls it (a
    broken `renovate.json` degrades silently); `ci.yml:48-53` uploads `dist` with the 90-day
    default though it is consumed by the `deploy` job in the same run. Add a validator step and
    `retention-days: 1`.
 
-5. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
+4. **[LOW] The build `target` is duplicated across five spots with only "keep in sync"
    comments.** `tsconfig.base.json:4`, `tsconfig.app.json:8` (`lib`), `tsconfig.node.json`
    (`lib`), `vite.config.ts:122`. A `tokens.spec`-style guard test asserting they match would
    end the manual sync. (Also unchanged: `tsconfig.vitest.json` `composite: false` vs
    `tsconfig.e2e.json` `composite: true` — pure inconsistency.)
 
-6. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
+5. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
    artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
@@ -796,7 +787,6 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 | size-limit misses `TeamDialog-*.js`       | STILL OPEN | 66.8 KB chunk, no budget                                         |
 | No SW runtime caching for ESPN            | STILL OPEN | `vite.config.ts:54-85` navigate route only                       |
 | Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
-| No noscript/error handler/legacy (top #4) | STILL OPEN | no `<noscript>`; no error handler in `src`                       |
 | `renovate:validate` not in CI             | STILL OPEN | `ci.yml` never calls it                                          |
 | `dist` artifact no retention-days         | STILL OPEN | `ci.yml:48-53`                                                   |
 | No CSP meta                               | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
