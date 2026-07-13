@@ -7,6 +7,7 @@ import { useSettingsStore } from '../stores/settings'
 import { useTournamentStore } from '../stores/tournament'
 import * as persistence from '../lib/persistence'
 import { syncResults } from '../lib/results-sync'
+import { logError, readErrorLog } from '../lib/error-log'
 import ThemePicker from '../components/ThemePicker.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SyncDialog from '../components/SyncDialog.vue'
@@ -286,5 +287,43 @@ describe('SettingsView – sync results', () => {
     await flushPromises()
     expect(vi.mocked(syncResults)).not.toHaveBeenCalled()
     expect(wrapper.findComponent(SyncDialog).exists()).toBe(false)
+  })
+})
+
+describe('SettingsView – error log (Diagnose)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('shows an empty-state message when no errors are logged', () => {
+    const wrapper = mountView()
+    expect(wrapper.find('.settings-view__log-empty').text()).toBe('Keine Fehler aufgezeichnet.')
+    expect(wrapper.find('.settings-view__log').exists()).toBe(false)
+  })
+
+  it('renders logged errors with time and message', () => {
+    logError('vue', 'Kaputt (render)')
+    logError('window', 'Skriptfehler')
+
+    const wrapper = mountView()
+    const entries = wrapper.findAll('.settings-view__log-entry')
+    expect(entries).toHaveLength(2)
+    expect(entries[0]!.text()).toContain('Kaputt (render)')
+    expect(entries[1]!.text()).toContain('Skriptfehler')
+    expect(entries[0]!.find('time').attributes('datetime')).toBeTruthy()
+  })
+
+  it('clears the log via the button and shows the empty state again', async () => {
+    logError('vue', 'Kaputt (render)')
+
+    const wrapper = mountView()
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Protokoll löschen')!
+      .trigger('click')
+
+    expect(wrapper.find('.settings-view__log').exists()).toBe(false)
+    expect(wrapper.find('.settings-view__log-empty').exists()).toBe(true)
+    expect(readErrorLog()).toEqual([])
   })
 })
