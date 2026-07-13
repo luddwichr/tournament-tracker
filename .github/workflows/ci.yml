@@ -29,10 +29,19 @@ jobs:
       - name: Install opengrep
         env:
           OPENGREP_VERSION: 1.25.0 # keep in sync with ARG OPENGREP_VERSION in .devcontainer/Dockerfile
+        # Download the pinned release binary directly instead of using install.sh:
+        # the installer lists releases via the unauthenticated GitHub API, which
+        # gets rate-limited on shared runners (HTTP 403 -> "Failed to fetch
+        # available versions from GitHub").
         run: |
-          curl -fsSL "https://raw.githubusercontent.com/opengrep/opengrep/v${OPENGREP_VERSION}/install.sh" \
-            | bash -s -- -v "v${OPENGREP_VERSION}"
-          echo "$HOME/.opengrep/cli/latest" >> "$GITHUB_PATH"
+          install_dir="$HOME/.opengrep/cli/latest"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o "$install_dir/opengrep" \
+            "https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_manylinux_x86"
+          chmod +x "$install_dir/opengrep"
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/opengrep" --version
       - run: npm ci
       - name: Verify registry signatures and provenance
         run: npm audit signatures
