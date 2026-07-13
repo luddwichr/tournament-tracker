@@ -51,6 +51,12 @@ export default defineConfig({
         // the NetworkFirst navigate route below. Disabling it ensures every
         // navigation — including the root — goes through that route instead.
         directoryIndex: null,
+        // Deliberately no route for third-party service requests (e.g. the
+        // results-sync API): that data is live/time-sensitive, so serving a
+        // stale cached response would be wrong, and a failed request already
+        // surfaces a clear error to the user (see SyncDialog.vue / the
+        // fetchError handling in use-match-result-form.ts) instead of silently
+        // falling back to cache.
         runtimeCaching: [
           {
             urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
