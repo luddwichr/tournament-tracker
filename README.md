@@ -18,6 +18,15 @@ npm install
 npm run dev
 ```
 
+Login for Github CLI using Personal Access Token (for use by agentic tools - keep permissions low and readonly for most things):
+
+- create token under https://github.com/settings/personal-access-tokens/
+- write token to gh-token.txt
+
+```sh
+gh auth login --with-token < gh-token.txt
+```
+
 ## Scripts
 
 | Script                            | Purpose                                                                                 |
