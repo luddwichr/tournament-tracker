@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    // keep tsconfig.base.json target in sync with libs in tsconfig.*.json files and vite.config.ts `build.target`
     "target": "ES2025",
 
     "noUnusedLocals": true,
