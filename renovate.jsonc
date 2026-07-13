@@ -6,22 +6,30 @@
   "packageRules": [
     {
       "groupName": "playwright",
-      "matchPackageNames": ["playwright", "@playwright/test"]
+      "matchPackageNames": ["playwright", "@playwright/test"],
     },
     {
       "groupName": "node",
       "matchManagers": ["nvm", "custom.regex"],
-      "matchDepNames": ["node"]
+      "matchDepNames": ["node"],
     },
     {
       "groupName": "npm",
-      "matchDepNames": ["npm"]
+      "matchDepNames": ["npm"],
     },
     {
       "groupName": "opengrep",
       "matchManagers": ["custom.regex"],
-      "matchDepNames": ["opengrep"]
-    }
+      "matchDepNames": ["opengrep"],
+    },
+    {
+      // renovate-the-CLI ships multiple releases a day; without a schedule the
+      // exact pin below would otherwise get a bump PR almost every day.
+      "groupName": "renovate-cli",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["renovate"],
+      "extends": ["schedule:monthly"],
+    },
   ],
   "customManagers": [
     {
@@ -29,14 +37,14 @@
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG NODE_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "node",
-      "datasourceTemplate": "node-version"
+      "datasourceTemplate": "node-version",
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG NPM_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "npm",
-      "datasourceTemplate": "npm"
+      "datasourceTemplate": "npm",
     },
     {
       "customType": "regex",
@@ -44,28 +52,28 @@
       "matchStrings": ["ARG UV_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "uv",
       "packageNameTemplate": "astral-sh/uv",
-      "datasourceTemplate": "github-releases"
+      "datasourceTemplate": "github-releases",
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG PYTHON_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "python",
-      "datasourceTemplate": "python-version"
+      "datasourceTemplate": "python-version",
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG PLAYWRIGHT_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "playwright",
-      "datasourceTemplate": "npm"
+      "datasourceTemplate": "npm",
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG PLAYWRIGHT_CLI_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "@playwright/cli",
-      "datasourceTemplate": "npm"
+      "datasourceTemplate": "npm",
     },
     {
       "customType": "regex",
@@ -73,7 +81,7 @@
       "matchStrings": ["ARG OPENGREP_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "opengrep",
       "packageNameTemplate": "opengrep/opengrep",
-      "datasourceTemplate": "github-releases"
+      "datasourceTemplate": "github-releases",
     },
     {
       "customType": "regex",
@@ -81,7 +89,14 @@
       "matchStrings": ["OPENGREP_VERSION: (?<currentValue>[\\d.]+)"],
       "depNameTemplate": "opengrep",
       "packageNameTemplate": "opengrep/opengrep",
-      "datasourceTemplate": "github-releases"
-    }
-  ]
+      "datasourceTemplate": "github-releases",
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^package\\.json$/"],
+      "matchStrings": ["--package renovate@(?<currentValue>[\\d.]+) -- renovate-config-validator"],
+      "depNameTemplate": "renovate",
+      "datasourceTemplate": "npm",
+    },
+  ],
 }

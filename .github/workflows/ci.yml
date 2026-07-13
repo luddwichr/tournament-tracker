@@ -49,6 +49,8 @@ jobs:
       - run: npm ci
       - name: Verify registry signatures and provenance
         run: npm audit signatures
+      - name: Validate renovate config
+        run: npm run renovate:validate
       - run: npm run check:code
       - name: Get Playwright version
         id: playwright-version
@@ -86,6 +88,7 @@ jobs:
         with:
           name: dist
           path: dist
+          retention-days: 1
 
   deploy:
     needs: ci

@@ -22,7 +22,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "size": "size-limit",
-    "renovate:validate": "npx --yes --ignore-scripts --package renovate -- renovate-config-validator",
+    "renovate:validate": "npx --yes --ignore-scripts --package renovate@43.259.3 -- renovate-config-validator",
     "fetch:fifa-ranking": "node scripts/fetch-fifa-ranking.ts",
     "fetch:squads": "node scripts/fetch-squads.ts",
     "security": "sh .opengrep/scan.sh",
