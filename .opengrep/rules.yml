@@ -1,0 +1,30 @@
+rules:
+  - id: incomplete-html-sanitization
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >
+      Single-pass regex .replace() strips HTML tags in one shot. Adversarial
+      nested/overlapping input (e.g. "<scr<script>ipt>") can survive a single
+      pass and still contain a tag afterwards. Loop the replace until the
+      string stabilizes (see stripTags in scripts/fetch-fifa-ranking.ts), or
+      use a vetted HTML-sanitizer library. Mirrors GitHub CodeQL's
+      js/incomplete-multi-character-sanitization.
+    patterns:
+      - pattern-either:
+          - pattern: $STR.replace($REGEX, "")
+          - pattern: $STR.replace($REGEX, '')
+      - metavariable-regex:
+          metavariable: $REGEX
+          regex: '.*<.*[+*].*>.*|.*>.*[+*].*<.*'
+      - pattern-not-inside: |
+          do { ... } while (...)
+      - pattern-not-inside: |
+          while (...) { ... }
+    metadata:
+      cwe:
+        - 'CWE-116: Improper Encoding or Escaping of Output'
+      category: security
+      technology: [javascript, typescript]
+      references:
+        - https://cwe.mitre.org/data/definitions/116.html
+        - https://codeql.github.com/codeql-query-help/javascript/js-incomplete-multi-character-sanitization/

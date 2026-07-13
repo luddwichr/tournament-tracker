@@ -16,6 +16,11 @@ ARG PLAYWRIGHT_VERSION=1.61.1
 # https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
 # independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
 ARG PLAYWRIGHT_CLI_VERSION=0.1.17
+# https://github.com/opengrep/opengrep/releases — open-source (LGPL-2.1)
+# static analysis engine with cross-function taint tracking, used by
+# `npm run security`; keep in sync with the OPENGREP_VERSION env var in
+# .github/workflows/ci.yml
+ARG OPENGREP_VERSION=1.25.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -80,6 +85,11 @@ RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
 # install uv (Python package manager)
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
   && uv python install ${PYTHON_VERSION} --default
+
+# Install opengrep (npm run security / check:code); the installer places the
+# binary at ~/.opengrep/cli and symlinks it onto PATH via ~/.local/bin
+RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/v${OPENGREP_VERSION}/install.sh \
+    | bash -s -- -v v${OPENGREP_VERSION}
 
 # install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \

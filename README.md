@@ -20,21 +20,22 @@ npm run dev
 
 ## Scripts
 
-| Script                            | Purpose                                                                              |
-| --------------------------------- | ------------------------------------------------------------------------------------ |
-| `npm run dev`                     | Start the Vite dev server                                                            |
-| `npm run build`                   | Type-check and build for production                                                  |
-| `npm run preview`                 | Serve the production build locally                                                   |
-| `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects |
-| `npm run test:unit`               | Run unit tests (Vitest)                                                              |
-| `npm run test:unit:coverage`      | Run unit tests with coverage                                                         |
-| `npm run test:e2e`                | Run e2e tests against the dev server (Playwright)                                    |
-| `npm run test:e2e:pwa`            | Run the offline/PWA e2e suite — needs `npm run build` first                          |
-| `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                            |
-| `npm run format` / `format:check` | Format / check formatting with oxfmt                                                 |
-| `npm run check:code`              | Run typecheck, format:check, lint and test:unit:coverage — run this before pushing   |
-| `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size — run this before pushing                 |
-| `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first                 |
+| Script                            | Purpose                                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Start the Vite dev server                                                               |
+| `npm run build`                   | Type-check and build for production                                                     |
+| `npm run preview`                 | Serve the production build locally                                                      |
+| `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects    |
+| `npm run test:unit`               | Run unit tests (Vitest)                                                                 |
+| `npm run test:unit:coverage`      | Run unit tests with coverage                                                            |
+| `npm run test:e2e`                | Run e2e tests against the dev server (Playwright)                                       |
+| `npm run test:e2e:pwa`            | Run the offline/PWA e2e suite — needs `npm run build` first                             |
+| `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                               |
+| `npm run format` / `format:check` | Format / check formatting with oxfmt                                                    |
+| `npm run security`                | Scan for security issues with opengrep (registry rulesets + `.opengrep/rules.yml`)      |
+| `npm run check:code`              | Run typecheck, format:check, lint, test:unit:coverage and security — run before pushing |
+| `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size — run this before pushing                    |
+| `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first                    |
 
 ## TypeScript 6 + 7 side-by-side
 
