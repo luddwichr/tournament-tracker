@@ -1,3 +1,14 @@
+<script lang="ts">
+type ThirdPlaceStatus = 'none' | 'qualified' | 'eliminated' | 'safe' | 'danger'
+
+const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
+  danger: 'aktuell nicht sicher',
+  eliminated: 'ausgeschieden',
+  qualified: 'qualifiziert',
+  safe: 'aktuell sicher',
+}
+</script>
+
 <script setup lang="ts">
 import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
 import TeamLabel from './TeamLabel.vue'
@@ -13,20 +24,11 @@ const { stat, rank, final } = defineProps<{
 
 const inTopEight = computed(() => rank <= QUALIFYING_THIRDS_COUNT)
 
-type ThirdPlaceStatus = 'none' | 'qualified' | 'eliminated' | 'safe' | 'danger'
-
 const status = computed((): ThirdPlaceStatus => {
   if (stat.played === 0) return 'none'
   if (final) return inTopEight.value ? 'qualified' : 'eliminated'
   return inTopEight.value ? 'safe' : 'danger'
 })
-
-const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
-  danger: 'aktuell nicht sicher',
-  eliminated: 'ausgeschieden',
-  qualified: 'qualifiziert',
-  safe: 'aktuell sicher',
-}
 
 // Left-edge status strip on the team cell — see src/styles/standings-row.css
 // for the shared .standings-cell--*-strip recipes.

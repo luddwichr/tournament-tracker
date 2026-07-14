@@ -1,7 +1,18 @@
+<script lang="ts">
+import type { SyncStatus } from '../composables/use-results-sync'
+
+const TITLES: Record<SyncStatus, string> = {
+  confirm: 'Ergebnisse abrufen',
+  done: 'Aktualisierung abgeschlossen',
+  error: 'Abruf fehlgeschlagen',
+  idle: 'Ergebnisse abrufen',
+  syncing: 'Ergebnisse werden abgerufen',
+}
+</script>
+
 <script setup lang="ts">
 import { computed, useId, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
-import type { SyncStatus } from '../composables/use-results-sync'
 
 const { status, count } = defineProps<{
   status: SyncStatus
@@ -13,14 +24,6 @@ const emit = defineEmits<{ confirm: []; cancel: []; retry: [] }>()
 
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const descId = useId()
-
-const TITLES: Record<SyncStatus, string> = {
-  confirm: 'Ergebnisse abrufen',
-  done: 'Aktualisierung abgeschlossen',
-  error: 'Abruf fehlgeschlagen',
-  idle: 'Ergebnisse abrufen',
-  syncing: 'Ergebnisse werden abgerufen',
-}
 
 const title = computed(() => TITLES[status])
 

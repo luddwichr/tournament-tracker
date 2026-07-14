@@ -1,3 +1,16 @@
+<script lang="ts">
+type StandingsStatus = 'none' | 'qualified' | 'third' | 'eliminated' | 'safe' | 'potential' | 'danger'
+
+const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
+  danger: 'gefährdet',
+  eliminated: 'ausgeschieden',
+  potential: 'möglicher Dritter',
+  qualified: 'qualifiziert',
+  safe: 'sicher',
+  third: 'Dritter',
+}
+</script>
+
 <script setup lang="ts">
 import TeamLabel from './TeamLabel.vue'
 import type { TeamStat } from '../lib/standings'
@@ -8,8 +21,6 @@ const { stat, rank, groupDone } = defineProps<{
   rank: number
   groupDone: boolean
 }>()
-
-type StandingsStatus = 'none' | 'qualified' | 'third' | 'eliminated' | 'safe' | 'potential' | 'danger'
 
 const status = computed((): StandingsStatus => {
   if (stat.played === 0) return 'none'
@@ -22,15 +33,6 @@ const status = computed((): StandingsStatus => {
   if (rank === 3) return 'potential'
   return 'danger'
 })
-
-const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
-  danger: 'gefährdet',
-  eliminated: 'ausgeschieden',
-  potential: 'möglicher Dritter',
-  qualified: 'qualifiziert',
-  safe: 'sicher',
-  third: 'Dritter',
-}
 
 // Left-edge status strip on the team cell — see src/styles/standings-row.css
 // for the shared .standings-cell--*-strip recipes.
