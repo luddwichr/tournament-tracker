@@ -70,11 +70,9 @@ describe('group stage', () => {
       expect(m.group).toBeDefined()
       for (const ref of [m.homeRef, m.awayRef]) {
         expect(ref.kind).toBe('team')
-        if (ref.kind === 'team') {
-          const team = teamsById.get(ref.teamId)
-          expect(team, `unknown team ${ref.teamId}`).toBeDefined()
-          expect(team!.group).toBe(m.group)
-        }
+        const team = teamsById.get(ref.teamId)
+        expect(team, `unknown team ${ref.teamId}`).toBeDefined()
+        expect(team!.group).toBe(m.group)
       }
     }
   })
@@ -83,7 +81,7 @@ describe('group stage', () => {
     const count = new Map<string, number>()
     for (const m of groupMatches) {
       for (const ref of [m.homeRef, m.awayRef]) {
-        if (ref.kind === 'team') count.set(ref.teamId, (count.get(ref.teamId) ?? 0) + 1)
+        count.set(ref.teamId, (count.get(ref.teamId) ?? 0) + 1)
       }
     }
     expect(count.size).toBe(48)
@@ -95,9 +93,7 @@ describe('group stage', () => {
       const ms = groupMatches.filter((m) => m.group === g)
       expect(ms).toHaveLength(6)
       for (const m of ms) {
-        const h = m.homeRef.kind === 'team' ? m.homeRef.teamId : ''
-        const a = m.awayRef.kind === 'team' ? m.awayRef.teamId : ''
-        expect(h).not.toBe(a)
+        expect(m.homeRef.teamId).not.toBe(m.awayRef.teamId)
       }
     }
   })
