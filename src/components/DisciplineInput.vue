@@ -22,13 +22,19 @@ const awayRed = defineModel<number>('awayRed', { required: true })
           <CardIcon color="yellow" class="discipline-input__card" />
           <StepperInput
             v-model="homeYellow"
+            value-label="Gelbe Karte Heim"
             dec-label="Gelbe Karte Heim abziehen"
             inc-label="Gelbe Karte Heim hinzufügen"
           />
         </div>
         <div class="discipline-input__row">
           <CardIcon color="red" class="discipline-input__card" />
-          <StepperInput v-model="homeRed" dec-label="Rote Karte Heim abziehen" inc-label="Rote Karte Heim hinzufügen" />
+          <StepperInput
+            v-model="homeRed"
+            value-label="Rote Karte Heim"
+            dec-label="Rote Karte Heim abziehen"
+            inc-label="Rote Karte Heim hinzufügen"
+          />
         </div>
       </div>
 
@@ -37,13 +43,19 @@ const awayRed = defineModel<number>('awayRed', { required: true })
           <CardIcon color="yellow" class="discipline-input__card" />
           <StepperInput
             v-model="awayYellow"
+            value-label="Gelbe Karte Gast"
             dec-label="Gelbe Karte Gast abziehen"
             inc-label="Gelbe Karte Gast hinzufügen"
           />
         </div>
         <div class="discipline-input__row">
           <CardIcon color="red" class="discipline-input__card" />
-          <StepperInput v-model="awayRed" dec-label="Rote Karte Gast abziehen" inc-label="Rote Karte Gast hinzufügen" />
+          <StepperInput
+            v-model="awayRed"
+            value-label="Rote Karte Gast"
+            dec-label="Rote Karte Gast abziehen"
+            inc-label="Rote Karte Gast hinzufügen"
+          />
         </div>
       </div>
     </div>

@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 const {
   decLabel,
   incLabel,
+  valueLabel,
   size = 'sm',
 } = defineProps<{
   decLabel: string
   incLabel: string
+  /** Accessible name for the spin button so it isn't announced as a naked
+   * number — e.g. "Tor für Team A", read as "Tor für Team A, spin button, 3". */
+  valueLabel: string
   size?: 'sm' | 'lg'
 }>()
 
 const model = defineModel<number>({ required: true })
-
-// decLabel/incLabel share a common lead-in (e.g. "Tor für Team A abziehen" /
-// "… hinzufügen"). Reuse it to name the value so it isn't a naked number —
-// screen readers announce e.g. "Tor für Team A, spin button, 3".
-const valueLabel = computed(() => {
-  let i = 0
-  while (i < decLabel.length && i < incLabel.length && decLabel[i] === incLabel[i]) i++
-  return decLabel.slice(0, i).trim() || `${decLabel} / ${incLabel}`
-})
 
 function decrement() {
   model.value = Math.max(0, model.value - 1)
