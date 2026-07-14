@@ -5,78 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
+    <!-- csp:start (stripped in dev by vite.config.ts — see comment there) -->
+    <!--
+      GH Pages serves static files with no control over HTTP response headers,
+      so this <meta> tag is the only way to ship a CSP at all.
+      - default-src 'self': fallback for any directive not listed below.
+      - script-src 'self': only same-origin script files run; no inline
+        scripts, no 'unsafe-inline'/'unsafe-eval'. All boot-time scripts are
+        loaded via <script src> from public/ so they qualify.
+      - style-src 'self': same, for stylesheets — no inline <style>/style="".
+      - img-src 'self': only same-origin images.
+      - connect-src 'self' https://site.api.espn.com: fetch/XHR targets,
+        scoped to same-origin plus the ESPN scoreboard API, the app's only external
+        network dependency.
+      - base-uri 'self': blocks a <base> tag from redirecting relative URLs
+        (script/style/img src, fetches) elsewhere.
+      - form-action 'none': the app has no <form> submissions.
+      - object-src 'none': blocks <object>/<embed>/<applet> plugin content.
+      - frame-ancestors is deliberately omitted: it's a header-only directive
+        per spec, ignored (with a console warning) when set via <meta> —
+        framing protection would need an actual HTTP header, which GH Pages
+        doesn't let us set.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' https://site.api.espn.com; base-uri 'self'; form-action 'none'; object-src 'none'"
+    />
+    <!-- csp:end -->
     <link rel="icon" type="image/png" href="%BASE_URL%icons/icon-192.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.png" />
     <title>WM 2026 Tracker</title>
-    <style>
-      /*
-       * Styles the boot-failure messages (<noscript> and the two fallback
-       * paths below). Deliberately inline in index.html: when these show,
-       * the app bundle — and with it every app stylesheet — never loaded.
-       */
-      .boot-fallback {
-        margin: 2rem auto;
-        max-width: 26rem;
-        padding: 0 1rem;
-        font-family: system-ui, sans-serif;
-        text-align: center;
-      }
-    </style>
-    <script type="text/javascript">
-      // Boot-error safety net: the app bundle targets es2025, so on an older
-      // browser the module fails to parse and Vue (including its errorHandler)
-      // never runs. This script must therefore stay self-contained ES5. It
-      // logs every uncaught error/rejection to localStorage (same key + entry
-      // shape as src/lib/error-log.ts — keep in sync) and, if the app never
-      // mounted, replaces the silent white screen with a visible message.
-      ;(function () {
-        function log(source, message) {
-          try {
-            var key = 'wc2026:errors:v1'
-            var entries = JSON.parse(localStorage.getItem(key) || '[]')
-            if (!Array.isArray(entries)) entries = []
-            entries.push({ time: new Date().toISOString(), source: source, message: String(message) })
-            localStorage.setItem(key, JSON.stringify(entries.slice(-20)))
-          } catch (e) {
-            // localStorage unavailable — nothing sensible left to do.
-          }
-        }
-        function showFallbackIfNotMounted() {
-          var app = document.getElementById('app')
-          if (!app || app.childNodes.length > 0) return // Vue mounted; it owns the screen now
-          app.innerHTML =
-            '<p class="boot-fallback">Die App konnte nicht geladen werden. Möglicherweise ist dein Browser zu alt. ' +
-            'Bitte versuche es mit einem aktuellen Browser erneut.</p>'
-        }
-        // Also called by the <script nomodule> fallback at the end of <body>.
-        window.__showBootFallback = showFallbackIfNotMounted
-        window.addEventListener('error', function (event) {
-          log('window', event.message || 'Unbekannter Fehler')
-          showFallbackIfNotMounted()
-        })
-        window.addEventListener('unhandledrejection', function (event) {
-          var reason = event.reason
-          log('promise', reason && reason.message ? reason.message : String(reason))
-        })
-      })()
-    </script>
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // MIT License
-      // https://github.com/rafgraph/spa-github-pages
-      // Restores the real path encoded by public/404.html's redirect before
-      // the router reads window.location.
-      ;(function (location) {
-        if (location.search[1] === '/') {
-          const decoded = location.search
-            .slice(1)
-            .split('&')
-            .map((s) => s.replace(/~and~/g, '&'))
-            .join('?')
-          window.history.replaceState(null, '', location.pathname.slice(0, -1) + decoded + location.hash)
-        }
-      })(window.location)
-    </script>
+    <link rel="stylesheet" href="%BASE_URL%boot-fallback.css" />
+    <script type="text/javascript" src="%BASE_URL%boot-safety-net.js"></script>
+    <script type="text/javascript" src="%BASE_URL%spa-github-pages.js"></script>
   </head>
   <body>
     <noscript>
@@ -86,11 +47,6 @@
     </noscript>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
-    <script type="text/javascript" nomodule>
-      // Browsers without ES-module support skip the bundle without firing any
-      // error event, so the error listener in the safety net never triggers —
-      // show its fallback message directly.
-      window.__showBootFallback()
-    </script>
+    <script type="text/javascript" nomodule src="%BASE_URL%boot-fallback-nomodule.js"></script>
   </body>
 </html>

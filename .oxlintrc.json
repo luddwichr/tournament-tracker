@@ -27,6 +27,18 @@
       "rules": {
         "no-await-in-loop": "off"
       }
+    },
+    {
+      // Legacy ES5 boot-time scripts loaded directly by index.html <script src>
+      // (not part of the TS app, so app-source conventions don't apply): the
+      // `__`-prefixed name marks the intentional window global bridge between
+      // scripts, and the empty catch is a deliberate "localStorage may be
+      // unavailable, nothing sensible to do" fallback.
+      "files": ["public/*.js"],
+      "rules": {
+        "no-underscore-dangle": "off",
+        "no-unused-vars": "off"
+      }
     }
   ],
   "env": {

@@ -11,7 +11,7 @@ declare const caches: {
   match: (request: string, options: { cacheName: string; ignoreSearch?: boolean }) => Promise<Response | undefined>
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   // GH Pages serves this app from a repo subpath (e.g. /wm2026-tracker/)
   // rather than from the domain root. Set DEPLOY_BASE_PATH to reproduce that
   // build locally, e.g. `DEPLOY_BASE_PATH=/wm2026-tracker/ npm run build`.
@@ -27,6 +27,20 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    {
+      // The CSP meta tag in index.html (script-src/style-src 'self', no
+      // 'unsafe-inline') is a production hardening measure that the dev
+      // server can't satisfy: Vite's HMR client injects component styles as
+      // inline <style> elements at runtime, which style-src 'self' blocks
+      // outright, breaking every page's styling. Strip the whole
+      // csp:start/csp:end block for `vite dev`; it stays intact for `vite
+      // build`, which GH Pages actually serves.
+      name: 'strip-csp-meta-in-dev',
+      transformIndexHtml(html: string) {
+        if (command !== 'serve') return html
+        return html.replace(/<!-- csp:start[\s\S]*?<!-- csp:end -->\n?/, '')
+      },
+    },
     VitePWA({
       // Service worker disabled in dev to keep the dev server and e2e tests deterministic.
       devOptions: { enabled: false },
@@ -150,4 +164,4 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     setupFiles: ['src/test-support/setup.ts'],
   },
-})
+}))

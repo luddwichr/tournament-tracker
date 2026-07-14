@@ -13,7 +13,10 @@ export default defineConfig({
   ],
   reporter: 'list',
   testDir: './e2e',
-  testMatch: '**/pwa-offline.spec.ts',
+  // Despite the "pwa" name, this config covers every test that needs the
+  // production build rather than the dev server — csp.spec.ts rides along
+  // because vite.config.ts strips the CSP meta tag in dev.
+  testMatch: ['**/pwa-offline.spec.ts', '**/csp.spec.ts'],
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry',

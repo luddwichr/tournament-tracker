@@ -20,8 +20,10 @@ export default defineConfig({
   reporter: isCI ? 'github' : 'list',
   retries: isCI ? 2 : 0,
   testDir: './e2e',
-  // pwa-offline.spec.ts needs the production preview server — run via test:e2e:pwa.
-  testIgnore: ['**/pwa-offline.spec.ts'],
+  // pwa-offline.spec.ts and csp.spec.ts need the production preview server —
+  // run via test:e2e:pwa. (The dev server strips the CSP meta tag entirely,
+  // see vite.config.ts, so csp.spec.ts would fail here regardless.)
+  testIgnore: ['**/pwa-offline.spec.ts', '**/csp.spec.ts'],
   use: {
     baseURL: BASE_URL,
     screenshot: 'only-on-failure',
