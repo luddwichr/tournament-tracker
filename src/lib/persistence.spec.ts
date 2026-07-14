@@ -9,7 +9,7 @@ function validResult(matchId: string, extra: Partial<Result> = {}): Result {
 }
 
 function serialise(results: ResultsMap): string {
-  return JSON.stringify({ version: 1, results })
+  return JSON.stringify({ results, version: 1 })
 }
 
 describe('parseImport', () => {
@@ -24,7 +24,7 @@ describe('parseImport', () => {
   })
 
   it('throws on wrong version number', () => {
-    const json = JSON.stringify({ version: 99, results: {} })
+    const json = JSON.stringify({ results: {}, version: 99 })
     expect(() => parseImport(json)).toThrow()
   })
 
@@ -34,29 +34,29 @@ describe('parseImport', () => {
   })
 
   it('throws on a non-object results value', () => {
-    const json = JSON.stringify({ version: 1, results: 'bad' })
+    const json = JSON.stringify({ results: 'bad', version: 1 })
     expect(() => parseImport(json)).toThrow()
   })
 
   it('throws when results is an array (typeof [] === "object" would otherwise slip through)', () => {
-    const json = JSON.stringify({ version: 1, results: [validResult('M01')] })
+    const json = JSON.stringify({ results: [validResult('M01')], version: 1 })
     expect(() => parseImport(json)).toThrow()
   })
 
   it('throws when a result is keyed by an id that is not a real fixture', () => {
-    const json = JSON.stringify({ version: 1, results: { NOPE: validResult('NOPE') } })
+    const json = JSON.stringify({ results: { NOPE: validResult('NOPE') }, version: 1 })
     expect(() => parseImport(json)).toThrow()
   })
 
   it("throws when a result's matchId does not match the key it's stored under", () => {
     // Stored under M01 but claims to be M02 — invisible/unresolvable per REQUIREMENTS.md §9.8.
-    const json = JSON.stringify({ version: 1, results: { M01: validResult('M02') } })
+    const json = JSON.stringify({ results: { M01: validResult('M02') }, version: 1 })
     expect(() => parseImport(json)).toThrow()
   })
 
   it('throws when a result is missing required numeric fields', () => {
-    const bad = { matchId: 'M01', homeGoals: 1, awayGoals: 0 } // missing card fields
-    const json = JSON.stringify({ version: 1, results: { M01: bad } })
+    const bad = { awayGoals: 0, homeGoals: 1, matchId: 'M01' } // missing card fields
+    const json = JSON.stringify({ results: { M01: bad }, version: 1 })
     expect(() => parseImport(json)).toThrow()
   })
 

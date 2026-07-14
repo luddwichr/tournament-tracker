@@ -21,7 +21,7 @@ export function provideScoreDialog(): ScoreDialogState {
   const config = ref<ScoreDialogConfig | null>(null)
 
   function open(match: MatchSlot, home: Team, away: Team): void {
-    config.value = { match, home, away }
+    config.value = { away, home, match }
   }
 
   function close(): void {
@@ -30,7 +30,7 @@ export function provideScoreDialog(): ScoreDialogState {
 
   provide(scoreDialogKey, open)
 
-  return { config, close }
+  return { close, config }
 }
 
 const noop: OpenFn = () => undefined

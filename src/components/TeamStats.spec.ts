@@ -6,14 +6,14 @@ import type { TeamOverallStats } from '../lib/team-schedule'
 
 function makeStats(overrides: Partial<TeamOverallStats> = {}): TeamOverallStats {
   return {
-    played: 3,
-    wins: 2,
     draws: 1,
-    losses: 0,
-    goalsFor: 5,
     goalsAgainst: 1,
-    yellowCards: 4,
+    goalsFor: 5,
+    losses: 0,
+    played: 3,
     redCards: 1,
+    wins: 2,
+    yellowCards: 4,
     ...overrides,
   }
 }

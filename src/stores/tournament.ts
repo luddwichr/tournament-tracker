@@ -46,11 +46,10 @@ export const useTournamentStore = defineStore(
       clearStandingsCache()
     }
 
-    return { results, standingsByGroup, enterResult, clearResult, reset, importResults }
+    return { clearResult, enterResult, importResults, reset, results, standingsByGroup }
   },
   {
     persist: {
-      key: STORAGE_KEY,
       // `pinia-plugin-persistedstate`'s automatic rehydration on app load
       // bypasses `parseImport`'s validation entirely — it just JSON.parses
       // whatever is in localStorage and `$patch`es it straight into state. A
@@ -67,6 +66,7 @@ export const useTournamentStore = defineStore(
           store.reset()
         }
       },
+      key: STORAGE_KEY,
     },
   },
 )

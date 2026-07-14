@@ -120,11 +120,11 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
     connectorPaths,
     highlightedMatchIds,
     highlightedRefKeys,
-    pinnedMatchId,
     onMatchHover,
     onMatchHoverEnd,
     onTeamRefHover,
     onTeamRefHoverEnd,
+    pinnedMatchId,
     toggleMatchPin,
   }
 }

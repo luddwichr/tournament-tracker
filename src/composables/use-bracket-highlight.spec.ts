@@ -38,15 +38,15 @@ class FakeResizeObserver {
 
 function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
   vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
-    left: 0,
-    top: 0,
-    right: 0,
     bottom: 0,
-    width: 0,
     height: 0,
+    left: 0,
+    right: 0,
+    toJSON: () => ({}),
+    top: 0,
+    width: 0,
     x: 0,
     y: 0,
-    toJSON: () => ({}),
     ...rect,
   })
 }
@@ -61,19 +61,19 @@ function buildContainer(): { container: HTMLElement; matchCard: HTMLElement } {
 
   const originA = document.createElement('div')
   originA.dataset['refKey'] = 'groupRank:A:2'
-  mockRect(originA, { right: 10, top: 10, height: 10 })
+  mockRect(originA, { height: 10, right: 10, top: 10 })
   container.appendChild(originA)
 
   const originB = document.createElement('div')
   originB.dataset['refKey'] = 'groupRank:B:2'
-  mockRect(originB, { right: 10, top: 20, height: 10 })
+  mockRect(originB, { height: 10, right: 10, top: 20 })
   container.appendChild(originB)
 
   const toGroup = document.createElement('div')
   toGroup.dataset['matchId'] = 'M90'
   const matchCard = document.createElement('div')
   matchCard.className = 'match-card'
-  mockRect(matchCard, { left: 100, top: 30, height: 20 })
+  mockRect(matchCard, { height: 20, left: 100, top: 30 })
   toGroup.appendChild(matchCard)
   container.appendChild(toGroup)
 
@@ -106,7 +106,7 @@ describe('useBracketHighlight — connectorPaths reactivity to DOM geometry', ()
     expect(observer.observed).toEqual([container])
 
     // Simulate a layout shift the composable has no other way of detecting.
-    mockRect(matchCard, { left: 250, top: 80, height: 20 })
+    mockRect(matchCard, { height: 20, left: 250, top: 80 })
     observer.callback()
 
     const after = connectorPaths.value

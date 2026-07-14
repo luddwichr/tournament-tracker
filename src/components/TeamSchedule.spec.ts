@@ -19,12 +19,12 @@ const jpn = makeTeam({ id: 'jpn', name: 'Japan' })
 
 function groupMatch(id: string, kickoff: string, home: Team, away: Team): GroupMatchSlot {
   return {
-    id,
-    stage: 'group',
-    group: 'A',
-    kickoff,
-    homeRef: { kind: 'team', teamId: home.id },
     awayRef: { kind: 'team', teamId: away.id },
+    group: 'A',
+    homeRef: { kind: 'team', teamId: home.id },
+    id,
+    kickoff,
+    stage: 'group',
   }
 }
 
@@ -35,20 +35,20 @@ function knockoutMatch(
   home: Team | null,
 ): KnockoutMatchSlot {
   return {
+    awayRef: { group: 'C', kind: 'groupRank', rank: 2 },
+    homeRef: home ? { kind: 'team', teamId: home.id } : { group: 'B', kind: 'groupRank', rank: 1 },
     id,
-    stage,
     kickoff,
-    homeRef: home ? { kind: 'team', teamId: home.id } : { kind: 'groupRank', group: 'B', rank: 1 },
-    awayRef: { kind: 'groupRank', group: 'C', rank: 2 },
+    stage,
   }
 }
 
 function mountSchedule(rows: TeamMatchEntry[], openScoreDialog = vi.fn()) {
   const wrapper = mount(TeamSchedule, {
-    props: { entries: rows },
     global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
+    props: { entries: rows },
   })
-  return { wrapper, openScoreDialog }
+  return { openScoreDialog, wrapper }
 }
 
 describe('TeamSchedule', () => {
@@ -60,8 +60,8 @@ describe('TeamSchedule', () => {
 
   it('renders a MatchCard per entry, latest kickoff first, as static', () => {
     const entries: TeamMatchEntry[] = [
-      { match: groupMatch('M2', '2026-06-15T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
-      { match: groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
+      { awayTeam: jpn, homeTeam: ger, match: groupMatch('M2', '2026-06-15T00:00:00Z', ger, jpn), result: null },
+      { awayTeam: jpn, homeTeam: ger, match: groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn), result: null },
     ]
     const wrapper = mount(TeamSchedule, { props: { entries } })
     const cards = wrapper.findAllComponents(MatchCard)
@@ -71,9 +71,9 @@ describe('TeamSchedule', () => {
 
   it('numbers group matches "Gruppenspiel n/3" per team chronologically, but lists them latest-first', () => {
     const entries: TeamMatchEntry[] = [
-      { match: groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
-      { match: groupMatch('M2', '2026-06-15T00:00:00Z', jpn, ger), homeTeam: jpn, awayTeam: ger, result: null },
-      { match: groupMatch('M3', '2026-06-20T00:00:00Z', ger, jpn), homeTeam: ger, awayTeam: jpn, result: null },
+      { awayTeam: jpn, homeTeam: ger, match: groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn), result: null },
+      { awayTeam: ger, homeTeam: jpn, match: groupMatch('M2', '2026-06-15T00:00:00Z', jpn, ger), result: null },
+      { awayTeam: jpn, homeTeam: ger, match: groupMatch('M3', '2026-06-20T00:00:00Z', ger, jpn), result: null },
     ]
     const wrapper = mount(TeamSchedule, { props: { entries } })
     expect(wrapper.findAll('.team-schedule__stage').map((el) => el.text())).toEqual([
@@ -85,11 +85,11 @@ describe('TeamSchedule', () => {
 
   it('labels knockout-stage matches with their stage name, latest first', () => {
     const entries: TeamMatchEntry[] = [
-      { match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger), homeTeam: ger, awayTeam: null, result: null },
+      { awayTeam: null, homeTeam: ger, match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger), result: null },
       {
-        match: knockoutMatch('M104', 'final', '2026-07-19T00:00:00Z', ger),
-        homeTeam: ger,
         awayTeam: null,
+        homeTeam: ger,
+        match: knockoutMatch('M104', 'final', '2026-07-19T00:00:00Z', ger),
         result: null,
       },
     ]
@@ -99,7 +99,7 @@ describe('TeamSchedule', () => {
 
   it('passes a placeholder label for the side that has not resolved yet', () => {
     const entries: TeamMatchEntry[] = [
-      { match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger), homeTeam: ger, awayTeam: null, result: null },
+      { awayTeam: null, homeTeam: ger, match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger), result: null },
     ]
     const wrapper = mount(TeamSchedule, { props: { entries } })
     const card = wrapper.findComponent(MatchCard)
@@ -110,7 +110,7 @@ describe('TeamSchedule', () => {
   describe('score dialog', () => {
     const playedMatch = groupMatch('M1', '2026-06-10T00:00:00Z', ger, jpn)
     const entries: TeamMatchEntry[] = [
-      { match: playedMatch, homeTeam: ger, awayTeam: jpn, result: makeResult('M1', 2, 1) },
+      { awayTeam: jpn, homeTeam: ger, match: playedMatch, result: makeResult('M1', 2, 1) },
     ]
 
     it('does not call the score dialog opener on mount', () => {
@@ -128,9 +128,9 @@ describe('TeamSchedule', () => {
     it('does not call the score dialog opener when the other side has not resolved yet', async () => {
       const unresolvedEntries: TeamMatchEntry[] = [
         {
-          match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger),
-          homeTeam: ger,
           awayTeam: null,
+          homeTeam: ger,
+          match: knockoutMatch('M80', 'r32', '2026-07-01T00:00:00Z', ger),
           result: null,
         },
       ]

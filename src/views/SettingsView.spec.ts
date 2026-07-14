@@ -13,10 +13,10 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SyncDialog from '../components/SyncDialog.vue'
 
 vi.mock('../lib/persistence', () => ({
-  exportJson: vi.fn(),
-  parseImport: vi.fn(),
   SCHEMA_VERSION: 1,
   STORAGE_KEY: 'wc2026:results:v1',
+  exportJson: vi.fn(),
+  parseImport: vi.fn(),
 }))
 
 vi.mock('../lib/results-sync', () => ({
@@ -54,8 +54,8 @@ async function triggerFileChange(wrapper: ReturnType<typeof mountView>, content:
   const file = new File([content], 'results.json', { type: 'application/json' })
   const fileInput = wrapper.find('input[type="file"]')
   Object.defineProperty(fileInput.element, 'files', {
-    value: { 0: file, length: 1, item: () => file },
     configurable: true,
+    value: { 0: file, item: () => file, length: 1 },
   })
   await fileInput.trigger('change')
 }
@@ -160,7 +160,7 @@ describe('SettingsView – import', () => {
   it('confirming import calls store.importResults and hides dialog', async () => {
     const store = useTournamentStore()
     const mockResults = {
-      M01: { matchId: 'M01', homeGoals: 1, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+      M01: { awayGoals: 0, awayRed: 0, awayYellow: 0, homeGoals: 1, homeRed: 0, homeYellow: 0, matchId: 'M01' },
     }
     vi.mocked(persistence.parseImport).mockReturnValue(mockResults)
     const wrapper = mountView()
@@ -243,7 +243,7 @@ function dialogButton(wrapper: ReturnType<typeof mountView>, text: string) {
 }
 
 const oneResult = {
-  M01: { matchId: 'M01', homeGoals: 2, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+  M01: { awayGoals: 0, awayRed: 0, awayYellow: 0, homeGoals: 2, homeRed: 0, homeYellow: 0, matchId: 'M01' },
 }
 
 describe('SettingsView – sync results', () => {

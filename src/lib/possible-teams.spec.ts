@@ -53,7 +53,7 @@ describe('possibleTeamsFor — groupRank, all matches played', () => {
     // With 1–0 home wins in all 6 group A matches, mex always wins M01, M28, M53
     // and kor always wins M02, M54 and loses M28, giving mex rank 1.
     const results = allGroupResults(1, 0)
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const teams = possibleTeamsFor(ref, results)
     expect(teams.size).toBe(1)
     const team = [...teams][0]!
@@ -62,8 +62,8 @@ describe('possibleTeamsFor — groupRank, all matches played', () => {
 
   it('returns a different team for rank 2', () => {
     const results = allGroupResults(1, 0)
-    const rank1 = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 1 }, results)]
-    const rank2 = [...possibleTeamsFor({ kind: 'groupRank', group: 'A', rank: 2 }, results)]
+    const rank1 = [...possibleTeamsFor({ group: 'A', kind: 'groupRank', rank: 1 }, results)]
+    const rank2 = [...possibleTeamsFor({ group: 'A', kind: 'groupRank', rank: 2 }, results)]
     expect(rank1[0]!.id).not.toBe(rank2[0]!.id)
   })
 })
@@ -80,7 +80,7 @@ describe('possibleTeamsFor — groupRank, 1 match remaining', () => {
     'returns exactly mex and kor as possible rank-%i teams (cze/rsa cannot catch up)',
     (rank) => {
       const results = groupAFiveMatchResults()
-      const ref: TeamRef = { kind: 'groupRank', group: 'A', rank }
+      const ref: TeamRef = { group: 'A', kind: 'groupRank', rank }
       const teams = possibleTeamsFor(ref, results)
       const ids = [...teams].map((t) => t.id).toSorted()
       expect(ids).toEqual(['kor', 'mex'])
@@ -111,13 +111,13 @@ describe('possibleTeamsFor — groupRank, gdSpread cap lift', () => {
     // would never be enumerated and mex would be silently excluded.
     const results: ResultsMap = {
       M01: makeResult('M01', 0, 0),
+      M02: makeResult('M02', 0, 0),
+      M25: makeResult('M25', 1, 0),
       M28: makeResult('M28', 0, 4),
       M54: makeResult('M54', 5, 0),
-      M25: makeResult('M25', 1, 0),
-      M02: makeResult('M02', 0, 0),
       // M53 (cze vs mex) intentionally left unplayed.
     }
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const teams = possibleTeamsFor(ref, results)
     const ids = [...teams].map((t) => t.id)
     expect(ids).toContain('mex')
@@ -149,7 +149,7 @@ describe('possibleTeamsFor — pathological blowout does not blow up the enumera
     const results: ResultsMap = {
       M01: makeResult('M01', 8, 0),
     }
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
 
     const start = Date.now()
     const teams = possibleTeamsFor(ref, results)
@@ -171,7 +171,7 @@ describe('possibleTeamsFor — pathological blowout does not blow up the enumera
 
 describe('possibleTeamsFor — groupRank, no matches played', () => {
   it('returns all 4 teams as possible rank-1 candidates in an unplayed group', () => {
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const teams = possibleTeamsFor(ref, {})
     expect(teams.size).toBe(4)
     for (const t of teams) expect(t.group).toBe('A')
@@ -305,7 +305,7 @@ describe('possibleTeamsFor — memoization respects card counts in the cache key
       M53: makeResult('M53', 0, 2), // cze 0–2 mex — away win
       M54: makeResult('M54', 0, 2), // rsa 0–2 kor — away win
     }
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const first = [...possibleTeamsFor(ref, baseResults)].map((t) => t.id)
     expect(first).toEqual(['mex'])
 

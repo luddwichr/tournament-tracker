@@ -9,23 +9,23 @@ import { makeTeam } from '../test-support/teams'
 
 const { players } = vi.hoisted(() => {
   const hoistedPlayers: Player[] = [
-    { number: 1, name: 'Manuel Neuer', position: 'GK' },
-    { number: 4, name: 'Jonathan Tah', position: 'DF' },
-    { number: 8, name: 'Toni Kroos', position: 'MF' },
+    { name: 'Manuel Neuer', number: 1, position: 'GK' },
+    { name: 'Jonathan Tah', number: 4, position: 'DF' },
+    { name: 'Toni Kroos', number: 8, position: 'MF' },
   ]
   return { players: hoistedPlayers }
 })
 
 vi.mock('../data/squads', () => ({
-  squads: { ger: players },
   squadFor: (teamId: string) => (teamId === 'ger' ? players : []),
+  squads: { ger: players },
 }))
 
 beforeEach(() => {
   setActivePinia(createPinia())
 })
 
-const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
+const team = makeTeam({ fifaRanking: 14, flagCode: 'de', id: 'ger', name: 'Deutschland' })
 
 function mountDialog(overrides: { team?: Team } = {}, attachToDocument = false) {
   return mount(TeamDialog, {

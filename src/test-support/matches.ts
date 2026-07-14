@@ -12,11 +12,11 @@ export function makeMatch(overrides: Partial<GroupMatchSlot>): GroupMatchSlot
 export function makeMatch(overrides: Partial<MatchSlot> = {}): MatchSlot {
   const n = counter++
   const base = {
-    id: `M${String(n).padStart(2, '0')}`,
-    stage: 'r32' as const,
-    kickoff: '2026-07-01T18:00:00+02:00',
-    homeRef: { kind: 'matchWinner' as const, matchId: 'M1' },
     awayRef: { kind: 'matchWinner' as const, matchId: 'M2' },
+    homeRef: { kind: 'matchWinner' as const, matchId: 'M1' },
+    id: `M${String(n).padStart(2, '0')}`,
+    kickoff: '2026-07-01T18:00:00+02:00',
+    stage: 'r32' as const,
   }
   return { ...base, ...overrides } as MatchSlot
 }

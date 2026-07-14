@@ -29,7 +29,7 @@ describe('usePossibleTeamsDialog — label', () => {
 
   it("falls back to teamRefLabel's placeholder while the ref is unresolved", () => {
     const { label, open } = usePossibleTeamsDialog()
-    const match = makeMatch({ homeRef: { kind: 'groupRank', group: 'A', rank: 1 } })
+    const match = makeMatch({ homeRef: { group: 'A', kind: 'groupRank', rank: 1 } })
 
     open(match, 'home')
 
@@ -47,11 +47,11 @@ describe('usePossibleTeamsDialog — label', () => {
       })
 
     const { label, open } = usePossibleTeamsDialog()
-    const match = makeMatch({ homeRef: { kind: 'groupRank', group: 'A', rank: 1 } })
+    const match = makeMatch({ homeRef: { group: 'A', kind: 'groupRank', rank: 1 } })
 
     open(match, 'home')
 
-    const resolved = resolveTeamRef({ kind: 'groupRank', group: 'A', rank: 1 }, store.results)
+    const resolved = resolveTeamRef({ group: 'A', kind: 'groupRank', rank: 1 }, store.results)
     expect(resolved).not.toBeNull()
     expect(label.value).toBe(resolved!.name)
     // Confirms it's the resolved team, not the unresolved-ref placeholder.

@@ -33,7 +33,7 @@ describe('matchesForTeam', () => {
   it('attaches the entered result to the matching entry', () => {
     const entries = matchesForTeam(ger, resultsMap(makeResult('M09', 3, 0)))
     const m09 = entries.find((e) => e.match.id === 'M09')!
-    expect(m09.result).toEqual(expect.objectContaining({ homeGoals: 3, awayGoals: 0 }))
+    expect(m09.result).toEqual(expect.objectContaining({ awayGoals: 0, homeGoals: 3 }))
   })
 
   it('does not include knockout matches while the bracket has not resolved to the team', () => {
@@ -64,7 +64,7 @@ describe('computeTeamStats', () => {
   it('attributes cards from the correct side, including when the team plays away', () => {
     const entries = matchesForTeam(
       ger,
-      resultsMap(makeResult('M56', 2, 1, { homeYellow: 4, homeRed: 1, awayYellow: 2, awayRed: 0 })),
+      resultsMap(makeResult('M56', 2, 1, { awayRed: 0, awayYellow: 2, homeRed: 1, homeYellow: 4 })),
     )
     const stats = computeTeamStats(ger, entries)
     expect(stats.yellowCards).toBe(2)

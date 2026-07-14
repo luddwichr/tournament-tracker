@@ -24,12 +24,12 @@ const status = computed((): StandingsStatus => {
 })
 
 const statusLabel: Record<Exclude<StandingsStatus, 'none'>, string> = {
+  danger: 'gefährdet',
+  eliminated: 'ausgeschieden',
+  potential: 'möglicher Dritter',
   qualified: 'qualifiziert',
   safe: 'sicher',
   third: 'Dritter',
-  potential: 'möglicher Dritter',
-  eliminated: 'ausgeschieden',
-  danger: 'gefährdet',
 }
 
 // Left-edge status strip on the team cell — see src/styles/standings-row.css

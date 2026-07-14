@@ -27,8 +27,8 @@ describe('TeamLabel – non-clickable', () => {
   it('does not call the team viewer when not clickable', async () => {
     const openTeamView = vi.fn()
     const wrapper = mount(TeamLabel, {
-      props: { team },
       global: { provide: { [teamViewerKey as symbol]: openTeamView } },
+      props: { team },
     })
     await wrapper.trigger('click')
     expect(openTeamView).not.toHaveBeenCalled()
@@ -37,25 +37,25 @@ describe('TeamLabel – non-clickable', () => {
 
 describe('TeamLabel – clickable', () => {
   it('renders as a button', () => {
-    const wrapper = mount(TeamLabel, { props: { team, clickable: true } })
+    const wrapper = mount(TeamLabel, { props: { clickable: true, team } })
     expect(wrapper.element.tagName).toBe('BUTTON')
   })
 
   it('has type="button"', () => {
-    const wrapper = mount(TeamLabel, { props: { team, clickable: true } })
+    const wrapper = mount(TeamLabel, { props: { clickable: true, team } })
     expect(wrapper.attributes('type')).toBe('button')
   })
 
   it('has an aria-label containing the team name', () => {
-    const wrapper = mount(TeamLabel, { props: { team, clickable: true } })
+    const wrapper = mount(TeamLabel, { props: { clickable: true, team } })
     expect(wrapper.attributes('aria-label')).toContain('Deutschland')
   })
 
   it('calls the team viewer with the team on click', async () => {
     const openTeamView = vi.fn()
     const wrapper = mount(TeamLabel, {
-      props: { team, clickable: true },
       global: { provide: { [teamViewerKey as symbol]: openTeamView } },
+      props: { clickable: true, team },
     })
     await wrapper.trigger('click')
     expect(openTeamView).toHaveBeenCalledOnce()

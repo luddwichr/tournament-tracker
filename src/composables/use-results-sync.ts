@@ -46,5 +46,5 @@ export function useResultsSync(apply: (results: ResultsMap) => void) {
     }
   }
 
-  return { status, error, count, open, run, cancel }
+  return { cancel, count, error, open, run, status }
 }

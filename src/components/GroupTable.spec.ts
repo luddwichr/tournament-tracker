@@ -22,12 +22,12 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
       // non-team-kind ref in a group match is no longer representable —
       // `GroupMatchSlot`/`ResolvedTeamRef` rule it out at the type level.)
       {
-        id: 'MOCK_UNKNOWN_TEAM',
-        stage: 'group' as const,
-        group: 'C' as const,
-        kickoff: '2026-06-01T19:00:00+00:00',
-        homeRef: { kind: 'team' as const, teamId: 'UNKNOWN_XYZ' },
         awayRef: { kind: 'team' as const, teamId: 'UNKNOWN_ABC' },
+        group: 'C' as const,
+        homeRef: { kind: 'team' as const, teamId: 'UNKNOWN_XYZ' },
+        id: 'MOCK_UNKNOWN_TEAM',
+        kickoff: '2026-06-01T19:00:00+00:00',
+        stage: 'group' as const,
       },
     ],
   }
@@ -39,10 +39,10 @@ beforeEach(() => {
 
 function mountGroupTable(groupId: GroupId, openScoreDialog = vi.fn()) {
   const wrapper = mount(GroupTable, {
-    props: { groupId },
     global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
+    props: { groupId },
   })
-  return { wrapper, openScoreDialog }
+  return { openScoreDialog, wrapper }
 }
 
 describe('GroupTable – layout', () => {

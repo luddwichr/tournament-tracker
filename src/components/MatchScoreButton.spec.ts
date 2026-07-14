@@ -5,13 +5,13 @@ import MatchScoreButton from './MatchScoreButton.vue'
 import type { Result } from '../types/tournament'
 
 const result: Result = {
-  matchId: 'M01',
-  homeGoals: 2,
   awayGoals: 1,
-  homeYellow: 0,
-  homeRed: 0,
-  awayYellow: 0,
   awayRed: 0,
+  awayYellow: 0,
+  homeGoals: 2,
+  homeRed: 0,
+  homeYellow: 0,
+  matchId: 'M01',
 }
 
 describe('MatchScoreButton', () => {
@@ -40,7 +40,7 @@ describe('MatchScoreButton', () => {
   })
 
   it('is disabled and does not emit when disabled', async () => {
-    const wrapper = mount(MatchScoreButton, { props: { label: 'x', disabled: true } })
+    const wrapper = mount(MatchScoreButton, { props: { disabled: true, label: 'x' } })
     expect(wrapper.get('button').attributes('disabled')).toBeDefined()
     await wrapper.get('button').trigger('click')
     expect(wrapper.emitted('openScore')).toBeUndefined()

@@ -6,15 +6,15 @@ import { resolveTeamRef } from '../knockout'
 
 function src(homeId: string, awayId: string, partial: Partial<SourceMatch> = {}): SourceMatch {
   return {
-    homeId,
-    awayId,
-    homeGoals: 0,
     awayGoals: 0,
-    homeYellow: 0,
-    homeRed: 0,
-    awayYellow: 0,
+    awayId,
     awayRed: 0,
+    awayYellow: 0,
     date: '2026-06-11',
+    homeGoals: 0,
+    homeId,
+    homeRed: 0,
+    homeYellow: 0,
     ...partial,
   }
 }
@@ -22,29 +22,29 @@ function src(homeId: string, awayId: string, partial: Partial<SourceMatch> = {})
 describe('buildResultsFromSource', () => {
   it('maps a group match onto its slot', () => {
     const results = buildResultsFromSource([
-      src('mex', 'rsa', { homeGoals: 2, awayGoals: 0, homeYellow: 1, awayRed: 1 }),
+      src('mex', 'rsa', { awayGoals: 0, awayRed: 1, homeGoals: 2, homeYellow: 1 }),
     ])
     expect(results['M01']).toEqual({
-      matchId: 'M01',
-      homeGoals: 2,
       awayGoals: 0,
-      homeYellow: 1,
-      homeRed: 0,
-      awayYellow: 0,
       awayRed: 1,
+      awayYellow: 0,
+      homeGoals: 2,
+      homeRed: 0,
+      homeYellow: 1,
+      matchId: 'M01',
     })
   })
 
   it('orients goals and cards when the source reports the sides reversed', () => {
     // M01 is mex (home) vs rsa (away); source lists rsa as home.
     const results = buildResultsFromSource([
-      src('rsa', 'mex', { homeGoals: 0, awayGoals: 2, homeRed: 1, awayYellow: 1 }),
+      src('rsa', 'mex', { awayGoals: 2, awayYellow: 1, homeGoals: 0, homeRed: 1 }),
     ])
     expect(results['M01']).toMatchObject({
-      homeGoals: 2,
       awayGoals: 0,
-      homeYellow: 1,
       awayRed: 1,
+      homeGoals: 2,
+      homeYellow: 1,
     })
   })
 
@@ -66,8 +66,8 @@ describe('buildResultsFromSource', () => {
   it('resolves a knockout slot once its feeder group results are present', () => {
     const groupSources = groupMatches.map((m) =>
       src((m.homeRef as { teamId: string }).teamId, (m.awayRef as { teamId: string }).teamId, {
-        homeGoals: 1,
         awayGoals: 0,
+        homeGoals: 1,
       }),
     )
 
@@ -82,18 +82,18 @@ describe('buildResultsFromSource', () => {
 
     const withKnockout = buildResultsFromSource([
       ...groupSources,
-      src(home.id, away.id, { date: '2026-06-28', homeGoals: 3, awayGoals: 1 }),
+      src(home.id, away.id, { awayGoals: 1, date: '2026-06-28', homeGoals: 3 }),
     ])
-    expect(withKnockout['M73']).toMatchObject({ matchId: 'M73', homeGoals: 3, awayGoals: 1 })
+    expect(withKnockout['M73']).toMatchObject({ awayGoals: 1, homeGoals: 3, matchId: 'M73' })
   })
 })
 
 describe('syncResults', () => {
   it('fetches from the given provider and maps the result', async () => {
     const provider: ResultsProvider = {
+      fetchResults: vi.fn().mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })]),
       id: 'fake',
       label: 'Fake',
-      fetchResults: vi.fn().mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })]),
     }
     const results = await syncResults(provider)
     expect(provider.fetchResults).toHaveBeenCalledOnce()

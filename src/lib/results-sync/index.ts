@@ -63,13 +63,13 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
 
     const homeFirst = source.homeId === home.id
     results[slot.id] = {
-      matchId: slot.id,
-      homeGoals: homeFirst ? source.homeGoals : source.awayGoals,
       awayGoals: homeFirst ? source.awayGoals : source.homeGoals,
-      homeYellow: homeFirst ? source.homeYellow : source.awayYellow,
-      homeRed: homeFirst ? source.homeRed : source.awayRed,
-      awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
       awayRed: homeFirst ? source.awayRed : source.homeRed,
+      awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
+      homeGoals: homeFirst ? source.homeGoals : source.awayGoals,
+      homeRed: homeFirst ? source.homeRed : source.awayRed,
+      homeYellow: homeFirst ? source.homeYellow : source.awayYellow,
+      matchId: slot.id,
     }
   }
   return results

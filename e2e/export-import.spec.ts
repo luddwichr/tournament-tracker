@@ -47,7 +47,7 @@ test('Exportieren downloads a valid JSON file', async ({ page }) => {
     results: Record<string, unknown>
   }
   expect(content.version).toBe(1)
-  expect(content.results['M01']).toMatchObject({ homeGoals: 2, awayGoals: 1 })
+  expect(content.results['M01']).toMatchObject({ awayGoals: 1, homeGoals: 2 })
 })
 
 test('export → Zurücksetzen → Importieren restores state', async ({ page }) => {
@@ -82,9 +82,9 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   // Step 3: Import — upload file, then confirm in the custom dialog
   await settings.goto()
   await settings.importAndReplace({
-    name: 'wc2026-results.json',
-    mimeType: 'application/json',
     buffer: Buffer.from(fileContent),
+    mimeType: 'application/json',
+    name: 'wc2026-results.json',
   })
 
   // Wait for the store to persist the imported state
@@ -118,11 +118,11 @@ test('Abbrechen on import dialog leaves results intact', async ({ page }) => {
   await seedResults(page, { M01: SEED_RESULT })
   await settings.goto()
 
-  const emptyResults = JSON.stringify({ version: 1, results: {} })
+  const emptyResults = JSON.stringify({ results: {}, version: 1 })
   const dialog = await settings.chooseImportFile({
-    name: 'empty.json',
-    mimeType: 'application/json',
     buffer: Buffer.from(emptyResults),
+    mimeType: 'application/json',
+    name: 'empty.json',
   })
   await dialog.click('Abbrechen')
 
@@ -152,9 +152,9 @@ test('Importieren with invalid JSON shows error', async () => {
   await settings.goto()
 
   await settings.chooseImportFile({
-    name: 'invalid.json',
-    mimeType: 'application/json',
     buffer: Buffer.from('not-valid-json'),
+    mimeType: 'application/json',
+    name: 'invalid.json',
   })
 
   await expect(settings.alert()).toBeVisible()
@@ -164,11 +164,11 @@ test('Importieren with invalid JSON shows error', async () => {
 test('Importieren with wrong version shows error', async () => {
   await settings.goto()
 
-  const wrongVersion = JSON.stringify({ version: 99, results: {} })
+  const wrongVersion = JSON.stringify({ results: {}, version: 99 })
   await settings.chooseImportFile({
-    name: 'wrong-version.json',
-    mimeType: 'application/json',
     buffer: Buffer.from(wrongVersion),
+    mimeType: 'application/json',
+    name: 'wrong-version.json',
   })
 
   await expect(settings.alert()).toBeVisible()

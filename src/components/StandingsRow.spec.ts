@@ -6,7 +6,7 @@ import { makeStat } from '../test-support/stats'
 
 describe('StandingsRow', () => {
   it('renders all stat columns in order', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat(), rank: 1, groupDone: false } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: false, rank: 1, stat: makeStat() } })
     const [played, wins, draws, losses, goalsFor, goalsAgainst, goalDiff, points] = wrapper.findAll('td')
     expect(played!.text()).toBe('3')
     expect(wins!.text()).toBe('2')
@@ -19,46 +19,46 @@ describe('StandingsRow', () => {
   })
 
   it('renders negative goal difference without a plus sign', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ goalDiff: -2 }), rank: 1, groupDone: false } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: false, rank: 1, stat: makeStat({ goalDiff: -2 }) } })
     const [, , , , , , goalDiff] = wrapper.findAll('td')
     expect(goalDiff!.text()).toBe('-2')
   })
 
   it('shows "qualified" status class for rank ≤ 2 when group is done', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat(), rank: 1, groupDone: true } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: true, rank: 1, stat: makeStat() } })
     expect(wrapper.find('tr').classes()).toContain('standings-row--qualified')
   })
 
   it('shows "third" status class for rank 3 when group is done', () => {
     const wrapper = mount(StandingsRow, {
-      props: { stat: makeStat(), rank: 3, groupDone: true },
+      props: { groupDone: true, rank: 3, stat: makeStat() },
     })
     expect(wrapper.find('tr').classes()).toContain('standings-row--third')
   })
 
   it('shows "eliminated" status class for rank 4 when group is done', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat(), rank: 4, groupDone: true } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: true, rank: 4, stat: makeStat() } })
     expect(wrapper.find('tr').classes()).toContain('standings-row--eliminated')
   })
 
   it('shows "safe" status class for rank ≤ 2 when group is not done (played > 0)', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ played: 2 }), rank: 2, groupDone: false } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: false, rank: 2, stat: makeStat({ played: 2 }) } })
     expect(wrapper.find('tr').classes()).toContain('standings-row--safe')
   })
 
   it('shows "potential" status class for rank 3 when group is not done', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ played: 2 }), rank: 3, groupDone: false } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: false, rank: 3, stat: makeStat({ played: 2 }) } })
     expect(wrapper.find('tr').classes()).toContain('standings-row--potential')
   })
 
   it('shows "danger" status class for rank 4 when group is not done', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat({ played: 2 }), rank: 4, groupDone: false } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: false, rank: 4, stat: makeStat({ played: 2 }) } })
     expect(wrapper.find('tr').classes()).toContain('standings-row--danger')
   })
 
   it('shows "none" status (no strip) when played === 0', () => {
     const wrapper = mount(StandingsRow, {
-      props: { stat: makeStat({ played: 0, form: [] }), rank: 1, groupDone: false },
+      props: { groupDone: false, rank: 1, stat: makeStat({ form: [], played: 0 }) },
     })
     const trClass = wrapper.find('tr').classes().join(' ')
     expect(trClass).not.toContain('standings-row--qualified')
@@ -67,7 +67,7 @@ describe('StandingsRow', () => {
   })
 
   it('includes a visually-hidden status label when played > 0', () => {
-    const wrapper = mount(StandingsRow, { props: { stat: makeStat(), rank: 1, groupDone: true } })
+    const wrapper = mount(StandingsRow, { props: { groupDone: true, rank: 1, stat: makeStat() } })
     expect(wrapper.find('.visually-hidden').text()).toBe('(qualifiziert)')
   })
 })

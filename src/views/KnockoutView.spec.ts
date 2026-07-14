@@ -8,21 +8,21 @@ import { scoreDialogKey } from '../composables/use-score-dialog'
 import { makeMatch } from '../test-support/matches'
 
 const resolvedMatch = makeMatch({
-  stage: 'r32',
-  homeRef: { kind: 'team', teamId: 'mex' },
   awayRef: { kind: 'team', teamId: 'usa' },
+  homeRef: { kind: 'team', teamId: 'mex' },
+  stage: 'r32',
 })
 
 const unresolvedMatch = makeMatch({
-  stage: 'r32',
-  homeRef: { kind: 'matchWinner', matchId: 'M_NONEXISTENT' },
   awayRef: { kind: 'matchWinner', matchId: 'M_NONEXISTENT2' },
+  homeRef: { kind: 'matchWinner', matchId: 'M_NONEXISTENT' },
+  stage: 'r32',
 })
 
 const partiallyResolvedMatch = makeMatch({
-  stage: 'r32',
-  homeRef: { kind: 'team', teamId: 'mex' },
   awayRef: { kind: 'matchWinner', matchId: 'M_NONEXISTENT' },
+  homeRef: { kind: 'team', teamId: 'mex' },
+  stage: 'r32',
 })
 
 beforeEach(() => {
@@ -32,11 +32,11 @@ beforeEach(() => {
 function mountView(openScoreDialog = vi.fn()) {
   const wrapper = mount(KnockoutView, {
     global: {
-      stubs: { BracketView: true },
       provide: { [scoreDialogKey as symbol]: openScoreDialog },
+      stubs: { BracketView: true },
     },
   })
-  return { wrapper, openScoreDialog }
+  return { openScoreDialog, wrapper }
 }
 
 describe('KnockoutView – structure', () => {

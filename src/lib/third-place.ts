@@ -52,7 +52,7 @@ export interface ThirdPlaceRanking {
  */
 export function rankThirdPlacedLive(results: ResultsMap): ThirdPlaceRanking {
   const final = isGroupStageComplete(results)
-  return { ranked: thirdPlacedStats(results).toSorted(compareThirdPlaced), final }
+  return { final, ranked: thirdPlacedStats(results).toSorted(compareThirdPlaced) }
 }
 
 /**

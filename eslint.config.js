@@ -19,24 +19,24 @@ export default tseslint.config(
     files: ['**/*.ts', '**/*.vue'],
     languageOptions: {
       parserOptions: {
+        extraFileExtensions: ['.vue'],
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
-        extraFileExtensions: ['.vue'],
       },
     },
     rules: {
+      // in this repo it is fine to use implicit stringification on non-string values
+      '@typescript-eslint/restrict-template-expressions': 'off',
       // TypeScript's compiler already catches undefined references;
       // no-undef from eslint/recommended is redundant and flags DOM globals.
       'no-undef': 'off',
-      // in this repo it is fine to use implicit stringification on non-string values
-      '@typescript-eslint/restrict-template-expressions': 'off',
     },
   },
   {
+    extends: [tseslint.configs.disableTypeChecked],
     // Plain JS files (this config, hooks, build scripts) have no tsconfig
     // project; typed rules would error on them.
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
-    extends: [tseslint.configs.disableTypeChecked],
   },
   {
     files: ['**/*.vue'],
@@ -47,24 +47,25 @@ export default tseslint.config(
       },
     },
     rules: {
+      'vue/component-api-style': ['error', ['script-setup']],
+      'vue/define-emits-declaration': ['error', 'type-literal'],
+      'vue/define-macros-order': ['error', { order: ['defineProps', 'defineEmits'] }],
+      'vue/define-props-declaration': ['error', 'type-based'],
+      // oxfmt owns HTML formatting; disable conflicting vue layout rules
+      // (the html-* / max-attributes-per-line group here and
+      // singleline-html-element-content-newline further down).
+      'vue/html-closing-bracket-newline': 'off',
+      'vue/html-indent': 'off',
+      'vue/html-self-closing': 'off',
+      'vue/max-attributes-per-line': 'off',
+      'vue/no-unused-refs': 'error',
+      'vue/prefer-true-attribute-shorthand': 'error',
+      'vue/prefer-use-template-ref': 'error',
       // TypeScript's `?` already communicates optionality; explicit defaults are
       // only needed when Vue's boolean-casting behaviour requires one (handled
       // case-by-case with withDefaults).
       'vue/require-default-prop': 'off',
-      'vue/component-api-style': ['error', ['script-setup']],
-      'vue/define-macros-order': ['error', { order: ['defineProps', 'defineEmits'] }],
-      'vue/define-props-declaration': ['error', 'type-based'],
-      'vue/define-emits-declaration': ['error', 'type-literal'],
-      'vue/no-unused-refs': 'error',
-      'vue/prefer-use-template-ref': 'error',
-      'vue/prefer-true-attribute-shorthand': 'error',
-
-      // oxfmt owns HTML formatting; disable conflicting vue layout rules.
-      'vue/max-attributes-per-line': 'off',
       'vue/singleline-html-element-content-newline': 'off',
-      'vue/html-self-closing': 'off',
-      'vue/html-indent': 'off',
-      'vue/html-closing-bracket-newline': 'off',
     },
   },
   {
@@ -85,12 +86,12 @@ export default tseslint.config(
   {
     files: ['**/*.spec.ts'],
     rules: {
-      'vue/one-component-per-file': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
       // `expect(obj.method).toHaveBeenCalled()` on a vi.fn/spy never invokes
       // the method, so no `this` scoping issue exists — a known false
       // positive of unbound-method in vitest/jest assertions.
       '@typescript-eslint/unbound-method': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
+      'vue/one-component-per-file': 'off',
     },
   },
   {

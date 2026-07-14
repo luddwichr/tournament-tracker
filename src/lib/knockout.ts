@@ -67,11 +67,11 @@ export type BracketColumnStage = 'r32' | 'r16' | 'qf' | 'sf' | 'final'
 const COLUMN_STAGE_ORDER: readonly BracketColumnStage[] = ['r32', 'r16', 'qf', 'sf', 'final']
 
 const COLUMN_MATCH_STAGES: Record<BracketColumnStage, readonly Stage[]> = {
-  r32: ['r32'],
-  r16: ['r16'],
-  qf: ['qf'],
-  sf: ['sf'],
   final: ['third', 'final'],
+  qf: ['qf'],
+  r16: ['r16'],
+  r32: ['r32'],
+  sf: ['sf'],
 }
 
 /**

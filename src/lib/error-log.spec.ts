@@ -15,7 +15,7 @@ describe('logError', () => {
     logError('vue', 'boom')
     const entries = readErrorLog()
     expect(entries).toHaveLength(1)
-    expect(entries[0]).toMatchObject({ source: 'vue', message: 'boom' })
+    expect(entries[0]).toMatchObject({ message: 'boom', source: 'vue' })
     expect(new Date(entries[0]!.time).getTime()).not.toBeNaN()
   })
 
@@ -56,10 +56,10 @@ describe('readErrorLog', () => {
   })
 
   it('filters out malformed entries but keeps valid ones', () => {
-    const valid = { time: '2026-07-13T10:00:00.000Z', source: 'boot', message: 'parse error' }
+    const valid = { message: 'parse error', source: 'boot', time: '2026-07-13T10:00:00.000Z' }
     localStorage.setItem(
       ERROR_LOG_KEY,
-      JSON.stringify([valid, { time: 123, source: 'vue', message: 'x' }, { source: 'nope' }, null]),
+      JSON.stringify([valid, { message: 'x', source: 'vue', time: 123 }, { source: 'nope' }, null]),
     )
     expect(readErrorLog()).toEqual([valid])
   })

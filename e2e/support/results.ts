@@ -6,7 +6,7 @@ import { STORAGE_KEY } from '../../src/lib/persistence'
 export { STORAGE_KEY }
 
 export function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
-  return { matchId, homeGoals, awayGoals, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
+  return { awayGoals, awayRed: 0, awayYellow: 0, homeGoals, homeRed: 0, homeYellow: 0, matchId }
 }
 
 // `storedState`/`seedResults` write directly to localStorage rather than driving the

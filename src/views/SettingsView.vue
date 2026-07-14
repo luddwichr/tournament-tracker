@@ -32,16 +32,16 @@ const pending = ref<PendingAction | null>(null)
 const confirmConfig = computed(() => {
   if (pending.value?.kind === 'import') {
     return {
-      title: 'Daten importieren',
-      message: 'Alle vorhandenen Ergebnisse werden durch die importierten Daten ersetzt.',
       confirmLabel: 'Ersetzen',
+      message: 'Alle vorhandenen Ergebnisse werden durch die importierten Daten ersetzt.',
+      title: 'Daten importieren',
     }
   }
   if (pending.value?.kind === 'reset') {
     return {
-      title: 'Zurücksetzen',
-      message: 'Alle eingegebenen Ergebnisse werden unwiderruflich gelöscht.',
       confirmLabel: 'Zurücksetzen',
+      message: 'Alle eingegebenen Ergebnisse werden unwiderruflich gelöscht.',
+      title: 'Zurücksetzen',
     }
   }
   return null

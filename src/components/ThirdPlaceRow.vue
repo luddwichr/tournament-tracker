@@ -22,10 +22,10 @@ const status = computed((): ThirdPlaceStatus => {
 })
 
 const statusLabel: Record<Exclude<ThirdPlaceStatus, 'none'>, string> = {
+  danger: 'aktuell nicht sicher',
+  eliminated: 'ausgeschieden',
   qualified: 'qualifiziert',
   safe: 'aktuell sicher',
-  eliminated: 'ausgeschieden',
-  danger: 'aktuell nicht sicher',
 }
 
 // Left-edge status strip on the team cell — see src/styles/standings-row.css

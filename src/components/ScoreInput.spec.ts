@@ -9,7 +9,7 @@ const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
 function mountScoreInput(home = 0, away = 0) {
   return mount(ScoreInput, {
-    props: { homeTeam, awayTeam, home, away },
+    props: { away, awayTeam, home, homeTeam },
   })
 }
 

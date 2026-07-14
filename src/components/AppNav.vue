@@ -2,10 +2,10 @@
 defineProps<{ open?: boolean }>()
 
 const links = [
-  { path: '/groups', icon: '🏟️', label: 'Gruppen' },
-  { path: '/knockout', icon: '🏆', label: 'K.-o.-Runde' },
-  { path: '/ranking', icon: '🌍', label: 'Weltrangliste' },
-  { path: '/settings', icon: '⚙️', label: 'Einstellungen' },
+  { icon: '🏟️', label: 'Gruppen', path: '/groups' },
+  { icon: '🏆', label: 'K.-o.-Runde', path: '/knockout' },
+  { icon: '🌍', label: 'Weltrangliste', path: '/ranking' },
+  { icon: '⚙️', label: 'Einstellungen', path: '/settings' },
 ]
 </script>
 

@@ -33,12 +33,12 @@ describe("resolveTeamRef — kind 'team'", () => {
 
 describe("resolveTeamRef — kind 'groupRank'", () => {
   it('returns null while the group is incomplete', () => {
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     expect(resolveTeamRef(ref, {})).toBeNull()
   })
 
   it('returns null when only some group A matches have results', () => {
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const partial: Record<string, Result> = {}
     groupMatches
       .filter((m) => m.group === 'A')
@@ -50,7 +50,7 @@ describe("resolveTeamRef — kind 'groupRank'", () => {
   })
 
   it('returns a Team once the group is complete', () => {
-    const ref: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
+    const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const complete: Record<string, Result> = {}
     groupMatches
       .filter((m) => m.group === 'A')
@@ -63,8 +63,8 @@ describe("resolveTeamRef — kind 'groupRank'", () => {
   })
 
   it('returns rank-2 (runner-up) when group is complete', () => {
-    const ref1: TeamRef = { kind: 'groupRank', group: 'A', rank: 1 }
-    const ref2: TeamRef = { kind: 'groupRank', group: 'A', rank: 2 }
+    const ref1: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
+    const ref2: TeamRef = { group: 'A', kind: 'groupRank', rank: 2 }
     const complete: Record<string, Result> = {}
     groupMatches
       .filter((m) => m.group === 'A')

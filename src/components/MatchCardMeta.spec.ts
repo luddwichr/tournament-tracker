@@ -7,11 +7,11 @@ const kickoff = '2026-06-08T18:00:00+02:00'
 
 // Mirror the component's formatter so the assertion is timezone-independent.
 const expectedKickoff = new Intl.DateTimeFormat('de-DE', {
-  weekday: 'short',
   day: '2-digit',
-  month: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
+  month: '2-digit',
+  weekday: 'short',
 }).format(new Date(kickoff))
 
 describe('MatchCardMeta', () => {

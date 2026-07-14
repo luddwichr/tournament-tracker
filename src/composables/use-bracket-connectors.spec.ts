@@ -9,15 +9,15 @@ import { useBracketConnectors } from './use-bracket-connectors'
 
 function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
   vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
-    left: 0,
-    top: 0,
-    right: 0,
     bottom: 0,
-    width: 0,
     height: 0,
+    left: 0,
+    right: 0,
+    toJSON: () => ({}),
+    top: 0,
+    width: 0,
     x: 0,
     y: 0,
-    toJSON: () => ({}),
     ...rect,
   })
 }
@@ -59,7 +59,7 @@ describe('useBracketConnectors', () => {
       fromGroup.dataset['matchId'] = 'M73'
       const fromCard = document.createElement('div')
       fromCard.className = 'match-card'
-      mockRect(fromCard, { right: 50, top: 20, height: 20 })
+      mockRect(fromCard, { height: 20, right: 50, top: 20 })
       fromGroup.appendChild(fromCard)
       container.appendChild(fromGroup)
 
@@ -67,7 +67,7 @@ describe('useBracketConnectors', () => {
       toGroup.dataset['matchId'] = 'M90'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
-      mockRect(toCard, { left: 60, top: 30, height: 20 })
+      mockRect(toCard, { height: 20, left: 60, top: 30 })
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
@@ -89,7 +89,7 @@ describe('useBracketConnectors', () => {
       fromGroup.dataset['matchId'] = 'M73'
       const fromCard = document.createElement('div')
       fromCard.className = 'match-card'
-      mockRect(fromCard, { right: 50, top: 20, height: 20 })
+      mockRect(fromCard, { height: 20, right: 50, top: 20 })
       fromGroup.appendChild(fromCard)
       container.appendChild(fromGroup)
 
@@ -97,7 +97,7 @@ describe('useBracketConnectors', () => {
       toGroup.dataset['matchId'] = 'M90'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
-      mockRect(toCard, { left: 60, top: 30, height: 20 })
+      mockRect(toCard, { height: 20, left: 60, top: 30 })
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
@@ -144,14 +144,14 @@ describe('useBracketConnectors', () => {
 
       const fromEl = document.createElement('div')
       fromEl.dataset['refKey'] = 'groupRank:A:2'
-      mockRect(fromEl, { right: 30, top: 15, height: 10 })
+      mockRect(fromEl, { height: 10, right: 30, top: 15 })
       container.appendChild(fromEl)
 
       const toGroup = document.createElement('div')
       toGroup.dataset['matchId'] = 'M73'
       const toCard = document.createElement('div')
       toCard.className = 'match-card'
-      mockRect(toCard, { left: 60, top: 30, height: 20 })
+      mockRect(toCard, { height: 20, left: 60, top: 30 })
       toGroup.appendChild(toCard)
       container.appendChild(toGroup)
 
