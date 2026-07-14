@@ -34,7 +34,9 @@ const id = useId()
 const tabButtons = useTemplateRef<HTMLButtonElement[]>('tabButtons')
 
 function focusTab(index: number) {
-  activeTab.value = tabs[index]!.id
+  const tab = tabs[index]
+  if (!tab) return
+  activeTab.value = tab.id
   tabButtons.value?.[index]?.focus()
 }
 

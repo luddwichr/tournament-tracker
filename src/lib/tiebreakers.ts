@@ -98,6 +98,20 @@ function computeH2HStats(
 }
 
 /**
+ * Look up a team's stats, failing loudly on a missing entry. Every lookup
+ * below assumes stats exist for every team passed in; returning `undefined`
+ * instead would flow into the sort comparators, where `undefined - 5` is
+ * `NaN` — which doesn't throw, it just silently mis-orders the group.
+ */
+function statsFor<S>(stats: Map<string, S>, teamId: string): S {
+  const s = stats.get(teamId)
+  if (s === undefined) {
+    throw new Error(`no stats for team '${teamId}'`)
+  }
+  return s
+}
+
+/**
  * Resolve a set of teams that are level on points (Article 13).
  *
  * Step 1 applies the head-to-head criteria (a–c) among the tied teams. Where
@@ -113,7 +127,7 @@ function resolveH2H<S extends TiebreakerStat>(
 ): Team[] {
   const h2hMatches = h2hMatchesBetween(teams, allGroupMatches)
   const h2hStats = computeH2HStats(teams, h2hMatches, results)
-  const clusters = clusterBy(teams, (a, b) => compareByPointsGdGf(h2hStats.get(a.id)!, h2hStats.get(b.id)!))
+  const clusters = clusterBy(teams, (a, b) => compareByPointsGdGf(statsFor(h2hStats, a.id), statsFor(h2hStats, b.id)))
 
   return clusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster
@@ -126,8 +140,8 @@ function resolveH2H<S extends TiebreakerStat>(
     // Head-to-head made no progress — apply overall GD (d), overall goals (e),
     // fair-play (f), then FIFA ranking (g) as a single no-restart sequence.
     return cluster.toSorted((a, b) => {
-      const sa = overallStats.get(a.id)!
-      const sb = overallStats.get(b.id)!
+      const sa = statsFor(overallStats, a.id)
+      const sb = statsFor(overallStats, b.id)
       if (sb.goalDiff !== sa.goalDiff) return sb.goalDiff - sa.goalDiff // d
       if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor // e
       if (sb.fairPlayScore !== sa.fairPlayScore) return sb.fairPlayScore - sa.fairPlayScore // f (higher = better)
@@ -149,11 +163,9 @@ export function sortTeams<S extends TiebreakerStat>(
   results: ResultsMap,
   overallStats: Map<string, S>,
 ): Team[] {
-  // Every `.get(id)!` below (here and in resolveH2H's recursion) assumes stats
-  // exist for every team passed in. Violating that precondition would
-  // otherwise silently produce `undefined`, and `undefined - 5` is `NaN` —
-  // which doesn't throw, it just makes the sort comparator return NaN and
-  // silently mis-order the group. Fail loudly at the boundary instead.
+  // `statsFor` fails loudly on any missing entry, but only for teams a
+  // comparator happens to touch — validate the whole precondition up front
+  // so the error names the caller's actual mistake.
   for (const team of teams) {
     if (!overallStats.has(team.id)) {
       throw new Error(`sortTeams: no stats for team '${team.id}' in overallStats.`)
@@ -162,7 +174,10 @@ export function sortTeams<S extends TiebreakerStat>(
 
   // Teams are first separated by points; only equal-points clusters go through
   // the Article 13 chain (head-to-head before overall goal difference).
-  const pointClusters = clusterBy(teams, (a, b) => overallStats.get(b.id)!.points - overallStats.get(a.id)!.points)
+  const pointClusters = clusterBy(
+    teams,
+    (a, b) => statsFor(overallStats, b.id).points - statsFor(overallStats, a.id).points,
+  )
 
   return pointClusters.flatMap((cluster) => {
     if (cluster.length === 1) return cluster

@@ -2,7 +2,8 @@ import type { TeamStat } from '../lib/standings'
 import { teamsInGroup } from '../data/teams'
 
 export function makeStat(overrides: Partial<TeamStat> = {}): TeamStat {
-  const team = teamsInGroup('A')[0]! // mex
+  const team = teamsInGroup('A')[0] // mex
+  if (!team) throw new Error('static teams data has no team in group A')
   return {
     team,
     played: 3,

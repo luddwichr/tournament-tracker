@@ -193,7 +193,6 @@ describe('third-place allocation table', () => {
   it('keys every row by 8 distinct sorted group letters', () => {
     for (const key of Object.keys(THIRD_PLACE_ALLOCATION)) {
       expect(key).toHaveLength(8)
-      // eslint-disable-next-line @typescript-eslint/no-misused-spread -- keys are ASCII group letters (A–L), asserted below; code-point splitting is exact here
       const letters = [...key]
       expect(new Set(letters).size).toBe(8)
       expect(letters.toSorted().join('')).toBe(key)

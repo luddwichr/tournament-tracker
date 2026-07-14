@@ -1,19 +1,13 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "oxc", "vue", "unicorn"],
-  // `pedantic` stays off deliberately: it is dominated by style opinions that
-  // conflict with this codebase's conventions — no-inline-comments alone would
-  // flag every inline why-comment (~100+), plus require-unicode-regexp and
-  // max-lines-per-function noise. Cherry-pick individual pedantic rules into
-  // "rules" instead if they prove valuable.
   "categories": {
     "correctness": "error",
     "suspicious": "error",
     "perf": "error"
   },
   "rules": {
-    // Cherry-picked from `pedantic`. `null: ignore` keeps the deliberate
-    // `x != null` idiom (covers null and undefined in one check).
+    // `null: ignore` keeps the deliberate `x != null` idiom (covers null and undefined in one check).
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "unicorn/consistent-function-scoping": "error",
     "unicorn/no-array-sort": "error",
