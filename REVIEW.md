@@ -754,14 +754,12 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Prior-findings status
 
-| Prior finding (§6)                        | Status     | Evidence                                                         |
-| ----------------------------------------- | ---------- | ---------------------------------------------------------------- |
-| No type-aware linting                     | STILL OPEN | `eslint.config.js:15` still non-typed `recommended`              |
-| oxlint `perf`/`pedantic` off, uncommented | STILL OPEN | `.oxlintrc.json:4-7`                                             |
-| Manifest minimal                          | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
-| No CSP meta                               | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
-| Versioning invisible                      | STILL OPEN | `package.json:3` still `0.1.0`, no CHANGELOG                     |
-| ESPN dependency risk undocumented         | STILL OPEN | no shape guard/monitoring beyond provider parsing                |
+| Prior finding (§6)                | Status     | Evidence                                                         |
+| --------------------------------- | ---------- | ---------------------------------------------------------------- |
+| Manifest minimal                  | STILL OPEN | no screenshots/categories/shortcuts; apple-touch reuses icon-192 |
+| No CSP meta                       | STILL OPEN | `index.html` has no CSP `<meta>`                                 |
+| Versioning invisible              | STILL OPEN | `package.json:3` still `0.1.0`, no CHANGELOG                     |
+| ESPN dependency risk undocumented | STILL OPEN | no shape guard/monitoring beyond provider parsing                |
 
 ---
 
