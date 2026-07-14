@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { onMounted, useId, useTemplateRef } from 'vue'
+import { computed, onMounted, useId, useTemplateRef } from 'vue'
 import { useScrollLock } from '../composables/use-scroll-lock'
 
 // Vue's macro types mark boolean props as always-defined (absent casts to
 // false), so typescript-eslint thinks this default is useless — but it is the
 // runtime default that makes an omitted prop mean `true`.
-// eslint-disable-next-line @typescript-eslint/no-useless-default-assignment
-const { showCloseButton = true } = defineProps<{
+const {
+  maxWidth,
+  maxHeight,
+  // eslint-disable-next-line @typescript-eslint/no-useless-default-assignment
+  showCloseButton = true,
+} = defineProps<{
   title?: string
   ariaLabel?: string
   ariaDescribedby?: string
@@ -18,6 +22,13 @@ const { showCloseButton = true } = defineProps<{
 const emit = defineEmits<{ close: [] }>()
 const dialogEl = useTemplateRef<HTMLDialogElement>('dialogEl')
 const titleId = useId()
+
+// maxHeight only drives its custom property when set, so the scrollable
+// layout (keyed off `--dialog-max-height`) stays off by default.
+const dialogStyle = computed(() => ({
+  '--dialog-max-width': maxWidth ?? 'var(--dialog-width-sm)',
+  ...(maxHeight ? { '--dialog-max-height': maxHeight } : {}),
+}))
 
 useScrollLock()
 
@@ -37,10 +48,7 @@ defineExpose({ close })
     ref="dialogEl"
     class="base-dialog"
     :class="{ 'base-dialog--scrollable': !!maxHeight }"
-    :style="{
-      '--dialog-max-width': maxWidth ?? 'var(--dialog-width-sm)',
-      ...(maxHeight ? { '--dialog-max-height': maxHeight } : {}),
-    }"
+    :style="dialogStyle"
     :aria-label="ariaLabel"
     :aria-labelledby="!ariaLabel && title ? titleId : undefined"
     :aria-describedby="ariaDescribedby"
