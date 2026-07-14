@@ -4,8 +4,8 @@ import { inject, provide, ref } from 'vue'
 
 export interface ScoreDialogConfig {
   match: MatchSlot
-  home: Team
-  away: Team
+  homeTeam: Team
+  awayTeam: Team
 }
 
 type OpenFn = (match: MatchSlot, home: Team, away: Team) => void
@@ -21,7 +21,7 @@ export function provideScoreDialog(): ScoreDialogState {
   const config = ref<ScoreDialogConfig | null>(null)
 
   function open(match: MatchSlot, home: Team, away: Team): void {
-    config.value = { away, home, match }
+    config.value = { awayTeam: away, homeTeam: home, match }
   }
 
   function close(): void {

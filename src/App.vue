@@ -63,13 +63,7 @@ watch(
   <UpdateDialog />
 
   <TeamDialog v-if="viewedTeam" :team="viewedTeam" @close="closeTeamView" />
-  <ScoreDialog
-    v-if="scoreDialogConfig"
-    :match="scoreDialogConfig.match"
-    :home-team="scoreDialogConfig.home"
-    :away-team="scoreDialogConfig.away"
-    @close="closeScoreDialog"
-  />
+  <ScoreDialog v-if="scoreDialogConfig" v-bind="scoreDialogConfig" @close="closeScoreDialog" />
 </template>
 
 <style scoped>
