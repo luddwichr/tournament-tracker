@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import CardIcon from './icons/CardIcon.vue'
+import StatHeaderCell from './StatHeaderCell.vue'
 import type { TeamOverallStats } from '../lib/team-schedule'
 
 defineProps<{ stats: TeamOverallStats }>()
+
+const columns = [
+  { abbr: 'Sp', label: 'Spiele' },
+  { abbr: 'S', label: 'Siege' },
+  { abbr: 'U', label: 'Unentschieden' },
+  { abbr: 'N', label: 'Niederlagen' },
+  { abbr: 'T+', label: 'Tore' },
+  { abbr: 'T-', label: 'Gegentore' },
+]
 </script>
 
 <template>
@@ -12,38 +22,13 @@ defineProps<{ stats: TeamOverallStats }>()
     </caption>
     <thead>
       <tr>
-        <th scope="col">
-          <abbr title="Spiele">Sp</abbr>
-          <span class="visually-hidden">Spiele</span>
-        </th>
-        <th scope="col">
-          <abbr title="Siege">S</abbr>
-          <span class="visually-hidden">Siege</span>
-        </th>
-        <th scope="col">
-          <abbr title="Unentschieden">U</abbr>
-          <span class="visually-hidden">Unentschieden</span>
-        </th>
-        <th scope="col">
-          <abbr title="Niederlagen">N</abbr>
-          <span class="visually-hidden">Niederlagen</span>
-        </th>
-        <th scope="col">
-          <abbr title="Tore">T+</abbr>
-          <span class="visually-hidden">Tore</span>
-        </th>
-        <th scope="col">
-          <abbr title="Gegentore">T-</abbr>
-          <span class="visually-hidden">Gegentore</span>
-        </th>
-        <th scope="col">
+        <StatHeaderCell v-for="col in columns" :key="col.abbr" :abbr="col.abbr" :label="col.label" />
+        <StatHeaderCell label="Gelbe Karten">
           <CardIcon color="yellow" class="team-stats__card-icon" />
-          <span class="visually-hidden">Gelbe Karten</span>
-        </th>
-        <th scope="col">
+        </StatHeaderCell>
+        <StatHeaderCell label="Rote Karten">
           <CardIcon color="red" class="team-stats__card-icon" />
-          <span class="visually-hidden">Rote Karten</span>
-        </th>
+        </StatHeaderCell>
       </tr>
     </thead>
     <tbody>
