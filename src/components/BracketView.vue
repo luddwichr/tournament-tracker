@@ -54,8 +54,13 @@ const rounds = computed((): Round[] => {
       .map((m) => toRow(m)),
   }))
 
-  const thirdMatch = knockoutMatches.find((m) => m.stage === 'third')!
-  const finalMatch = knockoutMatches.find((m) => m.stage === 'final')!
+  // The static fixtures define exactly one match per final stage
+  // (asserted in data.spec.ts); fail loudly if that ever changes.
+  const thirdMatch = knockoutMatches.find((m) => m.stage === 'third')
+  const finalMatch = knockoutMatches.find((m) => m.stage === 'final')
+  if (!thirdMatch || !finalMatch) {
+    throw new Error('fixtures are missing the third-place or final match')
+  }
   groups.push({
     title: 'Finale',
     stage: 'final',

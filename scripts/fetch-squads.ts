@@ -204,9 +204,9 @@ function parseSquads(wikitext: string): Map<string, Player[]> {
       const posMatch = /(?:^|\|)pos=(\w+)/.exec(params)
       const nameMatch = /(?:^|\|)name=([^|]+)/.exec(params)
       if (!noMatch || !posMatch || !nameMatch) continue
-      const pos = posMatch[1]!.toUpperCase()
+      const pos = posMatch[1]?.toUpperCase()
       if (pos !== 'GK' && pos !== 'DF' && pos !== 'MF' && pos !== 'FW') continue
-      const name = stripWiki(nameMatch[1]!)
+      const name = stripWiki(nameMatch[1] ?? '')
       if (!name) continue
       players.push({ number: Number(noMatch[1]), name, position: pos })
     }

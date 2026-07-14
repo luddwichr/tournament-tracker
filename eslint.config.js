@@ -28,10 +28,7 @@ export default tseslint.config(
     // no-undef from eslint/recommended is redundant and flags DOM globals.
     rules: {
       'no-undef': 'off',
-      // Cherry-picked from strictTypeChecked: spreading strings splits
-      // multi-code-unit characters; spreading objects/functions has
-      // surprising semantics.
-      '@typescript-eslint/no-misused-spread': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'error',
     },
   },
   {
@@ -92,6 +89,7 @@ export default tseslint.config(
       // the method, so no `this` scoping issue exists — a known false
       // positive of unbound-method in vitest/jest assertions.
       '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

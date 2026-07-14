@@ -57,7 +57,8 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
     if (!candidates || candidates.length === 0) continue
 
     const index = nearestIndex(candidates, slot.kickoff)
-    const source = candidates[index]!
+    const source = candidates[index]
+    if (!source) continue // unreachable: nearestIndex indexes the non-empty `candidates`
     byPair.set(key, candidates.toSpliced(index, 1))
 
     const homeFirst = source.homeId === home.id

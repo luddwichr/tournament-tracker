@@ -127,7 +127,8 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Resu
         if (t) possible.add(t.id)
         return
       }
-      const match = remaining[i]!
+      const match = remaining[i]
+      if (!match) return // unreachable: `i === remaining.length` returned above
       for (let h = 0; h < maxGoals; h++) {
         for (let a = 0; a < maxGoals; a++) {
           partial[match.id] = {
