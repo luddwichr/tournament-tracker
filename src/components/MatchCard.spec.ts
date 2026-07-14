@@ -93,6 +93,25 @@ describe('MatchCard – accessible score label', () => {
     const wrapper = mountCard()
     expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe('Deutschland – Frankreich: Ergebnis eingeben')
   })
+
+  it('speaks the folded score plus "nach Elfmeterschießen" for a shootout result — the visual i.E. badge is aria-hidden', () => {
+    const wrapper = mountCard({
+      result: {
+        ...result,
+        awayGoals: 1,
+        awayRed: 0,
+        awayShootoutGoals: 2,
+        awayYellow: 0,
+        homeGoals: 1,
+        homeRed: 0,
+        homeShootoutGoals: 4,
+        homeYellow: 0,
+      },
+    })
+    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
+      'Deutschland 5 : 3 Frankreich nach Elfmeterschießen – Ergebnis bearbeiten',
+    )
+  })
 })
 
 describe('MatchCard – state classes', () => {

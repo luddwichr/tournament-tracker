@@ -111,12 +111,22 @@ export type MatchSlot = GroupMatchSlot | KnockoutMatchSlot
 export interface Result {
   readonly matchId: string
   /**
-   * Final score. For knockout matches this includes any penalty-shootout
-   * goals, so a decided match always has a decisive score — a level knockout
-   * score means "not decided yet" (see `resolveTeamRef` in `knockout.ts`).
+   * Goals after regulation and extra time — the real goal count, never
+   * including penalty-shootout goals. A level knockout score without shootout
+   * goals means "not decided yet" (see `resolveTeamRef` in `knockout.ts`).
    */
   readonly homeGoals: number
   readonly awayGoals: number
+  /**
+   * Penalty-shootout goals per side. Present only when the match was decided
+   * by a shootout: knockout matches only, both fields set together, the
+   * regular score level, and the shootout score decisive (enforced in
+   * `persistence.ts` and the score form). The UI shows the *folded* score —
+   * shootout goals added in, marked "i.E." — via `foldedScore` in
+   * `knockout.ts`; stats keep using the real goals (`team-schedule.ts`).
+   */
+  readonly homeShootoutGoals?: number
+  readonly awayShootoutGoals?: number
   // Discipline counts feed the FIFA fair-play tiebreaker.
   // See docs/tournament-rules.md for the rule.
   readonly homeYellow: number

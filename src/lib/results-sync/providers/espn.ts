@@ -61,8 +61,8 @@ function nonNegativeInt(value: string | null | undefined): number {
   return Number.isFinite(n) && n > 0 ? n : 0
 }
 
-function nonNegativeNumber(value: number | null | undefined): number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0
+function nonNegativeInteger(value: number | null | undefined): number {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : 0
 }
 
 function fixtureDate(kickoff: string): string {
@@ -108,14 +108,6 @@ function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTe
   return tally
 }
 
-/** ESPN's `score` is the real goal count after extra time — which is level
- * when a shootout decided the match — with the shootout reported separately
- * as `shootoutScore`. The app's model wants one decisive final score (see
- * `Result`), so the two are summed per side. */
-function finalGoals(competitor: RawCompetitor): number {
-  return nonNegativeInt(competitor.score) + nonNegativeNumber(competitor.shootoutScore)
-}
-
 function toSourceMatch(event: RawEvent): SourceMatch | null {
   const competition = event.competitions?.[0]
   const competitors = competition?.competitors ?? []
@@ -128,11 +120,22 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
   if (!homeId || !awayId) return null
 
   const cards = tallyCards(competition?.details ?? [], home.team?.id, away.team?.id)
+  // ESPN's `score` is the real goal count after extra time — which is level
+  // when a shootout decided the match — with the shootout reported separately
+  // as `shootoutScore`. That matches `SourceMatch` directly; only report a
+  // shootout when either side actually scored in one.
+  const homeShootout = nonNegativeInteger(home.shootoutScore)
+  const awayShootout = nonNegativeInteger(away.shootoutScore)
+  const shootout =
+    homeShootout > 0 || awayShootout > 0
+      ? { awayShootoutGoals: awayShootout, homeShootoutGoals: homeShootout }
+      : undefined
   return {
-    awayGoals: finalGoals(away),
+    awayGoals: nonNegativeInt(away.score),
     awayId,
-    homeGoals: finalGoals(home),
+    homeGoals: nonNegativeInt(home.score),
     homeId,
+    ...shootout,
     ...cards,
     date: (event.date ?? '').slice(0, 10),
   }

@@ -1,9 +1,9 @@
+import { SCHEMA_VERSION, STORAGE_KEY } from '../../src/lib/persistence'
 import type { Page } from '@playwright/test'
 import type { Result } from '../../src/types/tournament'
-import { STORAGE_KEY } from '../../src/lib/persistence'
 import { groupMatches } from '../../src/data/fixtures-2026'
 
-export { STORAGE_KEY }
+export { SCHEMA_VERSION, STORAGE_KEY }
 
 export function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
   return { awayGoals, awayRed: 0, awayYellow: 0, homeGoals, homeRed: 0, homeYellow: 0, matchId }

@@ -4,14 +4,16 @@
 // `ResultsProvider` implementation.
 
 /** One finished match, normalised to app team ids and non-negative counts.
- * Goals follow the app's model (see `Result`): a shootout-decided match
- * reports its penalty goals folded into `homeGoals`/`awayGoals`, so the
- * score of a decided match is always decisive. */
+ * Goals follow the app's model (see `Result`): `homeGoals`/`awayGoals` are
+ * the real goals after regulation/extra time; a shootout is reported
+ * separately via the optional shootout fields (set together or not at all). */
 export interface SourceMatch {
   homeId: string
   awayId: string
   homeGoals: number
   awayGoals: number
+  homeShootoutGoals?: number
+  awayShootoutGoals?: number
   homeYellow: number
   homeRed: number
   awayYellow: number

@@ -21,7 +21,9 @@ const close = () => baseDialog.value?.close()
 const {
   goals,
   cards,
-  knockoutDraw,
+  shootout,
+  shootoutRequired,
+  saveError,
   title,
   initial,
   save,
@@ -37,8 +39,18 @@ const {
   () => props.awayTeam,
 )
 
-const attemptedDrawSave = ref(false)
-const showDrawError = computed(() => attemptedDrawSave.value && knockoutDraw.value)
+// The error only appears once a save was attempted, but then tracks the
+// inputs live until the form is saveable again.
+const attemptedSave = ref(false)
+const shownError = computed(() => (attemptedSave.value ? saveError.value : null))
+
+function onSave(): void {
+  if (saveError.value) {
+    attemptedSave.value = true
+    return
+  }
+  save(close)
+}
 
 const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 </script>
@@ -53,8 +65,21 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
 
       <ScoreInput v-model:home="goals.home" v-model:away="goals.away" :home-team="homeTeam" :away-team="awayTeam" />
 
-      <p v-if="showDrawError" class="score-dialog__draw-error" role="alert">
-        Unentschieden geht nicht! Wer hat gewonnen?
+      <!-- A knockout match can't end level, so a level score means "goes to
+           a shootout" — the shootout steppers appear exactly then. -->
+      <ScoreInput
+        v-if="shootoutRequired"
+        v-model:home="shootout.home"
+        v-model:away="shootout.away"
+        :home-team="homeTeam"
+        :away-team="awayTeam"
+        legend="Elfmeterschießen"
+        goal-noun="Elfmetertor"
+        emoji="🎯"
+      />
+
+      <p v-if="shownError" class="score-dialog__draw-error" role="alert">
+        {{ shownError }}
       </p>
 
       <DisciplineInput
@@ -94,7 +119,7 @@ const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
         <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">
           <span class="score-dialog__btn-symbol" aria-hidden="true">✕</span> Abbrechen
         </button>
-        <button type="button" class="btn btn--primary" @click="knockoutDraw ? (attemptedDrawSave = true) : save(close)">
+        <button type="button" class="btn btn--primary" @click="onSave">
           <span class="score-dialog__btn-symbol" aria-hidden="true">✓</span> Speichern
         </button>
       </div>

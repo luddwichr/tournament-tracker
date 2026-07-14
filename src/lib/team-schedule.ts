@@ -57,7 +57,13 @@ export interface TeamOverallStats {
   redCards: number
 }
 
-/** Aggregate `team`'s played matches (from `matchesForTeam`) into overall stats. */
+/**
+ * Aggregate `team`'s played matches (from `matchesForTeam`) into overall stats.
+ *
+ * Uses `homeGoals`/`awayGoals` as stored — the real goals, never shootout
+ * kicks — so per FIFA statistical convention a shootout-decided match counts
+ * as a draw and its penalty goals don't inflate the goal tally.
+ */
 export function computeTeamStats(team: Team, entries: TeamMatchEntry[]): TeamOverallStats {
   const stats: TeamOverallStats = {
     draws: 0,

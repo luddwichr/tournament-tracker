@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MatchSlot, Result, Team } from '../types/tournament'
+import { decidedByShootout, foldedScore } from '../lib/knockout'
 import CardIcon from './icons/CardIcon.vue'
 import MatchCardMeta from './MatchCardMeta.vue'
 import MatchScoreButton from './MatchScoreButton.vue'
@@ -49,7 +50,11 @@ const ariaLabel = computed(() => {
   if (props.result) {
     const homeCards = cardSummary(props.result.homeYellow, props.result.homeRed)
     const awayCards = cardSummary(props.result.awayYellow, props.result.awayRed)
-    return `${home} ${props.result.homeGoals}${homeCards} : ${props.result.awayGoals}${awayCards} ${away} – Ergebnis bearbeiten`
+    const score = foldedScore(props.result)
+    // The visual "i.E." badge next to the score is aria-hidden; this is its
+    // accessible counterpart.
+    const shootout = decidedByShootout(props.result) ? ' nach Elfmeterschießen' : ''
+    return `${home} ${score.home}${homeCards} : ${score.away}${awayCards} ${away}${shootout} – Ergebnis bearbeiten`
   }
   return `${home} – ${away}: Ergebnis eingeben`
 })

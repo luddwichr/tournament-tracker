@@ -4,7 +4,7 @@
 
 import type { Result, TeamRef } from '../types/tournament'
 import { allGroupResults, makeResult } from '../test-support/results'
-import { currentBracketColumn, resolveTeamRef } from './knockout'
+import { currentBracketColumn, decidedByShootout, foldedScore, resolveTeamRef } from './knockout'
 import { describe, expect, it } from 'vitest'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
@@ -153,6 +153,39 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
     results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     expect(resolveTeamRef(ref, results)).toBeNull()
+  })
+
+  it('resolves a level score decided by shootout to the shootout winner', () => {
+    const results: Record<string, Result> = {}
+    groupMatches
+      .filter((m) => m.group === 'A' || m.group === 'B')
+      .forEach((m) => {
+        results[m.id] = makeResult(m.id, 1, 0)
+      })
+    // 1:1 after extra time, away wins the shootout 3:4.
+    results['M73'] = makeResult('M73', 1, 1, { awayShootoutGoals: 4, homeShootoutGoals: 3 })
+    const winner = resolveTeamRef({ kind: 'matchWinner', matchId: 'M73' }, results)
+    const awayRef = knockoutMatches.find((m) => m.id === 'M73')!.awayRef
+    expect(winner).not.toBeNull()
+    expect(winner!.id).toBe(resolveTeamRef(awayRef, results)!.id)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// foldedScore / decidedByShootout
+// ---------------------------------------------------------------------------
+
+describe('foldedScore / decidedByShootout', () => {
+  it('returns the plain goals for a result without shootout', () => {
+    const result = makeResult('M01', 2, 1)
+    expect(foldedScore(result)).toEqual({ away: 1, home: 2 })
+    expect(decidedByShootout(result)).toBe(false)
+  })
+
+  it('adds shootout goals per side', () => {
+    const result = makeResult('M73', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 })
+    expect(foldedScore(result)).toEqual({ away: 3, home: 5 })
+    expect(decidedByShootout(result)).toBe(true)
   })
 })
 

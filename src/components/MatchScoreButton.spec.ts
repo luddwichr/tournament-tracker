@@ -28,6 +28,21 @@ describe('MatchScoreButton', () => {
     expect(wrapper.find('.match-score-btn__dash').exists()).toBe(false)
   })
 
+  it('renders the folded score and an aria-hidden i.E. badge for a shootout result', () => {
+    const shootoutResult: Result = { ...result, awayGoals: 1, awayShootoutGoals: 2, homeGoals: 1, homeShootoutGoals: 4 }
+    const wrapper = mount(MatchScoreButton, { props: { label: 'x', result: shootoutResult } })
+    const values = wrapper.findAll('.match-score-btn__value')
+    expect(values.map((v) => v.text())).toEqual(['5', '3'])
+    const badge = wrapper.find('.match-score-btn__shootout')
+    expect(badge.text()).toBe('i.E.')
+    expect(badge.attributes('aria-hidden')).toBe('true')
+  })
+
+  it('renders no i.E. badge for a result without shootout', () => {
+    const wrapper = mount(MatchScoreButton, { props: { label: 'x', result } })
+    expect(wrapper.find('.match-score-btn__shootout').exists()).toBe(false)
+  })
+
   it('applies the label as the button aria-label', () => {
     const wrapper = mount(MatchScoreButton, { props: { label: 'Deutschland – Frankreich: Ergebnis eingeben' } })
     expect(wrapper.get('button').attributes('aria-label')).toBe('Deutschland – Frankreich: Ergebnis eingeben')

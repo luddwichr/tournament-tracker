@@ -47,6 +47,15 @@ function deleteButton(wrapper: ReturnType<typeof mountDialog>) {
   return wrapper.findAll('button').find((b) => b.text().includes('Löschen'))
 }
 
+// Helpers for the penalty-shootout suite.
+function scoreInputs(wrapper: ReturnType<typeof mountDialog>) {
+  return wrapper.findAllComponents({ name: 'ScoreInput' })
+}
+
+function penaltyFor(wrapper: ReturnType<typeof mountDialog>, team: string) {
+  return wrapper.findAll('button').find((b) => b.attributes('aria-label') === `Elfmetertor für ${team} hinzufügen`)!
+}
+
 // Helpers for the cascade-confirmation suite; see the scenario comment there.
 function seedGroupInvalidationScenario() {
   const store = useTournamentStore()
@@ -239,6 +248,26 @@ describe('ScoreDialog', () => {
       })
     })
 
+    it('fills the shootout goals from a shootout-decided live result', async () => {
+      const store = useTournamentStore()
+      vi.mocked(syncResults).mockResolvedValue({
+        M90: makeResult('M90', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 }),
+      })
+      const wrapper = mountDialog(knockoutMatch)
+
+      await wrapper.find('.score-dialog__fetch').trigger('click')
+      await flushPromises()
+
+      expect(scoreInputs(wrapper)).toHaveLength(2)
+      await saveButton(wrapper).trigger('click')
+      expect(store.results['M90']).toMatchObject({
+        awayGoals: 1,
+        awayShootoutGoals: 2,
+        homeGoals: 1,
+        homeShootoutGoals: 4,
+      })
+    })
+
     it('shows a message when no live result is found', async () => {
       vi.mocked(syncResults).mockResolvedValue({})
       const wrapper = mountDialog()
@@ -318,10 +347,74 @@ describe('ScoreDialog', () => {
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
       const dec = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
       await dec!.trigger('click')
-      // scores are equal again; showDrawError is now purely derived from
-      // (attempted-save && knockoutDraw), so it reappears rather than staying
+      // scores are equal again; the error is purely derived from
+      // (attempted-save && saveError), so it reappears rather than staying
       // latched false.
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
+    })
+  })
+
+  describe('penalty shootout', () => {
+    it('shows no shootout inputs for a group match, even at a level score', () => {
+      expect(scoreInputs(mountDialog(groupMatch))).toHaveLength(1)
+    })
+
+    it('shows the shootout inputs exactly while a knockout score is level', async () => {
+      const wrapper = mountDialog(knockoutMatch) // opens at 0:0 — level
+      expect(scoreInputs(wrapper)).toHaveLength(2)
+      const incGoal = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
+      await incGoal!.trigger('click')
+      expect(scoreInputs(wrapper)).toHaveLength(1)
+    })
+
+    it('saves a level score with decisive shootout goals', async () => {
+      const store = useTournamentStore()
+      const wrapper = mountDialog(knockoutMatch)
+      await penaltyFor(wrapper, 'Deutschland').trigger('click')
+      await saveButton(wrapper).trigger('click')
+      expect(store.results['M90']).toMatchObject({
+        awayGoals: 0,
+        awayShootoutGoals: 0,
+        homeGoals: 0,
+        homeShootoutGoals: 1,
+      })
+      expect(wrapper.emitted('close')).toHaveLength(1)
+    })
+
+    it('blocks saving a level shootout with a draw error', async () => {
+      const store = useTournamentStore()
+      const wrapper = mountDialog(knockoutMatch)
+      await saveButton(wrapper).trigger('click')
+      expect(store.results['M90']).toBeUndefined()
+      expect(wrapper.find('.score-dialog__draw-error').text()).toBe(
+        'Unentschieden geht nicht! Wer hat das Elfmeterschießen gewonnen?',
+      )
+    })
+
+    it('round-trips an existing shootout result: pre-filled and unchanged on save', async () => {
+      const store = useTournamentStore()
+      const existing = makeResult('M90', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 })
+      store.enterResult(existing)
+      const wrapper = mountDialog(knockoutMatch)
+      expect(scoreInputs(wrapper)).toHaveLength(2)
+      await saveButton(wrapper).trigger('click')
+      expect(store.results['M90']).toEqual(existing)
+    })
+
+    it('drops the shootout fields once the score is edited to be decisive', async () => {
+      const store = useTournamentStore()
+      store.enterResult(makeResult('M90', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 }))
+      const wrapper = mountDialog(knockoutMatch)
+      const incGoal = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
+      await incGoal!.trigger('click') // 2:1 — decisive without a shootout
+      await saveButton(wrapper).trigger('click')
+      expect(store.results['M90']).toMatchObject({ awayGoals: 1, homeGoals: 2 })
+      expect(store.results['M90']!.homeShootoutGoals).toBeUndefined()
+      expect(store.results['M90']!.awayShootoutGoals).toBeUndefined()
     })
   })
 

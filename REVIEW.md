@@ -17,23 +17,20 @@ spent on the _review findings_: of the ~75 prior findings re-checked, exactly **
 outright** (the re-attribution guard), **~7 became obsolete** (almost all because the shootout
 feature vanished), **~4 are partially addressed**, and the rest are still open at the same
 lines — including three user-facing HIGHs (hamburger nav, flag-less score dialog,
-abbreviation-wall standings). And the shootout simplification, clean as
-the code is, introduced the most urgent new finding itself: the folding convention is
-invisible in the product — one week before the final.
+abbreviation-wall standings).
 
 ## Top findings (the ones to fix first)
 
-| #   | Severity | Finding                                                                                                                                                                                    | Section   |
-| --- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| 1   | HIGH     | **NEW:** A shootout result can be neither entered nor read faithfully — the folding rule exists only in docs, ESPN sync writes unmarked synthetic scores, and the semifinals are Jul 14/15 | §9.1      |
-| 2   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over)                           | §4.2      |
-| 3   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                                           | §4.3      |
-| 4   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                                            | §4.4      |
-| 5   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                                                   | §4.1      |
-| 6   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                                           | §3.1      |
-| 7   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                                                     | §3.3      |
-| 8   | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere                                    | §8.1      |
-| 9   | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                                                       | §8.3/§9.3 |
+| #   | Severity | Finding                                                                                                                                                          | Section   |
+| --- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 2   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over) | §4.2      |
+| 3   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                 | §4.3      |
+| 4   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                  | §4.4      |
+| 5   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                         | §4.1      |
+| 6   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                 | §3.1      |
+| 7   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                           | §3.3      |
+| 8   | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere          | §8.1      |
+| 9   | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                             | §8.3/§9.1 |
 
 ## What is genuinely good
 
@@ -72,7 +69,7 @@ Kept deliberately short and picky; per-section "genuinely good" blocks have the 
 diffed against `56037b5..HEAD`. The shootout removal genuinely deleted the two shootout-specific
 findings, and ScoreDialog/`use-match-result-form` were substantially rewritten around the new
 invalidation-confirm flow — but that rewrite left every _structural_ Vue finding from the prior
-pass untouched (continuation-passing `close`, the side-effect ternary, the snapshot
+pass untouched (continuation-passing `close`, the snapshot
 `isPastKickoff` all survived verbatim). This is a codebase that refactors features cleanly but
 hasn't paid down the component-level ergonomics debt. Most findings below are maintainability,
 not user-facing bugs, and are ranked accordingly.
@@ -134,11 +131,10 @@ not user-facing bugs, and are ranked accordingly.
    boolean (or `'saved' | 'pending'`) and let the component decide whether to `close()`. The
    rewrite added a third `close`-taking function rather than removing the pattern.
 
-6. **[LOW] Side-effect assignment buried in a template ternary.** `ScoreDialog.vue:97` —
-   `@click="knockoutDraw ? (attemptedDrawSave = true) : save(close)"`. Extract a `handleSave()`
-   so the branch is greppable and unit-testable. Related nit: line 94's cancel button calls
-   `baseDialog?.close()` directly while lines 90/97 use the local `close` helper — pick one
-   within the file.
+6. **[LOW] ScoreDialog's cancel button calls `baseDialog?.close()` directly while the other
+   footer buttons use the local `close` helper — pick one within the file.** (The side-effect
+   ternary this finding originally led with was fixed by the `onSave()` extraction on the
+   `shootout-model` branch.)
 
 7. **[LOW] Immutable lookup tables recreated per instance instead of at module scope.**
    `StandingsRow.vue:26-33` (`statusLabel`) mounts 48× on the groups page;
@@ -191,7 +187,7 @@ not user-facing bugs, and are ranked accordingly.
 | Triplicated table headers                  | STILL OPEN | `GroupStandingsTable.vue:24-56`, `TeamStats.vue:14-46`, `ThirdPlaceTable.vue:48-69` unchanged |
 | Knockout double-resolve, 3-hop chain       | STILL OPEN | `KnockoutView.vue:12-16` re-runs `resolveTeamRef`; `BracketView.vue:23-24` already resolved   |
 | `save(close)`/`clear(close)` CPS           | STILL OPEN | now 3 fns take `close`: `use-match-result-form.ts:69,81,104`                                  |
-| Side-effect ternary in template            | STILL OPEN | `ScoreDialog.vue:97`                                                                          |
+| Side-effect ternary in template            | FIXED      | `onSave()` extracted in `ScoreDialog.vue` (shootout-model branch)                             |
 | Redundant Teleport around `<dialog>`       | STILL OPEN | `BracketView.vue:126-133`                                                                     |
 | Composable extracted for lint limit        | STILL OPEN | `use-origin-group-data.ts` confessional comment persists (see §7)                             |
 | `withDefaults` / no reactive destructure   | STILL OPEN | `BaseDialog.vue:5-17`, `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11`                     |
@@ -799,7 +795,7 @@ prior review that wasn't fixed _by deletion_ is still open.
    `docs/requirements.md:383-387` (§9.8) documents this as a known loophole while the store
    comment claims the opposite. Either scope the comment honestly ("for interactive edits") or
    run a consistency sweep (drop knockout results whose refs don't resolve) in
-   `importResults`/`afterHydrate`. (See also §9.5.)
+   `importResults`/`afterHydrate`. (See also §9.3.)
 
 2. **[MEDIUM] `results-sync` YAGNI surface survived the refactor and now produces
    `undefined`-warts at every call site.** `src/lib/results-sync/provider.ts:33-35` —
@@ -871,7 +867,7 @@ context, and the non-automatable content the prior review asked for was never wr
    (or drop) the dirty-check — one gate, three places.
 
 3. **[MEDIUM] `docs/requirements.md` drift: partially reconciled, the previously-flagged
-   errors untouched — and one new drift added since.** Full list in §9.3; new since the review
+   errors untouched — and one new drift added since.** Full list in §9.1; new since the review
    that flagged it: "`/` redirects to `/groups`" (`requirements.md:228`) vs the now-conditional
    redirect (`src/router.ts:10-15`). Agents reading this doc as spec inherit six wrong facts.
    Fix the six lines, then add the previously suggested "last reconciled at commit …" header so
@@ -920,12 +916,12 @@ line up with the real tournament calendar (group stage ends 2026-06-27, R32 Jun 
 Jul 4–7, QF Jul 9–11, SF Jul 14/15, third-place Jul 18, final Jul 19 —
 `src/data/fixtures-2026.ts:633-856`). The two big changes since then are both good
 engineering: shootout removal (`d46bd91`) traded modelled complexity for a folding convention,
-and invalidation (`6b8165f`) closed the old #1 HIGH cleanly. But the shootout simplification
-shipped with its user-facing half missing — the folding rule exists only in docs, and the app
-is _right now_ entering the phase (SF/final week) where shootouts happen. Meanwhile nearly
-every audience-facing language/icon finding from the prior review is still open, and
-`docs/requirements.md` was updated for the shootout change while leaving five known-wrong
-claims in place.
+and invalidation (`6b8165f`) closed the old #1 HIGH cleanly. (The shootout follow-up — a
+display-only shootout marker with per-side penalty goals, the `shootout-model` branch — later
+closed this section's two shootout findings and the stale `tournament-rules.md` passage.)
+Meanwhile nearly every audience-facing language/icon finding from the prior review is still
+open, and `docs/requirements.md` was updated for the shootout change while leaving five
+known-wrong claims in place.
 
 ### Genuinely good
 
@@ -947,36 +943,11 @@ claims in place.
   participants under _current_ results (`invalidation.ts:80-81`) — exactly what the user is
   about to discard, with a fallback instead of a throw for import-corrupted refs.
 - **"Unentschieden geht nicht! Wer hat gewonnen?"** (`ScoreDialog.vue:57`) is genuinely
-  child-register German — short words, direct question. The right voice; it's just missing one
-  sentence (finding 1).
+  child-register German — short words, direct question. The right voice.
 
 ### Findings
 
-1. **[HIGH] A shootout match can neither be entered nor read faithfully — the folding
-   convention is invisible in the product.** `src/components/ScoreDialog.vue:56-58` blocks a
-   level knockout save with "Wer hat gewonnen?" but never says _what to enter_: the rule "add
-   the penalty goals to the score" lives only in `docs/requirements.md:84-86,255-256`. A family
-   that just watched 1:1, 4:2 i.E. is stuck — and if they guess, every surface then shows a
-   score that never happened ("5:3") with no marker: `grep -rn "Elfmeter\|i\. E\|n\.V"` over
-   `src/` (non-spec) returns nothing. The ESPN fetch writes these synthetic scores
-   automatically (`espn.ts:115-117`), so after "Ergebnis holen" the card contradicts the TV and
-   every news site. This matters _today_: SF is Jul 14/15, and deep-knockout games are the most
-   shootout-prone. Minimum fix, no model change: extend the draw error ("Nach
-   Elfmeterschießen: Elfmetertore mitzählen — aus 1:1 und 4:2 wird 5:3") and render a small
-   "n. E." badge on knockout results where a shootout is plausible — though plausibility is
-   undetectable, which is itself the argument for one optional display-only boolean
-   (`decidedByPenalties`) that touches no resolution logic.
-
-2. **[MEDIUM] Shootout kicks now pollute team goal stats, and shootout wins count as wins.**
-   `src/lib/team-schedule.ts:73-88` — `computeTeamStats` sums `result.homeGoals/awayGoals` over
-   _all_ matches, so with folded scores a team winning two shootouts 1:1/4:2 gets +8 Tore in
-   `TeamDialog`; FIFA statistical convention counts shootout matches as draws, this counts them
-   as W/L. A concrete regression introduced by `d46bd91` (previously goals were real and
-   `shootoutWinner` was separate). Group standings are unaffected (`standings.ts` is
-   group-only). Fix: at minimum a "Known simplifications" entry in `requirements.md`; better,
-   the display-only flag above lets stats subtract the padding.
-
-3. **[MEDIUM] `docs/requirements.md` was touched for the shootout change but the five
+1. **[MEDIUM] `docs/requirements.md` was touched for the shootout change but the five
    known-wrong claims survived (prior HIGH, selectively addressed).** Still claims
    `registerType: 'autoUpdate'` (`requirements.md:47,341` vs `vite.config.ts:25` `'prompt'`),
    `navigateFallback` to index.html (`:345` vs `vite.config.ts:46` `null`), theme
@@ -986,7 +957,7 @@ claims in place.
    redirect drift (§8.3). `d46bd91` proves the team _can_ keep this doc current; do one
    reconciliation pass and add a "last reconciled at commit" header.
 
-4. **[MEDIUM] Bulk sync is still wholesale-destructive, and its success message overstates.**
+2. **[MEDIUM] Bulk sync is still wholesale-destructive, and its success message overstates.**
    `src/views/SettingsView.vue:21,111` replaces the entire store via `importResults`; matches
    the feed misses or that fail ref-resolution are silently dropped
    (`results-sync/index.ts:53` `continue`), destroying manual entries. New since `56037b5`:
@@ -995,7 +966,7 @@ claims in place.
    (`use-results-sync.ts:40`), the fetched-map size, not what changed or what was lost. Merge
    by matchId and report a real delta.
 
-5. **[LOW] `importResults` silently bypasses the invalidation invariant the store claims is
+3. **[LOW] `importResults` silently bypasses the invalidation invariant the store claims is
    unforgettable.** `src/stores/tournament.ts:22-26` says "the store never keeps a knockout
    result whose participants no longer match what it was entered for … no caller can forget",
    but `importResults` (`:48-52`) installs any validator-passing map wholesale — a hand-edited
@@ -1004,19 +975,14 @@ claims in place.
    resolve-and-drop pass on import or scope the comment to `enterResult`/`clearResult`.
    (Same root cause as §7.2.)
 
-6. **[LOW] `tournament-rules.md` still describes the deleted model.**
-   `docs/tournament-rules.md:171-173`: "a knockout result is simply whoever the user records as
-   the winner" — there is no recorded winner anymore; the sibling doc has the correct
-   folded-score wording (`requirements.md:33-36`). One-sentence sync.
+4. **[LOW] A level knockout result without shootout goals still yields an empty possible-teams
+   set — and the model makes the fix unambiguous.** `src/lib/possible-teams.ts:216-221`: an
+   imported level knockout result short-circuits to exact resolution → `null` → "no team can
+   fill this slot". A level score without shootout goals officially means "not decided yet"
+   (`Result` in `types/tournament.ts`), so falling through to the home∪away union at `:222-230`
+   is now clearly correct, not a judgment call.
 
-7. **[LOW] Level knockout result still yields an empty possible-teams set — and the new model
-   makes the fix unambiguous.** `src/lib/possible-teams.ts:216-221`: an imported level knockout
-   result short-circuits to exact resolution → `null` → "no team can fill this slot". Under
-   `d46bd91` semantics a level score officially means "not decided yet"
-   (`types/tournament.ts:115-116`), so falling through to the home∪away union at `:222-230` is
-   now clearly correct, not a judgment call.
-
-8. **[LOW] The invalidation confirm dialog cites match numbers the UI never shows.**
+5. **[LOW] The invalidation confirm dialog cites match numbers the UI never shows.**
    `invalidatedMatchLabel` produces "Achtelfinale (Spiel 89): …" (`invalidation.ts:83`) and
    `bracket-labels.ts:22-25` says "Sieger Sp. 73", but no card anywhere renders its match
    number — the reader can't locate "Spiel 89". Team names save the confirm dialog, but

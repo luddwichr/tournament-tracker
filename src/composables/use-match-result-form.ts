@@ -35,7 +35,23 @@ export function useMatchResultForm(
     homeRed: initial.value?.homeRed ?? 0,
     homeYellow: initial.value?.homeYellow ?? 0,
   })
-  const knockoutDraw = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
+  const shootout = reactive({
+    away: initial.value?.awayShootoutGoals ?? 0,
+    home: initial.value?.homeShootoutGoals ?? 0,
+  })
+
+  /** A level knockout score goes to a shootout — the dialog shows the shootout
+   * steppers exactly then, and only then does `buildResult` keep their values. */
+  const shootoutRequired = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
+
+  /** German error message blocking the save, or null when the form is saveable
+   * (see the `Result` shootout invariants in `types/tournament.ts`). */
+  const saveError = computed((): string | null => {
+    if (shootoutRequired.value && shootout.home === shootout.away) {
+      return 'Unentschieden geht nicht! Wer hat das Elfmeterschießen gewonnen?'
+    }
+    return null
+  })
 
   const title = computed(() => `Ergebnis: ${toValue(homeTeam).name} – ${toValue(awayTeam).name}`)
 
@@ -48,7 +64,14 @@ export function useMatchResultForm(
       homeRed: cards.homeRed,
       homeYellow: cards.homeYellow,
       matchId: toValue(match).id,
+      ...(shootoutRequired.value ? { awayShootoutGoals: shootout.away, homeShootoutGoals: shootout.home } : {}),
     }
+  }
+
+  /** Spoken score for announcements, e.g. "Schweiz 1 : 1 Kolumbien, 4 : 3 im Elfmeterschießen". */
+  function scoreText(): string {
+    const base = `${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}`
+    return shootoutRequired.value ? `${base}, ${shootout.home} : ${shootout.away} im Elfmeterschießen` : base
   }
 
   const pendingAction = ref<PendingAction | null>(null)
@@ -68,7 +91,7 @@ export function useMatchResultForm(
 
   function commitSave(close: () => void): void {
     store.enterResult(buildResult())
-    announce(`Ergebnis gespeichert: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}`)
+    announce(`Ergebnis gespeichert: ${scoreText()}`)
     close()
   }
 
@@ -79,7 +102,7 @@ export function useMatchResultForm(
   }
 
   function save(close: () => void): void {
-    if (knockoutDraw.value) return
+    if (saveError.value) return
     // Computed before the store write (the store recomputes the same thing
     // internally) — state hasn't changed in between, so the results are
     // identical either way.
@@ -127,7 +150,7 @@ export function useMatchResultForm(
    * `role="alert"` element instead. */
   const fetchMessage = computed(() => {
     if (fetchStatus.value === 'success') {
-      return `Live-Ergebnis übernommen: ${toValue(homeTeam).name} ${goals.home} : ${goals.away} ${toValue(awayTeam).name}.`
+      return `Live-Ergebnis übernommen: ${scoreText()}.`
     }
     if (fetchStatus.value === 'not-found') {
       return 'Kein Live-Ergebnis gefunden.'
@@ -155,6 +178,8 @@ export function useMatchResultForm(
       cards.homeRed = result.homeRed
       cards.awayYellow = result.awayYellow
       cards.awayRed = result.awayRed
+      shootout.home = result.homeShootoutGoals ?? 0
+      shootout.away = result.awayShootoutGoals ?? 0
       fetchStatus.value = 'success'
     } catch (e) {
       if (controller.signal.aborted) return
@@ -171,10 +196,12 @@ export function useMatchResultForm(
     fetch: reactive({ error: fetchError, message: fetchMessage, run: fetchLive, status: fetchStatus }),
     goals,
     initial,
-    knockoutDraw,
     pendingAction,
     pendingMessage,
     save,
+    saveError,
+    shootout,
+    shootoutRequired,
     title,
   }
 }

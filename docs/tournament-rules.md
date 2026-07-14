@@ -168,6 +168,7 @@ implementations of past tournaments frequently get it wrong, so it must never be
 - Models: schedule, results entry, group standings (with the full tiebreaker
   chain above), third-placed-team ranking, and fully automatic knockout
   propagation.
-- Does **not** model: extra time / penalty shoot-outs as distinct data (a
-  knockout result is simply whoever the user records as the winner), disciplinary
+- Does **not** model: extra time as distinct data, kick-by-kick shoot-out
+  sequences (a shoot-out is recorded as per-side penalty-goal totals next to
+  the level regular score; the winner follows from them), disciplinary
   suspensions, squad changes, or venues.
