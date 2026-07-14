@@ -91,9 +91,7 @@ jobs:
           retention-days: 7
       - name: Build for deploy
         if: github.ref == 'refs/heads/main'
-        # build:only skips the typecheck that already gated check:code and
-        # check:build earlier in this job
-        run: npm run build:only
+        run: npm run build
         env:
           DEPLOY_BASE_PATH: /${{ github.event.repository.name }}/
       - name: Upload dist

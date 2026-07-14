@@ -32,7 +32,7 @@ gh auth login --with-token < gh-token.txt
 | Script                            | Purpose                                                                                          |
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `npm run dev`                     | Start the Vite dev server                                                                        |
-| `npm run build`                   | Type-check and build for production                                                              |
+| `npm run build`                   | Build for production (no type-check — run `typecheck` or `check:code` for that)                  |
 | `npm run preview`                 | Serve the production build locally                                                               |
 | `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects             |
 | `npm run test:unit`               | Run unit tests (Vitest)                                                                          |
