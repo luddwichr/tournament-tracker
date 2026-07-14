@@ -135,14 +135,12 @@ onMounted(() => {
     </div>
   </div>
 
-  <Teleport to="body">
-    <PossibleTeamsDialog
-      v-if="possibleTeamsOpen"
-      :label="possibleTeamsLabel"
-      :possible-teams="possibleTeams"
-      @close="closePossibleTeams"
-    />
-  </Teleport>
+  <PossibleTeamsDialog
+    v-if="possibleTeamsOpen"
+    :label="possibleTeamsLabel"
+    :possible-teams="possibleTeams"
+    @close="closePossibleTeams"
+  />
 </template>
 
 <style scoped>
