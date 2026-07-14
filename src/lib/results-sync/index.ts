@@ -2,7 +2,7 @@
 // Swapping the source means changing `defaultProvider`, nothing else.
 
 import type { FetchResultsOptions, ResultsProvider, SourceMatch } from './provider'
-import type { Result, ResultsMap } from '../../types/tournament'
+import type { MatchSlot, Result, ResultsMap } from '../../types/tournament'
 import { espnProvider } from './providers/espn'
 import { fixtures } from '../../data/fixtures-2026'
 import { resolveTeamRef } from '../knockout'
@@ -63,16 +63,41 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
 
     const homeFirst = source.homeId === home.id
     results[slot.id] = {
-      awayGoals: homeFirst ? source.awayGoals : source.homeGoals,
+      ...toScore(source, slot, homeFirst),
       awayRed: homeFirst ? source.awayRed : source.homeRed,
       awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
-      homeGoals: homeFirst ? source.homeGoals : source.awayGoals,
       homeRed: homeFirst ? source.homeRed : source.awayRed,
       homeYellow: homeFirst ? source.homeYellow : source.awayYellow,
       matchId: slot.id,
     }
   }
   return results
+}
+
+/**
+ * A source match's score in `Result` form, oriented to the slot's home side.
+ * Shootout goals are kept as separate fields only when they satisfy the
+ * `Result` invariants (knockout slot, level real score, decisive shootout);
+ * any other shootout report from the feed is folded into the goals instead —
+ * a `Result` violating the invariants would be rejected wholesale at the
+ * persistence boundary (`isValidResultsMap`), wiping the user's state on the
+ * next app load.
+ */
+function toScore(
+  source: SourceMatch,
+  slot: MatchSlot,
+  homeFirst: boolean,
+): Pick<Result, 'homeGoals' | 'awayGoals' | 'homeShootoutGoals' | 'awayShootoutGoals'> {
+  const homeGoals = homeFirst ? source.homeGoals : source.awayGoals
+  const awayGoals = homeFirst ? source.awayGoals : source.homeGoals
+  const homeShootout = (homeFirst ? source.homeShootoutGoals : source.awayShootoutGoals) ?? 0
+  const awayShootout = (homeFirst ? source.awayShootoutGoals : source.homeShootoutGoals) ?? 0
+
+  if (homeShootout === 0 && awayShootout === 0) return { awayGoals, homeGoals }
+  if (slot.stage !== 'group' && homeGoals === awayGoals && homeShootout !== awayShootout) {
+    return { awayGoals, awayShootoutGoals: awayShootout, homeGoals, homeShootoutGoals: homeShootout }
+  }
+  return { awayGoals: awayGoals + awayShootout, homeGoals: homeGoals + homeShootout }
 }
 
 export async function syncResults(

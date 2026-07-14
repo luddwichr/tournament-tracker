@@ -168,6 +168,33 @@ test('the draw error clears once the score is no longer tied, then the result sa
 })
 
 // ---------------------------------------------------------------------------
+// Penalty shootout
+// ---------------------------------------------------------------------------
+
+test('a shootout result saves at a level score, shows the folded score with an i.E. badge, and propagates the winner', async ({
+  page,
+}) => {
+  await seedResultsOnLoad(page, allGroupResults())
+  await knockout.goto()
+
+  // M73 ends 0:0 — the shootout steppers appear on their own for the level
+  // knockout score; the home side wins the shootout 1:0.
+  const dialog = await knockout.openScoreDialog('M73')
+  const { home } = await dialog.teamNames()
+  await dialog.incrementShootoutGoals(home)
+  await dialog.save()
+  await dialog.expectHidden()
+
+  // The card shows the folded score (0:0 plus 1:0 penalties → 1:0), marked "i.E.".
+  const m73card = knockout.matchCard('M73')
+  await expect(m73card.locator('.match-score-btn__shootout')).toHaveText('i.E.')
+  await expect(m73card.locator('.match-score-btn__value')).toHaveText(['1', '0'])
+
+  // M90 homeRef = winner(M73) — the shootout winner must resolve there.
+  await expect(knockout.matchCard('M90').locator('.team-label')).toHaveCount(1)
+})
+
+// ---------------------------------------------------------------------------
 // Accessibility
 // ---------------------------------------------------------------------------
 

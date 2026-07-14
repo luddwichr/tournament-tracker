@@ -212,4 +212,24 @@ describe('tournament store — localStorage rehydration', () => {
 
     expect(store.results).toEqual({})
   })
+
+  it('migrates results persisted under the v1 key: adopts, re-persists, drops the old entry', () => {
+    localStorage.setItem('wc2026:results:v1', JSON.stringify({ results: { M01: makeResult('M01', 2, 1) } }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({ M01: makeResult('M01', 2, 1) })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ results: { M01: makeResult('M01', 2, 1) } })
+    expect(localStorage.getItem('wc2026:results:v1')).toBeNull()
+  })
+
+  it('keeps current-key data over legacy data and still drops the legacy entry (no later resurrection)', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: { M02: makeResult('M02', 1, 0) } }))
+    localStorage.setItem('wc2026:results:v1', JSON.stringify({ results: { M01: makeResult('M01', 2, 1) } }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({ M02: makeResult('M02', 1, 0) })
+    expect(localStorage.getItem('wc2026:results:v1')).toBeNull()
+  })
 })

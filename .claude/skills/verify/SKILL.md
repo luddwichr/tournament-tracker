@@ -30,4 +30,4 @@ visibility check misreports it — use text + boundingBox).
   index.html — don't grep body text for fallback strings; check `#app` content instead.
 - Error log persistence lives at localStorage key `wc2026:errors:v1`
   (`playwright-cli --raw localstorage-get "wc2026:errors:v1"`), results at
-  `wc2026:results:v1`.
+  `wc2026:results:v2`.

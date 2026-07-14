@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import { decidedByShootout, foldedScore } from '../lib/knockout'
 import type { Result } from '../types/tournament'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   result?: Result | null
   label: string
   disabled?: boolean
 }>()
 
 const emit = defineEmits<{ openScore: [] }>()
+
+/** Folded score for display — shootout goals included, marked by the i.E. badge. */
+const score = computed(() => (props.result ? foldedScore(props.result) : null))
+const shootout = computed(() => (props.result ? decidedByShootout(props.result) : false))
 </script>
 
 <template>
@@ -18,10 +24,15 @@ const emit = defineEmits<{ openScore: [] }>()
     :disabled="disabled"
     @click.stop="emit('openScore')"
   >
-    <span class="match-score-btn__pill" :class="{ 'match-score-btn__pill--split': result }">
-      <template v-if="result">
-        <span class="match-score-btn__value">{{ result.homeGoals }}</span>
-        <span class="match-score-btn__value">{{ result.awayGoals }}</span>
+    <span
+      class="match-score-btn__pill"
+      :class="{ 'match-score-btn__pill--split': score, 'match-score-btn__pill--shootout': shootout }"
+    >
+      <template v-if="score">
+        <span class="match-score-btn__value">{{ score.home }}</span>
+        <!-- Announced via the button's aria-label ("nach Elfmeterschießen"), see MatchCard. -->
+        <span v-if="shootout" class="match-score-btn__shootout" aria-hidden="true">i.E.</span>
+        <span class="match-score-btn__value">{{ score.away }}</span>
       </template>
       <template v-else>
         <span class="match-score-btn__dash">–</span>
@@ -71,6 +82,21 @@ const emit = defineEmits<{ openScore: [] }>()
   align-items: center;
   justify-items: center;
   row-gap: var(--space-2);
+}
+
+/* The i.E. badge sits in the gap between the two goal rows (like the dash,
+   it belongs to neither team), so the values keep lining up with their team
+   rows as closely as possible. */
+.match-score-btn__pill--shootout {
+  grid-template-rows: 1fr auto 1fr;
+  row-gap: var(--space-1);
+}
+
+.match-score-btn__shootout {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  line-height: 1;
 }
 
 .match-score-btn:hover:not(:disabled) .match-score-btn__pill {

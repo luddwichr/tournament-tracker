@@ -132,7 +132,7 @@ describe('espnProvider.fetchResults', () => {
     expect(match).toMatchObject({ awayGoals: 0, date: '', homeGoals: 0, homeId: 'ger' })
   })
 
-  it('folds shootout goals into the final score when a shootout decided the match', async () => {
+  it('reports shootout goals separately from the real score', async () => {
     const data = {
       events: [
         ev({
@@ -143,8 +143,22 @@ describe('espnProvider.fetchResults', () => {
     }
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
-    // Regulation/AET goals plus penalty goals per side — 1:1 (3:4 pens) → 4:5.
-    expect(match).toMatchObject({ awayGoals: 5, homeGoals: 4 })
+    // `score` stays the real goal count; the shootout travels in its own fields.
+    expect(match).toMatchObject({ awayGoals: 1, awayShootoutGoals: 4, homeGoals: 1, homeShootoutGoals: 3 })
+  })
+
+  it('clamps a malformed shootoutScore to 0 while keeping the other side', async () => {
+    const data = {
+      events: [
+        ev({
+          away: { abbr: 'PAR', id: '23', score: '1', shootoutScore: 4.5 },
+          home: { abbr: 'GER', id: '17', score: '1', shootoutScore: 3 },
+        }),
+      ],
+    }
+    const { impl } = recordingFetch(data)
+    const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
+    expect(match).toMatchObject({ awayShootoutGoals: 0, homeShootoutGoals: 3 })
   })
 
   it('leaves a level score untouched when there was no shootout', async () => {
@@ -159,6 +173,8 @@ describe('espnProvider.fetchResults', () => {
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     expect(match).toMatchObject({ awayGoals: 1, homeGoals: 1 })
+    expect(match!.homeShootoutGoals).toBeUndefined()
+    expect(match!.awayShootoutGoals).toBeUndefined()
   })
 
   it('does not attribute a card to either side when both team ids are unknown', async () => {

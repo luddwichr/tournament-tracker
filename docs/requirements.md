@@ -31,9 +31,9 @@ disagree, the **code is authoritative** and the gap is listed in
 - Venue / stadium / referee data
 - UI languages other than German
 - Manual override of deduced knockout matchups
-- Penalty shootouts as separate data (no shootout winner or kick-by-kick
-  score is recorded; the user enters one final score with any penalty goals
-  folded into `homeGoals`/`awayGoals`)
+- Penalty shootout kick-by-kick data (only the per-side penalty-goal totals
+  are recorded — `homeShootoutGoals`/`awayShootoutGoals` on `Result` — which
+  is enough to mark the match "i.E." and derive the winner)
 - Disciplinary suspensions
 - Squad changes
 
@@ -80,10 +80,15 @@ disagree, the **code is authoritative** and the gap is listed in
   full `TeamRef`). Both carry `id` (`'M01'..'M104'`) and ISO-8601 `kickoff`
   (with venue UTC offset).
 - `Result` — `matchId`, `homeGoals`, `awayGoals`, `homeYellow/homeRed`,
-  `awayYellow/awayRed` (red includes second-yellow). `homeGoals`/`awayGoals`
-  are the one final score; for a knockout match decided by a penalty shootout
-  the penalty goals are folded in, so a decided knockout score is always
-  decisive.
+  `awayYellow/awayRed` (red includes second-yellow), plus optional
+  `homeShootoutGoals`/`awayShootoutGoals`. `homeGoals`/`awayGoals` are the
+  real goals after regulation/extra time; the shootout fields are present only
+  for a shootout-decided knockout match (both set together, level regular
+  score, decisive shootout — enforced at the persistence boundary). The UI
+  shows the _folded_ score (shootout goals added, marked "i.E.") via
+  `foldedScore` in `knockout.ts`; winner resolution uses the folded score,
+  team stats use the real goals (shootout matches count as draws, per FIFA
+  convention).
 - `ResultsMap` — `Readonly<Record<string, Result>>`; used at every read-only
   call site instead of restating the `Record` shape.
 - `PersistedState` — `{ version, results: ResultsMap }`.
@@ -188,7 +193,13 @@ can never serve stale data.
 
 ### 5.5 Persistence (`persistence.ts`)
 
-- `SCHEMA_VERSION = 1`; localStorage key `wc2026:results:v1` (versioned).
+- `SCHEMA_VERSION = 2`; localStorage key `wc2026:results:v2` (versioned).
+  v2 added the optional shootout fields and returned `homeGoals`/`awayGoals`
+  to real goals; v1 data (localStorage and export files) is still read — the
+  field shapes are compatible, and pre-v2 folded shootout scores are absorbed
+  as-is (indistinguishable after the fact). The v1 localStorage entry is
+  adopted once (`readLegacyResults`), re-persisted under the v2 key, then
+  removed.
 - Schema-change tripwire: `PERSISTED_RESULT_FIELDS` in `persistence.ts` is
   pinned to the `Result` type via `satisfies` — any structural change to
   `Result` fails compilation until `SCHEMA_VERSION` is bumped and a migration
@@ -196,10 +207,11 @@ can never serve stale data.
   change needs the same treatment by convention).
 - `exportJson(results)` downloads `wc2026-results-YYYY-MM-DD.json`
   (`{ version, results }`).
-- `parseImport(text)` parses and **validates**: version match, rejects arrays,
-  per-result field validation (all six counts non-negative integers), every
-  key must be a real fixture id, and `result.matchId`
-  must equal its own key — throws a German error on any violation.
+- `parseImport(text)` parses and **validates**: readable version (1 or 2),
+  rejects arrays, per-result field validation (all counts non-negative
+  integers, shootout fields obeying the `Result` invariants), every key must
+  be a real fixture id, and `result.matchId` must equal its own key — throws
+  a German error on any violation.
 - localStorage rehydration on app load goes through the same validator
   (`isValidResultsMap`, exported from `persistence.ts`) via an `afterHydrate`
   hook on the `tournament` store's persistence plugin; a corrupted or
@@ -256,9 +268,12 @@ FIFA ranking) in plain, icon-illustrated language.
 Clicking a `MatchCard` opens `ScoreDialog` (native `<dialog>` `showModal()`,
 focus-trapped, Esc closes, scroll-locked). Contains `ScoreInput` (two
 `StepperInput` goal counters, non-negative integers) and `DisciplineInput`
-(Gelb/Rot steppers for Heim & Gast, default 0). Knockout results must have a
-decisive score (a match decided by shootout is entered with the penalty goals
-included); attempting to save a level knockout score shows an error.
+(Gelb/Rot steppers for Heim & Gast, default 0). While a knockout score is
+level, a second stepper pair ("Elfmeterschießen") is shown automatically for
+the per-side penalty goals — a knockout match can't end level, so a level
+score means "goes to a shootout". Saving is blocked with an error while the
+shootout score is level too. Match cards display the folded score (penalty
+goals added) with a small "i.E." badge.
 Pre-fills an existing result; "Löschen" clears it. Saving pushes an ARIA-live
 announcement ("Ergebnis gespeichert: …"). Knockout cards are disabled while
 either side is unresolved. If saving or clearing would change which teams a
@@ -376,9 +391,11 @@ Import errors shown as German messages.
    could be missed. Practically adequate; bound chosen for performance.
 4. **`thirdPlace` possible-teams is approximate** while groups are incomplete
    (Annex-C source-group scan), only becoming exact once all groups finish.
-5. **Penalty shootouts are not modelled separately** — the user enters one
-   final score with the penalty goals folded in; a level knockout result
-   leaves the slot unresolved.
+5. **Penalty shootouts carry only per-side totals** — no kick-by-kick data.
+   A level knockout result _without_ shootout goals means "not decided yet"
+   and leaves the slot unresolved. Data synced or entered before v2 may carry
+   folded shootout scores that now read as regular-time wins (absorbed by the
+   v1 → v2 migration; see §5.5).
 6. **No live/finished status** is surfaced anymore (badges removed) — a match's
    state is implicit (has a result or not); kickoff time is shown but not used to
    label progress.
@@ -386,9 +403,9 @@ Import errors shown as German messages.
    hard-coded snapshots (11/28 June 2026). Real-world roster/result changes
    require re-running the fetch scripts; the app has no live update path.
 8. **Import/rehydration trust boundary.** `parseImport` and the localStorage
-   `afterHydrate` hook both check that every key is a real fixture id and that
-   `result.matchId` matches its key, but don't check cross-field consistency
-   (e.g. a level score on a knockout match — accepted, but leaves the slot
-   unresolved).
-9. **Schema migrations** are specified (versioned key) but only `version 1`
-   exists; no migration code path is exercised yet.
+   `afterHydrate` hook both check that every key is a real fixture id, that
+   `result.matchId` matches its key, and that shootout fields obey the
+   `Result` invariants — but a level score on a knockout match (without
+   shootout) is accepted and simply leaves the slot unresolved.
+9. **Schema migrations**: the v1 → v2 path exists (identity on fields, new
+   localStorage key, legacy-key adoption) and is covered by tests.

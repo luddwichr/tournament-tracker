@@ -6,16 +6,34 @@
  * determinable from current results.
  *
  * A level result in a knockout match leaves winner/loser unresolvable —
- * users must enter the decisive score (including any penalty-shootout goals,
- * see `Result`).
+ * until shootout goals are entered, which make the folded score decisive
+ * (see `Result` and `foldedScore` below).
  */
 
-import type { ResultsMap, Stage, Team, TeamRef } from '../types/tournament'
+import type { Result, ResultsMap, Stage, Team, TeamRef } from '../types/tournament'
 import { computeGroupStandings, isGroupComplete, isGroupStageComplete } from './standings'
 import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { assertNever } from './assert-never'
 import { resolveThirdPlaceSlot } from './third-place'
 import { teamsById } from '../data/teams'
+
+/** Whether a penalty shootout decided this match (see `Result` for the invariants). */
+export function decidedByShootout(result: Result): boolean {
+  return result.homeShootoutGoals != null && result.awayShootoutGoals != null
+}
+
+/**
+ * The score as displayed: shootout goals folded into the real goals, so a
+ * decided match always has a decisive score (1:1 with 4:2 i.E. → 5:3). The
+ * regular score of a shootout match is level, so the folded score's winner is
+ * exactly the shootout's winner.
+ */
+export function foldedScore(result: Result): { home: number; away: number } {
+  return {
+    away: result.awayGoals + (result.awayShootoutGoals ?? 0),
+    home: result.homeGoals + (result.homeShootoutGoals ?? 0),
+  }
+}
 
 /**
  * Resolve a TeamRef to a concrete Team given current results.
@@ -48,8 +66,9 @@ export function resolveTeamRef(ref: TeamRef, results: ResultsMap): Team | null {
       const awayTeam = resolveTeamRef(match.awayRef, results)
       if (!homeTeam || !awayTeam) return null
 
-      if (matchResult.homeGoals === matchResult.awayGoals) return null
-      const homeWon = matchResult.homeGoals > matchResult.awayGoals
+      const score = foldedScore(matchResult)
+      if (score.home === score.away) return null
+      const homeWon = score.home > score.away
 
       if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam
       return homeWon ? awayTeam : homeTeam

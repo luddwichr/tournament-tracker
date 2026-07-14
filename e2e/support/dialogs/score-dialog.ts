@@ -46,12 +46,20 @@ export class ScoreDialog {
    * "+" — avoids silently incrementing the wrong side if DOM order changes.
    */
   async incrementGoals(teamName: string): Promise<void> {
-    await this.root.getByRole('button', { name: `Tor für ${teamName} hinzufügen` }).click()
+    // `exact` — the label is a substring of the shootout stepper's
+    // "Elfmetertor für <Team> hinzufügen", visible while the score is level.
+    await this.root.getByRole('button', { exact: true, name: `Tor für ${teamName} hinzufügen` }).click()
   }
 
   /** The draw-guard error, shown when saving a knockout match with a tied score. */
   drawError(): Locator {
     return this.root.getByRole('alert')
+  }
+
+  /** Clicks the "+" penalty stepper for the named team (the shootout steppers
+   * appear automatically while a knockout score is level). */
+  async incrementShootoutGoals(teamName: string): Promise<void> {
+    await this.root.getByRole('button', { name: `Elfmetertor für ${teamName} hinzufügen` }).click()
   }
 
   async save(): Promise<void> {

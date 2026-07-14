@@ -1,5 +1,6 @@
 import {
   GroupsPage,
+  SCHEMA_VERSION,
   STORAGE_KEY,
   SettingsPage,
   clearResults,
@@ -46,7 +47,7 @@ test('Exportieren downloads a valid JSON file', async ({ page }) => {
     version: number
     results: Record<string, unknown>
   }
-  expect(content.version).toBe(1)
+  expect(content.version).toBe(SCHEMA_VERSION)
   expect(content.results['M01']).toMatchObject({ awayGoals: 1, homeGoals: 2 })
 })
 

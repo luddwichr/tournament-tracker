@@ -31,6 +31,23 @@ describe('ScoreInput', () => {
     expect(buttons.some((b) => b.attributes('aria-label') === label)).toBe(true)
   })
 
+  it('renders a custom legend, emoji and goal noun (shootout variant)', () => {
+    const wrapper = mount(ScoreInput, {
+      props: {
+        away: 0,
+        awayTeam,
+        emoji: '🎯',
+        goalNoun: 'Elfmetertor',
+        home: 0,
+        homeTeam,
+        legend: 'Elfmeterschießen',
+      },
+    })
+    expect(wrapper.find('legend').text()).toBe('🎯 Elfmeterschießen')
+    const buttons = wrapper.findAll('button')
+    expect(buttons.some((b) => b.attributes('aria-label') === 'Elfmetertor für Deutschland hinzufügen')).toBe(true)
+  })
+
   it('renders the ":" separator as aria-hidden', () => {
     const wrapper = mountScoreInput()
     const sep = wrapper.find('.score-input__sep')

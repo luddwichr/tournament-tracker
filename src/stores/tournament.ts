@@ -1,5 +1,5 @@
 import type { GroupId, Result, ResultsMap } from '../types/tournament'
-import { STORAGE_KEY, isValidResultsMap } from '../lib/persistence'
+import { STORAGE_KEY, clearLegacyResults, isValidResultsMap, readLegacyResults } from '../lib/persistence'
 import { type TeamStat, clearStandingsCache, computeGroupStandings } from '../lib/standings'
 import { computed, ref } from 'vue'
 import { invalidatedDownstream, resultsWithout } from '../lib/invalidation'
@@ -61,10 +61,24 @@ export const useTournamentStore = defineStore(
       // way file import is validated, and fall back to a safe empty state —
       // via the same `reset()` used elsewhere — instead of propagating garbage.
       afterHydrate: (context) => {
-        const store = context.store as unknown as { results: unknown; reset: () => void }
+        const store = context.store as unknown as {
+          results: ResultsMap
+          reset: () => void
+          importResults: (results: ResultsMap) => void
+        }
         if (!isValidResultsMap(store.results)) {
           store.reset()
         }
+        // One-shot v1 → v2 migration (see persistence.ts): adopt results
+        // persisted under the old key when the new key has none yet, persist
+        // them under the new key, and only then drop the old entry — so a
+        // failure in between never loses the data.
+        const legacy = readLegacyResults()
+        if (legacy && Object.keys(store.results).length === 0) {
+          store.importResults(legacy)
+          context.store.$persist()
+        }
+        clearLegacyResults()
       },
       key: STORAGE_KEY,
     },

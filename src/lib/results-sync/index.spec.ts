@@ -86,6 +86,96 @@ describe('buildResultsFromSource', () => {
     ])
     expect(withKnockout['M73']).toMatchObject({ awayGoals: 1, homeGoals: 3, matchId: 'M73' })
   })
+
+  describe('shootout goals', () => {
+    // Same setup as above: complete group sources so M73's teams resolve.
+    const groupSources = groupMatches.map((m) =>
+      src((m.homeRef as { teamId: string }).teamId, (m.awayRef as { teamId: string }).teamId, {
+        awayGoals: 0,
+        homeGoals: 1,
+      }),
+    )
+    const m73 = fixtures.find((f) => f.id === 'M73')!
+    const groupOnly = buildResultsFromSource(groupSources)
+    const home = resolveTeamRef(m73.homeRef, groupOnly)!
+    const away = resolveTeamRef(m73.awayRef, groupOnly)!
+
+    it('keeps shootout fields on a knockout slot, oriented to the slot sides', () => {
+      // Source reports the sides reversed to also cover the swap.
+      const results = buildResultsFromSource([
+        ...groupSources,
+        src(away.id, home.id, {
+          awayGoals: 1,
+          awayShootoutGoals: 3,
+          date: '2026-06-28',
+          homeGoals: 1,
+          homeShootoutGoals: 5,
+        }),
+      ])
+      expect(results['M73']).toMatchObject({
+        awayGoals: 1,
+        awayShootoutGoals: 5,
+        homeGoals: 1,
+        homeShootoutGoals: 3,
+      })
+    })
+
+    it('resolves the following round from a shootout-decided result', () => {
+      const results = buildResultsFromSource([
+        ...groupSources,
+        src(home.id, away.id, {
+          awayGoals: 1,
+          awayShootoutGoals: 2,
+          date: '2026-06-28',
+          homeGoals: 1,
+          homeShootoutGoals: 4,
+        }),
+      ])
+      const winnerRef = { kind: 'matchWinner', matchId: 'M73' } as const
+      expect(resolveTeamRef(winnerRef, results)!.id).toBe(home.id)
+    })
+
+    // Feed data violating the `Result` shootout invariants must never produce
+    // a result the persistence validator would reject wholesale — it is
+    // folded into the goals instead (the pre-v2 behaviour).
+    it('folds a shootout reported with a non-level score into the goals', () => {
+      const results = buildResultsFromSource([
+        ...groupSources,
+        src(home.id, away.id, {
+          awayGoals: 1,
+          awayShootoutGoals: 3,
+          date: '2026-06-28',
+          homeGoals: 2,
+          homeShootoutGoals: 4,
+        }),
+      ])
+      expect(results['M73']).toEqual(expect.objectContaining({ awayGoals: 4, homeGoals: 6 }))
+      expect(results['M73']!.homeShootoutGoals).toBeUndefined()
+    })
+
+    it('folds a shootout reported for a group match into the goals', () => {
+      const results = buildResultsFromSource([
+        src('mex', 'rsa', { awayGoals: 1, awayShootoutGoals: 3, homeGoals: 1, homeShootoutGoals: 4 }),
+      ])
+      expect(results['M01']).toEqual(expect.objectContaining({ awayGoals: 4, homeGoals: 5 }))
+      expect(results['M01']!.homeShootoutGoals).toBeUndefined()
+    })
+
+    it('folds a level shootout into the goals', () => {
+      const results = buildResultsFromSource([
+        ...groupSources,
+        src(home.id, away.id, {
+          awayGoals: 1,
+          awayShootoutGoals: 3,
+          date: '2026-06-28',
+          homeGoals: 1,
+          homeShootoutGoals: 3,
+        }),
+      ])
+      expect(results['M73']).toEqual(expect.objectContaining({ awayGoals: 4, homeGoals: 4 }))
+      expect(results['M73']!.homeShootoutGoals).toBeUndefined()
+    })
+  })
 })
 
 describe('syncResults', () => {

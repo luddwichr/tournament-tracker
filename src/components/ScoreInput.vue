@@ -2,10 +2,19 @@
 import StepperInput from './StepperInput.vue'
 import type { Team } from '../types/tournament'
 
-defineProps<{
-  homeTeam: Team
-  awayTeam: Team
-}>()
+withDefaults(
+  defineProps<{
+    homeTeam: Team
+    awayTeam: Team
+    /** Fieldset legend, e.g. "Elfmeterschießen" for the shootout variant. */
+    legend?: string
+    /** Noun used in the steppers' a11y labels ("<noun> für <Team> hinzufügen"). */
+    goalNoun?: string
+    /** Decorative legend icon. */
+    emoji?: string
+  }>(),
+  { emoji: '⚽', goalNoun: 'Tor', legend: 'Tore' },
+)
 
 const homeGoals = defineModel<number>('home', { required: true })
 const awayGoals = defineModel<number>('away', { required: true })
@@ -13,15 +22,17 @@ const awayGoals = defineModel<number>('away', { required: true })
 
 <template>
   <fieldset class="score-input">
-    <legend class="score-input__heading"><span aria-hidden="true">⚽</span> Tore</legend>
+    <legend class="score-input__heading">
+      <span aria-hidden="true">{{ emoji }}</span> {{ legend }}
+    </legend>
 
     <div class="score-input__grid">
       <div class="score-input__side">
         <StepperInput
           v-model="homeGoals"
           size="lg"
-          :dec-label="`Tor für ${homeTeam.name} abziehen`"
-          :inc-label="`Tor für ${homeTeam.name} hinzufügen`"
+          :dec-label="`${goalNoun} für ${homeTeam.name} abziehen`"
+          :inc-label="`${goalNoun} für ${homeTeam.name} hinzufügen`"
         />
       </div>
 
@@ -31,8 +42,8 @@ const awayGoals = defineModel<number>('away', { required: true })
         <StepperInput
           v-model="awayGoals"
           size="lg"
-          :dec-label="`Tor für ${awayTeam.name} abziehen`"
-          :inc-label="`Tor für ${awayTeam.name} hinzufügen`"
+          :dec-label="`${goalNoun} für ${awayTeam.name} abziehen`"
+          :inc-label="`${goalNoun} für ${awayTeam.name} hinzufügen`"
         />
       </div>
     </div>

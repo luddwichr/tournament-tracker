@@ -9,6 +9,7 @@
 import { computeTeamStats, matchesForTeam } from './team-schedule'
 import { describe, expect, it } from 'vitest'
 import { makeResult, resultsMap } from '../test-support/results'
+import { fixturesById } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
 
 const ger = teamsById.get('ger')!
@@ -59,6 +60,26 @@ describe('computeTeamStats', () => {
     expect(stats.losses).toBe(1)
     expect(stats.goalsFor).toBe(3 + 1 + 1)
     expect(stats.goalsAgainst).toBe(0 + 1 + 2)
+  })
+
+  it('counts a shootout-decided match as a draw and excludes the penalty goals (FIFA convention)', () => {
+    // Synthetic entry — resolving a real knockout pairing would need full
+    // group results, and computeTeamStats only reads homeTeam/result anyway.
+    const entries = [
+      {
+        awayTeam: teamsById.get('fra')!,
+        homeTeam: ger,
+        match: fixturesById.get('M73')!,
+        result: makeResult('M73', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 }),
+      },
+    ]
+    const stats = computeTeamStats(ger, entries)
+    expect(stats.played).toBe(1)
+    expect(stats.wins).toBe(0)
+    expect(stats.draws).toBe(1)
+    expect(stats.losses).toBe(0)
+    expect(stats.goalsFor).toBe(1)
+    expect(stats.goalsAgainst).toBe(1)
   })
 
   it('attributes cards from the correct side, including when the team plays away', () => {
