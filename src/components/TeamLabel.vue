@@ -3,7 +3,7 @@ import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import { useTeamViewer } from '../composables/use-team-viewer'
 
-const props = defineProps<{
+const { team, clickable } = defineProps<{
   team: Team
   clickable?: boolean
 }>()
@@ -11,9 +11,9 @@ const props = defineProps<{
 const openTeamView = useTeamViewer()
 
 function handleClick(e: MouseEvent): void {
-  if (!props.clickable) return
+  if (!clickable) return
   e.stopPropagation()
-  openTeamView(props.team)
+  openTeamView(team)
 }
 </script>
 

@@ -2,19 +2,18 @@
 import { onMounted, useId, useTemplateRef } from 'vue'
 import { useScrollLock } from '../composables/use-scroll-lock'
 
-withDefaults(
-  defineProps<{
-    title?: string
-    ariaLabel?: string
-    ariaDescribedby?: string
-    maxWidth?: string
-    maxHeight?: string
-    showCloseButton?: boolean
-  }>(),
-  {
-    showCloseButton: true,
-  },
-)
+// Vue's macro types mark boolean props as always-defined (absent casts to
+// false), so typescript-eslint thinks this default is useless — but it is the
+// runtime default that makes an omitted prop mean `true`.
+// eslint-disable-next-line @typescript-eslint/no-useless-default-assignment
+const { showCloseButton = true } = defineProps<{
+  title?: string
+  ariaLabel?: string
+  ariaDescribedby?: string
+  maxWidth?: string
+  maxHeight?: string
+  showCloseButton?: boolean
+}>()
 
 const emit = defineEmits<{ close: [] }>()
 const dialogEl = useTemplateRef<HTMLDialogElement>('dialogEl')

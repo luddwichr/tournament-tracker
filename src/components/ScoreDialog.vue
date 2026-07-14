@@ -7,7 +7,7 @@ import DisciplineInput from './DisciplineInput.vue'
 import ScoreInput from './ScoreInput.vue'
 import { useMatchResultForm } from '../composables/use-match-result-form'
 
-const props = defineProps<{
+const { match, homeTeam, awayTeam } = defineProps<{
   match: MatchSlot
   homeTeam: Team
   awayTeam: Team
@@ -34,9 +34,9 @@ const {
   cancelPending,
   fetch,
 } = useMatchResultForm(
-  () => props.match,
-  () => props.homeTeam,
-  () => props.awayTeam,
+  () => match,
+  () => homeTeam,
+  () => awayTeam,
 )
 
 // The error only appears once a save was attempted, but then tracks the
@@ -52,7 +52,7 @@ function onSave(): void {
   save(close)
 }
 
-const isPastKickoff = new Date(props.match.kickoff).getTime() <= Date.now()
+const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.now())
 </script>
 
 <template>

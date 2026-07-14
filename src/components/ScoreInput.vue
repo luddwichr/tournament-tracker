@@ -2,19 +2,20 @@
 import StepperInput from './StepperInput.vue'
 import type { Team } from '../types/tournament'
 
-withDefaults(
-  defineProps<{
-    homeTeam: Team
-    awayTeam: Team
-    /** Fieldset legend, e.g. "Elfmeterschießen" for the shootout variant. */
-    legend?: string
-    /** Noun used in the steppers' a11y labels ("<noun> für <Team> hinzufügen"). */
-    goalNoun?: string
-    /** Decorative legend icon. */
-    emoji?: string
-  }>(),
-  { emoji: '⚽', goalNoun: 'Tor', legend: 'Tore' },
-)
+const {
+  legend = 'Tore',
+  goalNoun = 'Tor',
+  emoji = '⚽',
+} = defineProps<{
+  homeTeam: Team
+  awayTeam: Team
+  /** Fieldset legend, e.g. "Elfmeterschießen" for the shootout variant. */
+  legend?: string
+  /** Noun used in the steppers' a11y labels ("<noun> für <Team> hinzufügen"). */
+  goalNoun?: string
+  /** Decorative legend icon. */
+  emoji?: string
+}>()
 
 const homeGoals = defineModel<number>('home', { required: true })
 const awayGoals = defineModel<number>('away', { required: true })

@@ -47,10 +47,13 @@ export default tseslint.config(
       },
     },
     rules: {
+      'vue/block-lang': ['error', { script: { lang: 'ts' } }],
       'vue/component-api-style': ['error', ['script-setup']],
       'vue/define-emits-declaration': ['error', 'type-literal'],
       'vue/define-macros-order': ['error', { order: ['defineProps', 'defineEmits'] }],
       'vue/define-props-declaration': ['error', 'type-based'],
+      'vue/define-props-destructuring': 'error',
+      'vue/enforce-style-attribute': ['error', { allow: ['scoped'] }],
       // oxfmt owns HTML formatting; disable conflicting vue layout rules
       // (the html-* / max-attributes-per-line group here and
       // singleline-html-element-content-newline further down).
@@ -58,9 +61,15 @@ export default tseslint.config(
       'vue/html-indent': 'off',
       'vue/html-self-closing': 'off',
       'vue/max-attributes-per-line': 'off',
+      'vue/no-negated-v-if-condition': 'error',
+      'vue/no-ref-object-reactivity-loss': 'error',
+      'vue/no-setup-props-reactivity-loss': 'error',
+      'vue/no-unused-emit-declarations': 'error',
+      'vue/no-unused-properties': 'error',
       'vue/no-unused-refs': 'error',
       'vue/prefer-true-attribute-shorthand': 'error',
       'vue/prefer-use-template-ref': 'error',
+      'vue/prefer-v-model': 'error',
       // TypeScript's `?` already communicates optionality; explicit defaults are
       // only needed when Vue's boolean-casting behaviour requires one (handled
       // case-by-case with withDefaults).

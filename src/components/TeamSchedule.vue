@@ -6,7 +6,7 @@ import { matchStageLabel } from '../lib/team-schedule'
 import { teamRefLabel } from '../lib/bracket-labels'
 import { useScoreDialog } from '../composables/use-score-dialog'
 
-const props = defineProps<{ entries: TeamMatchEntry[] }>()
+const { entries } = defineProps<{ entries: TeamMatchEntry[] }>()
 
 const openScoreDialog = useScoreDialog()
 
@@ -20,7 +20,7 @@ interface ScheduleRow {
 // computed chronologically, then the rows are reversed so the most recent
 // match is shown first.
 const rows = computed((): ScheduleRow[] => {
-  const chronological = props.entries.toSorted(
+  const chronological = entries.toSorted(
     (a, b) => new Date(a.match.kickoff).getTime() - new Date(b.match.kickoff).getTime(),
   )
   let groupMatchNumber = 0
@@ -49,7 +49,7 @@ function selectEntry(entry: TeamMatchEntry): void {
         :result="row.entry.result"
         :home-placeholder="teamRefLabel(row.entry.match.homeRef)"
         :away-placeholder="teamRefLabel(row.entry.match.awayRef)"
-        static
+        plain
         @open-score="selectEntry(row.entry)"
       />
     </div>

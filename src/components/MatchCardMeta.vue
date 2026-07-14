@@ -12,22 +12,20 @@ const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
 import { computed } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    kickoff: string
-    pinned?: boolean
-    static?: boolean
-  }>(),
-  { static: false },
-)
+const { kickoff } = defineProps<{
+  kickoff: string
+  pinned?: boolean
+  /** Render as a plain, non-interactive meta row (no highlight toggle). */
+  plain?: boolean
+}>()
 
 const emit = defineEmits<{ toggle: [] }>()
 
-const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
+const formatted = computed(() => kickoffFmt.format(new Date(kickoff)))
 </script>
 
 <template>
-  <div v-if="static" class="match-card-meta match-card-meta--static">
+  <div v-if="plain" class="match-card-meta match-card-meta--plain">
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
   </div>
   <button
@@ -64,7 +62,7 @@ const formatted = computed(() => kickoffFmt.format(new Date(props.kickoff)))
   color: var(--color-primary);
 }
 
-.match-card-meta--static {
+.match-card-meta--plain {
   cursor: default;
   pointer-events: none;
 }

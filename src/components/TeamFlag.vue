@@ -2,14 +2,14 @@
 // The flag-icons subset is loaded here (lazy, rides the groups chunk) per main.ts note.
 import '../styles/flags.scss'
 
-const props = defineProps<{
+defineProps<{
   flagCode: string
   size: string
 }>()
 </script>
 
 <template>
-  <span class="team-flag fi" :class="`fi-${flagCode}`" :style="{ fontSize: props.size }" aria-hidden="true" />
+  <span class="team-flag fi" :class="`fi-${flagCode}`" :style="{ fontSize: size }" aria-hidden="true" />
 </template>
 
 <style scoped>

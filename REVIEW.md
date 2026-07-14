@@ -69,8 +69,8 @@ Kept deliberately short and picky; per-section "genuinely good" blocks have the 
 diffed against `56037b5..HEAD`. The shootout removal genuinely deleted the two shootout-specific
 findings, and ScoreDialog/`use-match-result-form` were substantially rewritten around the new
 invalidation-confirm flow — but that rewrite left every _structural_ Vue finding from the prior
-pass untouched (continuation-passing `close`, the snapshot
-`isPastKickoff` all survived verbatim). This is a codebase that refactors features cleanly but
+pass untouched (e.g. the continuation-passing `close` survived verbatim). This is a codebase
+that refactors features cleanly but
 hasn't paid down the component-level ergonomics debt. Most findings below are maintainability,
 not user-facing bugs, and are ranked accordingly.
 
@@ -118,65 +118,48 @@ not user-facing bugs, and are ranked accordingly.
    had — while `GroupTable.vue:27-31` calls the injected `useScoreDialog()` with zero hops. Let
    BracketView open the dialog from its own rows; KnockoutView becomes a layout shell.
 
-4. **[MEDIUM] `withDefaults(defineProps…)` everywhere despite Vue 3.5.** `BaseDialog.vue:5-17`,
-   `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11` still use the pre-3.5 wrapper and read
-   `props.x` in script. `const { showCloseButton = true, maxWidth } = defineProps<{…}>()` is the
-   3.5 idiom. Worst case is `MatchCardMeta.vue:21` — `withDefaults(…, { static: false })`
-   defaults an optional boolean to `false`, a no-op; the wrapper buys nothing.
-
-5. **[LOW] Continuation-passing `save(close)` / `clear(close)` / `confirmPending(close)` is
+4. **[LOW] Continuation-passing `save(close)` / `clear(close)` / `confirmPending(close)` is
    needless indirection, now threaded through three functions.**
    `use-match-result-form.ts:69-110`, called from `ScoreDialog.vue:90,97,109`. The composable
    owns the data; the component owns its dialog lifecycle. Have `save()`/`clear()` return a
    boolean (or `'saved' | 'pending'`) and let the component decide whether to `close()`. The
    rewrite added a third `close`-taking function rather than removing the pattern.
 
-6. **[LOW] ScoreDialog's cancel button calls `baseDialog?.close()` directly while the other
+5. **[LOW] ScoreDialog's cancel button calls `baseDialog?.close()` directly while the other
    footer buttons use the local `close` helper — pick one within the file.** (The side-effect
    ternary this finding originally led with was fixed by the `onSave()` extraction on the
    `shootout-model` branch.)
 
-7. **[LOW] Immutable lookup tables recreated per instance instead of at module scope.**
+6. **[LOW] Immutable lookup tables recreated per instance instead of at module scope.**
    `StandingsRow.vue:26-33` (`statusLabel`) mounts 48× on the groups page;
    `ThirdPlaceRow.vue:24-29`, `SyncDialog.vue:17-23` (`TITLES`) do the same.
    `MatchCardMeta.vue:1-9` already shows the fix (plain `<script>` block). StandingsRow is the
    one where the 48× churn is measurable.
 
-8. **[LOW] `static` prop name is a strict-mode reserved word.** `MatchCard.vue:18`,
-   `MatchCardMeta.vue:19`. The moment anyone adopts props destructure (finding 4),
-   `const { static } = defineProps…` is a syntax error; it also under-describes intent. Rename
-   to `plain` or invert to `interactive`.
+7. **[LOW] `announce` is the one provide/inject pair not packaged in its composable.**
+   `use-team-viewer.ts` and `use-score-dialog.ts` each export both `provideX()` and `useX()`;
+   `use-announce.ts:1-8` exports only `useAnnounce`, so App.vue hand-rolls the provider inline
+   (`App.vue:36-46`). A `provideAnnounce()` restores symmetry and removes ~10 lines from
+   App.vue.
 
-9. **[LOW] Three coexisting prop-declaration styles.** Bare `defineProps` (most files),
-   `const props = defineProps` even when the value is only read in the template
-   (`TeamFlag.vue:5` → `props.size` at line 12; `icons/CardIcon.vue:2` → `props.color` at lines
-   8/10), and `withDefaults`. `TeamLabel.vue:6` legitimately needs `const props` (script
-   access), TeamFlag/CardIcon do not. Standardize.
+8. **[LOW] Four names for "close this dialog," all `baseDialog.value?.close()`.** `dismiss`
+   (`UpdateDialog.vue:14`), `requestClose` (`SyncDialog.vue:43`), `close`
+   (`ScoreDialog.vue:19`), `handleCancel` (`ConfirmDialog.vue:25`). Pick one.
 
-10. **[LOW] `announce` is the one provide/inject pair not packaged in its composable.**
-    `use-team-viewer.ts` and `use-score-dialog.ts` each export both `provideX()` and `useX()`;
-    `use-announce.ts:1-8` exports only `useAnnounce`, so App.vue hand-rolls the provider inline
-    (`App.vue:36-46`). A `provideAnnounce()` restores symmetry and removes ~10 lines from
-    App.vue.
+9. **[LOW] `cancel` emitted for non-cancellation closes.** `SyncDialog.vue:55` maps `@close` →
+   `emit('cancel')`, so pressing "Schließen" in the `done` state (line 83) fires `cancel` →
+   `cancelSync()`, "aborting" a completed request. Name the event `close`.
 
-11. **[LOW] Four names for "close this dialog," all `baseDialog.value?.close()`.** `dismiss`
-    (`UpdateDialog.vue:14`), `requestClose` (`SyncDialog.vue:43`), `close`
-    (`ScoreDialog.vue:19`), `handleCancel` (`ConfirmDialog.vue:25`). Pick one.
-
-12. **[LOW] `cancel` emitted for non-cancellation closes.** `SyncDialog.vue:55` maps `@close` →
-    `emit('cancel')`, so pressing "Schließen" in the `done` state (line 83) fires `cancel` →
-    `cancelSync()`, "aborting" a completed request. Name the event `close`.
-
-13. **[LOW] Redundant `<Teleport to="body">` around a native `<dialog>`.**
+10. **[LOW] Redundant `<Teleport to="body">` around a native `<dialog>`.**
     `BracketView.vue:126-133`. `showModal()` renders in the top layer regardless of DOM
     position, and no other BaseDialog consumer teleports. Drop it.
 
-14. **[LOW] Score-dialog config prop names drift from the component's.**
+11. **[LOW] Score-dialog config prop names drift from the component's.**
     `use-score-dialog.ts:6-8` uses `home`/`away`; `ScoreDialog.vue:12-13` uses
     `homeTeam`/`awayTeam`; App.vue manually re-maps (`:home-team="scoreDialogConfig.home"`,
     `App.vue:79-80`). Align the names so the call site collapses toward `v-bind`.
 
-15. **[LOW] Inline conditional-spread style object in template.** `BaseDialog.vue:41-44` builds
+12. **[LOW] Inline conditional-spread style object in template.** `BaseDialog.vue:41-44` builds
     `{ '--dialog-max-width': …, ...(maxHeight ? {…} : {}) }` inline; a `computed dialogStyle`
     reads better and is testable.
 
@@ -190,14 +173,10 @@ not user-facing bugs, and are ranked accordingly.
 | Side-effect ternary in template            | FIXED      | `onSave()` extracted in `ScoreDialog.vue` (shootout-model branch)                             |
 | Redundant Teleport around `<dialog>`       | STILL OPEN | `BracketView.vue:126-133`                                                                     |
 | Composable extracted for lint limit        | STILL OPEN | `use-origin-group-data.ts` confessional comment persists (see §7)                             |
-| `withDefaults` / no reactive destructure   | STILL OPEN | `BaseDialog.vue:5-17`, `MatchCardMeta.vue:15-22`, `StepperInput.vue:4-11`                     |
 | Common-prefix label hack                   | STILL OPEN | `StepperInput.vue:18-23`                                                                      |
-| Snapshot `isPastKickoff`                   | STILL OPEN | `ScoreDialog.vue:43`                                                                          |
 | Inline conditional-spread style            | STILL OPEN | `BaseDialog.vue:41-44`                                                                        |
 | Per-instance constant tables               | STILL OPEN | `StandingsRow.vue:26-33`, `ThirdPlaceRow.vue:24-29`, `SyncDialog.vue:17-23`                   |
-| Three prop-declaration styles              | STILL OPEN | `TeamFlag.vue:5`, `icons/CardIcon.vue:2` vs bare vs `withDefaults`                            |
 | `announce` breaks provide/inject packaging | STILL OPEN | `App.vue:38-46` inline provider; no `provideAnnounce`                                         |
-| `static` reserved-word prop                | STILL OPEN | `MatchCard.vue:18`, `MatchCardMeta.vue:19`                                                    |
 | Four names for "close"                     | STILL OPEN | `UpdateDialog.vue:14`/`SyncDialog.vue:43`/`ScoreDialog.vue:19`/`ConfirmDialog.vue:25`         |
 | Redundant `max-width` default              | STILL OPEN | `ConfirmDialog.vue:43`, `SyncDialog.vue:53`, `PossibleTeamsDialog.vue:17`                     |
 | `cancel` fired for non-cancel closes       | STILL OPEN | `SyncDialog.vue:55` `@close="emit('cancel')"`, done state line 83                             |

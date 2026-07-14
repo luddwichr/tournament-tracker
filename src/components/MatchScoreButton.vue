@@ -3,7 +3,7 @@ import { decidedByShootout, foldedScore } from '../lib/knockout'
 import type { Result } from '../types/tournament'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const { result } = defineProps<{
   result?: Result | null
   label: string
   disabled?: boolean
@@ -12,8 +12,8 @@ const props = defineProps<{
 const emit = defineEmits<{ openScore: [] }>()
 
 /** Folded score for display — shootout goals included, marked by the i.E. badge. */
-const score = computed(() => (props.result ? foldedScore(props.result) : null))
-const shootout = computed(() => (props.result ? decidedByShootout(props.result) : false))
+const score = computed(() => (result ? foldedScore(result) : null))
+const shootout = computed(() => (result ? decidedByShootout(result) : false))
 </script>
 
 <template>

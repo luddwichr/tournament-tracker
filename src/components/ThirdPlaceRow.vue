@@ -4,20 +4,20 @@ import TeamLabel from './TeamLabel.vue'
 import type { TeamStat } from '../lib/standings'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const { stat, rank, final } = defineProps<{
   stat: TeamStat
   rank: number
   /** True once all 12 groups have finished — locks the status in as final. */
   final: boolean
 }>()
 
-const inTopEight = computed(() => props.rank <= QUALIFYING_THIRDS_COUNT)
+const inTopEight = computed(() => rank <= QUALIFYING_THIRDS_COUNT)
 
 type ThirdPlaceStatus = 'none' | 'qualified' | 'eliminated' | 'safe' | 'danger'
 
 const status = computed((): ThirdPlaceStatus => {
-  if (props.stat.played === 0) return 'none'
-  if (props.final) return inTopEight.value ? 'qualified' : 'eliminated'
+  if (stat.played === 0) return 'none'
+  if (final) return inTopEight.value ? 'qualified' : 'eliminated'
   return inTopEight.value ? 'safe' : 'danger'
 })
 

@@ -12,16 +12,16 @@ import TeamStats from './TeamStats.vue'
 import { squadFor } from '../data/squads'
 import { useTournamentStore } from '../stores/tournament'
 
-const props = defineProps<{
+const { team } = defineProps<{
   team: Team
 }>()
 
 const emit = defineEmits<{ close: [] }>()
 
 const store = useTournamentStore()
-const players = computed(() => squadFor(props.team.id))
-const entries = computed(() => matchesForTeam(props.team, store.results))
-const stats = computed(() => computeTeamStats(props.team, entries.value))
+const players = computed(() => squadFor(team.id))
+const entries = computed(() => matchesForTeam(team, store.results))
+const stats = computed(() => computeTeamStats(team, entries.value))
 
 type TabId = 'team' | 'schedule'
 const tabs: { id: TabId; label: string }[] = [

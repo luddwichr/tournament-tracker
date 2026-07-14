@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    decLabel: string
-    incLabel: string
-    size?: 'sm' | 'lg'
-  }>(),
-  { size: 'sm' },
-)
+const {
+  decLabel,
+  incLabel,
+  size = 'sm',
+} = defineProps<{
+  decLabel: string
+  incLabel: string
+  size?: 'sm' | 'lg'
+}>()
 
 const model = defineModel<number>({ required: true })
 
@@ -16,7 +17,6 @@ const model = defineModel<number>({ required: true })
 // "… hinzufügen"). Reuse it to name the value so it isn't a naked number —
 // screen readers announce e.g. "Tor für Team A, spin button, 3".
 const valueLabel = computed(() => {
-  const { decLabel, incLabel } = props
   let i = 0
   while (i < decLabel.length && i < incLabel.length && decLabel[i] === incLabel[i]) i++
   return decLabel.slice(0, i).trim() || `${decLabel} / ${incLabel}`

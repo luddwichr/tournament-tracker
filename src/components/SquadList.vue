@@ -3,9 +3,9 @@ import { POSITION_LABEL, sortBySquadPosition } from '../lib/squad'
 import type { Player } from '../types/tournament'
 import { computed } from 'vue'
 
-const props = defineProps<{ players: readonly Player[] }>()
+const { players } = defineProps<{ players: readonly Player[] }>()
 
-const sorted = computed(() => sortBySquadPosition(props.players))
+const sorted = computed(() => sortBySquadPosition(players))
 </script>
 
 <template>
