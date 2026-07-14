@@ -14,6 +14,33 @@ export const STORAGE_KEY = `wc2026:results:v${SCHEMA_VERSION}`
 const VALID_FIXTURE_IDS = new Set(fixtures.map((f) => f.id))
 
 /**
+ * Schema-change tripwire. This literal is the runtime shape of a persisted
+ * `Result` under the current SCHEMA_VERSION, and the `satisfies` clause pins
+ * it to the `Result` type: adding, removing, renaming or retyping a field on
+ * `Result` stops this file from compiling. That is deliberate — persisted
+ * data outlives the code that wrote it. The shootout removal (d46bd91)
+ * changed what a persisted level knockout score means without bumping
+ * SCHEMA_VERSION; that was consciously absorbed (the few affected users reset
+ * their state manually), but it must never happen *unnoticed* again. Do NOT
+ * fix the type error by only editing this literal: bump SCHEMA_VERSION, keep
+ * reading data persisted under the outgoing key/version (localStorage and
+ * `parseImport`) via a migration, and only then update this shape. A
+ * semantics-only change — a field keeping its type but changing meaning —
+ * needs the same treatment even though the compiler cannot see it.
+ */
+const PERSISTED_RESULT_FIELDS = {
+  matchId: 'string',
+  homeGoals: 'number',
+  awayGoals: 'number',
+  homeYellow: 'number',
+  homeRed: 'number',
+  awayYellow: 'number',
+  awayRed: 'number',
+} as const satisfies {
+  [K in keyof Result]-?: Result[K] extends string ? 'string' : Result[K] extends number ? 'number' : never
+}
+
+/**
  * Trigger a browser download of the results as a JSON file.
  * Exported format: `{ version, results }` — see PersistedState.
  */
@@ -80,26 +107,10 @@ function isNonNegativeInteger(n: number): boolean {
 function isValidResult(value: unknown): value is Result {
   if (typeof value !== 'object' || value === null) return false
   const r = value as Record<string, unknown>
-  if (
-    typeof r['matchId'] !== 'string' ||
-    typeof r['homeGoals'] !== 'number' ||
-    typeof r['awayGoals'] !== 'number' ||
-    typeof r['homeYellow'] !== 'number' ||
-    typeof r['homeRed'] !== 'number' ||
-    typeof r['awayYellow'] !== 'number' ||
-    typeof r['awayRed'] !== 'number'
-  ) {
-    return false
-  }
-  if (
-    !isNonNegativeInteger(r['homeGoals'] as number) ||
-    !isNonNegativeInteger(r['awayGoals'] as number) ||
-    !isNonNegativeInteger(r['homeYellow'] as number) ||
-    !isNonNegativeInteger(r['homeRed'] as number) ||
-    !isNonNegativeInteger(r['awayYellow'] as number) ||
-    !isNonNegativeInteger(r['awayRed'] as number)
-  ) {
-    return false
+  for (const [field, expectedType] of Object.entries(PERSISTED_RESULT_FIELDS)) {
+    const v = r[field]
+    if (typeof v !== expectedType) return false
+    if (expectedType === 'number' && !isNonNegativeInteger(v as number)) return false
   }
   return true
 }
