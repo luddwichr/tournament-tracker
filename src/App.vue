@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent, nextTick, provide, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { defineAsyncComponent, useTemplateRef, watch, watchEffect } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import UpdateDialog from './components/UpdateDialog.vue'
-import { announceKey } from './composables/use-announce'
+import { provideAnnounce } from './composables/use-announce'
 import { provideScoreDialog } from './composables/use-score-dialog'
 import { provideTeamViewer } from './composables/use-team-viewer'
 import { useRoute } from 'vue-router'
@@ -33,18 +33,8 @@ watchEffect(() => {
 
 const route = useRoute()
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
-const announcement = ref('')
 
-function announce(msg: string): void {
-  // Clear then set on next tick so the same message can be re-announced.
-  announcement.value = ''
-  void nextTick(() => {
-    announcement.value = msg
-  })
-}
-
-provide(announceKey, announce)
-
+const { announce, announcement } = provideAnnounce()
 const { team: viewedTeam, close: closeTeamView } = provideTeamViewer()
 const { config: scoreDialogConfig, close: closeScoreDialog } = provideScoreDialog()
 
