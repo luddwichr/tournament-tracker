@@ -26,14 +26,14 @@ export function useMatchResultForm(
   const initial = computed(() => store.results[toValue(match).id] ?? null)
 
   const goals = reactive({
-    home: initial.value?.homeGoals ?? 0,
     away: initial.value?.awayGoals ?? 0,
+    home: initial.value?.homeGoals ?? 0,
   })
   const cards = reactive({
-    homeYellow: initial.value?.homeYellow ?? 0,
-    homeRed: initial.value?.homeRed ?? 0,
-    awayYellow: initial.value?.awayYellow ?? 0,
     awayRed: initial.value?.awayRed ?? 0,
+    awayYellow: initial.value?.awayYellow ?? 0,
+    homeRed: initial.value?.homeRed ?? 0,
+    homeYellow: initial.value?.homeYellow ?? 0,
   })
   const knockoutDraw = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
 
@@ -41,13 +41,13 @@ export function useMatchResultForm(
 
   function buildResult(): Result {
     return {
-      matchId: toValue(match).id,
-      homeGoals: goals.home,
       awayGoals: goals.away,
-      homeYellow: cards.homeYellow,
-      homeRed: cards.homeRed,
-      awayYellow: cards.awayYellow,
       awayRed: cards.awayRed,
+      awayYellow: cards.awayYellow,
+      homeGoals: goals.home,
+      homeRed: cards.homeRed,
+      homeYellow: cards.homeYellow,
+      matchId: toValue(match).id,
     }
   }
 
@@ -85,7 +85,7 @@ export function useMatchResultForm(
     // identical either way.
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, buildResult())
     if (invalidated.length > 0) {
-      pendingAction.value = { kind: 'save', invalidatedIds: invalidated }
+      pendingAction.value = { invalidatedIds: invalidated, kind: 'save' }
       return
     }
     commitSave(close)
@@ -94,7 +94,7 @@ export function useMatchResultForm(
   function clear(close: () => void): void {
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, null)
     if (invalidated.length > 0) {
-      pendingAction.value = { kind: 'clear', invalidatedIds: invalidated }
+      pendingAction.value = { invalidatedIds: invalidated, kind: 'clear' }
       return
     }
     commitClear(close)
@@ -164,17 +164,17 @@ export function useMatchResultForm(
   }
 
   return {
-    goals,
+    cancelPending,
     cards,
-    knockoutDraw,
-    title,
-    initial,
-    save,
     clear,
+    confirmPending,
+    fetch: reactive({ error: fetchError, message: fetchMessage, run: fetchLive, status: fetchStatus }),
+    goals,
+    initial,
+    knockoutDraw,
     pendingAction,
     pendingMessage,
-    confirmPending,
-    cancelPending,
-    fetch: reactive({ status: fetchStatus, error: fetchError, message: fetchMessage, run: fetchLive }),
+    save,
+    title,
   }
 }

@@ -39,10 +39,10 @@ export function useOriginGroupData(): ComputedRef<OriginGroupData[]> {
         else refKey = r3Slot != null ? `thirdPlace:${r3Slot}` : null
 
         return {
-          team: stat.team,
+          eliminated: rank === 3 && allGroupsComplete.value && r3Slot == null,
           rank,
           refKey,
-          eliminated: rank === 3 && allGroupsComplete.value && r3Slot == null,
+          team: stat.team,
         }
       })
 

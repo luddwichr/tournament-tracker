@@ -16,19 +16,19 @@ const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 const match = makeMatch({ id: 'M73' })
 
 const result: Result = {
-  matchId: 'M73',
-  homeGoals: 2,
   awayGoals: 1,
-  homeYellow: 1,
-  homeRed: 0,
-  awayYellow: 2,
   awayRed: 1,
+  awayYellow: 2,
+  homeGoals: 2,
+  homeRed: 0,
+  homeYellow: 1,
+  matchId: 'M73',
 }
 
 type Props = InstanceType<typeof MatchCard>['$props']
 
 function mountCard(overrides: Partial<Props> = {}) {
-  return mount(MatchCard, { props: { match, homeTeam, awayTeam, ...overrides } })
+  return mount(MatchCard, { props: { awayTeam, homeTeam, match, ...overrides } })
 }
 
 describe('MatchCard – composition', () => {
@@ -41,8 +41,8 @@ describe('MatchCard – composition', () => {
 
   it('wires the home and away teams into their slots', () => {
     const slots = mountCard().findAllComponents(MatchTeamSlot)
-    expect(slots[0]!.props()).toMatchObject({ team: homeTeam, side: 'home' })
-    expect(slots[1]!.props()).toMatchObject({ team: awayTeam, side: 'away' })
+    expect(slots[0]!.props()).toMatchObject({ side: 'home', team: homeTeam })
+    expect(slots[1]!.props()).toMatchObject({ side: 'away', team: awayTeam })
   })
 
   it('shows a card icon per non-zero count, centered next to the score', () => {
@@ -57,7 +57,7 @@ describe('MatchCard – composition', () => {
 
   it('shows no card icons when there are no bookings', () => {
     expect(
-      mountCard({ result: { ...result, homeYellow: 0, awayYellow: 0, awayRed: 0 } }).findAllComponents(CardIcon),
+      mountCard({ result: { ...result, awayRed: 0, awayYellow: 0, homeYellow: 0 } }).findAllComponents(CardIcon),
     ).toHaveLength(0)
   })
 })
@@ -73,7 +73,7 @@ describe('MatchCard – accessible score label', () => {
 
   it('omits card mentions entirely when neither side has any bookings', () => {
     const wrapper = mountCard({
-      result: { ...result, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+      result: { ...result, awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 },
     })
     expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
       'Deutschland 2 : 1 Frankreich – Ergebnis bearbeiten',
@@ -82,7 +82,7 @@ describe('MatchCard – accessible score label', () => {
 
   it('pluralizes red cards too, and keeps sides independent', () => {
     const wrapper = mountCard({
-      result: { ...result, homeYellow: 0, homeRed: 2, awayYellow: 1, awayRed: 0 },
+      result: { ...result, awayRed: 0, awayYellow: 1, homeRed: 2, homeYellow: 0 },
     })
     expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
       'Deutschland 2, 2 rote Karten : 1, 1 gelbe Karte Frankreich – Ergebnis bearbeiten',
@@ -103,7 +103,7 @@ describe('MatchCard – state classes', () => {
   })
 
   it('is blocked (disabled score button, dashed border) when a team is missing', () => {
-    const wrapper = mountCard({ awayTeam: null, awayPlaceholder: 'Gruppe B – 1.' })
+    const wrapper = mountCard({ awayPlaceholder: 'Gruppe B – 1.', awayTeam: null })
     expect(wrapper.classes()).toContain('match-card--blocked')
     expect(wrapper.findComponent(MatchScoreButton).props('disabled')).toBe(true)
   })
@@ -125,7 +125,7 @@ describe('MatchCard – events', () => {
   })
 
   it('does not emit "openScore" from the body when blocked', async () => {
-    const wrapper = mountCard({ homeTeam: null, homePlaceholder: 'Gruppe A – 1.' })
+    const wrapper = mountCard({ homePlaceholder: 'Gruppe A – 1.', homeTeam: null })
     await wrapper.find('.match-card__body').trigger('click')
     expect(wrapper.emitted('openScore')).toBeUndefined()
   })
@@ -137,13 +137,13 @@ describe('MatchCard – events', () => {
   })
 
   it('forwards a placeholder click with the home slot id', async () => {
-    const wrapper = mountCard({ homeTeam: null, homePlaceholder: 'Gruppe A – 1.' })
+    const wrapper = mountCard({ homePlaceholder: 'Gruppe A – 1.', homeTeam: null })
     await wrapper.find('.match-team-slot__placeholder').trigger('click')
     expect(wrapper.emitted('placeholderClick')?.[0]).toEqual(['home'])
   })
 
   it('forwards a placeholder click with the away slot id', async () => {
-    const wrapper = mountCard({ awayTeam: null, awayPlaceholder: 'Gruppe B – 1.' })
+    const wrapper = mountCard({ awayPlaceholder: 'Gruppe B – 1.', awayTeam: null })
     await wrapper.find('.match-team-slot__placeholder').trigger('click')
     expect(wrapper.emitted('placeholderClick')?.[0]).toEqual(['away'])
   })

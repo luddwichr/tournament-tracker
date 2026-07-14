@@ -13,28 +13,28 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/groups',
-    name: 'groups',
     component: () => import('./views/GroupsView.vue'),
     meta: { title: 'Gruppen' },
+    name: 'groups',
+    path: '/groups',
   },
   {
-    path: '/knockout',
-    name: 'knockout',
     component: () => import('./views/KnockoutView.vue'),
     meta: { title: 'K.-o.-Runde' },
+    name: 'knockout',
+    path: '/knockout',
   },
   {
-    path: '/ranking',
-    name: 'ranking',
     component: () => import('./views/RankingView.vue'),
     meta: { title: 'Weltrangliste' },
+    name: 'ranking',
+    path: '/ranking',
   },
   {
-    path: '/settings',
-    name: 'settings',
     component: () => import('./views/SettingsView.vue'),
     meta: { title: 'Einstellungen' },
+    name: 'settings',
+    path: '/settings',
   },
 ]
 

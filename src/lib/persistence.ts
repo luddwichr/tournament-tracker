@@ -29,13 +29,13 @@ const VALID_FIXTURE_IDS = new Set(fixtures.map((f) => f.id))
  * needs the same treatment even though the compiler cannot see it.
  */
 const PERSISTED_RESULT_FIELDS = {
-  matchId: 'string',
-  homeGoals: 'number',
   awayGoals: 'number',
-  homeYellow: 'number',
-  homeRed: 'number',
-  awayYellow: 'number',
   awayRed: 'number',
+  awayYellow: 'number',
+  homeGoals: 'number',
+  homeRed: 'number',
+  homeYellow: 'number',
+  matchId: 'string',
 } as const satisfies {
   [K in keyof Result]-?: Result[K] extends string ? 'string' : Result[K] extends number ? 'number' : never
 }
@@ -45,7 +45,7 @@ const PERSISTED_RESULT_FIELDS = {
  * Exported format: `{ version, results }` — see PersistedState.
  */
 export function exportJson(results: ResultsMap): void {
-  const payload: PersistedState = { version: SCHEMA_VERSION, results }
+  const payload: PersistedState = { results, version: SCHEMA_VERSION }
   const json = JSON.stringify(payload, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)

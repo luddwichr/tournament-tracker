@@ -11,13 +11,13 @@ describe('teamRefLabel', () => {
   })
 
   it("'groupRank' rank 1 — 'Sieger Gruppe X'", () => {
-    expect(teamRefLabel({ kind: 'groupRank', group: 'A', rank: 1 })).toBe('Sieger Gruppe A')
-    expect(teamRefLabel({ kind: 'groupRank', group: 'L', rank: 1 })).toBe('Sieger Gruppe L')
+    expect(teamRefLabel({ group: 'A', kind: 'groupRank', rank: 1 })).toBe('Sieger Gruppe A')
+    expect(teamRefLabel({ group: 'L', kind: 'groupRank', rank: 1 })).toBe('Sieger Gruppe L')
   })
 
   it("'groupRank' rank 2 — '2. Gruppe X'", () => {
-    expect(teamRefLabel({ kind: 'groupRank', group: 'B', rank: 2 })).toBe('2. Gruppe B')
-    expect(teamRefLabel({ kind: 'groupRank', group: 'K', rank: 2 })).toBe('2. Gruppe K')
+    expect(teamRefLabel({ group: 'B', kind: 'groupRank', rank: 2 })).toBe('2. Gruppe B')
+    expect(teamRefLabel({ group: 'K', kind: 'groupRank', rank: 2 })).toBe('2. Gruppe K')
   })
 
   it("'thirdPlace' — 'Bester 3. Platz' for any slot", () => {

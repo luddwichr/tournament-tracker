@@ -40,5 +40,5 @@ export function usePossibleTeamsDialog() {
     slot.value = null
   }
 
-  return { isOpen, teams: possibleTeams, label, open, close }
+  return { close, isOpen, label, open, teams: possibleTeams }
 }

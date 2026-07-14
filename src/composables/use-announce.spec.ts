@@ -19,9 +19,7 @@ describe('useAnnounce', () => {
     const Parent = defineComponent({
       setup() {
         provide(announceKey, fn)
-      },
-      render() {
-        return h(Child)
+        return () => h(Child)
       },
     })
 

@@ -3,13 +3,13 @@ import { groupMatches } from '../data/fixtures-2026'
 
 export function makeResult(matchId: string, homeGoals: number, awayGoals: number, extra: Partial<Result> = {}): Result {
   return {
-    matchId,
-    homeGoals,
     awayGoals,
-    homeYellow: 0,
-    homeRed: 0,
-    awayYellow: 0,
     awayRed: 0,
+    awayYellow: 0,
+    homeGoals,
+    homeRed: 0,
+    homeYellow: 0,
+    matchId,
     ...extra,
   }
 }

@@ -35,13 +35,13 @@ test('the plugin persists results in the exact shape seedResults()/storedState()
   // Shape assumed by storedState(): a single top-level `results` key, nothing else.
   expect(Object.keys(parsed)).toEqual(['results'])
   expect(parsed.results['M01']).toMatchObject({
-    matchId: 'M01',
-    homeGoals: 1,
     awayGoals: 0,
-    homeYellow: 0,
-    homeRed: 0,
-    awayYellow: 0,
     awayRed: 0,
+    awayYellow: 0,
+    homeGoals: 1,
+    homeRed: 0,
+    homeYellow: 0,
+    matchId: 'M01',
   })
 
   // The plugin's actual serialization must round-trip through storedState() exactly —

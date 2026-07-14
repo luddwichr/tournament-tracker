@@ -17,22 +17,22 @@ const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })
 
 const groupMatch = makeMatch({
-  id: 'M01',
-  stage: 'group',
+  awayRef: { kind: 'team', teamId: 'fra' },
   group: 'A',
   homeRef: { kind: 'team', teamId: 'ger' },
-  awayRef: { kind: 'team', teamId: 'fra' },
+  id: 'M01',
+  stage: 'group',
 })
 
 const knockoutMatch = makeMatch({
+  awayRef: { kind: 'matchWinner', matchId: 'M74' },
+  homeRef: { kind: 'matchWinner', matchId: 'M73' },
   id: 'M90',
   stage: 'sf',
-  homeRef: { kind: 'matchWinner', matchId: 'M73' },
-  awayRef: { kind: 'matchWinner', matchId: 'M74' },
 })
 
 function mountDialog(match: MatchSlot = groupMatch) {
-  return mount(ScoreDialog, { props: { match, homeTeam, awayTeam } })
+  return mount(ScoreDialog, { props: { awayTeam, homeTeam, match } })
 }
 
 function saveButton(wrapper: ReturnType<typeof mountDialog>) {
@@ -90,13 +90,13 @@ describe('ScoreDialog', () => {
   it('shows "Löschen" when an existing result is present', () => {
     const store = useTournamentStore()
     store.enterResult({
-      matchId: 'M01',
-      homeGoals: 2,
       awayGoals: 1,
-      homeYellow: 0,
-      homeRed: 0,
-      awayYellow: 0,
       awayRed: 0,
+      awayYellow: 0,
+      homeGoals: 2,
+      homeRed: 0,
+      homeYellow: 0,
+      matchId: 'M01',
     })
     const wrapper = mountDialog()
     expect(wrapper.find('.btn--danger').text()).toContain('Löschen')
@@ -106,7 +106,7 @@ describe('ScoreDialog', () => {
     const store = useTournamentStore()
     const wrapper = mountDialog()
     await saveButton(wrapper).trigger('click')
-    expect(store.results['M01']).toMatchObject({ matchId: 'M01', homeGoals: 0, awayGoals: 0 })
+    expect(store.results['M01']).toMatchObject({ awayGoals: 0, homeGoals: 0, matchId: 'M01' })
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
@@ -121,13 +121,13 @@ describe('ScoreDialog', () => {
   it('clicking "Löschen" removes the result from the store and closes', async () => {
     const store = useTournamentStore()
     store.enterResult({
-      matchId: 'M01',
-      homeGoals: 2,
       awayGoals: 1,
-      homeYellow: 0,
-      homeRed: 0,
-      awayYellow: 0,
       awayRed: 0,
+      awayYellow: 0,
+      homeGoals: 2,
+      homeRed: 0,
+      homeYellow: 0,
+      matchId: 'M01',
     })
     const wrapper = mountDialog()
     await deleteButton(wrapper)!.trigger('click')
@@ -221,7 +221,7 @@ describe('ScoreDialog', () => {
     it('fills the fields from the fetched result without saving to the store', async () => {
       const store = useTournamentStore()
       vi.mocked(syncResults).mockResolvedValue({
-        M01: { matchId: 'M01', homeGoals: 3, awayGoals: 1, homeYellow: 1, homeRed: 0, awayYellow: 2, awayRed: 1 },
+        M01: { awayGoals: 1, awayRed: 1, awayYellow: 2, homeGoals: 3, homeRed: 0, homeYellow: 1, matchId: 'M01' },
       })
       const wrapper = mountDialog()
 
@@ -231,11 +231,11 @@ describe('ScoreDialog', () => {
       expect(store.results['M01']).toBeUndefined()
       await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({
-        homeGoals: 3,
         awayGoals: 1,
-        homeYellow: 1,
-        awayYellow: 2,
         awayRed: 1,
+        awayYellow: 2,
+        homeGoals: 3,
+        homeYellow: 1,
       })
     })
 
@@ -251,7 +251,7 @@ describe('ScoreDialog', () => {
 
     it('shows a visible confirmation once a live result is applied', async () => {
       vi.mocked(syncResults).mockResolvedValue({
-        M01: { matchId: 'M01', homeGoals: 2, awayGoals: 0, homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
+        M01: { awayGoals: 0, awayRed: 0, awayYellow: 0, homeGoals: 2, homeRed: 0, homeYellow: 0, matchId: 'M01' },
       })
       const wrapper = mountDialog()
 
@@ -336,11 +336,11 @@ describe('ScoreDialog', () => {
     // are seeded with stored results, so flipping M53 invalidates both — see
     // invalidation.spec.ts for the standings math behind this scenario.
     const m53Match = makeMatch({
-      id: 'M53',
-      stage: 'group',
+      awayRef: { kind: 'team', teamId: 'fra' },
       group: 'A',
       homeRef: { kind: 'team', teamId: 'ger' },
-      awayRef: { kind: 'team', teamId: 'fra' },
+      id: 'M53',
+      stage: 'group',
     })
 
     it('shows a ConfirmDialog instead of writing when saving would invalidate downstream results', async () => {

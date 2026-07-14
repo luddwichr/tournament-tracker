@@ -4,12 +4,12 @@ import { resolveTeamRef } from './knockout'
 
 /** Display label for every stage but `group`, which is numbered per-team instead (see `matchStageLabel`). */
 export const KNOCKOUT_STAGE_LABEL: Record<Exclude<Stage, 'group'>, string> = {
-  r32: 'Runde der 32',
-  r16: 'Achtelfinale',
+  final: 'Finale',
   qf: 'Viertelfinale',
+  r16: 'Achtelfinale',
+  r32: 'Runde der 32',
   sf: 'Halbfinale',
   third: 'Spiel um Platz 3',
-  final: 'Finale',
 }
 
 /**
@@ -38,9 +38,9 @@ export interface TeamMatchEntry {
 export function matchesForTeam(team: Team, results: ResultsMap): TeamMatchEntry[] {
   return fixtures
     .map((match) => ({
-      match,
-      homeTeam: resolveTeamRef(match.homeRef, results),
       awayTeam: resolveTeamRef(match.awayRef, results),
+      homeTeam: resolveTeamRef(match.homeRef, results),
+      match,
       result: results[match.id] ?? null,
     }))
     .filter((entry) => entry.homeTeam?.id === team.id || entry.awayTeam?.id === team.id)
@@ -60,14 +60,14 @@ export interface TeamOverallStats {
 /** Aggregate `team`'s played matches (from `matchesForTeam`) into overall stats. */
 export function computeTeamStats(team: Team, entries: TeamMatchEntry[]): TeamOverallStats {
   const stats: TeamOverallStats = {
-    played: 0,
-    wins: 0,
     draws: 0,
-    losses: 0,
-    goalsFor: 0,
     goalsAgainst: 0,
-    yellowCards: 0,
+    goalsFor: 0,
+    losses: 0,
+    played: 0,
     redCards: 0,
+    wins: 0,
+    yellowCards: 0,
   }
 
   for (const { homeTeam, result } of entries) {

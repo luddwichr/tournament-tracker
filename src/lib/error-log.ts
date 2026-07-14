@@ -28,7 +28,7 @@ export interface ErrorLogEntry {
 export function logError(source: ErrorLogEntry['source'], message: string): void {
   try {
     const entries = readErrorLog()
-    entries.push({ time: new Date().toISOString(), source, message })
+    entries.push({ message, source, time: new Date().toISOString() })
     localStorage.setItem(ERROR_LOG_KEY, JSON.stringify(entries.slice(-ERROR_LOG_MAX_ENTRIES)))
   } catch {
     // localStorage full or unavailable — logging must never crash the app.

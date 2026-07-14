@@ -6,11 +6,11 @@ import { GROUP_IDS } from '../types/tournament'
 import type { GroupId, Team } from '../types/tournament'
 
 function makeTeam(id: string, group: GroupId): Team {
-  return { id, name: id.toUpperCase(), flagCode: id.slice(0, 2), group, fifaRanking: 1 }
+  return { fifaRanking: 1, flagCode: id.slice(0, 2), group, id, name: id.toUpperCase() }
 }
 
 function makeRow(id: string, group: GroupId, rank: number, refKey: string | null, eliminated = false): OriginTeamRow {
-  return { team: makeTeam(id, group), rank, refKey, eliminated }
+  return { eliminated, rank, refKey, team: makeTeam(id, group) }
 }
 
 /** 12 groups, 3 rows each; rank-3 row has no refKey (group stage incomplete). */

@@ -36,7 +36,7 @@ export class ScoreDialog {
     const home = match?.[1]
     const away = match?.[2]
     if (!home || !away) throw new Error(`Could not parse team names from dialog title: "${text}"`)
-    return { home, away }
+    return { away, home }
   }
 
   /**

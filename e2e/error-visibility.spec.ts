@@ -15,7 +15,7 @@ test('an unparseable bundle shows the fallback message instead of a white screen
   page,
 }) => {
   await page.route('**/src/main.ts*', (route) =>
-    route.fulfill({ contentType: 'text/javascript', body: 'const kaputt = ??!;' }),
+    route.fulfill({ body: 'const kaputt = ??!;', contentType: 'text/javascript' }),
   )
 
   await page.goto('/')

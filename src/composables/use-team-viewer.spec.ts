@@ -42,7 +42,7 @@ const Provider = defineComponent({
     // `team` is returned at the top level (rather than nested inside an
     // object) so Vue's setup-return unwrapping exposes it as a plain value
     // on the component instance instead of the raw Ref.
-    return { team: viewer.team, close: viewer.close }
+    return { close: viewer.close, team: viewer.team }
   },
   template: '<Child />',
 })

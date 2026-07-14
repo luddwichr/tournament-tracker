@@ -24,7 +24,7 @@ export function provideTeamViewer(): TeamViewerState {
 
   provide(teamViewerKey, open)
 
-  return { team, close }
+  return { close, team }
 }
 
 const noop: OpenFn = () => undefined

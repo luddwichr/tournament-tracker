@@ -19,12 +19,12 @@ const store = useTournamentStore()
 
 function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
   const base = {
-    match,
-    homeTeam: resolveTeamRef(match.homeRef, store.results),
-    awayTeam: resolveTeamRef(match.awayRef, store.results),
-    result: store.results[match.id] ?? null,
-    homePlaceholder: teamRefLabel(match.homeRef),
     awayPlaceholder: teamRefLabel(match.awayRef),
+    awayTeam: resolveTeamRef(match.awayRef, store.results),
+    homePlaceholder: teamRefLabel(match.homeRef),
+    homeTeam: resolveTeamRef(match.homeRef, store.results),
+    match,
+    result: store.results[match.id] ?? null,
   }
   return sectionLabel !== undefined ? { ...base, sectionLabel } : base
 }
@@ -32,10 +32,10 @@ function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
 const groupData = useOriginGroupData()
 
 const stageRounds = [
-  { title: 'Runde der 32', stage: 'r32' },
-  { title: 'Achtelfinale', stage: 'r16' },
-  { title: 'Viertelfinale', stage: 'qf' },
-  { title: 'Halbfinale', stage: 'sf' },
+  { stage: 'r32', title: 'Runde der 32' },
+  { stage: 'r16', title: 'Achtelfinale' },
+  { stage: 'qf', title: 'Viertelfinale' },
+  { stage: 'sf', title: 'Halbfinale' },
 ] as const
 
 interface Round {
@@ -46,12 +46,12 @@ interface Round {
 
 const rounds = computed((): Round[] => {
   const groups: Round[] = stageRounds.map(({ title, stage }) => ({
-    title,
-    stage,
     matches: knockoutMatches
       .filter((m) => m.stage === stage)
       .toSorted((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
       .map((m) => toRow(m)),
+    stage,
+    title,
   }))
 
   // The static fixtures define exactly one match per final stage
@@ -62,9 +62,9 @@ const rounds = computed((): Round[] => {
     throw new Error('fixtures are missing the third-place or final match')
   }
   groups.push({
-    title: 'Finale',
-    stage: 'final',
     matches: [toRow(thirdMatch, 'Spiel um Platz 3'), toRow(finalMatch, 'Finale')],
+    stage: 'final',
+    title: 'Finale',
   })
 
   return groups
@@ -97,7 +97,7 @@ onMounted(() => {
   if (!stage) return
   roundsEl.value
     ?.querySelector<HTMLElement>(`[data-stage="${stage}"]`)
-    ?.scrollIntoView({ inline: 'start', block: 'nearest' })
+    ?.scrollIntoView({ block: 'nearest', inline: 'start' })
 })
 </script>
 

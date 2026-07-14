@@ -287,7 +287,7 @@ function parseRanking(html: string): RankingRow[] {
     for (const m of table.matchAll(/<tr><td>(\d+)<\/td><td>(.*?)<\/td><td>([\d.]+)<\/td>/g)) {
       const [, rank, teamCell, points] = m as unknown as [string, string, string, string]
       const englishName = stripTags(teamCell).trim() // strip any <a> wrapper
-      rows.push({ rank: Number(rank), englishName, points: Number(points) })
+      rows.push({ englishName, points: Number(points), rank: Number(rank) })
     }
     if (rows.length > best.length) best = rows
   }

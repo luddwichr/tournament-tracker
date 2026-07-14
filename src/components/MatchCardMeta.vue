@@ -1,10 +1,10 @@
 <script lang="ts">
 const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
-  weekday: 'short',
   day: '2-digit',
-  month: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
+  month: '2-digit',
+  weekday: 'short',
 })
 </script>
 

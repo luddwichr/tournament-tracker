@@ -23,24 +23,24 @@ function ev(opts: {
       homeAway: 'home',
       score: home.score,
       shootoutScore: home.shootoutScore,
-      team: { id: home.id, abbreviation: home.abbr },
+      team: { abbreviation: home.abbr, id: home.id },
     })
   if (away)
     competitors.push({
       homeAway: 'away',
       score: away.score,
       shootoutScore: away.shootoutScore,
-      team: { id: away.id, abbreviation: away.abbr },
+      team: { abbreviation: away.abbr, id: away.id },
     })
   return {
+    competitions: competition ? [{ competitors, details }] : [],
     date,
     status: { type: { completed } },
-    competitions: competition ? [{ competitors, details }] : [],
   }
 }
 
 function okResponse(data: unknown) {
-  return { ok: true, status: 200, json: () => Promise.resolve(data) }
+  return { json: () => Promise.resolve(data), ok: true, status: 200 }
 }
 
 /** A fake `fetch` returning `data`, recording the URLs it was called with. */
@@ -50,7 +50,7 @@ function recordingFetch(data: unknown) {
     calls.push(input instanceof Request ? input.url : String(input))
     return Promise.resolve(okResponse(data))
   }) as unknown as typeof fetch
-  return { impl, calls }
+  return { calls, impl }
 }
 
 // Pin "now" to mid-tournament so the query range is deterministic.
@@ -65,28 +65,28 @@ describe('espnProvider.fetchResults', () => {
     const data = {
       events: [
         ev({
-          home: { id: '203', abbr: 'MEX', score: '2' },
-          away: { id: '467', abbr: 'RSA', score: '0' },
+          away: { abbr: 'RSA', id: '467', score: '0' },
           details: [
-            { yellowCard: true, team: { id: '203' } }, // home yellow
+            { team: { id: '203' }, yellowCard: true }, // home yellow
             { redCard: true, team: { id: '203' } }, // home red
-            { yellowCard: true, team: { id: '467' } }, // away yellow
+            { team: { id: '467' }, yellowCard: true }, // away yellow
             { redCard: true, team: { id: '467' } }, // away red
-            { yellowCard: false, redCard: false, team: { id: '203' } }, // not a card → ignored
+            { redCard: false, team: { id: '203' }, yellowCard: false }, // not a card → ignored
             { redCard: true, team: { id: '999' } }, // unknown team → ignored
           ],
+          home: { abbr: 'MEX', id: '203', score: '2' },
         }),
         // completed but an unresolved placeholder → unknown abbreviation → skipped
-        ev({ home: { id: '1', abbr: 'RD16 W1', score: '0' }, away: { id: '467', abbr: 'RSA', score: '0' } }),
+        ev({ away: { abbr: 'RSA', id: '467', score: '0' }, home: { abbr: 'RD16 W1', id: '1', score: '0' } }),
         // completed but missing the away competitor → skipped
-        ev({ home: { id: '203', abbr: 'MEX', score: '1' } }),
+        ev({ home: { abbr: 'MEX', id: '203', score: '1' } }),
         // completed but no competition object → skipped
-        ev({ home: { id: '203', abbr: 'MEX' }, away: { id: '467', abbr: 'RSA' }, competition: false }),
+        ev({ away: { abbr: 'RSA', id: '467' }, competition: false, home: { abbr: 'MEX', id: '203' } }),
         // not completed → filtered out before mapping
         ev({
-          home: { id: '10', abbr: 'BRA', score: '1' },
-          away: { id: '20', abbr: 'MAR', score: '1' },
+          away: { abbr: 'MAR', id: '20', score: '1' },
           completed: false,
+          home: { abbr: 'BRA', id: '10', score: '1' },
         }),
       ],
     }
@@ -96,15 +96,15 @@ describe('espnProvider.fetchResults', () => {
 
     expect(matches).toEqual([
       {
-        homeId: 'mex',
-        awayId: 'rsa',
-        homeGoals: 2,
         awayGoals: 0,
-        homeYellow: 1,
-        homeRed: 1,
-        awayYellow: 1,
+        awayId: 'rsa',
         awayRed: 1,
+        awayYellow: 1,
         date: '2026-06-11',
+        homeGoals: 2,
+        homeId: 'mex',
+        homeRed: 1,
+        homeYellow: 1,
       },
     ])
   })
@@ -114,59 +114,57 @@ describe('espnProvider.fetchResults', () => {
       events: [
         {
           // no `date` field at all
-          status: { type: { completed: true } },
           competitions: [
             {
               competitors: [
-                { homeAway: 'home', score: '-1', team: { id: '17', abbreviation: 'GER' } },
-                { homeAway: 'away', score: null, team: { id: '23', abbreviation: 'ECU' } },
+                { homeAway: 'home', score: '-1', team: { abbreviation: 'GER', id: '17' } },
+                { homeAway: 'away', score: null, team: { abbreviation: 'ECU', id: '23' } },
               ],
               details: [],
             },
           ],
+          status: { type: { completed: true } },
         },
       ],
     }
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
-    expect(match).toMatchObject({ homeId: 'ger', homeGoals: 0, awayGoals: 0, date: '' })
+    expect(match).toMatchObject({ awayGoals: 0, date: '', homeGoals: 0, homeId: 'ger' })
   })
 
   it('folds shootout goals into the final score when a shootout decided the match', async () => {
     const data = {
       events: [
         ev({
-          home: { id: '17', abbr: 'GER', score: '1', shootoutScore: 3 },
-          away: { id: '23', abbr: 'PAR', score: '1', shootoutScore: 4 },
+          away: { abbr: 'PAR', id: '23', score: '1', shootoutScore: 4 },
+          home: { abbr: 'GER', id: '17', score: '1', shootoutScore: 3 },
         }),
       ],
     }
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     // Regulation/AET goals plus penalty goals per side — 1:1 (3:4 pens) → 4:5.
-    expect(match).toMatchObject({ homeGoals: 4, awayGoals: 5 })
+    expect(match).toMatchObject({ awayGoals: 5, homeGoals: 4 })
   })
 
   it('leaves a level score untouched when there was no shootout', async () => {
     const data = {
       events: [
         ev({
-          home: { id: '10', abbr: 'BRA', score: '1' },
-          away: { id: '20', abbr: 'MAR', score: '1' },
+          away: { abbr: 'MAR', id: '20', score: '1' },
+          home: { abbr: 'BRA', id: '10', score: '1' },
         }),
       ],
     }
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
-    expect(match).toMatchObject({ homeGoals: 1, awayGoals: 1 })
+    expect(match).toMatchObject({ awayGoals: 1, homeGoals: 1 })
   })
 
   it('does not attribute a card to either side when both team ids are unknown', async () => {
     const data = {
       events: [
         {
-          date: '2026-06-11T19:00Z',
-          status: { type: { completed: true } },
           competitions: [
             {
               competitors: [
@@ -174,15 +172,17 @@ describe('espnProvider.fetchResults', () => {
                 { homeAway: 'away', score: '0', team: { abbreviation: 'RSA' } },
               ],
               // Neither detail carries a team id, matching the competitors above (also id-less).
-              details: [{ yellowCard: true, team: {} }, { redCard: true }],
+              details: [{ team: {}, yellowCard: true }, { redCard: true }],
             },
           ],
+          date: '2026-06-11T19:00Z',
+          status: { type: { completed: true } },
         },
       ],
     }
     const { impl } = recordingFetch(data)
     const [match] = await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
-    expect(match).toMatchObject({ homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 })
+    expect(match).toMatchObject({ awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 })
   })
 
   it('requests the whole elapsed range in a single call', async () => {
@@ -206,7 +206,7 @@ describe('espnProvider.fetchResults', () => {
       seen = init?.signal
       return Promise.resolve(okResponse({ events: [] }))
     }) as unknown as typeof fetch
-    await espnProvider.fetchResults({ fetchImpl, signal: controller.signal, now: pinnedNow })
+    await espnProvider.fetchResults({ fetchImpl, now: pinnedNow, signal: controller.signal })
     expect(seen).toBe(controller.signal)
   })
 
@@ -218,7 +218,7 @@ describe('espnProvider.fetchResults', () => {
 
   it('rejects with a user-readable error when the request is not ok', async () => {
     const fetchImpl = (() =>
-      Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) })) as unknown as typeof fetch
+      Promise.resolve({ json: () => Promise.resolve({}), ok: false, status: 503 })) as unknown as typeof fetch
     await expect(espnProvider.fetchResults({ fetchImpl, now: pinnedNow })).rejects.toThrow(/nicht abgerufen werden/)
   })
 
@@ -259,7 +259,7 @@ describe('teamIdFromAbbr', () => {
 describe('fixtureDateRange', () => {
   it('spans the first fixture through today while the tournament is on', () => {
     const range = _internal.fixtureDateRange(new Date('2026-07-02T12:00:00Z'))
-    expect(range).toEqual({ start: '2026-06-11', end: '2026-07-02' })
+    expect(range).toEqual({ end: '2026-07-02', start: '2026-06-11' })
   })
 
   it('caps the end at the last fixture once the tournament is over', () => {

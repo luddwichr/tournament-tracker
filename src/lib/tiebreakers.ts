@@ -68,7 +68,7 @@ function computeH2HStats(
   h2hMatches: readonly GroupMatchSlot[],
   results: ResultsMap,
 ): Map<string, PointGDGF> {
-  const map = new Map<string, PointGDGF>(teams.map((t) => [t.id, { points: 0, goalDiff: 0, goalsFor: 0 }]))
+  const map = new Map<string, PointGDGF>(teams.map((t) => [t.id, { goalDiff: 0, goalsFor: 0, points: 0 }]))
 
   for (const match of h2hMatches) {
     const result = results[match.id]

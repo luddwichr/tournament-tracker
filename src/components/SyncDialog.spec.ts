@@ -6,7 +6,7 @@ import type { SyncStatus } from '../composables/use-results-sync'
 
 function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> = {}) {
   return mount(SyncDialog, {
-    props: { status: 'confirm' as SyncStatus, error: null, count: 0, ...props },
+    props: { count: 0, error: null, status: 'confirm' as SyncStatus, ...props },
   })
 }
 
@@ -57,14 +57,14 @@ describe('SyncDialog', () => {
   })
 
   it('done: reports the number of updated matches', async () => {
-    const wrapper = mountDialog({ status: 'done', count: 42 })
+    const wrapper = mountDialog({ count: 42, status: 'done' })
     expect(wrapper.find('.sync-dialog__done').text()).toContain('42')
     await button(wrapper, 'Schließen').trigger('click')
     expect(wrapper.emitted('cancel')).toHaveLength(1)
   })
 
   it('error: shows the message with retry and cancel', async () => {
-    const wrapper = mountDialog({ status: 'error', error: 'Kein Internet' })
+    const wrapper = mountDialog({ error: 'Kein Internet', status: 'error' })
     expect(wrapper.find('.sync-dialog__error').text()).toBe('Kein Internet')
     await button(wrapper, 'Erneut versuchen').trigger('click')
     expect(wrapper.emitted('retry')).toHaveLength(1)
@@ -73,7 +73,7 @@ describe('SyncDialog', () => {
   })
 
   it('error: falls back to a generic message when none is given', () => {
-    const wrapper = mountDialog({ status: 'error', error: null })
+    const wrapper = mountDialog({ error: null, status: 'error' })
     expect(wrapper.find('.sync-dialog__error').text()).toBe('Abruf fehlgeschlagen.')
   })
 

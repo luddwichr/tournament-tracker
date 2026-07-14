@@ -5,7 +5,7 @@ import SquadList from './SquadList.vue'
 import type { Player } from '../types/tournament'
 
 function makePlayer(overrides: Partial<Player> = {}): Player {
-  return { number: 1, name: 'Max Mustermann', position: 'MF', ...overrides }
+  return { name: 'Max Mustermann', number: 1, position: 'MF', ...overrides }
 }
 
 describe('SquadList', () => {
@@ -16,7 +16,7 @@ describe('SquadList', () => {
   })
 
   it('renders number, position label, and name in order', () => {
-    const player = makePlayer({ number: 9, name: 'Karl Koch', position: 'FW' })
+    const player = makePlayer({ name: 'Karl Koch', number: 9, position: 'FW' })
     const wrapper = mount(SquadList, { props: { players: [player] } })
     const row = wrapper.find('.squad-list__row')
     expect(row.find('.squad-list__num').text()).toBe('9')

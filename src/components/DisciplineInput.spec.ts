@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DisciplineInput from './DisciplineInput.vue'
 
-function mountDisciplineInput(props = { homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }) {
+function mountDisciplineInput(props = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }) {
   return mount(DisciplineInput, { props })
 }
 

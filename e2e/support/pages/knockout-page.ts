@@ -27,12 +27,12 @@ export class KnockoutPage {
   }
 
   roundHeading(name: string): Locator {
-    return this.page.getByRole('heading', { level: 2, name, exact: true })
+    return this.page.getByRole('heading', { exact: true, level: 2, name })
   }
 
   /** A single bracket-round column by its title (use the R32/R16 constants). */
   round(title: string): Locator {
-    return this.page.getByRole('region', { name: title, exact: true })
+    return this.page.getByRole('region', { exact: true, name: title })
   }
 
   async waitForRound(title: string): Promise<void> {

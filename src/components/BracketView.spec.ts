@@ -139,7 +139,7 @@ describe('BracketView – scroll to current round on mount', () => {
     useTournamentStore().importResults(allGroupResults(1, 0))
     const wrapper = mount(BracketView, { attachTo: document.body })
     const r32Section = wrapper.findAllComponents(BracketRound)[0]!.find('section').element
-    expect(r32Section.scrollIntoView).toHaveBeenCalledWith({ inline: 'start', block: 'nearest' })
+    expect(r32Section.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'start' })
   })
 
   it('scrolls the Finale round into view once every knockout match is played', () => {
@@ -150,7 +150,7 @@ describe('BracketView – scroll to current round on mount', () => {
     useTournamentStore().importResults(results)
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finaleSection = wrapper.findAllComponents(BracketRound)[4]!.find('section').element
-    expect(finaleSection.scrollIntoView).toHaveBeenCalledWith({ inline: 'start', block: 'nearest' })
+    expect(finaleSection.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'start' })
   })
 })
 

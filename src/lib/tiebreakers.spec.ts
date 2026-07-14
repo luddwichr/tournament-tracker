@@ -31,10 +31,10 @@ const groupAMatches = groupMatches.filter((m) => m.group === 'A')
 /** Build an overallStats map that ties mex/kor/cze (same pts/GD/GF) and puts rsa last. */
 function tiedStats(): Map<string, TiebreakerStat> {
   return new Map([
-    ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-    ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-    ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-    ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+    ['mex', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+    ['kor', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+    ['cze', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+    ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
   ])
 }
 
@@ -49,10 +49,10 @@ describe('sortTeams — Step 1 head-to-head outranks overall goal difference', (
     // (Article 13), Step 1 head-to-head decides before Step 2's overall GD, so
     // mex must rank above kor.
     const stats: Map<string, TiebreakerStat> = new Map([
-      ['mex', { points: 6, goalDiff: 1, goalsFor: 3, fairPlayScore: 0 }], // worse overall GD
-      ['kor', { points: 6, goalDiff: 5, goalsFor: 9, fairPlayScore: 0 }], // better overall GD
-      ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
-      ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+      ['mex', { fairPlayScore: 0, goalDiff: 1, goalsFor: 3, points: 6 }], // worse overall GD
+      ['kor', { fairPlayScore: 0, goalDiff: 5, goalsFor: 9, points: 6 }], // better overall GD
+      ['cze', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
+      ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
     ])
     const results: ResultsMap = {
       M28: makeResult('M28', 1, 0), // mex(h) 1-0 kor(a) — mex wins the head-to-head
@@ -71,10 +71,10 @@ describe('sortTeams — Step 2 overall GD decides when head-to-head is level', (
     // Step 1 makes no progress. Step 2 (d) then ranks by overall GD: kor's +5
     // beats mex's +1.
     const stats: Map<string, TiebreakerStat> = new Map([
-      ['mex', { points: 6, goalDiff: 1, goalsFor: 3, fairPlayScore: 0 }],
-      ['kor', { points: 6, goalDiff: 5, goalsFor: 9, fairPlayScore: 0 }], // better overall GD
-      ['cze', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
-      ['rsa', { points: 0, goalDiff: -3, goalsFor: 0, fairPlayScore: 0 }],
+      ['mex', { fairPlayScore: 0, goalDiff: 1, goalsFor: 3, points: 6 }],
+      ['kor', { fairPlayScore: 0, goalDiff: 5, goalsFor: 9, points: 6 }], // better overall GD
+      ['cze', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
+      ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
     ])
     const results: ResultsMap = {
       M28: makeResult('M28', 1, 1), // mex(h) 1-1 kor(a) — head-to-head level
@@ -101,8 +101,8 @@ describe('sortTeams — H2H goal difference as tiebreaker', () => {
     // H2H pts: mex=3, kor=3, cze=3 (tied)
     // H2H GD: mex=+3−1=+2, kor=−3+1=−2, cze=−1+1=0 → mex > cze > kor
     const results: ResultsMap = {
-      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a)
       M02: makeResult('M02', 1, 0), // kor(h) 1-0 cze(a)
+      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a)
       M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
     }
 
@@ -130,8 +130,8 @@ describe('sortTeams — H2H goals scored as tiebreaker', () => {
     // H2H GD: mex=+1−1=0, kor=−1+1=0, cze=−1+1=0 (tied)
     // H2H GF: mex=3+0=3, kor=2+2=4, cze=1+1=2 → kor > mex > cze
     const results: ResultsMap = {
-      M28: makeResult('M28', 3, 2), // mex(h) 3-2 kor(a)
       M02: makeResult('M02', 2, 1), // kor(h) 2-1 cze(a)
+      M28: makeResult('M28', 3, 2), // mex(h) 3-2 kor(a)
       M53: makeResult('M53', 1, 0), // cze(h) 1-0 mex(a)
     }
 
@@ -168,16 +168,16 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
     //
     // Final order: mex, cze, rsa, kor.
     const allTied: Map<string, TiebreakerStat> = new Map([
-      ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-      ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-      ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-      ['rsa', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['mex', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+      ['kor', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+      ['cze', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+      ['rsa', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
     ])
     const results: ResultsMap = {
-      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a) — the one decisive H2H match
       M01: makeResult('M01', 0, 0), // mex(h) 0-0 rsa(a)
       M02: makeResult('M02', 0, 0), // kor(h) 0-0 cze(a)
       M25: makeResult('M25', 0, 0), // cze(h) 0-0 rsa(a)
+      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a) — the one decisive H2H match
       M53: makeResult('M53', 0, 0), // cze(h) 0-0 mex(a)
       M54: makeResult('M54', 0, 0), // rsa(h) 0-0 kor(a)
     }
@@ -202,9 +202,9 @@ describe('sortTeams — missing overallStats entry', () => {
   it('throws a descriptive error instead of silently mis-sorting when a team has no stats', () => {
     // rsa is omitted from overallStats entirely.
     const incompleteStats: Map<string, TiebreakerStat> = new Map([
-      ['mex', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-      ['kor', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
-      ['cze', { points: 3, goalDiff: 0, goalsFor: 1, fairPlayScore: 0 }],
+      ['mex', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+      ['kor', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
+      ['cze', { fairPlayScore: 0, goalDiff: 0, goalsFor: 1, points: 3 }],
     ])
 
     expect(() => sortTeams(groupATeams, groupAMatches, {}, incompleteStats)).toThrow(/rsa/)

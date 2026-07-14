@@ -208,7 +208,7 @@ function parseSquads(wikitext: string): Map<string, Player[]> {
       if (pos !== 'GK' && pos !== 'DF' && pos !== 'MF' && pos !== 'FW') continue
       const name = stripWiki(nameMatch[1] ?? '')
       if (!name) continue
-      players.push({ number: Number(noMatch[1]), name, position: pos })
+      players.push({ name, number: Number(noMatch[1]), position: pos })
     }
 
     players.sort((a, b) => a.number - b.number)

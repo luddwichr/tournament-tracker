@@ -135,13 +135,13 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Resu
       for (let h = 0; h < maxGoals; h++) {
         for (let a = 0; a < maxGoals; a++) {
           partial[match.id] = {
-            matchId: match.id,
-            homeGoals: h,
             awayGoals: a,
-            homeYellow: 0,
-            homeRed: 0,
-            awayYellow: 0,
             awayRed: 0,
+            awayYellow: 0,
+            homeGoals: h,
+            homeRed: 0,
+            homeYellow: 0,
+            matchId: match.id,
           }
           enumerate(i + 1)
           if (possible.size >= groupTeamCount) return

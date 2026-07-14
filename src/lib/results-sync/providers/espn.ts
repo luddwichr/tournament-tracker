@@ -81,7 +81,7 @@ function fixtureDateRange(now: Date): { start: string; end: string } | null {
   }
   const today = now.toISOString().slice(0, 10)
   const end = last < today ? last : today
-  return end < start ? null : { start, end }
+  return end < start ? null : { end, start }
 }
 
 async function fetchJson<T>(fetchImpl: typeof fetch, url: string, signal?: AbortSignal): Promise<T> {
@@ -91,7 +91,7 @@ async function fetchJson<T>(fetchImpl: typeof fetch, url: string, signal?: Abort
 }
 
 function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTeamId: string | undefined): CardTally {
-  const tally: CardTally = { homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 }
+  const tally: CardTally = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }
   for (const detail of details) {
     if (!detail.redCard && !detail.yellowCard) continue
     const isHome = homeTeamId != null && detail.team?.id === homeTeamId
@@ -129,10 +129,10 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
 
   const cards = tallyCards(competition?.details ?? [], home.team?.id, away.team?.id)
   return {
-    homeId,
+    awayGoals: finalGoals(away),
     awayId,
     homeGoals: finalGoals(home),
-    awayGoals: finalGoals(away),
+    homeId,
     ...cards,
     date: (event.date ?? '').slice(0, 10),
   }
@@ -168,14 +168,14 @@ async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch
 }
 
 export const espnProvider: ResultsProvider = {
+  fetchResults,
   id: 'espn',
   label: 'ESPN',
-  fetchResults,
 }
 
 // Exported for unit tests.
 // oxlint-disable-next-line no-underscore-dangle -- leading underscore is a deliberate "not part of the public API" convention here
 export const _internal = {
-  teamIdFromAbbr,
   fixtureDateRange,
+  teamIdFromAbbr,
 }

@@ -4,9 +4,9 @@ import type { Theme } from '../stores/settings'
 const model = defineModel<Theme>({ required: true })
 
 const themes: { value: Theme; label: string; icon: string }[] = [
-  { value: 'light', label: 'Hell', icon: '☀️' },
-  { value: 'dark', label: 'Dunkel', icon: '🌙' },
-  { value: 'system', label: 'System', icon: '🖥️' },
+  { icon: '☀️', label: 'Hell', value: 'light' },
+  { icon: '🌙', label: 'Dunkel', value: 'dark' },
+  { icon: '🖥️', label: 'System', value: 'system' },
 ]
 </script>
 

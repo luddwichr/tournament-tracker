@@ -11,15 +11,15 @@ import { useScoreDialog } from './composables/use-score-dialog'
 import { makeTeam } from './test-support/teams'
 import { makeMatch } from './test-support/matches'
 
-const team = makeTeam({ id: 'ger', name: 'Deutschland', flagCode: 'de', fifaRanking: 14 })
+const team = makeTeam({ fifaRanking: 14, flagCode: 'de', id: 'ger', name: 'Deutschland' })
 
-const homeTeam = makeTeam({ id: 'ger2', name: 'Deutschland', fifaRanking: 14 })
-const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich', fifaRanking: 2 })
+const homeTeam = makeTeam({ fifaRanking: 14, id: 'ger2', name: 'Deutschland' })
+const awayTeam = makeTeam({ fifaRanking: 2, id: 'fra', name: 'Frankreich' })
 const match = makeMatch({
-  stage: 'group',
+  awayRef: { kind: 'team', teamId: awayTeam.id },
   group: 'A',
   homeRef: { kind: 'team', teamId: homeTeam.id },
-  awayRef: { kind: 'team', teamId: awayTeam.id },
+  stage: 'group',
 })
 
 const OpenerStub = defineComponent({
@@ -57,10 +57,10 @@ function makeRouter() {
     history: createWebHashHistory(),
     routes: [
       { path: '/', redirect: '/groups' },
-      { path: '/groups', component: OpenerStub, meta: { title: 'Gruppen' } },
-      { path: '/knockout', component: { template: '<div />' }, meta: { title: 'K.-o.-Runde' } },
-      { path: '/ranking', component: { template: '<div />' } },
-      { path: '/settings', component: { template: '<div />' } },
+      { component: OpenerStub, meta: { title: 'Gruppen' }, path: '/groups' },
+      { component: { template: '<div />' }, meta: { title: 'K.-o.-Runde' }, path: '/knockout' },
+      { component: { template: '<div />' }, path: '/ranking' },
+      { component: { template: '<div />' }, path: '/settings' },
     ],
   })
 }
@@ -70,10 +70,10 @@ let activeWrapper: ReturnType<typeof mount> | undefined
 async function mountApp() {
   const router = makeRouter()
   await router.push('/groups')
-  const wrapper = mount(App, { global: { plugins: [router] }, attachTo: document.body })
+  const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
   activeWrapper = wrapper
   await flushPromises()
-  return { wrapper, router }
+  return { router, wrapper }
 }
 
 async function openTeamDialog(wrapper: ReturnType<typeof mount>) {

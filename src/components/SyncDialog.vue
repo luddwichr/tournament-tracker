@@ -15,11 +15,11 @@ const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const descId = useId()
 
 const TITLES: Record<SyncStatus, string> = {
-  idle: 'Ergebnisse abrufen',
   confirm: 'Ergebnisse abrufen',
-  syncing: 'Ergebnisse werden abgerufen',
   done: 'Aktualisierung abgeschlossen',
   error: 'Abruf fehlgeschlagen',
+  idle: 'Ergebnisse abrufen',
+  syncing: 'Ergebnisse werden abgerufen',
 }
 
 const title = computed(() => TITLES[props.status])

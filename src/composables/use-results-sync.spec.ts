@@ -7,13 +7,13 @@ import type { Result } from '../types/tournament'
 vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
 
 const result = (matchId: string): Result => ({
-  matchId,
-  homeGoals: 1,
   awayGoals: 0,
-  homeYellow: 0,
-  homeRed: 0,
-  awayYellow: 0,
   awayRed: 0,
+  awayYellow: 0,
+  homeGoals: 1,
+  homeRed: 0,
+  homeYellow: 0,
+  matchId,
 })
 
 beforeEach(() => {
