@@ -43,7 +43,7 @@ const statusMessage = computed(() => {
 })
 
 /** Trigger the native close, which surfaces as `@close` → `cancel`. */
-function requestClose(): void {
+function close(): void {
   baseDialog.value?.close()
 }
 </script>
@@ -75,20 +75,18 @@ function requestClose(): void {
 
     <template #footer>
       <template v-if="status === 'confirm'">
-        <button type="button" class="btn btn--secondary" @click="requestClose">Abbrechen</button>
+        <button type="button" class="btn btn--secondary" @click="close">Abbrechen</button>
         <button type="button" class="btn btn--danger" @click="emit('confirm')">Abrufen &amp; ersetzen</button>
       </template>
 
-      <button v-else-if="status === 'syncing'" type="button" class="btn btn--secondary" @click="requestClose">
+      <button v-else-if="status === 'syncing'" type="button" class="btn btn--secondary" @click="close">
         Abbrechen
       </button>
 
-      <button v-else-if="status === 'done'" type="button" class="btn btn--primary" @click="requestClose">
-        Schließen
-      </button>
+      <button v-else-if="status === 'done'" type="button" class="btn btn--primary" @click="close">Schließen</button>
 
       <template v-else-if="status === 'error'">
-        <button type="button" class="btn btn--secondary" @click="requestClose">Abbrechen</button>
+        <button type="button" class="btn btn--secondary" @click="close">Abbrechen</button>
         <button type="button" class="btn btn--primary" @click="emit('retry')">Erneut versuchen</button>
       </template>
     </template>

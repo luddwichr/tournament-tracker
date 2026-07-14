@@ -22,7 +22,7 @@ function handleConfirm(): void {
   baseDialog.value?.close()
 }
 
-function handleCancel(): void {
+function close(): void {
   baseDialog.value?.close()
 }
 
@@ -49,7 +49,7 @@ function handleClose(): void {
     </p>
 
     <template #footer>
-      <button type="button" class="btn btn--secondary" @click="handleCancel">Abbrechen</button>
+      <button type="button" class="btn btn--secondary" @click="close">Abbrechen</button>
       <button type="button" class="btn btn--danger" @click="handleConfirm">
         {{ confirmLabel ?? 'Bestätigen' }}
       </button>
