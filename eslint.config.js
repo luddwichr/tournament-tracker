@@ -29,6 +29,7 @@ export default tseslint.config(
     rules: {
       'no-undef': 'off',
       '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
     },
   },
   {
