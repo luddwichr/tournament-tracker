@@ -27,7 +27,9 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
           measureVersion.value++
         })
         observer.observe(el)
-        onCleanup(() => observer.disconnect())
+        onCleanup(() => {
+          observer.disconnect()
+        })
       },
       { immediate: true },
     )

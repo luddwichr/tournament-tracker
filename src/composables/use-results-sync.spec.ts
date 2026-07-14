@@ -60,7 +60,9 @@ describe('useResultsSync', () => {
     vi.mocked(syncResults).mockImplementation(
       (_provider, opts) =>
         new Promise((_resolve, reject) => {
-          opts?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+          opts?.signal?.addEventListener('abort', () => {
+            reject(new Error('aborted'))
+          })
         }),
     )
 
@@ -83,7 +85,9 @@ describe('useResultsSync', () => {
     vi.mocked(syncResults).mockImplementation(
       () =>
         new Promise((resolve) => {
-          finish = () => resolve({ M01: result('M01') })
+          finish = () => {
+            resolve({ M01: result('M01') })
+          }
         }),
     )
 

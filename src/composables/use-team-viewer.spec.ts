@@ -73,6 +73,8 @@ describe('useTeamViewer', () => {
   it('returns a noop that does nothing when injected without a matching provide', () => {
     const wrapper = mount(Child)
 
-    expect(() => wrapper.vm.open(team)).not.toThrow()
+    expect(() => {
+      wrapper.vm.open(team)
+    }).not.toThrow()
   })
 })

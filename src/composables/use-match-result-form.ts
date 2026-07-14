@@ -116,7 +116,9 @@ export function useMatchResultForm(
   const fetchStatus = ref<FetchLiveStatus>('idle')
   const fetchError = ref<string | null>(null)
   const controller = new AbortController()
-  onUnmounted(() => controller.abort())
+  onUnmounted(() => {
+    controller.abort()
+  })
 
   /** Visible confirmation for `success`/`not-found`, so the live-fetch outcome
    * is perceivable even while `announce()`'s global `role="status"` region is

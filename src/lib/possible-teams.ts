@@ -117,6 +117,9 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Resu
     const gds = [...gdByTeam.values()]
     const gdSpread = gds.length >= 2 ? Math.max(...gds) - Math.min(...gds) : 0
     const maxGoals = cappedMaxGoalsPerSide(remaining.length, gdSpread)
+    // No backtracking cleanup between combos: `partial` is only read at the
+    // leaf (i === remaining.length), where every remaining match has just
+    // been assigned on the current path, overwriting any leftover value.
     const partial: Record<string, Result> = { ...results }
 
     const enumerate = (i: number) => {
@@ -141,13 +144,9 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Resu
             awayRed: 0,
           }
           enumerate(i + 1)
-          if (possible.size >= groupTeamCount) {
-            delete partial[match.id]
-            return
-          }
+          if (possible.size >= groupTeamCount) return
         }
       }
-      delete partial[match.id]
     }
 
     enumerate(0)

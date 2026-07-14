@@ -40,7 +40,11 @@ describe('usePossibleTeamsDialog — label', () => {
 
   it('shows the resolved team name once results resolve the ref', () => {
     const store = useTournamentStore()
-    groupMatches.filter((m) => m.group === 'A').forEach((m) => store.enterResult(makeResult(m.id, 1, 0)))
+    groupMatches
+      .filter((m) => m.group === 'A')
+      .forEach((m) => {
+        store.enterResult(makeResult(m.id, 1, 0))
+      })
 
     const { label, open } = usePossibleTeamsDialog()
     const match = makeMatch({ homeRef: { kind: 'groupRank', group: 'A', rank: 1 } })

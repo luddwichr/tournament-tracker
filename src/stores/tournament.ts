@@ -5,7 +5,7 @@ import { GROUP_IDS } from '../types/tournament'
 import { STORAGE_KEY, isValidResultsMap } from '../lib/persistence'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
 import { computeGroupStandings, clearStandingsCache, type TeamStat } from '../lib/standings'
-import { invalidatedDownstream } from '../lib/invalidation'
+import { invalidatedDownstream, resultsWithout } from '../lib/invalidation'
 
 export const useTournamentStore = defineStore(
   'tournament',
@@ -26,17 +26,12 @@ export const useTournamentStore = defineStore(
     // responsible for asking the user first (see use-match-result-form.ts).
     function enterResult(result: Result): void {
       const invalidated = invalidatedDownstream(results.value, result.matchId, result)
-      const next: Record<string, Result> = { ...results.value, [result.matchId]: result }
-      for (const id of invalidated) delete next[id]
-      results.value = next
+      results.value = { ...resultsWithout(results.value, invalidated), [result.matchId]: result }
     }
 
     function clearResult(matchId: string): void {
       const invalidated = invalidatedDownstream(results.value, matchId, null)
-      const { [matchId]: _removed, ...rest } = results.value
-      const next: Record<string, Result> = { ...rest }
-      for (const id of invalidated) delete next[id]
-      results.value = next
+      results.value = resultsWithout(results.value, [matchId, ...invalidated])
     }
 
     function reset(): void {

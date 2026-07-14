@@ -94,6 +94,7 @@ describe('exportJson', () => {
     // Capture the real createElement before spying on it, so the mock's
     // fallback branch (for tags other than 'a') delegates to the actual DOM
     // implementation instead of recursing into itself.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- false positive: only the legacy-tag overloads (HTMLElementDeprecatedTagNameMap) are deprecated, but binding the method selects no overload, so the rule flags the whole symbol
     const originalCreateElement = document.createElement.bind(document)
     anchor = originalCreateElement('a')
     clickSpy = vi.spyOn(anchor, 'click').mockImplementation(() => {})
