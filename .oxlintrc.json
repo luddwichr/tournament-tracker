@@ -12,6 +12,9 @@
     "perf": "error"
   },
   "rules": {
+    // Cherry-picked from `pedantic`. `null: ignore` keeps the deliberate
+    // `x != null` idiom (covers null and undefined in one check).
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
     "unicorn/consistent-function-scoping": "error",
     "unicorn/no-array-sort": "error",
     "unicorn/prefer-spread": "error",

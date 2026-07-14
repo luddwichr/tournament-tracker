@@ -28,6 +28,10 @@ export default tseslint.config(
     // no-undef from eslint/recommended is redundant and flags DOM globals.
     rules: {
       'no-undef': 'off',
+      // Cherry-picked from strictTypeChecked: spreading strings splits
+      // multi-code-unit characters; spreading objects/functions has
+      // surprising semantics.
+      '@typescript-eslint/no-misused-spread': 'error',
     },
   },
   {
