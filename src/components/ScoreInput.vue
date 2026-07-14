@@ -32,6 +32,7 @@ const awayGoals = defineModel<number>('away', { required: true })
         <StepperInput
           v-model="homeGoals"
           size="lg"
+          :value-label="`${goalNoun} für ${homeTeam.name}`"
           :dec-label="`${goalNoun} für ${homeTeam.name} abziehen`"
           :inc-label="`${goalNoun} für ${homeTeam.name} hinzufügen`"
         />
@@ -43,6 +44,7 @@ const awayGoals = defineModel<number>('away', { required: true })
         <StepperInput
           v-model="awayGoals"
           size="lg"
+          :value-label="`${goalNoun} für ${awayTeam.name}`"
           :dec-label="`${goalNoun} für ${awayTeam.name} abziehen`"
           :inc-label="`${goalNoun} für ${awayTeam.name} hinzufügen`"
         />
