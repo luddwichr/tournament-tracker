@@ -1,13 +1,13 @@
 <script setup lang="ts">
-const props = defineProps<{ color: 'yellow' | 'red'; count?: number }>()
+defineProps<{ color: 'yellow' | 'red'; count?: number }>()
 </script>
 
 <template>
   <span class="card-icon" aria-hidden="true">
     <svg viewBox="0 0 12 16">
-      <rect width="12" height="16" rx="2" :fill="props.color === 'yellow' ? '#f5c200' : '#e11d48'" />
+      <rect width="12" height="16" rx="2" :fill="color === 'yellow' ? '#f5c200' : '#e11d48'" />
     </svg>
-    <span v-if="count" class="card-icon__count" :style="{ color: props.color === 'yellow' ? '#1a1a1a' : '#ffffff' }">
+    <span v-if="count" class="card-icon__count" :style="{ color: color === 'yellow' ? '#1a1a1a' : '#ffffff' }">
       {{ count }}
     </span>
   </span>

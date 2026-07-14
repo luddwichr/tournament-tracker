@@ -3,7 +3,7 @@ import { computed, useId, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 import type { SyncStatus } from '../composables/use-results-sync'
 
-const props = defineProps<{
+const { status, count } = defineProps<{
   status: SyncStatus
   error: string | null
   count: number
@@ -22,7 +22,7 @@ const TITLES: Record<SyncStatus, string> = {
   syncing: 'Ergebnisse werden abgerufen',
 }
 
-const title = computed(() => TITLES[props.status])
+const title = computed(() => TITLES[status])
 
 /** Text for the persistent `role="status"` element below — kept as a single
  * computed so the element itself stays mounted across the confirm → syncing →
@@ -30,11 +30,11 @@ const title = computed(() => TITLES[props.status])
  * which most screen readers won't announce (the live region must already
  * exist before its content changes). */
 const statusMessage = computed(() => {
-  if (props.status === 'syncing') {
+  if (status === 'syncing') {
     return 'Daten werden abgerufen …'
   }
-  if (props.status === 'done') {
-    return `${props.count} Spiele wurden aktualisiert.`
+  if (status === 'done') {
+    return `${count} Spiele wurden aktualisiert.`
   }
   return ''
 })

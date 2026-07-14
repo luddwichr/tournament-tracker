@@ -7,7 +7,7 @@ import MatchScoreButton from './MatchScoreButton.vue'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const { homeTeam, awayTeam, result } = defineProps<{
   match: MatchSlot
   homeTeam: Team | null
   awayTeam: Team | null
@@ -16,7 +16,8 @@ const props = defineProps<{
   awayPlaceholder?: string
   highlighted?: boolean
   pinned?: boolean
-  static?: boolean
+  /** Render the meta row plain (no highlight toggle). */
+  plain?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -25,7 +26,7 @@ const emit = defineEmits<{
   toggleHighlight: []
 }>()
 
-const blocked = computed(() => props.homeTeam === null || props.awayTeam === null)
+const blocked = computed(() => homeTeam === null || awayTeam === null)
 
 // Clicking anywhere in the body (the dead space around the score button) opens the
 // score dialog. Inner controls (team labels, placeholders, score button) stop
@@ -45,15 +46,15 @@ function cardSummary(yellow: number, red: number): string {
 }
 
 const ariaLabel = computed(() => {
-  const home = props.homeTeam?.name ?? 'Heim'
-  const away = props.awayTeam?.name ?? 'Gast'
-  if (props.result) {
-    const homeCards = cardSummary(props.result.homeYellow, props.result.homeRed)
-    const awayCards = cardSummary(props.result.awayYellow, props.result.awayRed)
-    const score = foldedScore(props.result)
+  const home = homeTeam?.name ?? 'Heim'
+  const away = awayTeam?.name ?? 'Gast'
+  if (result) {
+    const homeCards = cardSummary(result.homeYellow, result.homeRed)
+    const awayCards = cardSummary(result.awayYellow, result.awayRed)
+    const score = foldedScore(result)
     // The visual "i.E." badge next to the score is aria-hidden; this is its
     // accessible counterpart.
-    const shootout = decidedByShootout(props.result) ? ' nach Elfmeterschießen' : ''
+    const shootout = decidedByShootout(result) ? ' nach Elfmeterschießen' : ''
     return `${home} ${score.home}${homeCards} : ${score.away}${awayCards} ${away}${shootout} – Ergebnis bearbeiten`
   }
   return `${home} – ${away}: Ergebnis eingeben`
@@ -69,7 +70,7 @@ const ariaLabel = computed(() => {
       'highlight-ring': highlighted,
     }"
   >
-    <MatchCardMeta :kickoff="match.kickoff" :pinned="!!pinned" :static="static" @toggle="emit('toggleHighlight')" />
+    <MatchCardMeta :kickoff="match.kickoff" :pinned="!!pinned" :plain="plain" @toggle="emit('toggleHighlight')" />
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -- mouse-only convenience click zone around the real MatchScoreButton control, which is already keyboard-accessible; see REVIEW.md §6 -->
     <div class="match-card__body" @click="onBodyClick">
       <MatchTeamSlot

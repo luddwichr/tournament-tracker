@@ -8,14 +8,14 @@ import { teamsById } from '../data/teams'
 import { useScoreDialog } from '../composables/use-score-dialog'
 import { useTournamentStore } from '../stores/tournament'
 
-const props = defineProps<{ groupId: GroupId }>()
+const { groupId } = defineProps<{ groupId: GroupId }>()
 
 const store = useTournamentStore()
 const openScoreDialog = useScoreDialog()
 
-const matches = computed(() => groupMatches.filter((m) => m.group === props.groupId))
+const matches = computed(() => groupMatches.filter((m) => m.group === groupId))
 
-const standings = computed(() => store.standingsByGroup.get(props.groupId) ?? [])
+const standings = computed(() => store.standingsByGroup.get(groupId) ?? [])
 const groupDone = computed(() => standings.value.every((s) => s.played === 3))
 
 // Group matches always reference concrete teams (`GroupMatchSlot`/`ResolvedTeamRef`
@@ -47,7 +47,7 @@ function selectMatch(match: GroupMatchSlot): void {
         :home-team="resolveTeam(match.homeRef)"
         :away-team="resolveTeam(match.awayRef)"
         :result="store.results[match.id] ?? null"
-        static
+        plain
         @open-score="selectMatch(match)"
       />
     </section>

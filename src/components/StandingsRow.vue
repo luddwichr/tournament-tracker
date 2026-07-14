@@ -3,7 +3,7 @@ import TeamLabel from './TeamLabel.vue'
 import type { TeamStat } from '../lib/standings'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const { stat, rank, groupDone } = defineProps<{
   stat: TeamStat
   rank: number
   groupDone: boolean
@@ -12,14 +12,14 @@ const props = defineProps<{
 type StandingsStatus = 'none' | 'qualified' | 'third' | 'eliminated' | 'safe' | 'potential' | 'danger'
 
 const status = computed((): StandingsStatus => {
-  if (props.stat.played === 0) return 'none'
-  if (props.groupDone) {
-    if (props.rank <= 2) return 'qualified'
-    if (props.rank === 3) return 'third'
+  if (stat.played === 0) return 'none'
+  if (groupDone) {
+    if (rank <= 2) return 'qualified'
+    if (rank === 3) return 'third'
     return 'eliminated'
   }
-  if (props.rank <= 2) return 'safe'
-  if (props.rank === 3) return 'potential'
+  if (rank <= 2) return 'safe'
+  if (rank === 3) return 'potential'
   return 'danger'
 })
 
