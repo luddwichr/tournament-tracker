@@ -2,10 +2,11 @@ import { AppNav, GroupsPage, KnockoutPage, SettingsPage } from './support'
 import { expect, test } from '@playwright/test'
 
 /**
- * CSP tests run against the production build only (see playwright.pwa.config.ts):
+ * CSP behaviour of the shipped bundle. These tests require the production
+ * build (like the rest of the e2e suite, see playwright.config.ts):
  * vite.config.ts strips the CSP meta tag entirely for `vite dev`, since the
  * dev server's HMR client relies on inline <style> injection that the policy
- * would block. Usage: npm run build && npm run test:e2e:pwa
+ * would block. Usage: npm run build && npm run test:e2e
  */
 
 test('the CSP meta tag declares the expected directives', async ({ page }) => {

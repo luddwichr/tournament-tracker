@@ -13,10 +13,10 @@ export default defineConfig({
   ],
   reporter: 'list',
   testDir: './e2e',
-  // Despite the "pwa" name, this config covers every test that needs the
-  // production build rather than the dev server — csp.spec.ts rides along
-  // because vite.config.ts strips the CSP meta tag in dev.
-  testMatch: ['**/pwa-offline.spec.ts', '**/csp.spec.ts'],
+  // Only the service-worker suite lives here: it rewrites dist/index.html on
+  // disk mid-test, so it can't share the preview server with the parallel
+  // main suite (playwright.config.ts, which serves the same production build).
+  testMatch: ['**/pwa-offline.spec.ts'],
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry',

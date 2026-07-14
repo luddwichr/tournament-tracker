@@ -5,16 +5,16 @@ import { SettingsPage } from './support'
 /**
  * The boot-error safety net (index.html) and the Settings → Diagnose error
  * log. The safety net exists for browsers that cannot parse the es2025
- * bundle, so the tests simulate that by intercepting the entry module — the
- * mock must answer with a JavaScript MIME type, otherwise Chromium blocks the
- * module on MIME checking and no `error` event ever fires (a mock artifact,
- * not the scenario under test).
+ * bundle, so the tests simulate that by intercepting the built entry chunk
+ * (dist/assets/index-<hash>.js) — the mock must answer with a JavaScript
+ * MIME type, otherwise Chromium blocks the module on MIME checking and no
+ * `error` event ever fires (a mock artifact, not the scenario under test).
  */
 
 test('an unparseable bundle shows the fallback message instead of a white screen and logs the error', async ({
   page,
 }) => {
-  await page.route('**/src/main.ts*', (route) =>
+  await page.route('**/assets/index-*.js', (route) =>
     route.fulfill({ body: 'const kaputt = ??!;', contentType: 'text/javascript' }),
   )
 

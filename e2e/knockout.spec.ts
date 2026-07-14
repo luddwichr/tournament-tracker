@@ -59,11 +59,15 @@ test('placeholder labels are meaningful — no bare "?" shown', async () => {
 
 test('R32 group-rank placeholders include "Gruppe" and the group letter', async () => {
   await knockout.goto()
-  // M73 is A2 vs B2 — first card in R32 column
-  const texts = await knockout.round(R32).locator('.match-team-slot__placeholder').allTextContents()
-  // Both placeholders should mention a group letter
+  // M73 is A2 vs B2, so both slots are group-rank refs. Scoped to that card:
+  // other R32 cards host third-place slots, whose label is deliberately
+  // group-less ("Bester 3. Platz").
+  const card = knockout.matchCard('M73')
+  await card.waitFor()
+  const texts = await card.locator('.match-team-slot__placeholder').allTextContents()
+  expect(texts).toHaveLength(2)
   for (const t of texts) {
-    expect(t).toMatch(/Gruppe [A-L]/)
+    expect(t).toMatch(/Gruppe [AB]/)
   }
 })
 

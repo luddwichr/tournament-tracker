@@ -37,7 +37,7 @@ gh auth login --with-token < gh-token.txt
 | `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects             |
 | `npm run test:unit`               | Run unit tests (Vitest)                                                                          |
 | `npm run test:unit:coverage`      | Run unit tests with coverage                                                                     |
-| `npm run test:e2e`                | Run e2e tests against the dev server (Playwright)                                                |
+| `npm run test:e2e`                | Run e2e tests against the production build (Playwright) — needs `npm run build` first            |
 | `npm run test:e2e:pwa`            | Run the offline/PWA e2e suite — needs `npm run build` first                                      |
 | `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                                        |
 | `npm run format` / `format:check` | Format / check formatting with oxfmt                                                             |
@@ -61,15 +61,22 @@ unwind the setup once upstream support lands.
 
 ## Two Playwright configs
 
-- `playwright.config.ts` — the regular e2e suite, run against the Vite **dev
-  server** (`npm run test:e2e`).
+Both suites run against the **production build** served via `npm run preview`,
+so tests exercise the app exactly as shipped (CSP meta tag, hashed es2025
+chunks, minification). Both therefore need `npm run build` first
+(`npm run check:build` does this in the right order).
+
+- `playwright.config.ts` — the regular e2e suite (`npm run test:e2e`), run in
+  parallel with the service worker blocked: the SW is covered by its own suite,
+  and left registered it would take over fetches mid-test, bypassing
+  `page.route()` interception.
 - `playwright.pwa.config.ts` — the offline/PWA suite (`pwa-offline.spec.ts`),
-  run against a **production build** served via `npm run preview`
-  (`npm run test:e2e:pwa`). It needs a real build first because it exercises
-  the built service worker, which doesn't exist under the dev server:
+  run serially (`npm run test:e2e:pwa`) because it exercises the built service
+  worker and rewrites `dist/index.html` on disk mid-test.
 
 ```sh
 npm run build
+npm run test:e2e
 npm run test:e2e:pwa
 ```
 
