@@ -16,10 +16,10 @@ ARG PLAYWRIGHT_VERSION=1.61.1
 # https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
 # independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
 ARG PLAYWRIGHT_CLI_VERSION=0.1.17
-# https://github.com/opengrep/opengrep/releases — open-source (LGPL-2.1)
-# static analysis engine with cross-function taint tracking, used by
-# `npm run security`; keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml
+# https://github.com/opengrep/opengrep/releases — keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml
 ARG OPENGREP_VERSION=1.25.0
+# https://github.com/gitleaks/gitleaks/releases — keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml
+ARG GITLEAKS_VERSION=8.30.1
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -95,6 +95,12 @@ RUN curl -fsSL --retry 3 --retry-all-errors -o /tmp/opengrep \
     && install -Dm755 /tmp/opengrep ~/.local/bin/opengrep \
     && rm /tmp/opengrep \
     && opengrep --version
+
+# Install gitleaks - scans git history for committed credentials
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz \
+    | tar -xz -C ~/.local/bin gitleaks \
+    && gitleaks version
 
 # Install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \
