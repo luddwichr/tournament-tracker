@@ -11,7 +11,7 @@ function reload(): void {
   void updateServiceWorker()
 }
 
-function dismiss(): void {
+function close(): void {
   baseDialog.value?.close()
 }
 
@@ -31,7 +31,7 @@ function handleClose(): void {
     <p class="update-dialog__message">Eine neue Version von WM 2026 Tracker steht bereit.</p>
 
     <template #footer>
-      <button type="button" class="btn btn--secondary" @click="dismiss">Später</button>
+      <button type="button" class="btn btn--secondary" @click="close">Später</button>
       <button type="button" class="btn btn--primary" @click="reload">Aktualisieren</button>
     </template>
   </BaseDialog>
