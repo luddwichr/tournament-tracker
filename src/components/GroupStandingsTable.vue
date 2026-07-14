@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { GroupId } from '../types/tournament'
 import StandingsRow from './StandingsRow.vue'
+import StatHeaderCell from './StatHeaderCell.vue'
 import type { TeamStat } from '../lib/standings'
 
 defineProps<{
@@ -8,6 +9,17 @@ defineProps<{
   groupDone: boolean
   groupId: GroupId
 }>()
+
+const columns = [
+  { abbr: 'Sp', label: 'Spiele' },
+  { abbr: 'S', label: 'Siege' },
+  { abbr: 'U', label: 'Unentschieden' },
+  { abbr: 'N', label: 'Niederlagen' },
+  { abbr: 'T+', label: 'Tore' },
+  { abbr: 'T-', label: 'Gegentore' },
+  { abbr: 'TD', label: 'Tordifferenz' },
+  { abbr: 'Pkt', label: 'Punkte' },
+]
 </script>
 
 <template>
@@ -22,38 +34,13 @@ defineProps<{
       <thead>
         <tr>
           <th scope="col" class="standings-table__team-col">Team</th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Spiele">Sp</abbr>
-            <span class="visually-hidden">Spiele</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Siege">S</abbr>
-            <span class="visually-hidden">Siege</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Unentschieden">U</abbr>
-            <span class="visually-hidden">Unentschieden</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Niederlagen">N</abbr>
-            <span class="visually-hidden">Niederlagen</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Tore">T+</abbr>
-            <span class="visually-hidden">Tore</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Gegentore">T-</abbr>
-            <span class="visually-hidden">Gegentore</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Tordifferenz">TD</abbr>
-            <span class="visually-hidden">Tordifferenz</span>
-          </th>
-          <th scope="col" class="standings-table__num-col">
-            <abbr title="Punkte">Pkt</abbr>
-            <span class="visually-hidden">Punkte</span>
-          </th>
+          <StatHeaderCell
+            v-for="col in columns"
+            :key="col.abbr"
+            class="standings-table__num-col"
+            :abbr="col.abbr"
+            :label="col.label"
+          />
         </tr>
       </thead>
       <tbody>

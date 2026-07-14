@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import InfoDisclosure from './InfoDisclosure.vue'
 import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
+import StatHeaderCell from './StatHeaderCell.vue'
 import type { ThirdPlaceRanking } from '../lib/third-place'
 import ThirdPlaceRow from './ThirdPlaceRow.vue'
 
 defineProps<{
   liveRanking: ThirdPlaceRanking
 }>()
+
+const columns = [
+  { abbr: 'Pkt', label: 'Punkte' },
+  { abbr: 'TD', label: 'Tordifferenz' },
+  { abbr: 'Tore', label: 'Erzielte Tore' },
+  { abbr: 'FP', label: 'Fair-Play-Punkte' },
+  { abbr: 'FIFA', label: 'FIFA-Weltrangliste' },
+]
 </script>
 
 <template>
@@ -47,26 +56,13 @@ defineProps<{
         <thead>
           <tr>
             <th scope="col" class="third-place-table__team-col">Team</th>
-            <th scope="col" class="third-place-table__num-col">
-              <abbr title="Punkte">Pkt</abbr>
-              <span class="visually-hidden">Punkte</span>
-            </th>
-            <th scope="col" class="third-place-table__num-col">
-              <abbr title="Tordifferenz">TD</abbr>
-              <span class="visually-hidden">Tordifferenz</span>
-            </th>
-            <th scope="col" class="third-place-table__num-col">
-              <abbr title="Erzielte Tore">Tore</abbr>
-              <span class="visually-hidden">Erzielte Tore</span>
-            </th>
-            <th scope="col" class="third-place-table__num-col">
-              <abbr title="Fair-Play-Punkte">FP</abbr>
-              <span class="visually-hidden">Fair-Play-Punkte</span>
-            </th>
-            <th scope="col" class="third-place-table__num-col">
-              <abbr title="FIFA-Weltrangliste">FIFA</abbr>
-              <span class="visually-hidden">FIFA-Weltrangliste</span>
-            </th>
+            <StatHeaderCell
+              v-for="col in columns"
+              :key="col.abbr"
+              class="third-place-table__num-col"
+              :abbr="col.abbr"
+              :label="col.label"
+            />
           </tr>
         </thead>
         <tbody>
