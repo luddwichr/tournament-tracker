@@ -189,6 +189,11 @@ can never serve stale data.
 ### 5.5 Persistence (`persistence.ts`)
 
 - `SCHEMA_VERSION = 1`; localStorage key `wc2026:results:v1` (versioned).
+- Schema-change tripwire: `PERSISTED_RESULT_FIELDS` in `persistence.ts` is
+  pinned to the `Result` type via `satisfies` — any structural change to
+  `Result` fails compilation until `SCHEMA_VERSION` is bumped and a migration
+  for the outgoing version is written (see the comment there; a semantics-only
+  change needs the same treatment by convention).
 - `exportJson(results)` downloads `wc2026-results-YYYY-MM-DD.json`
   (`{ version, results }`).
 - `parseImport(text)` parses and **validates**: version match, rejects arrays,

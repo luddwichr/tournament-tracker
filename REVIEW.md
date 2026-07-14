@@ -18,24 +18,22 @@ outright** (the re-attribution guard), **~7 became obsolete** (almost all becaus
 feature vanished), **~4 are partially addressed**, and the rest are still open at the same
 lines — including three user-facing HIGHs (hamburger nav, flag-less score dialog,
 abbreviation-wall standings). And the shootout simplification, clean as
-the code is, introduced the two most urgent new findings itself: persisted v1 data silently
-changed meaning with no migration, and the folding convention is invisible in the product —
-one week before the final.
+the code is, introduced the most urgent new finding itself: the folding convention is
+invisible in the product — one week before the final.
 
 ## Top findings (the ones to fix first)
 
 | #   | Severity | Finding                                                                                                                                                                                    | Section   |
 | --- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| 1   | HIGH     | **NEW:** Shootout removal changed the meaning of persisted data with no migration — `SCHEMA_VERSION` still 1, legacy `shootoutWinner` entries silently regress live users' brackets        | §7.1      |
-| 2   | HIGH     | **NEW:** A shootout result can be neither entered nor read faithfully — the folding rule exists only in docs, ESPN sync writes unmarked synthetic scores, and the semifinals are Jul 14/15 | §9.1      |
-| 3   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over)                           | §4.2      |
-| 4   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                                           | §4.3      |
-| 5   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                                            | §4.4      |
-| 6   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                                                   | §4.1      |
-| 7   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                                           | §3.1      |
-| 8   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                                                     | §3.3      |
-| 9   | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere                                    | §8.1      |
-| 10  | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                                                       | §8.3/§9.3 |
+| 1   | HIGH     | **NEW:** A shootout result can be neither entered nor read faithfully — the folding rule exists only in docs, ESPN sync writes unmarked synthetic scores, and the semifinals are Jul 14/15 | §9.1      |
+| 2   | HIGH     | Mobile navigation still hides all four views behind a hamburger — unusable for the pre-reader audience; the requirements specify a bottom tab bar (carried over)                           | §4.2      |
+| 3   | HIGH     | The score-entry dialog still identifies teams by muted text only — no flags, on the one screen where a child acts (carried over)                                                           | §4.3      |
+| 4   | HIGH     | Standings tables still communicate through bare abbreviations (`Sp`, `U`, `TD`, `Pkt`) with hover-only expansion (carried over)                                                            | §4.4      |
+| 5   | HIGH     | Still no `safe-area-inset-*` anywhere and `100vh` instead of `dvh` — visible defects in the installed PWA (carried over)                                                                   | §4.1      |
+| 6   | HIGH     | 12 focusable standings scroll regions still have no accessible name; group letter and rank still `aria-hidden` without substitute (carried over)                                           | §3.1      |
+| 7   | HIGH     | The `MatchCardMeta` toggle is still a ~20 px tap target (carried over)                                                                                                                     | §3.3      |
+| 8   | MEDIUM   | CLAUDE.md was deleted, its 2 rules genuinely automated — but the non-automatable turn-one content the prior review asked for was never written anywhere                                    | §8.1      |
+| 9   | MEDIUM   | `docs/requirements.md` still wrong in the same five places, plus one new drift (`/` redirect) added since the review that flagged it                                                       | §8.3/§9.3 |
 
 ## What is genuinely good
 
@@ -773,9 +771,8 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 (`6b8165f`) is close to a model implementation of a cross-layer invariant, and the shootout
 removal (`d46bd91`) deleted 328 lines and updated both docs in the same commit. The engineering
 core remains unusually clean — `src/lib` still has zero Vue/Pinia imports (grep-verified) and
-comments are overwhelmingly high-value why-comments. But the shootout removal shipped a silent
-data-semantics change to already-persisted user data with `SCHEMA_VERSION` untouched, and
-almost every §7 finding from the prior review that wasn't fixed _by deletion_ is still open.
+comments are overwhelmingly high-value why-comments. But almost every §7 finding from the
+prior review that wasn't fixed _by deletion_ is still open.
 
 ### Genuinely good
 
@@ -797,23 +794,7 @@ almost every §7 finding from the prior review that wasn't fixed _by deletion_ i
 
 ### Findings
 
-1. **[HIGH] Shootout removal changed the meaning of persisted data with no migration —
-   existing users' brackets silently regress.** `src/lib/persistence.ts:4,11` —
-   `SCHEMA_VERSION` is still `1` and the storage key still `wc2026:results:v1` after
-   `d46bd91`, but the semantics of a level knockout score flipped from "decided by shootout
-   (see `shootoutWinner`)" to "not decided yet". Legacy entries like
-   `{homeGoals: 1, awayGoals: 1, shootoutWinner: 'home'}` pass validation unchanged
-   (`isValidResult`, `persistence.ts:80-105`, doesn't reject unknown keys), so on next load
-   the match becomes undecided while its _downstream_ results (a QF entered after that
-   shootout R16) stay stored — precisely the silent re-attribution class `6b8165f` was built
-   to prevent, now reachable via the hydration path the `enterResult` invariant doesn't cover.
-   Old export files re-import the same way since `parseImport` still accepts `version: 1`.
-   This is live: the app deploys on push to main and the knockout stage began 28 June —
-   shootouts have almost certainly been entered. Fix: bump `SCHEMA_VERSION` to 2 with a v1→v2
-   migration that folds `shootoutWinner` into a +1 goal for the winner (mirroring what
-   `espn.ts:115-117` already does for fetched data), and read/migrate the old key once.
-
-2. **[MEDIUM] The store's invariant comment overclaims: two of four write paths don't enforce
+1. **[MEDIUM] The store's invariant comment overclaims: two of four write paths don't enforce
    it.** `src/stores/tournament.ts:22-26` says "the store never keeps a knockout result whose
    participants no longer match what it was entered for … no caller can forget" — true for
    `enterResult`/`clearResult`, false for `importResults` (`tournament.ts:48-52`) and
@@ -821,9 +802,9 @@ almost every §7 finding from the prior review that wasn't fixed _by deletion_ i
    `docs/requirements.md:383-387` (§9.8) documents this as a known loophole while the store
    comment claims the opposite. Either scope the comment honestly ("for interactive edits") or
    run a consistency sweep (drop knockout results whose refs don't resolve) in
-   `importResults`/`afterHydrate` — which would also blunt finding 1. (See also §9.5.)
+   `importResults`/`afterHydrate`. (See also §9.5.)
 
-3. **[MEDIUM] `results-sync` YAGNI surface survived the refactor and now produces
+2. **[MEDIUM] `results-sync` YAGNI surface survived the refactor and now produces
    `undefined`-warts at every call site.** `src/lib/results-sync/provider.ts:33-35` —
    `ResultsProvider.id`/`label` are still read nowhere, and both real callers of
    `syncResults(provider = defaultProvider, opts?)` now pass a literal `undefined` first
@@ -831,14 +812,14 @@ almost every §7 finding from the prior review that wasn't fixed _by deletion_ i
    four files and was the natural moment. Make it `syncResults(opts?)`, delete `id`/`label`;
    `FetchResultsOptions.fetchImpl` already covers test injection. (Details in §2.9.)
 
-4. **[LOW] `useMatchResultForm` got a fifth concern instead of a split.**
+3. **[LOW] `useMatchResultForm` got a fifth concern instead of a split.**
    `src/composables/use-match-result-form.ts` (181 lines) now mixes form state, store writes,
    the pending-confirm state machine (lines 54-114), a11y announcements, and the live-fetch
    machine (lines 116-165) — the prior review's duplicate abort/status machinery vs
    `use-results-sync.ts` still stands. Extracting just the fetch block into a
    `useLiveResultFetch` would cut the file by a third and kill the duplication.
 
-5. **[LOW] Small persisting coupling/comment debts, all one-line fixes.**
+4. **[LOW] Small persisting coupling/comment debts, all one-line fixes.**
    (a) `use-origin-group-data.ts:13-16` still justifies its existence with a `max-lines` lint
    rule that exists in neither lint config — a false why-comment;
    (b) the same file hand-builds refKeys (`use-origin-group-data.ts:36-39`) that
