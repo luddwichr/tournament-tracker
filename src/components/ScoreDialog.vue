@@ -124,7 +124,7 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
         <span class="score-dialog__btn-symbol" aria-hidden="true">🗑</span> Löschen
       </button>
       <div class="score-dialog__footer-actions">
-        <button type="button" class="btn btn--secondary" @click="baseDialog?.close()">
+        <button type="button" class="btn btn--secondary" @click="close">
           <span class="score-dialog__btn-symbol" aria-hidden="true">✕</span> Abbrechen
         </button>
         <button type="button" class="btn btn--primary" @click="onSave">
