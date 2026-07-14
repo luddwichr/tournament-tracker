@@ -24,11 +24,18 @@ export function storedState(results: Record<string, Result>): string {
 }
 
 export async function seedResults(page: Page, results: Record<string, Result>): Promise<void> {
-  await page.evaluate(([key, value]) => localStorage.setItem(key, value), [STORAGE_KEY, storedState(results)] as const)
+  await page.evaluate(
+    ([key, value]) => {
+      localStorage.setItem(key, value)
+    },
+    [STORAGE_KEY, storedState(results)] as const,
+  )
 }
 
 export async function clearResults(page: Page): Promise<void> {
-  await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY)
+  await page.evaluate((key) => {
+    localStorage.removeItem(key)
+  }, STORAGE_KEY)
 }
 
 export function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {

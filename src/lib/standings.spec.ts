@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { computeGroupStandings, resultFingerprint, clearStandingsCache, isGroupStageComplete } from './standings'
 import { groupMatches } from '../data/fixtures-2026'
+import { resultsWithout } from './invalidation'
 import { makeResult, resultsMap, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
@@ -280,8 +281,7 @@ describe('isGroupStageComplete', () => {
   })
 
   it('is false while a single group match is still missing a result', () => {
-    const results = allGroupResults()
-    delete results[groupMatches[0]!.id]
+    const results = resultsWithout(allGroupResults(), [groupMatches[0]!.id])
     expect(isGroupStageComplete(results)).toBe(false)
   })
 

@@ -39,7 +39,9 @@ describe('logError', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('QuotaExceededError')
     })
-    expect(() => logError('vue', 'boom')).not.toThrow()
+    expect(() => {
+      logError('vue', 'boom')
+    }).not.toThrow()
   })
 })
 

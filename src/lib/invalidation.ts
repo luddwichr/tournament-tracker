@@ -18,6 +18,12 @@ function resolvedTeamId(ref: TeamRef, results: ResultsMap): string | null {
   return resolveTeamRef(ref, results)?.id ?? null
 }
 
+/** Copy of `results` without the entries for `ids`. */
+export function resultsWithout(results: ResultsMap, ids: Iterable<string>): ResultsMap {
+  const drop = new Set(ids)
+  return Object.fromEntries(Object.entries(results).filter(([id]) => !drop.has(id)))
+}
+
 /**
  * Match ids of knockout matches whose stored result would apply to a different
  * pairing if `newResult` replaced (or, when null, removed) the result of
@@ -29,19 +35,14 @@ function resolvedTeamId(ref: TeamRef, results: ResultsMap): string | null {
  * memoized — no hot-path concern.
  */
 export function invalidatedDownstream(results: ResultsMap, matchId: string, newResult: Result | null): string[] {
-  // Plain mutable working copy: `newResult` applied (or the entry removed).
-  const candidate: Record<string, Result> = { ...results }
-  if (newResult) {
-    candidate[matchId] = newResult
-  } else {
-    delete candidate[matchId]
-  }
+  // Working copy: `newResult` applied (or the entry removed).
+  let candidate: ResultsMap = newResult ? { ...results, [matchId]: newResult } : resultsWithout(results, [matchId])
 
   const invalidated: string[] = []
 
   // Single forward pass — `knockoutMatches` is already in bracket order
   // (M73…M104) and feeder refs only ever point to earlier matches (guarded by
-  // `data.spec.ts`), so one pass suffices. Deleting a flagged match's entry
+  // `data.spec.ts`), so one pass suffices. Dropping a flagged match's entry
   // from `candidate` as we go is what makes matchWinner/matchLoser cascades
   // propagate into later rounds.
   for (const m of knockoutMatches) {
@@ -53,7 +54,7 @@ export function invalidatedDownstream(results: ResultsMap, matchId: string, newR
 
     if (homeChanged || awayChanged) {
       invalidated.push(m.id)
-      delete candidate[m.id]
+      candidate = resultsWithout(candidate, [m.id])
     }
   }
 

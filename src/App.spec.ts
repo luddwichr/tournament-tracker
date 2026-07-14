@@ -28,8 +28,26 @@ const OpenerStub = defineComponent({
     const openScore = useScoreDialog()
     return () =>
       h('div', [
-        h('button', { class: 'opener', onClick: () => open(team) }, 'open'),
-        h('button', { class: 'score-opener', onClick: () => openScore(match, homeTeam, awayTeam) }, 'open score'),
+        h(
+          'button',
+          {
+            class: 'opener',
+            onClick: () => {
+              open(team)
+            },
+          },
+          'open',
+        ),
+        h(
+          'button',
+          {
+            class: 'score-opener',
+            onClick: () => {
+              openScore(match, homeTeam, awayTeam)
+            },
+          },
+          'open score',
+        ),
       ])
   },
 })

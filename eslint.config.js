@@ -12,7 +12,7 @@ const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   eslint.configs.recommended,
-  tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.strictTypeChecked,
   pluginVue.configs['flat/recommended'],
   pluginVueA11y.configs['flat/recommended'],
   {
@@ -24,12 +24,12 @@ export default tseslint.config(
         extraFileExtensions: ['.vue'],
       },
     },
-    // TypeScript's compiler already catches undefined references;
-    // no-undef from eslint/recommended is redundant and flags DOM globals.
     rules: {
+      // TypeScript's compiler already catches undefined references;
+      // no-undef from eslint/recommended is redundant and flags DOM globals.
       'no-undef': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'error',
+      // in this repo it is fine to use implicit stringification on non-string values
+      '@typescript-eslint/restrict-template-expressions': 'off',
     },
   },
   {

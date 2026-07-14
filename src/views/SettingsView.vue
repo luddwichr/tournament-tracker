@@ -19,7 +19,9 @@ const {
   open: openSync,
   run: runSync,
   cancel: cancelSync,
-} = useResultsSync((results) => store.importResults(results))
+} = useResultsSync((results) => {
+  store.importResults(results)
+})
 
 type PendingAction = { kind: 'reset' } | { kind: 'import'; results: ResultsMap }
 

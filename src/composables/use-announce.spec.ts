@@ -42,7 +42,9 @@ describe('useAnnounce', () => {
 
     mount(Component)
     // Should not throw
-    expect(() => capturedAnnounce!('ignored')).not.toThrow()
+    expect(() => {
+      capturedAnnounce!('ignored')
+    }).not.toThrow()
   })
 
   it('returns a function — not the message itself', () => {
