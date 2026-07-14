@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { allGroupResults, makeResult } from '../test-support/results'
+import { describe, expect, it } from 'vitest'
+import { invalidatedDownstream, invalidatedMatchLabel } from './invalidation'
 import type { Result } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { resolveTeamRef } from './knockout'
 import { teamRefLabel } from './bracket-labels'
-import { allGroupResults, makeResult } from '../test-support/results'
-import { invalidatedDownstream, invalidatedMatchLabel } from './invalidation'
 
 describe('invalidatedDownstream', () => {
   it('flags the R32 match fed by a flipped group rank 1/2, cascading into a fed R16 match with its own stored result', () => {

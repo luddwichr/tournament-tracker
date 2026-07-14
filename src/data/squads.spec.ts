@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { squadFor, squads } from './squads'
 import { teams } from './teams'
-import { squads, squadFor } from './squads'
 
 describe('squads', () => {
   it('has an entry for every team in teams.ts', () => {

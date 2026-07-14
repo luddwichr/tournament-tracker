@@ -1,8 +1,8 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect } from '@playwright/test'
 import type { GroupId } from '../../../src/types/tournament'
-import { TeamDialog } from '../dialogs/team-dialog'
 import { ScoreDialog } from '../dialogs/score-dialog'
+import { TeamDialog } from '../dialogs/team-dialog'
+import { expect } from '@playwright/test'
 
 /** The group-stage view (`/groups`). */
 export class GroupsPage {

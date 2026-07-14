@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MatchSlot, Team, Result } from '../types/tournament'
+import type { MatchSlot, Result, Team } from '../types/tournament'
 import MatchCard from './MatchCard.vue'
 
 export interface MatchRow {

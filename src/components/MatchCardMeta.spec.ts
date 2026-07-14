@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import MatchCardMeta from './MatchCardMeta.vue'
+import { mount } from '@vue/test-utils'
 
 const kickoff = '2026-06-08T18:00:00+02:00'
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ThirdPlaceRanking } from '../lib/third-place'
-import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
-import ThirdPlaceRow from './ThirdPlaceRow.vue'
 import InfoDisclosure from './InfoDisclosure.vue'
+import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
+import type { ThirdPlaceRanking } from '../lib/third-place'
+import ThirdPlaceRow from './ThirdPlaceRow.vue'
 
 defineProps<{
   liveRanking: ThirdPlaceRanking

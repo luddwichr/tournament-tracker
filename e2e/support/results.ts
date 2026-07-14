@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import type { Result } from '../../src/types/tournament'
-import { groupMatches } from '../../src/data/fixtures-2026'
 import { STORAGE_KEY } from '../../src/lib/persistence'
+import { groupMatches } from '../../src/data/fixtures-2026'
 
 export { STORAGE_KEY }
 

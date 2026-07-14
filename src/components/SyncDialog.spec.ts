@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import SyncDialog from './SyncDialog.vue'
 import type { SyncStatus } from '../composables/use-results-sync'
+import { mount } from '@vue/test-utils'
 
 function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> = {}) {
   return mount(SyncDialog, {

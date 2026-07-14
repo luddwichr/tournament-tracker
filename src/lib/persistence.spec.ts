@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Result, ResultsMap } from '../types/tournament'
-import { parseImport, exportJson } from './persistence'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { exportJson, parseImport } from './persistence'
 import { makeResult } from '../test-support/results'
 
 function validResult(matchId: string, extra: Partial<Result> = {}): Result {

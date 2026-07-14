@@ -1,5 +1,5 @@
-import { ref, provide, inject } from 'vue'
 import type { InjectionKey, Ref } from 'vue'
+import { inject, provide, ref } from 'vue'
 import type { Team } from '../types/tournament'
 
 type OpenFn = (team: Team) => void

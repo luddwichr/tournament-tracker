@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test'
-import { teams } from '../src/data/teams'
-import { GROUP_IDS } from '../src/types/tournament'
 import { GroupsPage, expectNoA11yViolations } from './support'
+import { expect, test } from '@playwright/test'
+import { GROUP_IDS } from '../src/types/tournament'
+import { teams } from '../src/data/teams'
 
 let groups: GroupsPage
 

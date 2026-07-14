@@ -1,10 +1,10 @@
-import { ref, computed, reactive, toValue, onUnmounted } from 'vue'
-import type { MaybeRefOrGetter } from 'vue'
 import type { MatchSlot, Result, Team } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { useAnnounce } from './use-announce'
-import { syncResults } from '../lib/results-sync'
+import { computed, onUnmounted, reactive, ref, toValue } from 'vue'
 import { invalidatedDownstream, invalidatedMatchLabel } from '../lib/invalidation'
+import type { MaybeRefOrGetter } from 'vue'
+import { syncResults } from '../lib/results-sync'
+import { useAnnounce } from './use-announce'
+import { useTournamentStore } from '../stores/tournament'
 
 /** A save/clear whose write is on hold pending user confirmation (REVIEW.md §9.1) —
  * the write would silently re-attribute the results of these later knockout matches. */

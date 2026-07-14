@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { teams } from '../data/teams'
+import { describe, expect, it } from 'vitest'
 import { fifaRanking } from '../data/fifa-ranking'
+import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { teams } from '../data/teams'
 
 // Regression guard for the flag-icons subset: flags.scss compiles CSS for
 // exactly the flag codes listed in $flag-icons-included-countries. A code used

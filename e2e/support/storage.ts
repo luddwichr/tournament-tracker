@@ -1,6 +1,6 @@
+import { STORAGE_KEY, storedState } from './results'
 import type { Page } from '@playwright/test'
 import type { Result } from '../../src/types/tournament'
-import { STORAGE_KEY, storedState } from './results'
 
 /**
  * Clears any persisted results before the page's first real navigation, via a

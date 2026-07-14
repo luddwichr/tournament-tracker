@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { TeamStat } from '../lib/standings'
 import type { GroupId } from '../types/tournament'
 import StandingsRow from './StandingsRow.vue'
+import type { TeamStat } from '../lib/standings'
 
 defineProps<{
   standings: TeamStat[]

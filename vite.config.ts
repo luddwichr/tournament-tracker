@@ -1,6 +1,6 @@
+import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
 
 // Minimal shapes for the service-worker globals referenced inside the
 // runtimeCaching plugin callbacks below. Those callbacks run inside the

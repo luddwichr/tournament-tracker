@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import BracketConnectors from './BracketConnectors.vue'
+import { mount } from '@vue/test-utils'
 
 describe('BracketConnectors', () => {
   // No separate "renders an svg element" test: an svg not existing would

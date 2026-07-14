@@ -1,4 +1,3 @@
-import { test, expect } from '@playwright/test'
 import {
   KnockoutPage,
   allGroupResults,
@@ -7,6 +6,7 @@ import {
   makeResult,
   seedResultsOnLoad,
 } from './support'
+import { expect, test } from '@playwright/test'
 import { knockoutMatches } from '../src/data/fixtures-2026'
 
 const { R32 } = KnockoutPage

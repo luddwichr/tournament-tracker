@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import DisciplineInput from './DisciplineInput.vue'
+import { mount } from '@vue/test-utils'
 
 function mountDisciplineInput(props = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }) {
   return mount(DisciplineInput, { props })

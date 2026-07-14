@@ -1,8 +1,8 @@
 // State machine behind the sync dialog: confirm → syncing → done | error,
 // with cancellation. Hands mapped results to `apply` on success.
 
-import { ref } from 'vue'
 import type { ResultsMap } from '../types/tournament'
+import { ref } from 'vue'
 import { syncResults } from '../lib/results-sync'
 
 export type SyncStatus = 'idle' | 'confirm' | 'syncing' | 'done' | 'error'

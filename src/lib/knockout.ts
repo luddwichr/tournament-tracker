@@ -10,12 +10,12 @@
  * see `Result`).
  */
 
-import type { Stage, TeamRef, Team, ResultsMap } from '../types/tournament'
-import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
-import { teamsById } from '../data/teams'
+import type { ResultsMap, Stage, Team, TeamRef } from '../types/tournament'
 import { computeGroupStandings, isGroupComplete, isGroupStageComplete } from './standings'
-import { resolveThirdPlaceSlot } from './third-place'
+import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { assertNever } from './assert-never'
+import { resolveThirdPlaceSlot } from './third-place'
+import { teamsById } from '../data/teams'
 
 /**
  * Resolve a TeamRef to a concrete Team given current results.

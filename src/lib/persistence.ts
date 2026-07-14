@@ -1,4 +1,4 @@
-import type { Result, ResultsMap, PersistedState } from '../types/tournament'
+import type { PersistedState, Result, ResultsMap } from '../types/tournament'
 import { fixtures } from '../data/fixtures-2026'
 
 export const SCHEMA_VERSION = 1

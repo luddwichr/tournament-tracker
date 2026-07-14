@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { createApp } from 'vue'
-import { useTournamentStore } from './tournament'
-import { freePossibleTeamsMemory } from '../lib/possible-teams'
-import { clearStandingsCache } from '../lib/standings'
-import { STORAGE_KEY } from '../lib/persistence'
 import type { Result } from '../types/tournament'
+import { STORAGE_KEY } from '../lib/persistence'
 import { allGroupResults } from '../test-support/results'
+import { clearStandingsCache } from '../lib/standings'
+import { createApp } from 'vue'
+import { freePossibleTeamsMemory } from '../lib/possible-teams'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { useTournamentStore } from './tournament'
 
 // Partial-mock: keep every real export (computeGroupStandings, resultFingerprint, …)
 // so standingsByGroup still computes correctly, but replace the cache-clearing

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 import TeamLabel from './TeamLabel.vue'
-import { teamViewerKey } from '../composables/use-team-viewer'
 import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
+import { teamViewerKey } from '../composables/use-team-viewer'
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland' })
 

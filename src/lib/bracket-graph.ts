@@ -1,5 +1,5 @@
-import { knockoutMatches } from '../data/fixtures-2026'
 import type { TeamRef } from '../types/tournament'
+import { knockoutMatches } from '../data/fixtures-2026'
 
 function r32RefKey(teamRef: TeamRef): string | null {
   if (teamRef.kind === 'groupRank') return `groupRank:${teamRef.group}:${teamRef.rank}`

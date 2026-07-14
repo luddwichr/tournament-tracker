@@ -17,9 +17,9 @@
 // Re-run after each monthly FIFA release; the output is deterministic for a
 // given snapshot of the source table.
 
-import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeFileSync } from 'node:fs'
 
 const SOURCE_URL = 'https://www.whereig.com/football/fifa-world-rankings.html'
 

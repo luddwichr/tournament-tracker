@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 const teamA = makeTeam({ id: 'ger', name: 'Deutschland' })
 const teamB = makeTeam({ id: 'fra', name: 'Frankreich' })

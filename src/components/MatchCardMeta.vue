@@ -9,8 +9,8 @@ const kickoffFmt = new Intl.DateTimeFormat('de-DE', {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
+import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{

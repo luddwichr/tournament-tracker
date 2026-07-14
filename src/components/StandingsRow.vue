@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { TeamStat } from '../lib/standings'
 import TeamLabel from './TeamLabel.vue'
+import type { TeamStat } from '../lib/standings'
+import { computed } from 'vue'
 
 const props = defineProps<{
   stat: TeamStat

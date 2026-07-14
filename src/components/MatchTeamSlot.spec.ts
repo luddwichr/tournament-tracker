@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import TeamLabel from './TeamLabel.vue'
 import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland' })
 

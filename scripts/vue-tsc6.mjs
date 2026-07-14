@@ -16,8 +16,8 @@
 //
 // Usage: node scripts/vue-tsc6.mjs [vue-tsc args, e.g. -b]
 
-import fs from 'node:fs'
 import { createRequire } from 'node:module'
+import fs from 'node:fs'
 
 const require = createRequire(import.meta.url)
 

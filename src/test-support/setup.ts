@@ -1,4 +1,4 @@
-import { vi, beforeEach } from 'vitest'
+import { beforeEach, vi } from 'vitest'
 
 // jsdom doesn't implement <dialog> element behavior (showModal/close), so every
 // spec that mounts a BaseDialog-based component needs these stubbed. This runs

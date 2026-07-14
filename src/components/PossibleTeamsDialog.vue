@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import BaseDialog from './BaseDialog.vue'
 import type { Team } from '../types/tournament'
 import TeamLabel from './TeamLabel.vue'
-import BaseDialog from './BaseDialog.vue'
 
 defineProps<{
   label: string

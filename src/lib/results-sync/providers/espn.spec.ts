@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { espnProvider, _internal } from './espn'
+import { _internal, espnProvider } from './espn'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 interface TeamSide {
   id: string

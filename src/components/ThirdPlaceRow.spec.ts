@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import ThirdPlaceRow from './ThirdPlaceRow.vue'
 import { makeStat } from '../test-support/stats'
+import { mount } from '@vue/test-utils'
 
 describe('ThirdPlaceRow', () => {
   it('renders the tiebreaker columns in breaking order: points, GD, goals, fair-play, FIFA rank', () => {

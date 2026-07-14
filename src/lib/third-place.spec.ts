@@ -2,17 +2,17 @@
  * Unit tests for third-place ranking and slot resolution.
  */
 
-import { describe, it, expect } from 'vitest'
-import type { Result } from '../types/tournament'
-import { GROUP_IDS } from '../types/tournament'
-import { groupMatches } from '../data/fixtures-2026'
+import { allGroupResults, makeResult } from '../test-support/results'
 import {
+  buildGroupToThirdPlaceSlotMap,
   rankThirdPlaced,
   rankThirdPlacedLive,
   resolveThirdPlaceSlot,
-  buildGroupToThirdPlaceSlotMap,
 } from './third-place'
-import { makeResult, allGroupResults } from '../test-support/results'
+import { describe, expect, it } from 'vitest'
+import { GROUP_IDS } from '../types/tournament'
+import type { Result } from '../types/tournament'
+import { groupMatches } from '../data/fixtures-2026'
 
 // ---------------------------------------------------------------------------
 // rankThirdPlaced

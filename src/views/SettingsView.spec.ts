@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import * as persistence from '../lib/persistence'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { flushPromises, mount } from '@vue/test-utils'
+import { logError, readErrorLog } from '../lib/error-log'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SettingsView from './SettingsView.vue'
+import SyncDialog from '../components/SyncDialog.vue'
+import ThemePicker from '../components/ThemePicker.vue'
+import { syncResults } from '../lib/results-sync'
 import { useSettingsStore } from '../stores/settings'
 import { useTournamentStore } from '../stores/tournament'
-import * as persistence from '../lib/persistence'
-import { syncResults } from '../lib/results-sync'
-import { logError, readErrorLog } from '../lib/error-log'
-import ThemePicker from '../components/ThemePicker.vue'
-import ConfirmDialog from '../components/ConfirmDialog.vue'
-import SyncDialog from '../components/SyncDialog.vue'
 
 vi.mock('../lib/persistence', () => ({
   SCHEMA_VERSION: 1,

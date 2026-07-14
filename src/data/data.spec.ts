@@ -1,8 +1,7 @@
-import { describe, it, expect } from 'vitest'
-
-import { teams, teamsById } from './teams'
-import { fixtures, groupMatches, knockoutMatches, THIRD_PLACE_SLOT_HOST, THIRD_PLACE_ALLOCATION } from './fixtures-2026'
 import { GROUP_IDS, type GroupId } from '../types/tournament'
+import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST, fixtures, groupMatches, knockoutMatches } from './fixtures-2026'
+import { describe, expect, it } from 'vitest'
+import { teams, teamsById } from './teams'
 
 const countStage = (stage: string) => knockoutMatches.filter((m) => m.stage === stage).length
 const matchNum = (id: string) => Number(id.slice(1))

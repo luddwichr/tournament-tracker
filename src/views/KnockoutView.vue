@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import BracketView from '../components/BracketView.vue'
 import type { MatchSlot } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
 import { resolveTeamRef } from '../lib/knockout'
 import { useScoreDialog } from '../composables/use-score-dialog'
-import BracketView from '../components/BracketView.vue'
+import { useTournamentStore } from '../stores/tournament'
 
 const store = useTournamentStore()
 const openScoreDialog = useScoreDialog()

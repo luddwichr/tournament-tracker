@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import StepperInput from './StepperInput.vue'
 import CardIcon from './icons/CardIcon.vue'
 import CardsIcon from './icons/CardsIcon.vue'
+import StepperInput from './StepperInput.vue'
 
 const homeYellow = defineModel<number>('homeYellow', { required: true })
 const homeRed = defineModel<number>('homeRed', { required: true })

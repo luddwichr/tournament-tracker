@@ -14,8 +14,8 @@
 // Team names are German (the only German strings in the data layer). Ids are
 // the lower-case FIFA country code; `flagCode` is the `flag-icons` CSS code.
 
-import type { Team } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
+import type { Team } from '../types/tournament'
 
 export const teams = [
   { fifaRanking: 14, flagCode: 'mx', group: 'A', id: 'mex', name: 'Mexiko' },

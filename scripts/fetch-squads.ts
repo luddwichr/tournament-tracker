@@ -11,9 +11,9 @@
 // Re-run whenever squad changes need to be updated; the output is
 // deterministic for the same wikitext.
 
-import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeFileSync } from 'node:fs'
 
 interface Player {
   number: number

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import OriginColumn, { type OriginGroupData, type OriginTeamRow } from './OriginColumn.vue'
-import { GROUP_IDS } from '../types/tournament'
 import type { GroupId, Team } from '../types/tournament'
+import OriginColumn, { type OriginGroupData, type OriginTeamRow } from './OriginColumn.vue'
+import { describe, expect, it } from 'vitest'
+import { GROUP_IDS } from '../types/tournament'
+import { mount } from '@vue/test-utils'
 
 function makeTeam(id: string, group: GroupId): Team {
   return { fifaRanking: 1, flagCode: id.slice(0, 2), group, id, name: id.toUpperCase() }

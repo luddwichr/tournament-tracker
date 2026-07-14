@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import type { Player, Team } from '../types/tournament'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import TeamDialog from './TeamDialog.vue'
 import MatchCard from './MatchCard.vue'
-import type { Team, Player } from '../types/tournament'
+import TeamDialog from './TeamDialog.vue'
 import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 const { players } = vi.hoisted(() => {
   const hoistedPlayers: Player[] = [

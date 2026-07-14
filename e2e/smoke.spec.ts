@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test'
 import { AppNav, GroupsPage, KnockoutPage, SettingsPage, expectNoA11yViolations } from './support'
+import { expect, test } from '@playwright/test'
 
 test('app shell loads and redirects to the groups view', async ({ page }) => {
   await page.goto('/')

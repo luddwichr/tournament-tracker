@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
-import { ref } from 'vue'
-import { mount } from '@vue/test-utils'
-import { useRegisterSW } from 'virtual:pwa-register/vue'
+import { describe, expect, it, vi } from 'vitest'
 import UpdateDialog from './UpdateDialog.vue'
+import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 vi.mock('virtual:pwa-register/vue', () => ({
   useRegisterSW: vi.fn(),

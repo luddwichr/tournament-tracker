@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import KnockoutView from './KnockoutView.vue'
 import BracketView from '../components/BracketView.vue'
-import { scoreDialogKey } from '../composables/use-score-dialog'
+import KnockoutView from './KnockoutView.vue'
 import { makeMatch } from '../test-support/matches'
+import { mount } from '@vue/test-utils'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 
 const resolvedMatch = makeMatch({
   awayRef: { kind: 'team', teamId: 'usa' },

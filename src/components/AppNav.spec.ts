@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount, RouterLinkStub } from '@vue/test-utils'
-import { createRouter, createWebHashHistory, type Router } from 'vue-router'
+import { type Router, createRouter, createWebHashHistory } from 'vue-router'
+import { RouterLinkStub, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import AppNav from './AppNav.vue'
 
