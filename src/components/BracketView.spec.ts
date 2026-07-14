@@ -143,7 +143,7 @@ describe('BracketView – PossibleTeamsDialog', () => {
     const match = (firstRound.props('matches') as MatchRow[])[0]!.match
     await firstRound.vm.$emit('placeholderClick', match, 'home')
     expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(true)
-    // PossibleTeamsDialog is Teleported to body; emit close on the component directly
+    // emit close on the component directly
     wrapper.findComponent(PossibleTeamsDialog).vm.$emit('close')
     await nextTick()
     expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(false)
