@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import GroupStandingsTable from './GroupStandingsTable.vue'
 import StandingsRow from './StandingsRow.vue'
 import type { TeamStat } from '../lib/standings'
-import { teamsInGroup } from '../data/teams'
 import { makeStat } from '../test-support/stats'
+import { mount } from '@vue/test-utils'
+import { teamsInGroup } from '../data/teams'
 
 const standings: TeamStat[] = teamsInGroup('A').map((team, i) => makeStat({ points: (3 - i) * 3, team, wins: 3 - i }))
 

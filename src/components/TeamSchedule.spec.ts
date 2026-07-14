@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import TeamSchedule from './TeamSchedule.vue'
-import MatchCard from './MatchCard.vue'
-import { scoreDialogKey } from '../composables/use-score-dialog'
 import type { GroupMatchSlot, KnockoutMatchSlot, Team } from '../types/tournament'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import MatchCard from './MatchCard.vue'
 import type { TeamMatchEntry } from '../lib/team-schedule'
-import { makeTeam } from '../test-support/teams'
+import TeamSchedule from './TeamSchedule.vue'
 import { makeResult } from '../test-support/results'
+import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 
 beforeEach(() => {
   setActivePinia(createPinia())

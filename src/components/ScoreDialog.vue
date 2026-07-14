@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useTemplateRef, ref, computed } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
-import ScoreInput from './ScoreInput.vue'
-import DisciplineInput from './DisciplineInput.vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import DisciplineInput from './DisciplineInput.vue'
+import ScoreInput from './ScoreInput.vue'
 import { useMatchResultForm } from '../composables/use-match-result-form'
 
 const props = defineProps<{

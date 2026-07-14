@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { groupMatches } from '../data/fixtures-2026'
+import { makeMatch } from '../test-support/matches'
+import { makeResult } from '../test-support/results'
+import { resolveTeamRef } from '../lib/knockout'
 import { usePossibleTeamsDialog } from './use-possible-teams-dialog'
 import { useTournamentStore } from '../stores/tournament'
-import { resolveTeamRef } from '../lib/knockout'
-import { groupMatches } from '../data/fixtures-2026'
-import { makeResult } from '../test-support/results'
-import { makeMatch } from '../test-support/matches'
 
 // ---------------------------------------------------------------------------
 // usePossibleTeamsDialog — `label` computed

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect, nextTick, provide, useTemplateRef, defineAsyncComponent } from 'vue'
-import { useRoute } from 'vue-router'
+import { defineAsyncComponent, nextTick, provide, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import UpdateDialog from './components/UpdateDialog.vue'
 import { announceKey } from './composables/use-announce'
-import { provideTeamViewer } from './composables/use-team-viewer'
 import { provideScoreDialog } from './composables/use-score-dialog'
+import { provideTeamViewer } from './composables/use-team-viewer'
+import { useRoute } from 'vue-router'
 import { useSettingsStore } from './stores/settings'
 
 // Loaded lazily: TeamDialog pulls in the squads dataset and flag-icons CSS

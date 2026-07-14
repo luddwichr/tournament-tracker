@@ -1,6 +1,6 @@
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { matchToRefKeys, nextMatchMap, prevMatchMap, teamRefToMatchId } from '../lib/bracket-graph'
 import type { Ref } from 'vue'
-import { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from '../lib/bracket-graph'
 import { useBracketConnectors } from './use-bracket-connectors'
 
 export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {

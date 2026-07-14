@@ -1,6 +1,6 @@
 import type { Download, Locator, Page } from '@playwright/test'
-import { expect } from '@playwright/test'
 import { ConfirmDialog } from '../dialogs/confirm-dialog'
+import { expect } from '@playwright/test'
 
 interface ImportFile {
   name: string

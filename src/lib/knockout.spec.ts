@@ -2,12 +2,12 @@
  * Unit tests for knockout bracket resolution (resolveTeamRef / currentBracketColumn).
  */
 
-import { describe, it, expect } from 'vitest'
 import type { Result, TeamRef } from '../types/tournament'
+import { allGroupResults, makeResult } from '../test-support/results'
+import { currentBracketColumn, resolveTeamRef } from './knockout'
+import { describe, expect, it } from 'vitest'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
-import { resolveTeamRef, currentBracketColumn } from './knockout'
-import { makeResult, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // 'team' kind

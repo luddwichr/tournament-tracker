@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import CardIcon from './CardIcon.vue'
+import { mount } from '@vue/test-utils'
 
 describe('CardIcon', () => {
   it('renders no count when none is given', () => {

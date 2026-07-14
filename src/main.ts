@@ -1,11 +1,3 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-
-import App from './App.vue'
-import { router } from './router'
-import { logError } from './lib/error-log'
-
 // Note: the `flag-icons` stylesheet (styles/flags.scss subset) is intentionally
 // NOT imported here. It is imported by the flag-rendering component (M3) so it
 // rides that route's lazy chunk instead of bloating the entry bundle.
@@ -13,6 +5,12 @@ import './styles/reset.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/standings-row.css'
+import App from './App.vue'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { logError } from './lib/error-log'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { router } from './router'
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

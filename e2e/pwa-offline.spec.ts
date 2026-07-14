@@ -1,7 +1,7 @@
+import { AppNav, GroupsPage, KnockoutPage, SettingsPage } from './support'
+import { expect, test } from '@playwright/test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { test, expect } from '@playwright/test'
-import { AppNav, GroupsPage, KnockoutPage, SettingsPage } from './support'
 
 const indexHtmlPath = path.resolve(import.meta.dirname, '..', 'dist', 'index.html')
 

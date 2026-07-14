@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import MatchScoreButton from './MatchScoreButton.vue'
 import type { Result } from '../types/tournament'
+import { mount } from '@vue/test-utils'
 
 const result: Result = {
   awayGoals: 1,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Team } from '../types/tournament'
 import StepperInput from './StepperInput.vue'
+import type { Team } from '../types/tournament'
 
 defineProps<{
   homeTeam: Team

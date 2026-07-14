@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { createRouter, createWebHashHistory, type Router } from 'vue-router'
+import { type Router, createRouter, createWebHashHistory } from 'vue-router'
+import { beforeEach, describe, expect, it } from 'vitest'
 import AppHeader from './AppHeader.vue'
 import AppNav from './AppNav.vue'
+import { mount } from '@vue/test-utils'
 
 let router: Router
 

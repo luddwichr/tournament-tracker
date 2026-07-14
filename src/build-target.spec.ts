@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
 import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 
 // Regression guard for the ES target duplicated across tsconfig.base.json,
 // tsconfig.app.json's/tsconfig.node.json's `lib`, and vite.config.ts's

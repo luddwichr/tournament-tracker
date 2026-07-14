@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { GroupId, GroupMatchSlot, ResolvedTeamRef, Team } from '../types/tournament'
-import { teamsById } from '../data/teams'
-import { groupMatches } from '../data/fixtures-2026'
-import { useTournamentStore } from '../stores/tournament'
-import { useScoreDialog } from '../composables/use-score-dialog'
-import MatchCard from './MatchCard.vue'
 import GroupStandingsTable from './GroupStandingsTable.vue'
+import MatchCard from './MatchCard.vue'
+import { computed } from 'vue'
+import { groupMatches } from '../data/fixtures-2026'
+import { teamsById } from '../data/teams'
+import { useScoreDialog } from '../composables/use-score-dialog'
+import { useTournamentStore } from '../stores/tournament'
 
 const props = defineProps<{ groupId: GroupId }>()
 

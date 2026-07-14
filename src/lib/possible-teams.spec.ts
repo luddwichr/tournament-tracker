@@ -20,11 +20,11 @@
  *   Therefore only mex and kor can reach rank 1.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import type { ResultsMap, TeamRef } from '../types/tournament'
+import { allGroupResults, makeResult } from '../test-support/results'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { freePossibleTeamsMemory, possibleTeamsFor } from './possible-teams'
 import { knockoutMatches } from '../data/fixtures-2026'
-import { possibleTeamsFor, freePossibleTeamsMemory } from './possible-teams'
-import { makeResult, allGroupResults } from '../test-support/results'
 
 beforeEach(() => {
   freePossibleTeamsMemory()

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, useTemplateRef } from 'vue'
-import type { ResultsMap } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { useSettingsStore } from '../stores/settings'
+import { clearErrorLog, readErrorLog } from '../lib/error-log'
+import { computed, ref, useTemplateRef } from 'vue'
 import { exportJson, parseImport } from '../lib/persistence'
-import { readErrorLog, clearErrorLog } from '../lib/error-log'
-import { useResultsSync } from '../composables/use-results-sync'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import type { ResultsMap } from '../types/tournament'
 import SyncDialog from '../components/SyncDialog.vue'
 import ThemePicker from '../components/ThemePicker.vue'
+import { useResultsSync } from '../composables/use-results-sync'
+import { useSettingsStore } from '../stores/settings'
+import { useTournamentStore } from '../stores/tournament'
 
 const store = useTournamentStore()
 const settings = useSettingsStore()

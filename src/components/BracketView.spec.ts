@@ -1,17 +1,17 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { nextTick } from 'vue'
-import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import BracketView from './BracketView.vue'
-import BracketRound from './BracketRound.vue'
-import BracketConnectors from './BracketConnectors.vue'
 import OriginColumn, { type OriginGroupData } from './OriginColumn.vue'
-import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
-import type { MatchRow } from './BracketRound.vue'
-import { useTournamentStore } from '../stores/tournament'
 import { allGroupResults, makeResult } from '../test-support/results'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import BracketConnectors from './BracketConnectors.vue'
+import BracketRound from './BracketRound.vue'
+import BracketView from './BracketView.vue'
+import type { MatchRow } from './BracketRound.vue'
+import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { knockoutMatches } from '../data/fixtures-2026'
+import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
+import { useTournamentStore } from '../stores/tournament'
 
 beforeEach(() => {
   setActivePinia(createPinia())

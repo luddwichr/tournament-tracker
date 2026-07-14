@@ -8,9 +8,9 @@
 // a *different* pairing and must be discarded, not silently reinterpreted.
 
 import type { Result, ResultsMap, TeamRef } from '../types/tournament'
-import { knockoutMatches, fixturesById } from '../data/fixtures-2026'
-import { resolveTeamRef } from './knockout'
+import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { KNOCKOUT_STAGE_LABEL } from './team-schedule'
+import { resolveTeamRef } from './knockout'
 import { teamRefLabel } from './bracket-labels'
 
 /** Resolve a ref to a team id, or `null` when unresolved — `null` is a distinct value from any team id. */

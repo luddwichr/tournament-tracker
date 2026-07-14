@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
-import { defineComponent, provide, h } from 'vue'
+import { announceKey, useAnnounce } from './use-announce'
+import { defineComponent, h, provide } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { useAnnounce, announceKey } from './use-announce'
 
 describe('useAnnounce', () => {
   it('calls the injected announce function with the given message', () => {

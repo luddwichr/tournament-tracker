@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { defineComponent } from 'vue'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import { provideTeamViewer, useTeamViewer } from './use-team-viewer'
+import { defineComponent } from 'vue'
 import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 // ---------------------------------------------------------------------------
 // provideTeamViewer / useTeamViewer — inject/provide contract

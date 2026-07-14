@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
-import { useRegisterSW } from 'virtual:pwa-register/vue'
 import BaseDialog from './BaseDialog.vue'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
+import { useTemplateRef } from 'vue'
 
 const { needRefresh, updateServiceWorker } = useRegisterSW()
 

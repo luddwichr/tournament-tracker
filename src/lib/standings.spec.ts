@@ -7,11 +7,11 @@
  * actual production function, not a re-implemented copy.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { computeGroupStandings, resultFingerprint, clearStandingsCache, isGroupStageComplete } from './standings'
+import { allGroupResults, makeResult, resultsMap } from '../test-support/results'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { clearStandingsCache, computeGroupStandings, isGroupStageComplete, resultFingerprint } from './standings'
 import { groupMatches } from '../data/fixtures-2026'
 import { resultsWithout } from './invalidation'
-import { makeResult, resultsMap, allGroupResults } from '../test-support/results'
 
 // ---------------------------------------------------------------------------
 // Group A fixtures (real IDs from fixtures-2026.ts, chronological order)

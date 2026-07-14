@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { GROUP_IDS } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { rankThirdPlacedLive } from '../lib/third-place'
 import GroupTable from '../components/GroupTable.vue'
 import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
+import { computed } from 'vue'
+import { rankThirdPlacedLive } from '../lib/third-place'
+import { useTournamentStore } from '../stores/tournament'
 
 const store = useTournamentStore()
 

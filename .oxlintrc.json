@@ -16,6 +16,7 @@
     "unicorn/switch-case-braces": "error",
     "unicorn/no-null": "off",
     "unicorn/filename-case": ["error", { "cases": { "pascalCase": true, "kebabCase": true } }],
+    "sort-imports": "error",
     "sort-keys": "error"
   },
   "overrides": [

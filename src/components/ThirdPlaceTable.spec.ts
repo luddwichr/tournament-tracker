@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import ThirdPlaceTable from './ThirdPlaceTable.vue'
-import ThirdPlaceRow from './ThirdPlaceRow.vue'
+import { describe, expect, it } from 'vitest'
 import InfoDisclosure from './InfoDisclosure.vue'
-import { rankThirdPlacedLive } from '../lib/third-place'
+import ThirdPlaceRow from './ThirdPlaceRow.vue'
+import ThirdPlaceTable from './ThirdPlaceTable.vue'
 import { allGroupResults } from '../test-support/results'
+import { mount } from '@vue/test-utils'
+import { rankThirdPlacedLive } from '../lib/third-place'
 
 describe('ThirdPlaceTable', () => {
   it('renders 12 rows, one per group', () => {

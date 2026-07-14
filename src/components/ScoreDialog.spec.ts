@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import ScoreDialog from './ScoreDialog.vue'
-import ConfirmDialog from './ConfirmDialog.vue'
-import { useTournamentStore } from '../stores/tournament'
-import { makeTeam } from '../test-support/teams'
-import { makeMatch } from '../test-support/matches'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { allGroupResults, makeResult } from '../test-support/results'
-import { syncResults } from '../lib/results-sync'
+import { createPinia, setActivePinia } from 'pinia'
+import { flushPromises, mount } from '@vue/test-utils'
+import ConfirmDialog from './ConfirmDialog.vue'
 import type { MatchSlot } from '../types/tournament'
+import ScoreDialog from './ScoreDialog.vue'
+import { makeMatch } from '../test-support/matches'
+import { makeTeam } from '../test-support/teams'
+import { syncResults } from '../lib/results-sync'
+import { useTournamentStore } from '../stores/tournament'
 
 vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
 

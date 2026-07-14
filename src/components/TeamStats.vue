@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { TeamOverallStats } from '../lib/team-schedule'
 import CardIcon from './icons/CardIcon.vue'
+import type { TeamOverallStats } from '../lib/team-schedule'
 
 defineProps<{ stats: TeamOverallStats }>()
 </script>

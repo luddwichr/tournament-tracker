@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import ThemePicker from './ThemePicker.vue'
+import { mount } from '@vue/test-utils'
 
 describe('ThemePicker', () => {
   it('renders three theme options', () => {

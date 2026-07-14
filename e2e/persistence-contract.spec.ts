@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test'
-import { GroupsPage, ScoreDialog, STORAGE_KEY, clearResults, storedState } from './support'
+import { GroupsPage, STORAGE_KEY, ScoreDialog, clearResults, storedState } from './support'
+import { expect, test } from '@playwright/test'
 
 let groups: GroupsPage
 

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { extname, join } from 'node:path'
 import { readFileSync, readdirSync } from 'node:fs'
-import { join, extname } from 'node:path'
 
 // Regression guard for design-token drift: every `var(--xxx)` reference in the
 // app must resolve to a custom property actually defined in tokens.css.

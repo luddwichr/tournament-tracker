@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, useTemplateRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import AppNav from './AppNav.vue'
+import { useRoute } from 'vue-router'
 
 const isNavOpen = ref(false)
 const route = useRoute()

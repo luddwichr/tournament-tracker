@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
+import { describe, expect, it } from 'vitest'
 import MatchCard from './MatchCard.vue'
 import type { MatchSlot } from '../types/tournament'
-import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
+import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 function makeRow(id: string, overrides: Partial<MatchRow> = {}): MatchRow {
   return {

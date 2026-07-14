@@ -1,5 +1,3 @@
-import { test, expect } from '@playwright/test'
-import { readFile } from 'fs/promises'
 import {
   GroupsPage,
   STORAGE_KEY,
@@ -9,6 +7,8 @@ import {
   makeResult,
   seedResults,
 } from './support'
+import { expect, test } from '@playwright/test'
+import { readFile } from 'fs/promises'
 
 // M01: Mexiko vs Südafrika (Group A, 2026-06-11)
 const SEED_RESULT = makeResult('M01', 2, 1)

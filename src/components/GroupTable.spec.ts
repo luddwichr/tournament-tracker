@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import GroupTable from './GroupTable.vue'
-import MatchCard from './MatchCard.vue'
-import GroupStandingsTable from './GroupStandingsTable.vue'
-import { scoreDialogKey } from '../composables/use-score-dialog'
-import { groupMatches } from '../data/fixtures-2026'
 import { GROUP_IDS } from '../types/tournament'
 import type { GroupId } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
+import GroupStandingsTable from './GroupStandingsTable.vue'
+import GroupTable from './GroupTable.vue'
+import MatchCard from './MatchCard.vue'
+import { groupMatches } from '../data/fixtures-2026'
 import { makeResult } from '../test-support/results'
+import { mount } from '@vue/test-utils'
+import { scoreDialogKey } from '../composables/use-score-dialog'
+import { useTournamentStore } from '../stores/tournament'
 
 vi.mock('../data/fixtures-2026', async (importOriginal) => {
   const original = await importOriginal<typeof import('../data/fixtures-2026')>()

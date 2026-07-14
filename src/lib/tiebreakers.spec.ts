@@ -13,13 +13,13 @@
  *     M53: cze(h) vs mex(a)
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { ResultsMap } from '../types/tournament'
-import { groupMatches } from '../data/fixtures-2026'
-import { teamsInGroup } from '../data/teams'
-import { sortTeams } from './tiebreakers'
 import type { TiebreakerStat } from './tiebreakers'
+import { groupMatches } from '../data/fixtures-2026'
 import { makeResult } from '../test-support/results'
+import { sortTeams } from './tiebreakers'
+import { teamsInGroup } from '../data/teams'
 
 // ---------------------------------------------------------------------------
 // Helpers

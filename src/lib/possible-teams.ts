@@ -23,13 +23,13 @@
  * possible home and away teams (either could win or lose).
  */
 
-import type { Team, TeamRef, GroupId, Result, ResultsMap, ThirdPlaceSlot } from '../types/tournament'
-import { groupMatchesByGroup, fixturesById, THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
-import { teamsById, teamsInGroup } from '../data/teams'
+import type { GroupId, Result, ResultsMap, Team, TeamRef, ThirdPlaceSlot } from '../types/tournament'
+import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST, fixturesById, groupMatchesByGroup } from '../data/fixtures-2026'
 import { computeGroupStandings, resultFingerprint } from './standings'
+import { teamsById, teamsInGroup } from '../data/teams'
+import { assertNever } from './assert-never'
 import { resolveTeamRef } from './knockout'
 import { resolveThirdPlaceSlot } from './third-place'
-import { assertNever } from './assert-never'
 
 // ---------------------------------------------------------------------------
 // Adaptive score range — fewer remaining matches → wider range → more precise

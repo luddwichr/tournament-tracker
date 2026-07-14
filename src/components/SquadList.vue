@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Player } from '../types/tournament'
 import { POSITION_LABEL, sortBySquadPosition } from '../lib/squad'
+import type { Player } from '../types/tournament'
+import { computed } from 'vue'
 
 const props = defineProps<{ players: readonly Player[] }>()
 

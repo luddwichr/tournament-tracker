@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect } from '@playwright/test'
-import { ScoreDialog } from '../dialogs/score-dialog'
 import { PossibleTeamsDialog } from '../dialogs/possible-teams-dialog'
+import { ScoreDialog } from '../dialogs/score-dialog'
+import { expect } from '@playwright/test'
 
 /** The knockout-bracket view (`/knockout`). */
 export class KnockoutPage {

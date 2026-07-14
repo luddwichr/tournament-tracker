@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test'
 import { GroupsPage, expectNoA11yViolations } from './support'
+import { expect, test } from '@playwright/test'
 
 let groups: GroupsPage
 

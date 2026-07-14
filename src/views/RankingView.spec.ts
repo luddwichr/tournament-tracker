@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import RankingView from './RankingView.vue'
 import { fifaRanking } from '../data/fifa-ranking'
+import { mount } from '@vue/test-utils'
 import { teams } from '../data/teams'
 
 describe('RankingView', () => {

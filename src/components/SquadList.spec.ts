@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import SquadList from './SquadList.vue'
+import { describe, expect, it } from 'vitest'
 import type { Player } from '../types/tournament'
+import SquadList from './SquadList.vue'
+import { mount } from '@vue/test-utils'
 
 function makePlayer(overrides: Partial<Player> = {}): Player {
   return { name: 'Max Mustermann', number: 1, position: 'MF', ...overrides }

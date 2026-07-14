@@ -6,10 +6,10 @@
  * function against real match ids, not a re-implemented copy.
  */
 
-import { describe, it, expect } from 'vitest'
-import { matchesForTeam, computeTeamStats } from './team-schedule'
-import { teamsById } from '../data/teams'
+import { computeTeamStats, matchesForTeam } from './team-schedule'
+import { describe, expect, it } from 'vitest'
 import { makeResult, resultsMap } from '../test-support/results'
+import { teamsById } from '../data/teams'
 
 const ger = teamsById.get('ger')!
 

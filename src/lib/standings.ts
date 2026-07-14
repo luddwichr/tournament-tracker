@@ -1,8 +1,8 @@
 import type { GroupId, ResultsMap, Team } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
-import { teamsInGroup } from '../data/teams'
 import { groupMatchesByGroup } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
+import { teamsInGroup } from '../data/teams'
 
 export function isGroupComplete(groupId: GroupId, results: ResultsMap): boolean {
   return (groupMatchesByGroup.get(groupId) ?? []).every((m) => results[m.id] != null)

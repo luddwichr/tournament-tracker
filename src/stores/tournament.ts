@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
 import type { GroupId, Result, ResultsMap } from '../types/tournament'
-import { GROUP_IDS } from '../types/tournament'
 import { STORAGE_KEY, isValidResultsMap } from '../lib/persistence'
-import { freePossibleTeamsMemory } from '../lib/possible-teams'
-import { computeGroupStandings, clearStandingsCache, type TeamStat } from '../lib/standings'
+import { type TeamStat, clearStandingsCache, computeGroupStandings } from '../lib/standings'
+import { computed, ref } from 'vue'
 import { invalidatedDownstream, resultsWithout } from '../lib/invalidation'
+import { GROUP_IDS } from '../types/tournament'
+import { defineStore } from 'pinia'
+import { freePossibleTeamsMemory } from '../lib/possible-teams'
 
 export const useTournamentStore = defineStore(
   'tournament',

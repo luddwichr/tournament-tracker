@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import CardIcon from './icons/CardIcon.vue'
 import MatchCard from './MatchCard.vue'
 import MatchCardMeta from './MatchCardMeta.vue'
-import MatchTeamSlot from './MatchTeamSlot.vue'
 import MatchScoreButton from './MatchScoreButton.vue'
-import CardIcon from './icons/CardIcon.vue'
+import MatchTeamSlot from './MatchTeamSlot.vue'
 import type { Result } from '../types/tournament'
-import { makeTeam } from '../test-support/teams'
 import { makeMatch } from '../test-support/matches'
+import { makeTeam } from '../test-support/teams'
+import { mount } from '@vue/test-utils'
 
 const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })

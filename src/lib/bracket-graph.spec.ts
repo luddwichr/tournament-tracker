@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { nextMatchMap, prevMatchMap, teamRefToMatchId, matchToRefKeys } from './bracket-graph'
+import { describe, expect, it } from 'vitest'
+import { matchToRefKeys, nextMatchMap, prevMatchMap, teamRefToMatchId } from './bracket-graph'
 
 describe('nextMatchMap', () => {
   it('maps R32 winners to their R16 match', () => {

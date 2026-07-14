@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useTournamentStore } from './stores/tournament'
+import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
 import { isGroupStageComplete } from './lib/standings'
+import { useTournamentStore } from './stores/tournament'
 
 const APP_NAME = 'WM 2026 Tracker'
 

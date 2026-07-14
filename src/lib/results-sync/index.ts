@@ -1,11 +1,11 @@
 // Provider-agnostic glue: maps a provider's `SourceMatch[]` onto match-slot ids.
 // Swapping the source means changing `defaultProvider`, nothing else.
 
+import type { FetchResultsOptions, ResultsProvider, SourceMatch } from './provider'
 import type { Result, ResultsMap } from '../../types/tournament'
+import { espnProvider } from './providers/espn'
 import { fixtures } from '../../data/fixtures-2026'
 import { resolveTeamRef } from '../knockout'
-import type { FetchResultsOptions, ResultsProvider, SourceMatch } from './provider'
-import { espnProvider } from './providers/espn'
 
 export type { ResultsProvider, SourceMatch, FetchResultsOptions } from './provider'
 

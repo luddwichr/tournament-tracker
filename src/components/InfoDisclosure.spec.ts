@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import InfoDisclosure from './InfoDisclosure.vue'
+import { mount } from '@vue/test-utils'
 
 describe('InfoDisclosure', () => {
   it('renders the summary text', () => {

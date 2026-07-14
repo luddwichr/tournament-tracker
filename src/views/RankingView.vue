@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { fifaRanking } from '../data/fifa-ranking'
-import { teams } from '../data/teams'
 import type { Team } from '../types/tournament'
 import TeamFlag from '../components/TeamFlag.vue'
 import TeamLabel from '../components/TeamLabel.vue'
+import { fifaRanking } from '../data/fifa-ranking'
+import { teams } from '../data/teams'
 
 // World Cup participation is owned by teams.ts; we match a ranking row to its
 // Team by flag code so the highlight (and the team dialog link) stay in sync

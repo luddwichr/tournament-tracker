@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
 import App from './App.vue'
+import { makeMatch } from './test-support/matches'
+import { makeTeam } from './test-support/teams'
+import { useScoreDialog } from './composables/use-score-dialog'
 import { useSettingsStore } from './stores/settings'
 import { useTeamViewer } from './composables/use-team-viewer'
-import { useScoreDialog } from './composables/use-score-dialog'
-import { makeTeam } from './test-support/teams'
-import { makeMatch } from './test-support/matches'
 
 const team = makeTeam({ fifaRanking: 14, flagCode: 'de', id: 'ger', name: 'Deutschland' })
 

@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test'
 import { KnockoutPage, allGroupResults, clearResultsOnLoad, expectNoA11yViolations, seedResultsOnLoad } from './support'
+import { expect, test } from '@playwright/test'
 
 const { R32, R16 } = KnockoutPage
 

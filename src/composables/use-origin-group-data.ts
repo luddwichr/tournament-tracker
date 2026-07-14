@@ -1,9 +1,9 @@
-import { computed, type ComputedRef } from 'vue'
+import { type ComputedRef, computed } from 'vue'
 import type { GroupId, ThirdPlaceSlot } from '../types/tournament'
+import type { OriginGroupData, OriginTeamRow } from '../components/OriginColumn.vue'
+import { buildGroupToThirdPlaceSlotMap, rankThirdPlaced } from '../lib/third-place'
 import { GROUP_IDS } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
-import { rankThirdPlaced, buildGroupToThirdPlaceSlotMap } from '../lib/third-place'
-import type { OriginGroupData, OriginTeamRow } from '../components/OriginColumn.vue'
 
 /**
  * Build the `OriginColumn` `groupData` prop from the store's shared

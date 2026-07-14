@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GroupId, Team } from '../types/tournament'
-import TeamFlag from './TeamFlag.vue'
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
+import TeamFlag from './TeamFlag.vue'
 
 export interface OriginTeamRow {
   team: Team

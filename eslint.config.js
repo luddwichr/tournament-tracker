@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url'
 import eslint from '@eslint/js'
+import { fileURLToPath } from 'node:url'
+import globals from 'globals'
 import { includeIgnoreFile } from 'eslint/config'
+import oxlint from 'eslint-plugin-oxlint'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVueA11y from 'eslint-plugin-vuejs-accessibility'
-import oxlint from 'eslint-plugin-oxlint'
 import tseslint from 'typescript-eslint'
-import globals from 'globals'
 
 const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
 

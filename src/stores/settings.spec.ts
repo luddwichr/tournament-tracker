@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { createApp, nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { createApp, nextTick } from 'vue'
 import { useSettingsStore } from './settings'
 
 // Pinia only activates plugins queued via `pinia.use(...)` once the pinia

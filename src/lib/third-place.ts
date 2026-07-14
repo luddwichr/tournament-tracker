@@ -9,11 +9,11 @@
  * table (THIRD_PLACE_ALLOCATION in fixtures-2026.ts).
  */
 
-import type { GroupId, ResultsMap, Team, ThirdPlaceSlot } from '../types/tournament'
 import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
+import type { GroupId, ResultsMap, Team, ThirdPlaceSlot } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
-import type { TeamStat } from './standings'
 import { computeGroupStandings, isGroupStageComplete } from './standings'
+import type { TeamStat } from './standings'
 import { compareByPointsGdGf } from './tiebreakers'
 
 // 0-indexed position of the third-placed team in sorted group standings.

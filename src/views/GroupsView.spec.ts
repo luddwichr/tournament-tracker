@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import GroupsView from './GroupsView.vue'
-import GroupTable from '../components/GroupTable.vue'
-import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
 import { GROUP_IDS } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
-import { rankThirdPlacedLive } from '../lib/third-place'
+import GroupTable from '../components/GroupTable.vue'
+import GroupsView from './GroupsView.vue'
+import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
 import { allGroupResults } from '../test-support/results'
+import { mount } from '@vue/test-utils'
+import { rankThirdPlacedLive } from '../lib/third-place'
+import { useTournamentStore } from '../stores/tournament'
 
 beforeEach(() => {
   setActivePinia(createPinia())

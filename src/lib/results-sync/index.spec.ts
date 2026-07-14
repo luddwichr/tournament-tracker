@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
-import { buildResultsFromSource, syncResults, defaultProvider } from './index'
 import type { ResultsProvider, SourceMatch } from './provider'
+import { buildResultsFromSource, defaultProvider, syncResults } from './index'
+import { describe, expect, it, vi } from 'vitest'
 import { fixtures, groupMatches } from '../../data/fixtures-2026'
 import { resolveTeamRef } from '../knockout'
 

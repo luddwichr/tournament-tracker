@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, useId, useTemplateRef } from 'vue'
+import { computeTeamStats, matchesForTeam } from '../lib/team-schedule'
+import { computed, ref, useId, useTemplateRef } from 'vue'
+import BaseDialog from './BaseDialog.vue'
+import ScheduleIcon from './icons/ScheduleIcon.vue'
+import SquadList from './SquadList.vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
-import SquadList from './SquadList.vue'
-import TeamStats from './TeamStats.vue'
-import TeamSchedule from './TeamSchedule.vue'
-import BaseDialog from './BaseDialog.vue'
 import TeamIcon from './icons/TeamIcon.vue'
-import ScheduleIcon from './icons/ScheduleIcon.vue'
-import { useTournamentStore } from '../stores/tournament'
-import { matchesForTeam, computeTeamStats } from '../lib/team-schedule'
+import TeamSchedule from './TeamSchedule.vue'
+import TeamStats from './TeamStats.vue'
 import { squadFor } from '../data/squads'
+import { useTournamentStore } from '../stores/tournament'
 
 const props = defineProps<{
   team: Team

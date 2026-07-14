@@ -1,9 +1,9 @@
-import { ref, computed } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
-import { useTournamentStore } from '../stores/tournament'
+import { computed, ref } from 'vue'
+import { possibleTeamsFor } from '../lib/possible-teams'
 import { resolveTeamRef } from '../lib/knockout'
 import { teamRefLabel } from '../lib/bracket-labels'
-import { possibleTeamsFor } from '../lib/possible-teams'
+import { useTournamentStore } from '../stores/tournament'
 
 export function usePossibleTeamsDialog() {
   const store = useTournamentStore()

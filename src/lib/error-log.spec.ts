@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ERROR_LOG_KEY, ERROR_LOG_MAX_ENTRIES, logError, readErrorLog, clearErrorLog } from './error-log'
+import { ERROR_LOG_KEY, ERROR_LOG_MAX_ENTRIES, clearErrorLog, logError, readErrorLog } from './error-log'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 beforeEach(() => {
   localStorage.clear()

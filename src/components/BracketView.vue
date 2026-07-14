@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef } from 'vue'
-import type { MatchSlot } from '../types/tournament'
-import { knockoutMatches } from '../data/fixtures-2026'
-import { useTournamentStore } from '../stores/tournament'
-import { currentBracketColumn, resolveTeamRef, type BracketColumnStage } from '../lib/knockout'
-import { teamRefLabel } from '../lib/bracket-labels'
+import { type BracketColumnStage, currentBracketColumn, resolveTeamRef } from '../lib/knockout'
 import BracketRound, { type MatchRow } from './BracketRound.vue'
+import { computed, onMounted, useTemplateRef } from 'vue'
 import BracketConnectors from './BracketConnectors.vue'
+import type { MatchSlot } from '../types/tournament'
 import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
-import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
+import { knockoutMatches } from '../data/fixtures-2026'
+import { teamRefLabel } from '../lib/bracket-labels'
 import { useBracketHighlight } from '../composables/use-bracket-highlight'
 import { useOriginGroupData } from '../composables/use-origin-group-data'
+import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
+import { useTournamentStore } from '../stores/tournament'
 
 const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { MatchSlot, Team, Result } from '../types/tournament'
-import MatchCardMeta from './MatchCardMeta.vue'
-import MatchTeamSlot from './MatchTeamSlot.vue'
-import MatchScoreButton from './MatchScoreButton.vue'
+import type { MatchSlot, Result, Team } from '../types/tournament'
 import CardIcon from './icons/CardIcon.vue'
+import MatchCardMeta from './MatchCardMeta.vue'
+import MatchScoreButton from './MatchScoreButton.vue'
+import MatchTeamSlot from './MatchTeamSlot.vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   match: MatchSlot

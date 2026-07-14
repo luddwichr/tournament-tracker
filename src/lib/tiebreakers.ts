@@ -18,7 +18,7 @@
  * standings.ts). See docs/tournament-rules.md for the regulatory source.
  */
 
-import type { Team, GroupMatchSlot, ResultsMap } from '../types/tournament'
+import type { GroupMatchSlot, ResultsMap, Team } from '../types/tournament'
 
 /** Minimum stat shape required by sortTeams. Covers all tiebreaker criteria. */
 export interface TiebreakerStat {

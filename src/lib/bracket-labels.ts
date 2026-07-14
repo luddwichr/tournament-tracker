@@ -1,6 +1,6 @@
 import type { TeamRef } from '../types/tournament'
-import { teamsById } from '../data/teams'
 import { assertNever } from './assert-never'
+import { teamsById } from '../data/teams'
 
 /** Extract the display number from a match id (e.g. `'M73'` → `'73'`). */
 function matchNumber(matchId: string): string {
