@@ -20,7 +20,7 @@ const { status, count } = defineProps<{
   count: number
 }>()
 
-const emit = defineEmits<{ confirm: []; cancel: []; retry: [] }>()
+const emit = defineEmits<{ confirm: []; close: []; retry: [] }>()
 
 const baseDialog = useTemplateRef<InstanceType<typeof BaseDialog>>('baseDialog')
 const descId = useId()
@@ -42,7 +42,7 @@ const statusMessage = computed(() => {
   return ''
 })
 
-/** Trigger the native close, which surfaces as `@close` → `cancel`. */
+/** Trigger the native close, which surfaces as the `close` event. */
 function close(): void {
   baseDialog.value?.close()
 }
@@ -55,7 +55,7 @@ function close(): void {
     :aria-describedby="descId"
     max-width="var(--dialog-width-sm)"
     :show-close-button="false"
-    @close="emit('cancel')"
+    @close="emit('close')"
   >
     <div :id="descId" class="sync-dialog__body">
       <p v-if="status === 'confirm'">

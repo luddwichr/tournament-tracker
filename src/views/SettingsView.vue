@@ -181,7 +181,7 @@ function formatErrorTime(isoTime: string): string {
     :count="syncCount"
     @confirm="runSync"
     @retry="runSync"
-    @cancel="cancelSync"
+    @close="cancelSync"
   />
 </template>
 
