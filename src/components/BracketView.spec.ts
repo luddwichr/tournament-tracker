@@ -9,8 +9,11 @@ import BracketView from './BracketView.vue'
 import type { MatchRow } from './BracketRound.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { knockoutMatches } from '../data/fixtures-2026'
+import { makeMatch } from '../test-support/matches'
+import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { scoreDialogKey } from '../composables/use-score-dialog'
 import { useTournamentStore } from '../stores/tournament'
 
 beforeEach(() => {
@@ -80,14 +83,48 @@ describe('BracketView – round match counts', () => {
   })
 })
 
-describe('BracketView – matchClick forwarding', () => {
-  it('re-emits matchClick when a BracketRound emits it', async () => {
-    const wrapper = mount(BracketView, { attachTo: document.body })
+function mountWithOpener(openScoreDialog = vi.fn()) {
+  const wrapper = mount(BracketView, {
+    attachTo: document.body,
+    global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
+  })
+  return { openScoreDialog, wrapper }
+}
+
+describe('BracketView – score dialog', () => {
+  const homeTeam = makeTeam({ id: 'mex', name: 'Mexiko' })
+  const awayTeam = makeTeam({ id: 'usa', name: 'USA' })
+
+  function row(overrides: Partial<MatchRow>): MatchRow {
+    const match = makeMatch({ stage: 'r32' })
+    return {
+      awayPlaceholder: 'B2',
+      awayTeam,
+      homePlaceholder: 'A1',
+      homeTeam,
+      match,
+      result: null,
+      ...overrides,
+    }
+  }
+
+  it('opens the score dialog with the row’s already-resolved teams', () => {
+    const { wrapper, openScoreDialog } = mountWithOpener()
     const firstRound = wrapper.findAllComponents(BracketRound)[0]!
-    const match = (firstRound.props('matches') as Array<{ match: unknown }>)[0]!.match
-    await firstRound.vm.$emit('matchClick', match)
-    expect(wrapper.emitted('matchClick')).toHaveLength(1)
-    expect((wrapper.emitted('matchClick')![0] as unknown[])[0]).toBe(match)
+    const r = row({})
+    firstRound.vm.$emit('matchClick', r)
+    expect(openScoreDialog).toHaveBeenCalledOnce()
+    const [match, home, away] = openScoreDialog.mock.calls[0]!
+    expect(match).toBe(r.match)
+    expect(home).toBe(homeTeam)
+    expect(away).toBe(awayTeam)
+  })
+
+  it('does not open the dialog when a team slot is still unresolved', () => {
+    const { wrapper, openScoreDialog } = mountWithOpener()
+    const firstRound = wrapper.findAllComponents(BracketRound)[0]!
+    firstRound.vm.$emit('matchClick', row({ awayTeam: null }))
+    expect(openScoreDialog).not.toHaveBeenCalled()
   })
 })
 

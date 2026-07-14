@@ -11,11 +11,18 @@ import { teamRefLabel } from '../lib/bracket-labels'
 import { useBracketHighlight } from '../composables/use-bracket-highlight'
 import { useOriginGroupData } from '../composables/use-origin-group-data'
 import { usePossibleTeamsDialog } from '../composables/use-possible-teams-dialog'
+import { useScoreDialog } from '../composables/use-score-dialog'
 import { useTournamentStore } from '../stores/tournament'
 
-const emit = defineEmits<{ matchClick: [match: MatchSlot] }>()
-
 const store = useTournamentStore()
+const openScoreDialog = useScoreDialog()
+
+// The row already carries both teams resolved by `toRow`, so opening the
+// dialog needs no second `resolveTeamRef` pass. A slot only stays null while
+// its feeder match is unplayed — the dialog can't open on those.
+function selectMatch(row: MatchRow): void {
+  if (row.homeTeam && row.awayTeam) openScoreDialog(row.match, row.homeTeam, row.awayTeam)
+}
 
 function toRow(match: MatchSlot, sectionLabel?: string): MatchRow {
   const base = {
@@ -118,7 +125,7 @@ onMounted(() => {
         :matches="round.matches"
         :highlighted-match-ids="highlightedMatchIds"
         :pinned-match-id="pinnedMatchId"
-        @match-click="emit('matchClick', $event)"
+        @match-click="selectMatch"
         @match-hover="onMatchHover"
         @match-hover-end="onMatchHoverEnd"
         @toggle-highlight="toggleMatchPin"
