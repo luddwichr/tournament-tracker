@@ -89,47 +89,54 @@ export function useMatchResultForm(
     return [intro, ...lines].join('\n')
   })
 
-  function commitSave(close: () => void): void {
+  function commitSave(): void {
     store.enterResult(buildResult())
     announce(`Ergebnis gespeichert: ${scoreText()}`)
-    close()
   }
 
-  function commitClear(close: () => void): void {
+  function commitClear(): void {
     store.clearResult(toValue(match).id)
     announce('Ergebnis gelöscht')
-    close()
   }
 
-  function save(close: () => void): void {
-    if (saveError.value) return
+  /** Writes the result, or holds it behind a confirm when it would invalidate
+   * later matches. Returns true once the write happened so the caller can close
+   * the dialog; false while the form is blocked or a confirmation is pending. */
+  function save(): boolean {
+    if (saveError.value) return false
     // Computed before the store write (the store recomputes the same thing
     // internally) — state hasn't changed in between, so the results are
     // identical either way.
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, buildResult())
     if (invalidated.length > 0) {
       pendingAction.value = { invalidatedIds: invalidated, kind: 'save' }
-      return
+      return false
     }
-    commitSave(close)
+    commitSave()
+    return true
   }
 
-  function clear(close: () => void): void {
+  /** Clears the result, or holds it behind a confirm when it would invalidate
+   * later matches. Returns true once the clear happened (see `save`). */
+  function clear(): boolean {
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, null)
     if (invalidated.length > 0) {
       pendingAction.value = { invalidatedIds: invalidated, kind: 'clear' }
-      return
+      return false
     }
-    commitClear(close)
+    commitClear()
+    return true
   }
 
-  /** Runs the held-back save/clear after the user confirms discarding the downstream results. */
-  function confirmPending(close: () => void): void {
+  /** Runs the held-back save/clear after the user confirms discarding the
+   * downstream results. Returns true when it committed so the caller can close. */
+  function confirmPending(): boolean {
     const action = pendingAction.value
     pendingAction.value = null
-    if (!action) return
-    if (action.kind === 'save') commitSave(close)
-    else commitClear(close)
+    if (!action) return false
+    if (action.kind === 'save') commitSave()
+    else commitClear()
+    return true
   }
 
   function cancelPending(): void {

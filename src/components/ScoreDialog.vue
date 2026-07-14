@@ -49,7 +49,15 @@ function onSave(): void {
     attemptedSave.value = true
     return
   }
-  save(close)
+  if (save()) close()
+}
+
+function onClear(): void {
+  if (clear()) close()
+}
+
+function onConfirmPending(): void {
+  if (confirmPending()) close()
 }
 
 const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.now())
@@ -112,7 +120,7 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
     </div>
 
     <template #footer>
-      <button v-if="initial" type="button" class="btn btn--danger score-dialog__delete" @click="clear(close)">
+      <button v-if="initial" type="button" class="btn btn--danger score-dialog__delete" @click="onClear">
         <span class="score-dialog__btn-symbol" aria-hidden="true">🗑</span> Löschen
       </button>
       <div class="score-dialog__footer-actions">
@@ -131,7 +139,7 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
     title="Spätere Spiele betroffen"
     :message="pendingMessage"
     :confirm-label="pendingAction.kind === 'save' ? 'Trotzdem speichern' : 'Trotzdem löschen'"
-    @confirm="confirmPending(close)"
+    @confirm="onConfirmPending"
     @cancel="cancelPending"
   />
 </template>
