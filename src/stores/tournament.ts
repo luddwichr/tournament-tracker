@@ -46,39 +46,50 @@ export const useTournamentStore = defineStore(
       clearStandingsCache()
     }
 
-    return { clearResult, enterResult, importResults, reset, results, standingsByGroup }
+    /**
+     * Run once after the persistence plugin rehydrates state (from the
+     * `afterHydrate` hook below). Validates the rehydrated results and performs
+     * the one-shot v1 → v2 migration; returns true when legacy data was adopted
+     * so the hook can persist it under the new key. Lives here, in the setup,
+     * so it works against the store's own typed state and actions instead of
+     * casting the loosely-typed plugin `context.store`.
+     *
+     * `pinia-plugin-persistedstate`'s automatic rehydration bypasses
+     * `parseImport`'s validation entirely — it just JSON.parses whatever is in
+     * localStorage and `$patch`es it straight into state. A corrupted entry
+     * (manual devtools editing, a buggy extension, a stale schema from a
+     * previous version) would otherwise flow into `computeGroupStandings` and
+     * friends unvalidated (e.g. a string where a number was expected silently
+     * does `'2' + 3` string concatenation instead of numeric addition), so
+     * invalid state falls back to a safe empty state via the same `reset()`.
+     */
+    function hydrate(): boolean {
+      if (!isValidResultsMap(results.value)) reset()
+
+      // One-shot v1 → v2 migration (see persistence.ts): adopt results
+      // persisted under the old key when the new key has none yet; the hook
+      // persists them under the new key and only then is the old entry dropped
+      // — so a failure in between never loses the data.
+      const legacy = readLegacyResults()
+      let adopted = false
+      if (legacy && Object.keys(results.value).length === 0) {
+        importResults(legacy)
+        adopted = true
+      }
+      clearLegacyResults()
+      return adopted
+    }
+
+    return { clearResult, enterResult, hydrate, importResults, reset, results, standingsByGroup }
   },
   {
     persist: {
-      // `pinia-plugin-persistedstate`'s automatic rehydration on app load
-      // bypasses `parseImport`'s validation entirely — it just JSON.parses
-      // whatever is in localStorage and `$patch`es it straight into state. A
-      // corrupted entry (manual devtools editing, a buggy extension, a stale
-      // schema from a previous version) would otherwise flow into
-      // `computeGroupStandings` and friends unvalidated (e.g. a string where a
-      // number was expected silently does `'2' + 3` string concatenation
-      // instead of numeric addition). Validate post-hydration state the same
-      // way file import is validated, and fall back to a safe empty state —
-      // via the same `reset()` used elsewhere — instead of propagating garbage.
-      afterHydrate: (context) => {
-        const store = context.store as unknown as {
-          results: ResultsMap
-          reset: () => void
-          importResults: (results: ResultsMap) => void
+      afterHydrate: ({ store }) => {
+        // Only this one action needs a typed shape — everything else it touches
+        // lives inside `hydrate` against the store's real types.
+        if ((store as unknown as { hydrate: () => boolean }).hydrate()) {
+          store.$persist()
         }
-        if (!isValidResultsMap(store.results)) {
-          store.reset()
-        }
-        // One-shot v1 → v2 migration (see persistence.ts): adopt results
-        // persisted under the old key when the new key has none yet, persist
-        // them under the new key, and only then drop the old entry — so a
-        // failure in between never loses the data.
-        const legacy = readLegacyResults()
-        if (legacy && Object.keys(store.results).length === 0) {
-          store.importResults(legacy)
-          context.store.$persist()
-        }
-        clearLegacyResults()
       },
       key: STORAGE_KEY,
     },
