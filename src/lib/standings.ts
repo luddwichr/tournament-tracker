@@ -1,5 +1,6 @@
 import type { GroupId, ResultsMap, Team } from '../types/tournament'
 import { GROUP_IDS } from '../types/tournament'
+import { boundedCache } from './bounded-cache'
 import { groupMatchesByGroup } from '../data/fixtures-2026'
 import { sortTeams } from './tiebreakers'
 import { teamsInGroup } from '../data/teams'
@@ -58,8 +59,7 @@ export function resultFingerprint(groupId: GroupId, results: ResultsMap): string
 // bracket TeamRef resolution each call computeGroupStandings independently.
 // ---------------------------------------------------------------------------
 
-const MAX_CACHE_SIZE = 200
-const standingsCache = new Map<string, TeamStat[]>()
+const standingsCache = boundedCache<string, TeamStat[]>(200)
 
 /** Clear the memoization cache — call after resetting or importing results. */
 export function clearStandingsCache(): void {
@@ -77,12 +77,6 @@ export function computeGroupStandings(groupId: GroupId, results: ResultsMap): Te
   if (cached) return cached
 
   const computed = computeGroupStandingsUncached(groupId, results)
-  if (standingsCache.size >= MAX_CACHE_SIZE) {
-    // FIFO eviction: a `Map` preserves insertion order, so the first key is
-    // the oldest entry — drop only that one instead of clearing everything.
-    const oldestKey = standingsCache.keys().next().value
-    if (oldestKey !== undefined) standingsCache.delete(oldestKey)
-  }
   standingsCache.set(cacheKey, computed)
   return computed
 }

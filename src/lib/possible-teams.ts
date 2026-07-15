@@ -28,6 +28,7 @@ import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST, fixturesById, groupMatch
 import { computeGroupStandings, resultFingerprint } from './standings'
 import { teamsById, teamsInGroup } from '../data/teams'
 import { assertNever } from './assert-never'
+import { boundedCache } from './bounded-cache'
 import { resolveTeamRef } from './knockout'
 import { resolveThirdPlaceSlot } from './third-place'
 
@@ -67,8 +68,7 @@ function cappedMaxGoalsPerSide(remainingCount: number, gdSpread: number): number
 // Memoization — keyed by (group, rank, result fingerprint)
 // ---------------------------------------------------------------------------
 
-const MAX_CACHE_SIZE = 500
-const cache = new Map<string, Set<string>>()
+const cache = boundedCache<string, Set<string>>(500)
 
 /**
  * Free the memoization cache's memory — called after resetting or importing
@@ -152,12 +152,6 @@ function possibleGroupRankTeamIds(group: GroupId, rank: 1 | 2 | 3, results: Resu
     enumerate(0)
   }
 
-  if (cache.size >= MAX_CACHE_SIZE) {
-    // FIFO eviction: a `Map` preserves insertion order, so the first key is
-    // the oldest entry — drop only that one instead of clearing everything.
-    const oldestKey = cache.keys().next().value
-    if (oldestKey !== undefined) cache.delete(oldestKey)
-  }
   cache.set(cacheKey, possible)
   return possible
 }
