@@ -153,7 +153,9 @@ export function isValidResultsMap(value: unknown): value is ResultsMap {
 }
 
 function isNonNegativeInteger(n: number): boolean {
-  return Number.isFinite(n) && Number.isInteger(n) && n >= 0
+  // `Number.isInteger` already rejects NaN and ±Infinity, so no separate
+  // `Number.isFinite` check is needed.
+  return Number.isInteger(n) && n >= 0
 }
 
 function isValidResult(value: unknown): value is Result {
