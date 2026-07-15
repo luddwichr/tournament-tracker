@@ -231,15 +231,17 @@ function possibleTeamIdsFor(ref: TeamRef, results: ResultsMap): Set<string> {
 // ---------------------------------------------------------------------------
 
 /**
- * Return the set of teams that could still fill `ref` given `results`.
- * Returns an empty set only for unresolvable refs (bad match id, etc.).
+ * Return the teams that could still fill `ref` given `results`. Already
+ * deduplicated (by team id, inside `possibleTeamIdsFor`), so a plain array
+ * suffices — the only caller spreads it straight into a list. Returns an empty
+ * array only for unresolvable refs (bad match id, etc.).
  */
-export function possibleTeamsFor(ref: TeamRef, results: ResultsMap): Set<Team> {
+export function possibleTeamsFor(ref: TeamRef, results: ResultsMap): readonly Team[] {
   const ids = possibleTeamIdsFor(ref, results)
-  const teams = new Set<Team>()
+  const teams: Team[] = []
   for (const id of ids) {
     const team = teamsById.get(id)
-    if (team) teams.add(team)
+    if (team) teams.push(team)
   }
   return teams
 }
