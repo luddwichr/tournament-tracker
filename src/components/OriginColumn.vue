@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { GroupId, Team } from '../types/tournament'
 import MatchLinkIcon from './icons/MatchLinkIcon.vue'
+import type { RefKey } from '../lib/bracket-graph'
 import TeamFlag from './TeamFlag.vue'
 
 export interface OriginTeamRow {
   team: Team
   rank: number
-  refKey: string | null
+  refKey: RefKey | null
   eliminated: boolean
 }
 

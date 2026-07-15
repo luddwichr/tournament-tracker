@@ -1,6 +1,7 @@
 import { type ComputedRef, computed } from 'vue'
 import type { GroupId, ThirdPlaceSlot } from '../types/tournament'
 import type { OriginGroupData, OriginTeamRow } from '../components/OriginColumn.vue'
+import { type RefKey, refKeyFor } from '../lib/bracket-graph'
 import { buildGroupToThirdPlaceSlotMap, rankThirdPlaced } from '../lib/third-place'
 import { GROUP_IDS } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
@@ -33,10 +34,9 @@ export function useOriginGroupData(): ComputedRef<OriginGroupData[]> {
 
       const teams: OriginTeamRow[] = standings.slice(0, 3).map((stat, i) => {
         const rank = i + 1
-        let refKey: string | null
-        if (rank === 1) refKey = `groupRank:${id}:1`
-        else if (rank === 2) refKey = `groupRank:${id}:2`
-        else refKey = r3Slot != null ? `thirdPlace:${r3Slot}` : null
+        let refKey: RefKey | null
+        if (rank === 1 || rank === 2) refKey = refKeyFor({ group: id, kind: 'groupRank', rank })
+        else refKey = r3Slot != null ? refKeyFor({ kind: 'thirdPlace', slot: r3Slot }) : null
 
         return {
           eliminated: rank === 3 && allGroupsComplete.value && r3Slot == null,
