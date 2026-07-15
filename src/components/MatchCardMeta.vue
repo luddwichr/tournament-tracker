@@ -49,6 +49,9 @@ const formatted = computed(() => kickoffFmt.format(new Date(kickoff)))
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  /* min-height keeps the toggle at the 44px tap target (WCAG 2.2 SC 2.5.8);
+     the xs <time> alone would leave it around 20px. */
+  min-height: var(--tap-target);
   padding: var(--space-1) var(--space-1) var(--space-1) 0;
   background: none;
   border: none;
