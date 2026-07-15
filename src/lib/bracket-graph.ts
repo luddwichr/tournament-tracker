@@ -20,30 +20,35 @@ export function refKeyFor(ref: TeamRef): RefKey | null {
   return null
 }
 
-export const nextMatchMap = (() => {
-  const map = new Map<string, string[]>()
-  for (const match of knockoutMatches) {
-    if (match.homeRef.kind === 'matchWinner' || match.homeRef.kind === 'matchLoser') {
-      const ids = map.get(match.homeRef.matchId) ?? []
-      ids.push(match.id)
-      map.set(match.homeRef.matchId, ids)
-    }
-    if (match.awayRef.kind === 'matchWinner' || match.awayRef.kind === 'matchLoser') {
-      const ids = map.get(match.awayRef.matchId) ?? []
-      ids.push(match.id)
-      map.set(match.awayRef.matchId, ids)
-    }
-  }
-  return map
-})()
+/** The match a ref feeds from — its winner or loser — or null when the ref is
+ * not a match outcome (group rank / third place / concrete team). */
+function feederMatchId(ref: TeamRef): string | null {
+  return ref.kind === 'matchWinner' || ref.kind === 'matchLoser' ? ref.matchId : null
+}
 
+// Each knockout match → the up-to-two earlier matches that feed it.
 export const prevMatchMap = (() => {
   const map = new Map<string, string[]>()
   for (const match of knockoutMatches) {
     const sources: string[] = []
-    if (match.homeRef.kind === 'matchWinner' || match.homeRef.kind === 'matchLoser') sources.push(match.homeRef.matchId)
-    if (match.awayRef.kind === 'matchWinner' || match.awayRef.kind === 'matchLoser') sources.push(match.awayRef.matchId)
+    for (const ref of [match.homeRef, match.awayRef]) {
+      const feeder = feederMatchId(ref)
+      if (feeder !== null) sources.push(feeder)
+    }
     if (sources.length > 0) map.set(match.id, sources)
+  }
+  return map
+})()
+
+// The exact inverse of prevMatchMap: each match → the later match(es) it feeds.
+export const nextMatchMap = (() => {
+  const map = new Map<string, string[]>()
+  for (const [matchId, feeders] of prevMatchMap) {
+    for (const feeder of feeders) {
+      const ids = map.get(feeder) ?? []
+      ids.push(matchId)
+      map.set(feeder, ids)
+    }
   }
   return map
 })()
