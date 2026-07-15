@@ -95,6 +95,8 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
         v-model:home-red="cards.homeRed"
         v-model:away-yellow="cards.awayYellow"
         v-model:away-red="cards.awayRed"
+        :home-team="homeTeam"
+        :away-team="awayTeam"
       />
 
       <template v-if="isPastKickoff">

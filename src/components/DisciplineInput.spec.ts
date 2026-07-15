@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import DisciplineInput from './DisciplineInput.vue'
+import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
 
-function mountDisciplineInput(props = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }) {
-  return mount(DisciplineInput, { props })
+const homeTeam = makeTeam({ name: 'Deutschland' })
+const awayTeam = makeTeam({ name: 'Frankreich' })
+
+function mountDisciplineInput(models = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }) {
+  return mount(DisciplineInput, { props: { ...models, awayTeam, homeTeam } })
 }
 
 describe('DisciplineInput', () => {
@@ -20,23 +24,22 @@ describe('DisciplineInput', () => {
     expect(groups).toHaveLength(2)
   })
 
-  it('labels the home group "Heim" via aria-label', () => {
+  it('shows a visible side label per team and names each group by it', () => {
     const wrapper = mountDisciplineInput()
-    const homeGroup = wrapper.find('[aria-label="Heim"]')
-    expect(homeGroup.exists()).toBe(true)
-  })
-
-  it('labels the away group "Gast" via aria-label', () => {
-    const wrapper = mountDisciplineInput()
-    const awayGroup = wrapper.find('[aria-label="Gast"]')
-    expect(awayGroup.exists()).toBe(true)
+    const labels = wrapper.findAll('.discipline-input__side')
+    expect(labels.map((l) => l.text())).toEqual(['Deutschland', 'Frankreich'])
+    // Each group is named by its visible side label, not an abstract aria-label.
+    for (const label of labels) {
+      const group = wrapper.find(`[aria-labelledby="${label.attributes('id')}"]`)
+      expect(group.exists()).toBe(true)
+    }
   })
 
   it.each([
-    ['update:homeYellow', 'Gelbe Karte Heim hinzufügen'],
-    ['update:homeRed', 'Rote Karte Heim hinzufügen'],
-    ['update:awayYellow', 'Gelbe Karte Gast hinzufügen'],
-    ['update:awayRed', 'Rote Karte Gast hinzufügen'],
+    ['update:homeYellow', 'Gelbe Karte für Deutschland hinzufügen'],
+    ['update:homeRed', 'Rote Karte für Deutschland hinzufügen'],
+    ['update:awayYellow', 'Gelbe Karte für Frankreich hinzufügen'],
+    ['update:awayRed', 'Rote Karte für Frankreich hinzufügen'],
   ] as const)('emits %s when the matching increment button is clicked', async (event, label) => {
     const wrapper = mountDisciplineInput()
     const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === label)
@@ -48,7 +51,9 @@ describe('DisciplineInput', () => {
 
   it('decrement does not go below 0 (min enforcement)', async () => {
     const wrapper = mountDisciplineInput()
-    const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Gelbe Karte Heim abziehen')
+    const btn = wrapper
+      .findAll('button')
+      .find((b) => b.attributes('aria-label') === 'Gelbe Karte für Deutschland abziehen')
     expect(btn).toBeDefined()
     await btn!.trigger('click')
     // Stepper enforces min=0; defineModel skips emitting unchanged values, so
