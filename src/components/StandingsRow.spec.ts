@@ -66,8 +66,15 @@ describe('StandingsRow', () => {
     expect(trClass).not.toContain('standings-row--danger')
   })
 
-  it('includes a visually-hidden status label when played > 0', () => {
+  it('includes a visually-hidden rank and status label when played > 0', () => {
     const wrapper = mount(StandingsRow, { props: { groupDone: true, rank: 1, stat: makeStat() } })
-    expect(wrapper.find('.visually-hidden').text()).toBe('(qualifiziert)')
+    expect(wrapper.find('.visually-hidden').text()).toBe('Platz 1, qualifiziert')
+  })
+
+  it('still names the rank in the visually-hidden label when played === 0', () => {
+    const wrapper = mount(StandingsRow, {
+      props: { groupDone: false, rank: 4, stat: makeStat({ form: [], played: 0 }) },
+    })
+    expect(wrapper.find('.visually-hidden').text()).toBe('Platz 4')
   })
 })
