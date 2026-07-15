@@ -100,10 +100,7 @@ function toScore(
   return { awayGoals: awayGoals + awayShootout, homeGoals: homeGoals + homeShootout }
 }
 
-export async function syncResults(
-  provider: ResultsProvider = defaultProvider,
-  opts?: FetchResultsOptions,
-): Promise<ResultsMap> {
-  const fetched = await provider.fetchResults(opts)
+export async function syncResults(opts?: FetchResultsOptions): Promise<ResultsMap> {
+  const fetched = await defaultProvider.fetchResults(opts)
   return buildResultsFromSource(fetched)
 }

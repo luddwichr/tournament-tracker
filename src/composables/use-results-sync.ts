@@ -34,7 +34,7 @@ export function useResultsSync(apply: (results: ResultsMap) => void) {
     error.value = null
     status.value = 'syncing'
     try {
-      const results = await syncResults(undefined, { signal: ctrl.signal })
+      const results = await syncResults({ signal: ctrl.signal })
       if (ctrl.signal.aborted) return
       apply(results)
       count.value = Object.keys(results).length

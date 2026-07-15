@@ -173,7 +173,7 @@ export function useMatchResultForm(
     fetchStatus.value = 'loading'
     fetchError.value = null
     try {
-      const results = await syncResults(undefined, { signal: controller.signal })
+      const results = await syncResults({ signal: controller.signal })
       const result = results[toValue(match).id]
       if (!result) {
         fetchStatus.value = 'not-found'

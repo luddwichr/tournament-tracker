@@ -58,7 +58,7 @@ describe('useResultsSync', () => {
   it('cancel() aborts an in-flight sync without applying results', async () => {
     const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     vi.mocked(syncResults).mockImplementation(
-      (_provider, opts) =>
+      (opts) =>
         new Promise((_resolve, reject) => {
           opts?.signal?.addEventListener('abort', () => {
             reject(new Error('aborted'))

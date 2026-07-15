@@ -32,9 +32,6 @@ export interface FetchResultsOptions {
 }
 
 export interface ResultsProvider {
-  readonly id: string
-  /** User-facing label (German). */
-  readonly label: string
   /** Rejects with a user-readable German `Error` when the source is unusable. */
   fetchResults(opts?: FetchResultsOptions): Promise<SourceMatch[]>
 }
