@@ -56,7 +56,7 @@ export type ThirdPlaceSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export type ThirdPlaceKey = string & { readonly _thirdPlaceKeyBrand: never }
 
 /** Build a valid `ThirdPlaceKey` from an array of group ids. */
-export function toThirdPlaceKey(groups: GroupId[]): ThirdPlaceKey {
+export function toThirdPlaceKey(groups: readonly GroupId[]): ThirdPlaceKey {
   return groups.toSorted().join('') as ThirdPlaceKey
 }
 
