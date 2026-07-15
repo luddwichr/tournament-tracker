@@ -63,9 +63,9 @@ describe('rankThirdPlaced', () => {
     const ranked = rankThirdPlaced(allGroupResults(0, 0))
     expect(ranked).not.toBeNull()
     for (let i = 0; i < ranked!.length - 1; i++) {
-      if (ranked![i]!.points === ranked![i + 1]!.points) {
-        expect(ranked![i]!.goalDiff).toBeGreaterThanOrEqual(ranked![i + 1]!.goalDiff)
-      }
+      // All draws → identical points, so goal difference (descending) is the sole tie-break in play.
+      expect(ranked![i]!.points).toBe(ranked![i + 1]!.points)
+      expect(ranked![i]!.goalDiff).toBeGreaterThanOrEqual(ranked![i + 1]!.goalDiff)
     }
   })
 

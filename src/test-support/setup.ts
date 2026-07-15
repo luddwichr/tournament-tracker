@@ -7,8 +7,8 @@ import { beforeEach, vi } from 'vitest'
 // HTMLDialogElement doesn't exist.
 if (typeof HTMLDialogElement !== 'undefined') {
   beforeEach(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn()
-    HTMLDialogElement.prototype.close = vi.fn().mockImplementation(function (this: HTMLDialogElement) {
+    HTMLDialogElement.prototype.showModal = vi.fn<() => void>()
+    HTMLDialogElement.prototype.close = vi.fn<() => void>().mockImplementation(function (this: HTMLDialogElement) {
       this.dispatchEvent(new Event('close'))
     })
   })

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { GroupMatchSlot, KnockoutMatchSlot, Team } from '../types/tournament'
+import type { GroupMatchSlot, KnockoutMatchSlot, MatchSlot, Team } from '../types/tournament'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import MatchCard from './MatchCard.vue'
@@ -43,7 +43,10 @@ function knockoutMatch(
   }
 }
 
-function mountSchedule(rows: TeamMatchEntry[], openScoreDialog = vi.fn()) {
+function mountSchedule(
+  rows: TeamMatchEntry[],
+  openScoreDialog = vi.fn<(match: MatchSlot, home: Team, away: Team) => void>(),
+) {
   const wrapper = mount(TeamSchedule, {
     global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
     props: { entries: rows },

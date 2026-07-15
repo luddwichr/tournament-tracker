@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
+import type { GroupId, MatchSlot, Team } from '../types/tournament'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { GROUP_IDS } from '../types/tournament'
-import type { GroupId } from '../types/tournament'
 import GroupStandingsTable from './GroupStandingsTable.vue'
 import GroupTable from './GroupTable.vue'
 import MatchCard from './MatchCard.vue'
@@ -37,7 +37,10 @@ beforeEach(() => {
   setActivePinia(createPinia())
 })
 
-function mountGroupTable(groupId: GroupId, openScoreDialog = vi.fn()) {
+function mountGroupTable(
+  groupId: GroupId,
+  openScoreDialog = vi.fn<(match: MatchSlot, home: Team, away: Team) => void>(),
+) {
   const wrapper = mount(GroupTable, {
     global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },
     props: { groupId },

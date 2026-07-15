@@ -6,12 +6,12 @@ import { ref } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 vi.mock('virtual:pwa-register/vue', () => ({
-  useRegisterSW: vi.fn(),
+  useRegisterSW: vi.fn<typeof useRegisterSW>(),
 }))
 
 function mockRegisterSW(needRefresh: boolean) {
   const needRefreshRef = ref(needRefresh)
-  const updateServiceWorker = vi.fn()
+  const updateServiceWorker = vi.fn<ReturnType<typeof useRegisterSW>['updateServiceWorker']>()
   vi.mocked(useRegisterSW).mockReturnValue({
     needRefresh: needRefreshRef,
     offlineReady: ref(false),

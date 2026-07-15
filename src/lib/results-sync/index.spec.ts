@@ -181,7 +181,7 @@ describe('buildResultsFromSource', () => {
 describe('syncResults', () => {
   it('fetches from the given provider and maps the result', async () => {
     const provider: ResultsProvider = {
-      fetchResults: vi.fn().mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })]),
+      fetchResults: vi.fn<ResultsProvider['fetchResults']>().mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })]),
       id: 'fake',
       label: 'Fake',
     }

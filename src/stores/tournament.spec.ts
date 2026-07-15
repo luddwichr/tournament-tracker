@@ -16,12 +16,12 @@ import { useTournamentStore } from './tournament'
 // depending on cache-internal state.
 vi.mock('../lib/possible-teams', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/possible-teams')>()
-  return { ...original, freePossibleTeamsMemory: vi.fn() }
+  return { ...original, freePossibleTeamsMemory: vi.fn<() => void>() }
 })
 
 vi.mock('../lib/standings', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/standings')>()
-  return { ...original, clearStandingsCache: vi.fn() }
+  return { ...original, clearStandingsCache: vi.fn<() => void>() }
 })
 
 function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
