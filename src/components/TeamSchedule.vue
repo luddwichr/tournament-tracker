@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { matchStageLabel, teamRefLabel } from '../lib/bracket-labels'
 import MatchCard from './MatchCard.vue'
 import type { TeamMatchEntry } from '../lib/team-schedule'
 import { computed } from 'vue'
-import { matchStageLabel } from '../lib/team-schedule'
-import { teamRefLabel } from '../lib/bracket-labels'
 import { useScoreDialog } from '../composables/use-score-dialog'
 
 const { entries } = defineProps<{ entries: TeamMatchEntry[] }>()
