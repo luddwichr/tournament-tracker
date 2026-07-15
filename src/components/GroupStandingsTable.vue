@@ -23,7 +23,7 @@ const columns = [
 </script>
 
 <template>
-  <section class="group-standings" tabindex="0">
+  <section class="group-standings" tabindex="0" :aria-label="`Tabelle Gruppe ${groupId}`">
     <table class="standings-table tinted-header">
       <caption class="visually-hidden">
         Tabelle Gruppe
