@@ -44,6 +44,16 @@ const tintClass = computed((): string | undefined => {
   if (status.value === 'eliminated') return 'standings-cell--muted'
   return undefined
 })
+
+// Screen-reader substitute for the aria-hidden group badge: in this
+// cross-group ranking, group membership is the one datum the caption doesn't
+// imply, so it must be spoken for every row (the status word only exists once
+// a team has played).
+const srLabel = computed((): string => {
+  const s = status.value
+  const group = `Gruppe ${stat.team.group}`
+  return s === 'none' ? group : `${group}, ${statusLabel[s]}`
+})
 </script>
 
 <template>
@@ -60,7 +70,7 @@ const tintClass = computed((): string | undefined => {
         <span class="third-place-row__rank standings-cell__rank" aria-hidden="true">{{ rank }}</span>
         <span class="third-place-row__group" aria-hidden="true">{{ stat.team.group }}</span>
         <TeamLabel :team="stat.team" clickable />
-        <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
+        <span class="visually-hidden">{{ srLabel }}</span>
       </div>
     </th>
     <td class="third-place-row__num standings-cell__num third-place-row__pts standings-cell__pts">

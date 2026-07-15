@@ -61,8 +61,15 @@ describe('ThirdPlaceRow', () => {
     expect(wrapper.find('tr').classes()).not.toContain('third-place-row--cutoff')
   })
 
-  it('includes a visually-hidden status label when played > 0', () => {
+  it('includes a visually-hidden group and status label when played > 0', () => {
     const wrapper = mount(ThirdPlaceRow, { props: { final: true, rank: 1, stat: makeStat() } })
-    expect(wrapper.find('.visually-hidden').text()).toBe('(qualifiziert)')
+    expect(wrapper.find('.visually-hidden').text()).toBe('Gruppe A, qualifiziert')
+  })
+
+  it('still names the group in the visually-hidden label when played === 0', () => {
+    const wrapper = mount(ThirdPlaceRow, {
+      props: { final: false, rank: 1, stat: makeStat({ form: [], played: 0 }) },
+    })
+    expect(wrapper.find('.visually-hidden').text()).toBe('Gruppe A')
   })
 })
