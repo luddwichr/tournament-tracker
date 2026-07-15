@@ -17,16 +17,16 @@
 
 export interface RankingEntry {
   /** Ranking position, 1 (best) … 211. */
-  rank: number
+  readonly rank: number
   /** German country name. */
-  name: string
+  readonly name: string
   /** `flag-icons` CSS code, e.g. `'de'`, `'gb-eng'`. */
-  flagCode: string
+  readonly flagCode: string
   /** FIFA ranking points for the 11 June 2026 release. */
-  points: number
+  readonly points: number
 }
 
-export const fifaRanking: readonly RankingEntry[] = [
+export const fifaRanking = [
   { flagCode: 'ar', name: 'Argentinien', points: 1877.27, rank: 1 },
   { flagCode: 'es', name: 'Spanien', points: 1874.71, rank: 2 },
   { flagCode: 'fr', name: 'Frankreich', points: 1870.7, rank: 3 },
@@ -238,4 +238,4 @@ export const fifaRanking: readonly RankingEntry[] = [
   { flagCode: 'vg', name: 'Brit. Jungferninseln', points: 777.41, rank: 209 },
   { flagCode: 'ai', name: 'Anguilla', points: 760.25, rank: 210 },
   { flagCode: 'sm', name: 'San Marino', points: 721.2, rank: 211 },
-] as const
+] as const satisfies readonly RankingEntry[]
