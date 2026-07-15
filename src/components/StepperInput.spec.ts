@@ -61,13 +61,13 @@ describe('StepperInput', () => {
     expect(inc!.attributes('aria-label')).toBe('Erhöhen')
   })
 
-  it('value span has aria-live="polite" and aria-atomic="true"', () => {
+  it('value span carries no redundant live region (spinbutton announces natively)', () => {
     const wrapper = mount(StepperInput, {
       props: { decLabel: 'dec', incLabel: 'inc', modelValue: 0, valueLabel: 'Wert' },
     })
     const span = wrapper.find('.stepper__value')
-    expect(span.attributes('aria-live')).toBe('polite')
-    expect(span.attributes('aria-atomic')).toBe('true')
+    expect(span.attributes('aria-live')).toBeUndefined()
+    expect(span.attributes('aria-atomic')).toBeUndefined()
   })
 
   it('value implements the ARIA spinbutton pattern named by the valueLabel prop', () => {
