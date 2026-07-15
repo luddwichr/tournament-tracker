@@ -42,6 +42,8 @@ function onValueKeydown(event: KeyboardEvent) {
     <button type="button" class="stepper__step" :aria-label="decLabel" :disabled="model === 0" @click="decrement">
       −
     </button>
+    <!-- role="spinbutton" already announces aria-valuenow changes natively, so
+         no aria-live is needed here — a live region would double-announce. -->
     <span
       class="stepper__value"
       role="spinbutton"
@@ -49,8 +51,6 @@ function onValueKeydown(event: KeyboardEvent) {
       :aria-label="valueLabel"
       :aria-valuenow="model"
       aria-valuemin="0"
-      aria-live="polite"
-      aria-atomic="true"
       @keydown="onValueKeydown"
       >{{ model }}</span
     >
