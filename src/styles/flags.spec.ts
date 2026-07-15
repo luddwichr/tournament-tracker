@@ -20,7 +20,7 @@ function extractIncludedCountries(scss: string): string[] {
 describe('flag-icons subset', () => {
   const included = extractIncludedCountries(readFileSync(FLAGS_FILE, 'utf-8'))
   const includedSet = new Set(included)
-  const usedSet = new Set([...teams, ...fifaRanking].map((entry) => entry.flagCode))
+  const usedSet = new Set<string>([...teams, ...fifaRanking].map((entry) => entry.flagCode))
 
   it('lists every flag code used by teams.ts and fifa-ranking.ts', () => {
     const missing = [...usedSet].filter((code) => !includedSet.has(code))
