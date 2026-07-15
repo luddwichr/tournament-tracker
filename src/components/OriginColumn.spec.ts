@@ -10,7 +10,9 @@ function makeTeam(id: string, group: GroupId): Team {
 }
 
 function makeRow(id: string, group: GroupId, rank: number, refKey: string | null, eliminated = false): OriginTeamRow {
-  return { eliminated, rank, refKey, team: makeTeam(id, group) }
+  // Fixtures hand-build ref-key strings to assert exact DOM rendering; cast to
+  // the row's branded RefKey type instead of importing it just for the tests.
+  return { eliminated, rank, refKey: refKey as OriginTeamRow['refKey'], team: makeTeam(id, group) }
 }
 
 /** 12 groups, 3 rows each; rank-3 row has no refKey (group stage incomplete). */
