@@ -2,11 +2,26 @@
 import CardIcon from './icons/CardIcon.vue'
 import CardsIcon from './icons/CardsIcon.vue'
 import StepperInput from './StepperInput.vue'
+import type { Team } from '../types/tournament'
+import TeamFlag from './TeamFlag.vue'
+import { useId } from 'vue'
+
+const { homeTeam, awayTeam } = defineProps<{
+  homeTeam: Team
+  awayTeam: Team
+}>()
 
 const homeYellow = defineModel<number>('homeYellow', { required: true })
 const homeRed = defineModel<number>('homeRed', { required: true })
 const awayYellow = defineModel<number>('awayYellow', { required: true })
 const awayRed = defineModel<number>('awayRed', { required: true })
+
+// Each side's stepper labels and its group are named after the actual team —
+// matching ScoreInput's "… für <Team>" pattern instead of the abstract
+// "Heim"/"Gast", which sighted non-readers never saw and which read
+// inconsistently against the goal steppers one dialog over.
+const homeLabelId = useId()
+const awayLabelId = useId()
 </script>
 
 <template>
@@ -17,44 +32,52 @@ const awayRed = defineModel<number>('awayRed', { required: true })
     </legend>
 
     <div class="discipline-input__grid">
-      <div class="discipline-input__group" role="group" aria-label="Heim">
+      <div class="discipline-input__group" role="group" :aria-labelledby="homeLabelId">
+        <p :id="homeLabelId" class="discipline-input__side">
+          <TeamFlag :flag-code="homeTeam.flagCode" size="1.25rem" />
+          <span class="discipline-input__side-name">{{ homeTeam.name }}</span>
+        </p>
         <div class="discipline-input__row">
           <CardIcon color="yellow" class="discipline-input__card" />
           <StepperInput
             v-model="homeYellow"
-            value-label="Gelbe Karte Heim"
-            dec-label="Gelbe Karte Heim abziehen"
-            inc-label="Gelbe Karte Heim hinzufügen"
+            :value-label="`Gelbe Karte für ${homeTeam.name}`"
+            :dec-label="`Gelbe Karte für ${homeTeam.name} abziehen`"
+            :inc-label="`Gelbe Karte für ${homeTeam.name} hinzufügen`"
           />
         </div>
         <div class="discipline-input__row">
           <CardIcon color="red" class="discipline-input__card" />
           <StepperInput
             v-model="homeRed"
-            value-label="Rote Karte Heim"
-            dec-label="Rote Karte Heim abziehen"
-            inc-label="Rote Karte Heim hinzufügen"
+            :value-label="`Rote Karte für ${homeTeam.name}`"
+            :dec-label="`Rote Karte für ${homeTeam.name} abziehen`"
+            :inc-label="`Rote Karte für ${homeTeam.name} hinzufügen`"
           />
         </div>
       </div>
 
-      <div class="discipline-input__group" role="group" aria-label="Gast">
+      <div class="discipline-input__group" role="group" :aria-labelledby="awayLabelId">
+        <p :id="awayLabelId" class="discipline-input__side">
+          <TeamFlag :flag-code="awayTeam.flagCode" size="1.25rem" />
+          <span class="discipline-input__side-name">{{ awayTeam.name }}</span>
+        </p>
         <div class="discipline-input__row">
           <CardIcon color="yellow" class="discipline-input__card" />
           <StepperInput
             v-model="awayYellow"
-            value-label="Gelbe Karte Gast"
-            dec-label="Gelbe Karte Gast abziehen"
-            inc-label="Gelbe Karte Gast hinzufügen"
+            :value-label="`Gelbe Karte für ${awayTeam.name}`"
+            :dec-label="`Gelbe Karte für ${awayTeam.name} abziehen`"
+            :inc-label="`Gelbe Karte für ${awayTeam.name} hinzufügen`"
           />
         </div>
         <div class="discipline-input__row">
           <CardIcon color="red" class="discipline-input__card" />
           <StepperInput
             v-model="awayRed"
-            value-label="Rote Karte Gast"
-            dec-label="Rote Karte Gast abziehen"
-            inc-label="Rote Karte Gast hinzufügen"
+            :value-label="`Rote Karte für ${awayTeam.name}`"
+            :dec-label="`Rote Karte für ${awayTeam.name} abziehen`"
+            :inc-label="`Rote Karte für ${awayTeam.name} hinzufügen`"
           />
         </div>
       </div>
@@ -98,6 +121,23 @@ const awayRed = defineModel<number>('awayRed', { required: true })
   gap: var(--space-2);
   flex: 1;
   min-width: 9rem;
+}
+
+.discipline-input__side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.discipline-input__side-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .discipline-input__row {

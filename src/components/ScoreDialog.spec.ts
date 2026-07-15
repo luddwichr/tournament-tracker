@@ -163,7 +163,9 @@ describe('ScoreDialog', () => {
     it('home yellow card increments are saved to the store', async () => {
       const store = useTournamentStore()
       const wrapper = mountDialog()
-      const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Gelbe Karte Heim hinzufügen')
+      const btn = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Gelbe Karte für Deutschland hinzufügen')
       await btn!.trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ homeYellow: 1 })
@@ -172,7 +174,9 @@ describe('ScoreDialog', () => {
     it('home red card increments are saved to the store', async () => {
       const store = useTournamentStore()
       const wrapper = mountDialog()
-      const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Rote Karte Heim hinzufügen')
+      const btn = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Rote Karte für Deutschland hinzufügen')
       await btn!.trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ homeRed: 1 })
@@ -181,7 +185,9 @@ describe('ScoreDialog', () => {
     it('away yellow card increments are saved to the store', async () => {
       const store = useTournamentStore()
       const wrapper = mountDialog()
-      const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Gelbe Karte Gast hinzufügen')
+      const btn = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Gelbe Karte für Frankreich hinzufügen')
       await btn!.trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ awayYellow: 1 })
@@ -190,7 +196,9 @@ describe('ScoreDialog', () => {
     it('away red card increments are saved to the store', async () => {
       const store = useTournamentStore()
       const wrapper = mountDialog()
-      const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Rote Karte Gast hinzufügen')
+      const btn = wrapper
+        .findAll('button')
+        .find((b) => b.attributes('aria-label') === 'Rote Karte für Frankreich hinzufügen')
       await btn!.trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M01']).toMatchObject({ awayRed: 1 })
