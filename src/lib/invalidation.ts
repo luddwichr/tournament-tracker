@@ -7,11 +7,10 @@
 // resolve to, any result already stored for that later match was entered for
 // a *different* pairing and must be discarded, not silently reinterpreted.
 
+import { KNOCKOUT_STAGE_LABEL, teamRefLabel } from './bracket-labels'
 import type { Result, ResultsMap, TeamRef } from '../types/tournament'
 import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
-import { KNOCKOUT_STAGE_LABEL } from './team-schedule'
 import { resolveTeamRef } from './knockout'
-import { teamRefLabel } from './bracket-labels'
 
 /** Resolve a ref to a team id, or `null` when unresolved — `null` is a distinct value from any team id. */
 function resolvedTeamId(ref: TeamRef, results: ResultsMap): string | null {

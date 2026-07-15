@@ -1,6 +1,27 @@
-import type { TeamRef } from '../types/tournament'
+import type { Stage, TeamRef } from '../types/tournament'
 import { assertNever } from './assert-never'
 import { teamsById } from '../data/teams'
+
+/** Display label for every stage but `group`, which is numbered per-team instead (see `matchStageLabel`). */
+export const KNOCKOUT_STAGE_LABEL: Record<Exclude<Stage, 'group'>, string> = {
+  final: 'Finale',
+  qf: 'Viertelfinale',
+  r16: 'Achtelfinale',
+  r32: 'Runde der 32',
+  sf: 'Halbfinale',
+  third: 'Spiel um Platz 3',
+}
+
+/**
+ * Human-readable label for one of a team's own matches, e.g. "Gruppenspiel 2/3"
+ * or "Achtelfinale". `groupMatchNumber` is the 1-based index of this match
+ * among the team's own group-stage matches (only meaningful when `stage`
+ * is `'group'`).
+ */
+export function matchStageLabel(stage: Stage, groupMatchNumber: number): string {
+  if (stage === 'group') return `Gruppenspiel ${groupMatchNumber}/3`
+  return KNOCKOUT_STAGE_LABEL[stage]
+}
 
 /** Extract the display number from a match id (e.g. `'M73'` → `'73'`). */
 function matchNumber(matchId: string): string {
