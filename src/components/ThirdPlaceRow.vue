@@ -45,14 +45,15 @@ const tintClass = computed((): string | undefined => {
   return undefined
 })
 
-// Screen-reader substitute for the aria-hidden group badge: in this
-// cross-group ranking, group membership is the one datum the caption doesn't
-// imply, so it must be spoken for every row (the status word only exists once
-// a team has played).
+// Screen-reader substitute for the aria-hidden rank and group badges: in this
+// cross-group ranking a linear reader must hear both the position and the
+// group (the one datum the caption doesn't imply) on every row; the status
+// word only exists once a team has played.
 const srLabel = computed((): string => {
   const s = status.value
-  const group = `Gruppe ${stat.team.group}`
-  return s === 'none' ? group : `${group}, ${statusLabel[s]}`
+  const parts = [`Platz ${rank}`, `Gruppe ${stat.team.group}`]
+  if (s !== 'none') parts.push(statusLabel[s])
+  return parts.join(', ')
 })
 </script>
 

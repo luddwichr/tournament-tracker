@@ -50,6 +50,15 @@ const tintClass = computed((): string | undefined => {
   if (status.value === 'eliminated') return 'standings-cell--muted'
   return undefined
 })
+
+// Screen-reader substitute for the aria-hidden rank cell: a linear reader must
+// hear the table position on every row (the status word only exists once a
+// team has played).
+const srLabel = computed((): string => {
+  const s = status.value
+  const position = `Platz ${rank}`
+  return s === 'none' ? position : `${position}, ${statusLabel[s]}`
+})
 </script>
 
 <template>
@@ -58,7 +67,7 @@ const tintClass = computed((): string | undefined => {
       <div class="standings-row__team-inner standings-cell__team-inner">
         <span class="standings-row__rank standings-cell__rank" aria-hidden="true">{{ rank }}</span>
         <TeamLabel :team="stat.team" clickable />
-        <span v-if="status !== 'none'" class="visually-hidden">({{ statusLabel[status] }})</span>
+        <span class="visually-hidden">{{ srLabel }}</span>
       </div>
     </th>
     <td class="standings-row__num standings-cell__num">
