@@ -1,7 +1,7 @@
-import type { ResultsProvider, SourceMatch } from './provider'
 import { buildResultsFromSource, defaultProvider, syncResults } from './index'
 import { describe, expect, it, vi } from 'vitest'
 import { fixtures, groupMatches } from '../../data/fixtures-2026'
+import type { SourceMatch } from './provider'
 import { resolveTeamRef } from '../knockout'
 
 function src(homeId: string, awayId: string, partial: Partial<SourceMatch> = {}): SourceMatch {
@@ -179,21 +179,19 @@ describe('buildResultsFromSource', () => {
 })
 
 describe('syncResults', () => {
-  it('fetches from the given provider and maps the result', async () => {
-    const provider: ResultsProvider = {
-      fetchResults: vi.fn<ResultsProvider['fetchResults']>().mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })]),
-      id: 'fake',
-      label: 'Fake',
-    }
-    const results = await syncResults(provider)
-    expect(provider.fetchResults).toHaveBeenCalledOnce()
+  it('fetches from the default provider and maps the result', async () => {
+    const spy = vi.spyOn(defaultProvider, 'fetchResults').mockResolvedValue([src('mex', 'rsa', { homeGoals: 4 })])
+    const results = await syncResults()
+    expect(spy).toHaveBeenCalledOnce()
     expect(results['M01']!.homeGoals).toBe(4)
+    spy.mockRestore()
   })
 
-  it('falls back to the default provider when none is given', async () => {
-    const spy = vi.spyOn(defaultProvider, 'fetchResults').mockResolvedValue([src('mex', 'rsa', { homeGoals: 5 })])
-    const results = await syncResults()
-    expect(results['M01']!.homeGoals).toBe(5)
+  it('forwards fetch options to the provider', async () => {
+    const spy = vi.spyOn(defaultProvider, 'fetchResults').mockResolvedValue([])
+    const { signal } = new AbortController()
+    await syncResults({ signal })
+    expect(spy).toHaveBeenCalledWith({ signal })
     spy.mockRestore()
   })
 })

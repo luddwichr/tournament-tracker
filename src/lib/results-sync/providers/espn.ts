@@ -172,8 +172,6 @@ async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch
 
 export const espnProvider: ResultsProvider = {
   fetchResults,
-  id: 'espn',
-  label: 'ESPN',
 }
 
 // Exported for unit tests.
