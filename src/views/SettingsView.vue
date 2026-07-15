@@ -133,12 +133,14 @@ function formatErrorTime(isoTime: string): string {
           {{ importError }}
         </p>
 
+        <!-- tabindex="-1" + the visually-hidden clip already remove this from
+             tab order and view; aria-hidden on a focusable control is the
+             aria-hidden-focus anti-pattern, so it's deliberately omitted. -->
         <input
           ref="fileInput"
           type="file"
           accept=".json,application/json"
           class="visually-hidden"
-          aria-hidden="true"
           tabindex="-1"
           @change="handleFileChange"
         />
