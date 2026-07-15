@@ -14,6 +14,7 @@ import type { GroupId, ResultsMap, Team, ThirdPlaceSlot } from '../types/tournam
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST } from '../data/fixtures-2026'
 import { computeGroupStandings, isGroupStageComplete } from './standings'
 import type { TeamStat } from './standings'
+import type { ThirdPlaceHostGroup } from '../data/fixtures-2026'
 import { compareByPointsGdGf } from './tiebreakers'
 
 // 0-indexed position of the third-placed team in sorted group standings.
@@ -65,27 +66,19 @@ export function rankThirdPlaced(results: ResultsMap): TeamStat[] | null {
 }
 
 /**
- * The shared Annex-C walk: from the ranked third-placed teams' top 8, resolve
- * the qualifying-groups allocation key and build the qualifying-group → its
- * assigned ThirdPlaceSlot map. Both `buildGroupToThirdPlaceSlotMap` and
- * `resolveThirdPlaceSlot` are defined in terms of this so there is only one
- * place that walks `THIRD_PLACE_SLOT_HOST`/`THIRD_PLACE_ALLOCATION`.
+ * The shared Annex-C lookup: from the ranked third-placed teams' top 8, resolve
+ * the qualifying-groups allocation key and return the Annex-C table row — the
+ * host-group → source-group map for that combination. Both
+ * `buildGroupToThirdPlaceSlotMap` and `resolveThirdPlaceSlot` are defined in
+ * terms of this so there is only one place that keys `THIRD_PLACE_ALLOCATION`.
  *
  * Returns null if the allocation key is not found (should not happen with
  * valid ranked input but guards against unknown combinations).
  */
-function qualifyingAllocation(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> | null {
+function qualifyingAllocation(ranked: TeamStat[]): Readonly<Record<ThirdPlaceHostGroup, GroupId>> | null {
   const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
   const qualifyingGroups = toThirdPlaceKey(top8.map((s) => s.team.group))
-  const allocation = THIRD_PLACE_ALLOCATION[qualifyingGroups]
-  if (!allocation) return null
-
-  const map = new Map<GroupId, ThirdPlaceSlot>()
-  for (const [slotStr, hostGroup] of Object.entries(THIRD_PLACE_SLOT_HOST)) {
-    const slot = Number(slotStr) as ThirdPlaceSlot
-    map.set(allocation[hostGroup], slot)
-  }
-  return map
+  return THIRD_PLACE_ALLOCATION[qualifyingGroups] ?? null
 }
 
 /**
@@ -94,7 +87,14 @@ function qualifyingAllocation(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> 
  * with valid ranked input but guards against unknown combinations).
  */
 export function buildGroupToThirdPlaceSlotMap(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> {
-  return qualifyingAllocation(ranked) ?? new Map<GroupId, ThirdPlaceSlot>()
+  const allocation = qualifyingAllocation(ranked)
+  const map = new Map<GroupId, ThirdPlaceSlot>()
+  if (!allocation) return map
+  for (const [slotStr, hostGroup] of Object.entries(THIRD_PLACE_SLOT_HOST)) {
+    const slot = Number(slotStr) as ThirdPlaceSlot
+    map.set(allocation[hostGroup], slot)
+  }
+  return map
 }
 
 /**
@@ -105,12 +105,11 @@ export function resolveThirdPlaceSlot(slot: ThirdPlaceSlot, results: ResultsMap)
   const ranked = rankThirdPlaced(results)
   if (!ranked) return null
 
-  const map = qualifyingAllocation(ranked)
-  if (!map) return null
+  const allocation = qualifyingAllocation(ranked)
+  if (!allocation) return null
 
-  // 8-entry map — a linear scan for the group assigned to `slot` is negligible.
-  const sourceGroup = [...map].find(([, s]) => s === slot)?.[0]
-  if (!sourceGroup) return null
+  // Direct lookup: slot → its host group → the group whose third fills it.
+  const sourceGroup = allocation[THIRD_PLACE_SLOT_HOST[slot]]
 
   const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
   return top8.find((stat) => stat.team.group === sourceGroup)?.team ?? null
