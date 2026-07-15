@@ -55,7 +55,7 @@ describe('possibleTeamsFor — groupRank, all matches played', () => {
     const results = allGroupResults(1, 0)
     const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(1)
+    expect(teams.length).toBe(1)
     const team = [...teams][0]!
     expect(team.group).toBe('A')
   })
@@ -161,7 +161,7 @@ describe('possibleTeamsFor — pathological blowout does not blow up the enumera
     expect(elapsedMs).toBeLessThan(500)
     // Sanity: still returns a real, non-empty result (the fix must not
     // silently degenerate to "no teams possible").
-    expect(teams.size).toBeGreaterThan(0)
+    expect(teams.length).toBeGreaterThan(0)
   })
 })
 
@@ -173,7 +173,7 @@ describe('possibleTeamsFor — groupRank, no matches played', () => {
   it('returns all 4 teams as possible rank-1 candidates in an unplayed group', () => {
     const ref: TeamRef = { group: 'A', kind: 'groupRank', rank: 1 }
     const teams = possibleTeamsFor(ref, {})
-    expect(teams.size).toBe(4)
+    expect(teams.length).toBe(4)
     for (const t of teams) expect(t.group).toBe('A')
   })
 })
@@ -188,7 +188,7 @@ describe('possibleTeamsFor — thirdPlace', () => {
     const results = allGroupResults(1, 0)
     const ref: TeamRef = { kind: 'thirdPlace', slot: 1 }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(1)
+    expect(teams.length).toBe(1)
     const [team] = teams
     expect(typeof team!.id).toBe('string')
     expect(team!.id.length).toBeGreaterThan(0)
@@ -199,7 +199,7 @@ describe('possibleTeamsFor — thirdPlace', () => {
     const ref: TeamRef = { kind: 'thirdPlace', slot: 1 }
     const teams = possibleTeamsFor(ref, {})
     // Must have at least 2 possible candidates; exact count depends on allocation table
-    expect(teams.size).toBeGreaterThanOrEqual(2)
+    expect(teams.length).toBeGreaterThanOrEqual(2)
     for (const t of teams) expect(t.group).toBeDefined()
   })
 
@@ -225,7 +225,7 @@ describe('possibleTeamsFor — matchWinner, unplayed match', () => {
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, results)
     // One possible home (A2) + one possible away (B2) = 2 distinct teams
-    expect(teams.size).toBe(2)
+    expect(teams.length).toBe(2)
     const groups = [...teams].map((t) => t.group)
     expect(groups).toContain('A')
     expect(groups).toContain('B')
@@ -235,7 +235,7 @@ describe('possibleTeamsFor — matchWinner, unplayed match', () => {
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, {})
     // All 4 of A could be rank 2, all 4 of B could be rank 2, union = 8 teams
-    expect(teams.size).toBe(8)
+    expect(teams.length).toBe(8)
   })
 })
 
@@ -250,7 +250,7 @@ describe('possibleTeamsFor — matchWinner, played match', () => {
     results['M73'] = makeResult('M73', 2, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(1)
+    expect(teams.length).toBe(1)
   })
 
   it('returns empty set when match result is a draw', () => {
@@ -258,7 +258,7 @@ describe('possibleTeamsFor — matchWinner, played match', () => {
     results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams.size).toBe(0)
+    expect(teams.length).toBe(0)
   })
 })
 
@@ -270,13 +270,13 @@ describe('possibleTeamsFor — team ref', () => {
   it('returns the exact team for a concrete team ref', () => {
     const ref: TeamRef = { kind: 'team', teamId: 'ger' }
     const teams = possibleTeamsFor(ref, {})
-    expect(teams.size).toBe(1)
+    expect(teams.length).toBe(1)
     expect([...teams][0]!.id).toBe('ger')
   })
 
   it('returns empty set for an unknown team id', () => {
     const ref: TeamRef = { kind: 'team', teamId: 'zzz_unknown' }
-    expect(possibleTeamsFor(ref, {}).size).toBe(0)
+    expect(possibleTeamsFor(ref, {}).length).toBe(0)
   })
 })
 
@@ -340,6 +340,6 @@ describe('possibleTeamsFor — deep matchWinner chain', () => {
     const ref = r16match.homeRef
     const teams = possibleTeamsFor(ref, results)
     // Some teams should be possible (at least 2: the two R32 participants)
-    expect(teams.size).toBeGreaterThanOrEqual(2)
+    expect(teams.length).toBeGreaterThanOrEqual(2)
   })
 })
