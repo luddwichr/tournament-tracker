@@ -1,0 +1,1 @@
+import{A as e,D as t,gt as n,p as r,u as i,v as a}from"./teams-Cc0qLmpo.js";var o={scope:`col`},s=[`title`],c={class:`visually-hidden`},l=a({__name:`StatHeaderCell`,props:{label:{},abbr:{}},setup(a){return(l,u)=>(t(),r(`th`,o,[a.abbr?(t(),r(`abbr`,{key:0,title:a.label},n(a.abbr),9,s)):e(l.$slots,`default`,{key:1}),i(`span`,c,n(a.label),1)]))}});export{l as t};
