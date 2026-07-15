@@ -32,7 +32,7 @@ function selectMatch(match: GroupMatchSlot): void {
 </script>
 
 <template>
-  <article class="group-table surface-card" :aria-label="`Gruppe ${groupId}`">
+  <section class="group-table surface-card" :aria-label="`Gruppe ${groupId}`">
     <header class="group-table__header card-header">
       <h2 class="group-table__title">Gruppe {{ groupId }}</h2>
     </header>
@@ -51,7 +51,7 @@ function selectMatch(match: GroupMatchSlot): void {
         @open-score="selectMatch(match)"
       />
     </section>
-  </article>
+  </section>
 </template>
 
 <style scoped>

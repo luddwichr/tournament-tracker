@@ -29,7 +29,7 @@ export class GroupsPage {
   }
 
   group(groupId: GroupId): Locator {
-    return this.page.getByRole('article', { name: `Gruppe ${groupId}` })
+    return this.page.getByRole('region', { name: `Gruppe ${groupId}` })
   }
 
   standings(groupId: GroupId): Locator {
