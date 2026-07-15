@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils'
 
 describe('useAnnounce', () => {
   it('calls the injected announce function with the given message', () => {
-    const fn = vi.fn()
+    const fn = vi.fn<(msg: string) => void>()
     let capturedAnnounce: ((msg: string) => void) | undefined
 
     const Child = defineComponent({

@@ -11,7 +11,7 @@ import { makeTeam } from '../test-support/teams'
 import { syncResults } from '../lib/results-sync'
 import { useTournamentStore } from '../stores/tournament'
 
-vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
+vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn<typeof syncResults>() }))
 
 const homeTeam = makeTeam({ id: 'ger', name: 'Deutschland' })
 const awayTeam = makeTeam({ id: 'fra', name: 'Frankreich' })

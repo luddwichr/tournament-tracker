@@ -227,7 +227,7 @@ describe('espnProvider.fetchResults', () => {
   })
 
   it('fetches nothing before the tournament starts', async () => {
-    const fetchImpl = vi.fn()
+    const fetchImpl = vi.fn<typeof fetch>()
     expect(await espnProvider.fetchResults({ fetchImpl, now: () => new Date('2020-01-01T00:00:00Z') })).toEqual([])
     expect(fetchImpl).not.toHaveBeenCalled()
   })

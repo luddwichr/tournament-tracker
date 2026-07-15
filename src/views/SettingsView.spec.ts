@@ -15,12 +15,12 @@ import { useTournamentStore } from '../stores/tournament'
 vi.mock('../lib/persistence', () => ({
   SCHEMA_VERSION: 1,
   STORAGE_KEY: 'wc2026:results:v1',
-  exportJson: vi.fn(),
-  parseImport: vi.fn(),
+  exportJson: vi.fn<typeof persistence.exportJson>(),
+  parseImport: vi.fn<typeof persistence.parseImport>(),
 }))
 
 vi.mock('../lib/results-sync', () => ({
-  syncResults: vi.fn(),
+  syncResults: vi.fn<typeof syncResults>(),
 }))
 
 beforeEach(() => {

@@ -4,7 +4,7 @@ import { nextTick } from 'vue'
 import { syncResults } from '../lib/results-sync'
 import { useResultsSync } from './use-results-sync'
 
-vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn() }))
+vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn<typeof syncResults>() }))
 
 const result = (matchId: string): Result => ({
   awayGoals: 0,
@@ -28,7 +28,7 @@ describe('useResultsSync', () => {
   })
 
   it('run() applies results and reports done with a count', async () => {
-    const apply = vi.fn()
+    const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     const results = { M01: result('M01'), M02: result('M02') }
     vi.mocked(syncResults).mockResolvedValue(results)
 
@@ -56,7 +56,7 @@ describe('useResultsSync', () => {
   })
 
   it('cancel() aborts an in-flight sync without applying results', async () => {
-    const apply = vi.fn()
+    const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     vi.mocked(syncResults).mockImplementation(
       (_provider, opts) =>
         new Promise((_resolve, reject) => {
@@ -80,7 +80,7 @@ describe('useResultsSync', () => {
   })
 
   it('ignores a success that resolves after cancellation', async () => {
-    const apply = vi.fn()
+    const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     let finish!: () => void
     vi.mocked(syncResults).mockImplementation(
       () =>
@@ -111,7 +111,7 @@ describe('useResultsSync', () => {
   })
 
   it('retrying after an error can succeed', async () => {
-    const apply = vi.fn()
+    const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     vi.mocked(syncResults)
       .mockRejectedValueOnce(new Error('Netzfehler'))
       .mockResolvedValueOnce({ M01: result('M01') })

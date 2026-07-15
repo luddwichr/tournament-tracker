@@ -1,10 +1,34 @@
-import { GROUP_IDS, type GroupId } from '../types/tournament'
+import { GROUP_IDS, type GroupId, type TeamRef } from '../types/tournament'
 import { THIRD_PLACE_ALLOCATION, THIRD_PLACE_SLOT_HOST, fixtures, groupMatches, knockoutMatches } from './fixtures-2026'
 import { describe, expect, it } from 'vitest'
 import { teams, teamsById } from './teams'
 
 const countStage = (stage: string) => knockoutMatches.filter((m) => m.stage === stage).length
 const matchNum = (id: string) => Number(id.slice(1))
+
+// Validates a single knockout `TeamRef`, returning a human-readable reason when
+// it is malformed or `null` when it resolves. Returning the problem (rather than
+// asserting inside each branch) keeps the per-kind checks out of a conditional
+// `expect`: the caller makes one unconditional assertion per ref instead.
+function knockoutRefProblem(ref: TeamRef, matchIds: ReadonlySet<string>, ownNum: number): string | null {
+  switch (ref.kind) {
+    case 'groupRank': {
+      if (!GROUP_IDS.includes(ref.group)) return `group ${ref.group} is not a real group`
+      return [1, 2].includes(ref.rank) ? null : `rank ${ref.rank} is out of range`
+    }
+    case 'thirdPlace': {
+      return ref.slot >= 1 && ref.slot <= 8 ? null : `third-place slot ${ref.slot} is out of range`
+    }
+    case 'matchWinner':
+    case 'matchLoser': {
+      if (!matchIds.has(ref.matchId)) return `references unknown match ${ref.matchId}`
+      return matchNum(ref.matchId) < ownNum ? null : `references ${ref.matchId}, which is not played earlier`
+    }
+    default: {
+      return 'is a group-style ref inside a knockout match'
+    }
+  }
+}
 
 describe('teams', () => {
   it('has all 48 qualified teams', () => {
@@ -104,45 +128,22 @@ describe('knockout bracket reachability', () => {
   it('resolves every knockout reference to a valid group, slot or earlier match', () => {
     for (const m of knockoutMatches) {
       for (const ref of [m.homeRef, m.awayRef]) {
-        switch (ref.kind) {
-          case 'groupRank': {
-            expect(GROUP_IDS).toContain(ref.group)
-            expect([1, 2]).toContain(ref.rank)
-            break
-          }
-          case 'thirdPlace': {
-            expect(ref.slot).toBeGreaterThanOrEqual(1)
-            expect(ref.slot).toBeLessThanOrEqual(8)
-            break
-          }
-          case 'matchWinner':
-          case 'matchLoser': {
-            expect(ids.has(ref.matchId), `dangling ${ref.matchId}`).toBe(true)
-            // referenced match is always played earlier
-            expect(matchNum(ref.matchId)).toBeLessThan(matchNum(m.id))
-            break
-          }
-          default: {
-            throw new Error(`group-style ref in knockout match ${m.id}`)
-          }
-        }
+        expect(knockoutRefProblem(ref, ids, matchNum(m.id)), `${m.id} ref`).toBeNull()
       }
     }
   })
 
   it('uses each group winner and runner-up exactly once across the round of 32', () => {
-    const seen = new Set<string>()
+    const slots: string[] = []
     for (const m of knockoutMatches.filter((x) => x.stage === 'r32')) {
       for (const ref of [m.homeRef, m.awayRef]) {
-        if (ref.kind === 'groupRank') {
-          const key = `${ref.group}${ref.rank}`
-          expect(seen.has(key)).toBe(false)
-          seen.add(key)
-        }
+        if (ref.kind === 'groupRank') slots.push(`${ref.group}${ref.rank}`)
       }
     }
-    // 12 winners + 12 runners-up = 24 group slots; 8 winners face third-placed teams
-    expect(seen.size).toBe(24)
+    // 12 winners + 12 runners-up = 24 group slots, each used exactly once
+    // (8 winners additionally face third-placed teams).
+    expect(new Set(slots).size).toBe(slots.length)
+    expect(slots).toHaveLength(24)
   })
 
   it('feeds the third-place play-off and final from the two semi-finals', () => {
@@ -172,11 +173,10 @@ describe('third-place allocation table', () => {
       const slot = m.awayRef.slot
       expect(slotsSeen.has(slot)).toBe(false)
       slotsSeen.add(slot)
-      expect(m.homeRef.kind).toBe('groupRank')
-      if (m.homeRef.kind === 'groupRank') {
-        expect(m.homeRef.rank).toBe(1)
-        expect(m.homeRef.group).toBe(THIRD_PLACE_SLOT_HOST[slot])
-      }
+      const home = m.homeRef
+      if (home.kind !== 'groupRank') throw new Error(`slot ${slot}'s match has a non-group-winner home ref`)
+      expect(home.rank).toBe(1)
+      expect(home.group).toBe(THIRD_PLACE_SLOT_HOST[slot])
     }
     expect(slotsSeen.size).toBe(8)
   })

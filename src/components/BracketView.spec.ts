@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type { MatchSlot, Team } from '../types/tournament'
 import OriginColumn, { type OriginGroupData } from './OriginColumn.vue'
 import { allGroupResults, makeResult } from '../test-support/results'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -18,7 +19,7 @@ import { useTournamentStore } from '../stores/tournament'
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  HTMLElement.prototype.scrollIntoView = vi.fn()
+  HTMLElement.prototype.scrollIntoView = vi.fn<() => void>()
 })
 
 describe('BracketView – structure', () => {
@@ -83,7 +84,7 @@ describe('BracketView – round match counts', () => {
   })
 })
 
-function mountWithOpener(openScoreDialog = vi.fn()) {
+function mountWithOpener(openScoreDialog = vi.fn<(match: MatchSlot, home: Team, away: Team) => void>()) {
   const wrapper = mount(BracketView, {
     attachTo: document.body,
     global: { provide: { [scoreDialogKey as symbol]: openScoreDialog } },

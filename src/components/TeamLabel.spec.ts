@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
+import type { Team } from '../types/tournament'
 import TeamLabel from './TeamLabel.vue'
 import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
@@ -25,7 +26,7 @@ describe('TeamLabel – non-clickable', () => {
   })
 
   it('does not call the team viewer when not clickable', async () => {
-    const openTeamView = vi.fn()
+    const openTeamView = vi.fn<(team: Team) => void>()
     const wrapper = mount(TeamLabel, {
       global: { provide: { [teamViewerKey as symbol]: openTeamView } },
       props: { team },
@@ -52,7 +53,7 @@ describe('TeamLabel – clickable', () => {
   })
 
   it('calls the team viewer with the team on click', async () => {
-    const openTeamView = vi.fn()
+    const openTeamView = vi.fn<(team: Team) => void>()
     const wrapper = mount(TeamLabel, {
       global: { provide: { [teamViewerKey as symbol]: openTeamView } },
       props: { clickable: true, team },

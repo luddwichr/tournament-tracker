@@ -30,39 +30,39 @@ describe('parseImport', () => {
 
   it('throws on wrong version number', () => {
     const json = JSON.stringify({ results: {}, version: 99 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('throws on missing results key', () => {
     const json = JSON.stringify({ version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('throws on a non-object results value', () => {
     const json = JSON.stringify({ results: 'bad', version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('throws when results is an array (typeof [] === "object" would otherwise slip through)', () => {
     const json = JSON.stringify({ results: [validResult('M01')], version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('throws when a result is keyed by an id that is not a real fixture', () => {
     const json = JSON.stringify({ results: { NOPE: validResult('NOPE') }, version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it("throws when a result's matchId does not match the key it's stored under", () => {
     // Stored under M01 but claims to be M02 — invisible/unresolvable per REQUIREMENTS.md §9.8.
     const json = JSON.stringify({ results: { M01: validResult('M02') }, version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('throws when a result is missing required numeric fields', () => {
     const bad = { awayGoals: 0, homeGoals: 1, matchId: 'M01' } // missing card fields
     const json = JSON.stringify({ results: { M01: bad }, version: 1 })
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   // Corrupt-import cases that must be caught by isNonNegativeInteger (used
@@ -78,7 +78,7 @@ describe('parseImport', () => {
     ['a non-string matchId', '"matchId":123'],
   ])('rejects an import with %s', (_label, fieldOverride) => {
     const json = `{"version":1,"results":{"M01":{"matchId":"M01","homeGoals":1,"awayGoals":0,"homeYellow":0,"homeRed":0,"awayYellow":0,"awayRed":0,${fieldOverride}}}}`
-    expect(() => parseImport(json)).toThrow()
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
   it('accepts a version-1 export file (legacy, no shootout fields)', () => {
@@ -100,7 +100,7 @@ describe('parseImport', () => {
       ['with a negative shootout goal count', { M73: shootoutResult({ homeShootoutGoals: -4 }) }],
       ['with a fractional shootout goal count', { M73: shootoutResult({ homeShootoutGoals: 4.5 }) }],
     ])('rejects a shootout %s', (_label, results) => {
-      expect(() => parseImport(serialise(results))).toThrow()
+      expect(() => parseImport(serialise(results))).toThrow(/Unbekanntes Dateiformat/)
     })
   })
 })
