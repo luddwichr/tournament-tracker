@@ -135,13 +135,16 @@ function formatErrorTime(isoTime: string): string {
 
         <!-- tabindex="-1" + the visually-hidden clip already remove this from
              tab order and view; aria-hidden on a focusable control is the
-             aria-hidden-focus anti-pattern, so it's deliberately omitted. -->
+             aria-hidden-focus anti-pattern, so it's deliberately omitted. It's
+             driven by the "Importieren" button but still carries an accessible
+             name for the rare case a user reaches it directly. -->
         <input
           ref="fileInput"
           type="file"
           accept=".json,application/json"
           class="visually-hidden"
           tabindex="-1"
+          aria-label="Ergebnisdatei importieren"
           @change="handleFileChange"
         />
       </section>
