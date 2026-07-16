@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import ScoreInput from './ScoreInput.vue'
+import { findButtonByLabel } from '../test-support/find-button'
 import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
 
@@ -57,15 +58,13 @@ describe('ScoreInput', () => {
 
   it('emits update:home when home increment is clicked', async () => {
     const wrapper = mountScoreInput(1, 0)
-    const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-    await inc!.trigger('click')
+    await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
     expect(wrapper.emitted('update:home')).toEqual([[2]])
   })
 
   it('emits update:away when away increment is clicked', async () => {
     const wrapper = mountScoreInput(0, 2)
-    const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
-    await inc!.trigger('click')
+    await findButtonByLabel(wrapper, 'Tor für Frankreich hinzufügen').trigger('click')
     expect(wrapper.emitted('update:away')).toEqual([[3]])
   })
 })

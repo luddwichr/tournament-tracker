@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import ConfirmDialog from './ConfirmDialog.vue'
+import { findButtonByText } from '../test-support/find-button'
 import { mount } from '@vue/test-utils'
 
 describe('ConfirmDialog', () => {
@@ -39,20 +40,14 @@ describe('ConfirmDialog', () => {
 
   it('emits confirm (only) when confirm button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { message: 'M', title: 'T' } })
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Bestätigen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Bestätigen').trigger('click')
     expect(wrapper.emitted('confirm')).toHaveLength(1)
     expect(wrapper.emitted('cancel')).toBeUndefined()
   })
 
   it('emits cancel (only) when cancel button is clicked', async () => {
     const wrapper = mount(ConfirmDialog, { props: { message: 'M', title: 'T' } })
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Abbrechen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Abbrechen').trigger('click')
     expect(wrapper.emitted('cancel')).toHaveLength(1)
     expect(wrapper.emitted('confirm')).toBeUndefined()
   })

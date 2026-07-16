@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { allGroupResults, makeResult } from '../test-support/results'
 import { createPinia, setActivePinia } from 'pinia'
+import { findButtonByLabel, findButtonByText, queryButtonByText } from '../test-support/find-button'
 import { flushPromises, mount } from '@vue/test-utils'
 import ConfirmDialog from './ConfirmDialog.vue'
 import type { MatchSlot } from '../types/tournament'
@@ -36,15 +37,15 @@ function mountDialog(match: MatchSlot = groupMatch) {
 }
 
 function saveButton(wrapper: ReturnType<typeof mountDialog>) {
-  return wrapper.findAll('button').find((b) => b.text().includes('Speichern'))!
+  return findButtonByText(wrapper, 'Speichern')
 }
 
 function cancelButton(wrapper: ReturnType<typeof mountDialog>) {
-  return wrapper.findAll('button').find((b) => b.text().includes('Abbrechen'))!
+  return findButtonByText(wrapper, 'Abbrechen')
 }
 
 function deleteButton(wrapper: ReturnType<typeof mountDialog>) {
-  return wrapper.findAll('button').find((b) => b.text().includes('Löschen'))
+  return queryButtonByText(wrapper, 'Löschen')
 }
 
 // Helpers for the penalty-shootout suite.
@@ -53,7 +54,7 @@ function scoreInputs(wrapper: ReturnType<typeof mountDialog>) {
 }
 
 function penaltyFor(wrapper: ReturnType<typeof mountDialog>, team: string) {
-  return wrapper.findAll('button').find((b) => b.attributes('aria-label') === `Elfmetertor für ${team} hinzufügen`)!
+  return findButtonByLabel(wrapper, `Elfmetertor für ${team} hinzufügen`)
 }
 
 // Helpers for the cascade-confirmation suite; see the scenario comment there.
@@ -66,12 +67,11 @@ function seedGroupInvalidationScenario() {
 }
 
 async function flipM53ToAwayWin(wrapper: ReturnType<typeof mountDialog>) {
-  const decHome = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
-  await decHome!.trigger('click')
-  const incAway = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
-  await incAway!.trigger('click')
-  await incAway!.trigger('click')
-  await incAway!.trigger('click')
+  await findButtonByLabel(wrapper, 'Tor für Deutschland abziehen').trigger('click')
+  const incAway = findButtonByLabel(wrapper, 'Tor für Frankreich hinzufügen')
+  await incAway.trigger('click')
+  await incAway.trigger('click')
+  await incAway.trigger('click')
 }
 
 beforeEach(() => {
@@ -153,8 +153,7 @@ describe('ScoreDialog', () => {
   it('away goal increments are reflected when saved', async () => {
     const store = useTournamentStore()
     const wrapper = mountDialog()
-    const btn = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Frankreich hinzufügen')
-    await btn!.trigger('click')
+    await findButtonByLabel(wrapper, 'Tor für Frankreich hinzufügen').trigger('click')
     await saveButton(wrapper).trigger('click')
     expect(store.results['M01']).toMatchObject({ awayGoals: 1 })
   })
@@ -335,8 +334,7 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog(knockoutMatch)
       await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
-      const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await inc!.trigger('click')
+      await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
     })
 
@@ -350,11 +348,9 @@ describe('ScoreDialog', () => {
       const wrapper = mountDialog(knockoutMatch)
       await saveButton(wrapper).trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(true)
-      const inc = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await inc!.trigger('click')
+      await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       expect(wrapper.find('.score-dialog__draw-error').exists()).toBe(false)
-      const dec = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Tor für Deutschland abziehen')
-      await dec!.trigger('click')
+      await findButtonByLabel(wrapper, 'Tor für Deutschland abziehen').trigger('click')
       // scores are equal again; the error is purely derived from
       // (attempted-save && saveError), so it reappears rather than staying
       // latched false.
@@ -370,10 +366,7 @@ describe('ScoreDialog', () => {
     it('shows the shootout inputs exactly while a knockout score is level', async () => {
       const wrapper = mountDialog(knockoutMatch) // opens at 0:0 — level
       expect(scoreInputs(wrapper)).toHaveLength(2)
-      const incGoal = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await incGoal!.trigger('click')
+      await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       expect(scoreInputs(wrapper)).toHaveLength(1)
     })
 
@@ -415,10 +408,8 @@ describe('ScoreDialog', () => {
       const store = useTournamentStore()
       store.enterResult(makeResult('M90', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 }))
       const wrapper = mountDialog(knockoutMatch)
-      const incGoal = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await incGoal!.trigger('click') // 2:1 — decisive without a shootout
+      // 2:1 — decisive without a shootout
+      await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M90']).toMatchObject({ awayGoals: 1, homeGoals: 2 })
       expect(store.results['M90']!.homeShootoutGoals).toBeUndefined()
@@ -464,11 +455,7 @@ describe('ScoreDialog', () => {
       await flipM53ToAwayWin(wrapper)
       await saveButton(wrapper).trigger('click')
 
-      await wrapper
-        .findComponent(ConfirmDialog)
-        .findAll('button')
-        .find((b) => b.text() === 'Abbrechen')!
-        .trigger('click')
+      await findButtonByText(wrapper.findComponent(ConfirmDialog), 'Abbrechen').trigger('click')
 
       expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
       expect(store.results['M53']).toEqual(makeResult('M53', 1, 0))
@@ -483,11 +470,7 @@ describe('ScoreDialog', () => {
       await flipM53ToAwayWin(wrapper)
       await saveButton(wrapper).trigger('click')
 
-      await wrapper
-        .findComponent(ConfirmDialog)
-        .findAll('button')
-        .find((b) => b.text() === 'Trotzdem speichern')!
-        .trigger('click')
+      await findButtonByText(wrapper.findComponent(ConfirmDialog), 'Trotzdem speichern').trigger('click')
 
       expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
       expect(store.results['M53']).toEqual(makeResult('M53', 0, 3))
@@ -500,10 +483,7 @@ describe('ScoreDialog', () => {
       const store = seedGroupInvalidationScenario()
       const wrapper = mountDialog(m53Match)
       // M53: 1:0 → 2:0 — Tschechien still wins, group order is unaffected.
-      const incHome = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Tor für Deutschland hinzufügen')
-      await incHome!.trigger('click')
+      await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
 
       await saveButton(wrapper).trigger('click')
 
@@ -523,10 +503,7 @@ describe('ScoreDialog', () => {
       expect(confirmDialog.find('.btn--danger').text()).toBe('Trotzdem löschen')
       expect(store.results['M53']).toBeDefined()
 
-      await confirmDialog
-        .findAll('button')
-        .find((b) => b.text() === 'Trotzdem löschen')!
-        .trigger('click')
+      await findButtonByText(confirmDialog, 'Trotzdem löschen').trigger('click')
 
       expect(store.results['M53']).toBeUndefined()
       expect(store.results['M79']).toBeUndefined()

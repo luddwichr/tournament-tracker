@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import SyncDialog from './SyncDialog.vue'
 import type { SyncStatus } from '../composables/use-results-sync'
+import { findButtonByText } from '../test-support/find-button'
 import { mount } from '@vue/test-utils'
 
 function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> = {}) {
@@ -11,7 +12,7 @@ function mountDialog(props: Partial<InstanceType<typeof SyncDialog>['$props']> =
 }
 
 function button(wrapper: ReturnType<typeof mountDialog>, text: string) {
-  return wrapper.findAll('button').find((b) => b.text().includes(text))!
+  return findButtonByText(wrapper, text)
 }
 
 describe('SyncDialog', () => {
