@@ -1,6 +1,6 @@
 import { type RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
-import { isGroupStageComplete } from './lib/standings'
-import { useTournamentStore } from './stores/tournament'
+import { isGroupStageComplete } from '../lib/standings'
+import { useTournamentStore } from '../stores/tournament'
 
 const APP_NAME = 'WM 2026 Tracker'
 
@@ -13,25 +13,25 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    component: () => import('./views/GroupsView.vue'),
+    component: () => import('../views/GroupsView.vue'),
     meta: { title: 'Gruppen' },
     name: 'groups',
     path: '/groups',
   },
   {
-    component: () => import('./views/KnockoutView.vue'),
+    component: () => import('../views/KnockoutView.vue'),
     meta: { title: 'K.-o.-Runde' },
     name: 'knockout',
     path: '/knockout',
   },
   {
-    component: () => import('./views/RankingView.vue'),
+    component: () => import('../views/RankingView.vue'),
     meta: { title: 'Weltrangliste' },
     name: 'ranking',
     path: '/ranking',
   },
   {
-    component: () => import('./views/SettingsView.vue'),
+    component: () => import('../views/SettingsView.vue'),
     meta: { title: 'Einstellungen' },
     name: 'settings',
     path: '/settings',

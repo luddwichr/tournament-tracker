@@ -151,8 +151,8 @@ export default defineConfig(({ command }) => ({
     coverage: {
       exclude: [
         'src/**/*.spec.ts',
-        'src/main.ts',
-        'src/router.ts',
+        'src/app/main.ts',
+        'src/app/router.ts',
         'src/test-support/**',
         // Pure compile-time exhaustiveness guard: its only regression is caught
         // by tsc at every call site, so the runtime throw needs no test.

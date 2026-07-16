@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 // `build.target` — previously kept in sync only by "keep in sync" comments
 // with nothing enforcing it.
 
-const ROOT = join(__dirname, '..')
+const ROOT = join(__dirname, '..', '..')
 
 interface TsconfigShape {
   compilerOptions?: { target?: string; lib?: string[] }

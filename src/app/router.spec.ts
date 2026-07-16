@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { allGroupResults } from './test-support/results'
+import { allGroupResults } from '../test-support/results'
 import { router } from './router'
-import { useTournamentStore } from './stores/tournament'
+import { useTournamentStore } from '../stores/tournament'
 
 beforeEach(() => {
   setActivePinia(createPinia())
