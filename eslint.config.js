@@ -84,7 +84,7 @@ export default tseslint.config(
     // import — template refs, mount() in specs, createApp(App) — therefore
     // surfaces as `any`/error-typed and would trip the no-unsafe-* family
     // with false positives. All other typed rules stay active here.
-    files: ['**/*.vue', 'src/**/*.spec.ts', 'src/main.ts'],
+    files: ['**/*.vue', 'src/**/*.spec.ts', 'src/app/main.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -118,8 +118,9 @@ export default tseslint.config(
         'error',
         {
           default: 'disallow',
-          // Order matters: unit-test files also match a layer element, so their
-          // (broader) policy must come first to win.
+          // Every policy below is an `allow`, so they union and the order is
+          // irrelevant. If a `disallow` is ever added it must come *after* any
+          // allow it overrides — the rule is last-match-wins, not first.
           policies: [
             // Unit tests may reach into any production layer plus shared support,
             // but never into e2e.
@@ -127,50 +128,67 @@ export default tseslint.config(
               allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root', 'test-support'] } } } },
               from: { file: { categories: 'unit-test' } },
             },
-            // Shared test helpers stay pure: domain + siblings only.
+            // Shared test helpers stay pure: domain only. (No self-allow needed —
+            // patterns without a capture group are a single element, and imports
+            // within one element are never reported. Contrast `domain` below.)
             {
-              allow: { to: { element: { types: { anyOf: ['domain', 'test-support'] } } } },
+              allow: { to: { element: { types: 'domain' } } },
               from: { element: { types: 'test-support' } },
             },
             // e2e exercises the app through the browser: only the pure domain
             // layer (types/data/lib) and shared test-support, never UI/runtime.
             {
-              allow: { to: { element: { types: { anyOf: ['domain', 'test-support', 'e2e'] } } } },
+              allow: { to: { element: { types: { anyOf: ['domain', 'test-support'] } } } },
               from: { element: { types: 'e2e' } },
             },
             // Production code may only import production code — never test-support,
-            // specs, or e2e (keeps test helpers out of the shipped bundle).
+            // specs, or e2e (keeps test helpers out of the shipped bundle). The
+            // capture group splits `domain` into three elements (types/data/lib),
+            // so the self-allow here is load-bearing: it permits lib -> data.
             {
               allow: { to: { element: { types: 'domain' } } },
               from: { element: { types: 'domain' } },
             },
+            // `styles` is a leaf: stylesheets are imported by the app entry and by
+            // the components that need them, and import nothing back.
             {
-              allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root'] } } } },
+              allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root', 'styles'] } } } },
               from: { element: { types: { anyOf: ['ui', 'app-root'] } } },
             },
           ],
         },
       ],
+      // Every linted file must land in an element. Without this, a file matching no
+      // element is simply unchecked — the old `src` catch-all's failure mode wearing
+      // a different hat, since a new folder would import freely and silently.
+      'boundaries/no-unknown-files': 'error',
     },
     settings: {
-      // Architectural layer, matched by folder. First match wins, so these run
-      // most-specific to least: `app-root` (bare `src`) is the catch-all for
-      // App.vue / main.ts / router.ts that no earlier layer claimed.
+      // Architectural layer, matched by folder. Every pattern names a real folder
+      // and they are mutually exclusive, so classification does not depend on the
+      // order here. Nothing is a catch-all: `src` has no loose root files, so a
+      // new top-level folder matches nothing and `no-unknown-files` above rejects
+      // it, forcing a deliberate choice of layer instead of silently granting it
+      // app-layer import rights.
       'boundaries/elements': [
         { pattern: 'src/test-support', type: 'test-support' },
         { pattern: 'src/(types|data|lib)', type: 'domain' },
         { pattern: 'src/(components|views|stores|composables)', type: 'ui' },
-        { pattern: 'src', type: 'app-root' },
+        { pattern: 'src/app', type: 'app-root' },
+        { pattern: 'src/styles', type: 'styles' },
+        { pattern: 'src/build', type: 'build' },
         { pattern: 'e2e', type: 'e2e' },
       ],
       // Orthogonal file dimension: a `.spec.ts` is a unit test regardless of
       // which layer folder it sits in. Scoped to src so e2e specs stay purely
       // `e2e` and never inherit the unit-test import allowances above.
       'boundaries/files': [{ category: 'unit-test', pattern: 'src/**/*.spec.ts' }],
-      // boundaries resolves each import to a file before classifying it; teach
-      // the node resolver the TS/Vue extensions this project imports without.
+      // boundaries resolves each import to a file before classifying it, and the
+      // node resolver's default extensions cover neither. `.ts` is what this
+      // project imports extensionlessly; `.vue` specifiers carry their own
+      // extension but are listed so resolution does not rely on that.
       'import/resolver': {
-        node: { extensions: ['.ts', '.tsx', '.vue', '.js', '.mjs', '.json', '.d.ts'] },
+        node: { extensions: ['.ts', '.vue'] },
       },
     },
   },

@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { defineAsyncComponent, useTemplateRef, watch, watchEffect } from 'vue'
-import AppHeader from './components/AppHeader.vue'
-import UpdateDialog from './components/UpdateDialog.vue'
-import { provideAnnounce } from './composables/use-announce'
-import { provideScoreDialog } from './composables/use-score-dialog'
-import { provideTeamViewer } from './composables/use-team-viewer'
+import AppHeader from '../components/AppHeader.vue'
+import UpdateDialog from '../components/UpdateDialog.vue'
+import { provideAnnounce } from '../composables/use-announce'
+import { provideScoreDialog } from '../composables/use-score-dialog'
+import { provideTeamViewer } from '../composables/use-team-viewer'
 import { useRoute } from 'vue-router'
-import { useSettingsStore } from './stores/settings'
+import { useSettingsStore } from '../stores/settings'
 
 // Loaded lazily: TeamDialog pulls in the squads dataset and flag-icons CSS
 // (see main.ts), which must not ride the entry chunk. It only renders under
 // v-if, so the async gap is invisible.
-const TeamDialog = defineAsyncComponent(() => import('./components/TeamDialog.vue'))
+const TeamDialog = defineAsyncComponent(() => import('../components/TeamDialog.vue'))
 
 // Loaded lazily for the same reason: ScoreDialog pulls in use-match-result-form,
 // which pulls in the ESPN live-sync provider and the full fixtures/teams data —
 // none of that belongs in the entry chunk that every route pays for upfront.
-const ScoreDialog = defineAsyncComponent(() => import('./components/ScoreDialog.vue'))
+const ScoreDialog = defineAsyncComponent(() => import('../components/ScoreDialog.vue'))
 
 const settings = useSettingsStore()
 watchEffect(() => {

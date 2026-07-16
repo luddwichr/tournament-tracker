@@ -10,6 +10,9 @@
   },
   // Kept Vue-free on purpose so this project is type-checked by TypeScript 7 (`tsc`), not vue-tsc; see docs/typescript-7-side-by-side.md for more.
   // Don't widen this to `src/**/*.ts`/`src/**/*.vue`.
+  // These are root files, not an allowlist — tsc still follows imports transitively
+  // (e2e reaches src/test-support that way). The e2e -> domain import boundary is
+  // enforced by `boundaries/dependencies` in eslint.config.js, not here.
   "include": [
     "e2e/**/*.ts",
     "playwright.pwa.config.ts",

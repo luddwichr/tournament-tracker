@@ -383,7 +383,7 @@ context, and the non-automatable content the prior review asked for was never wr
 3. **[MEDIUM] `docs/requirements.md` drift: partially reconciled, the previously-flagged
    errors untouched — and one new drift added since.** Full list in §9.1; new since the review
    that flagged it: "`/` redirects to `/groups`" (`requirements.md:228`) vs the now-conditional
-   redirect (`src/router.ts:10-15`). Agents reading this doc as spec inherit six wrong facts.
+   redirect (`src/app/router.ts:10-15`). Agents reading this doc as spec inherit six wrong facts.
    Fix the six lines, then add the previously suggested "last reconciled at commit …" header so
    staleness is self-declaring.
 

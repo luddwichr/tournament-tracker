@@ -5,11 +5,11 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import { defineComponent, h } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import App from './App.vue'
-import { makeMatch } from './test-support/matches'
-import { makeTeam } from './test-support/teams'
-import { useScoreDialog } from './composables/use-score-dialog'
-import { useSettingsStore } from './stores/settings'
-import { useTeamViewer } from './composables/use-team-viewer'
+import { makeMatch } from '../test-support/matches'
+import { makeTeam } from '../test-support/teams'
+import { useScoreDialog } from '../composables/use-score-dialog'
+import { useSettingsStore } from '../stores/settings'
+import { useTeamViewer } from '../composables/use-team-viewer'
 
 const team = makeTeam({ fifaRanking: 14, flagCode: 'de', id: 'ger', name: 'Deutschland' })
 
