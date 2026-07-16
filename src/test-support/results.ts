@@ -1,7 +1,7 @@
 import type { Result } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
 
-export function makeResult(matchId: string, homeGoals: number, awayGoals: number, extra: Partial<Result> = {}): Result {
+export function makeResult(matchId: string, homeGoals = 1, awayGoals = 0, extra: Partial<Result> = {}): Result {
   return {
     awayGoals,
     awayRed: 0,

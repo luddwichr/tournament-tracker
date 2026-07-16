@@ -8,6 +8,7 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SettingsView from './SettingsView.vue'
 import SyncDialog from '../components/SyncDialog.vue'
 import ThemePicker from '../components/ThemePicker.vue'
+import { makeResult } from '../test-support/results'
 import { syncResults } from '../lib/results-sync'
 import { useSettingsStore } from '../stores/settings'
 import { useTournamentStore } from '../stores/tournament'
@@ -159,9 +160,7 @@ describe('SettingsView – import', () => {
 
   it('confirming import calls store.importResults and hides dialog', async () => {
     const store = useTournamentStore()
-    const mockResults = {
-      M01: { awayGoals: 0, awayRed: 0, awayYellow: 0, homeGoals: 1, homeRed: 0, homeYellow: 0, matchId: 'M01' },
-    }
+    const mockResults = { M01: makeResult('M01') }
     vi.mocked(persistence.parseImport).mockReturnValue(mockResults)
     const wrapper = mountView()
     await triggerFileChange(wrapper, '...')
@@ -242,9 +241,7 @@ function dialogButton(wrapper: ReturnType<typeof mountView>, text: string) {
     .trigger('click')
 }
 
-const oneResult = {
-  M01: { awayGoals: 0, awayRed: 0, awayYellow: 0, homeGoals: 2, homeRed: 0, homeYellow: 0, matchId: 'M01' },
-}
+const oneResult = { M01: makeResult('M01', 2, 0) }
 
 describe('SettingsView – sync results', () => {
   it('opens the sync dialog in the confirm state', async () => {

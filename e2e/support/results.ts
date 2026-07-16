@@ -1,13 +1,12 @@
 import { SCHEMA_VERSION, STORAGE_KEY } from '../../src/lib/persistence'
 import type { Page } from '@playwright/test'
 import type { Result } from '../../src/types/tournament'
-import { groupMatches } from '../../src/data/fixtures-2026'
 
 export { SCHEMA_VERSION, STORAGE_KEY }
 
-export function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
-  return { awayGoals, awayRed: 0, awayYellow: 0, homeGoals, homeRed: 0, homeYellow: 0, matchId }
-}
+// Reuse the app's own result factories (pure TS, no Vue) rather than
+// reimplementing them here — a Result-shape change then touches one place.
+export { allGroupResults, makeResult } from '../../src/test-support/results'
 
 // `storedState`/`seedResults` write directly to localStorage rather than driving the
 // UI, as a fast shortcut to get the app into a "results already entered" state. This
@@ -36,10 +35,4 @@ export async function clearResults(page: Page): Promise<void> {
   await page.evaluate((key) => {
     localStorage.removeItem(key)
   }, STORAGE_KEY)
-}
-
-export function allGroupResults(homeGoals = 1, awayGoals = 0): Record<string, Result> {
-  const results: Record<string, Result> = {}
-  for (const m of groupMatches) results[m.id] = makeResult(m.id, homeGoals, awayGoals)
-  return results
 }
