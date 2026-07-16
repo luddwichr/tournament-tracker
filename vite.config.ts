@@ -149,7 +149,15 @@ export default defineConfig(({ command }) => ({
   ],
   test: {
     coverage: {
-      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router.ts', 'src/test-support/**'],
+      exclude: [
+        'src/**/*.spec.ts',
+        'src/main.ts',
+        'src/router.ts',
+        'src/test-support/**',
+        // Pure compile-time exhaustiveness guard: its only regression is caught
+        // by tsc at every call site, so the runtime throw needs no test.
+        'src/lib/assert-never.ts',
+      ],
       include: ['src/**/*.ts', 'src/**/*.vue'],
       provider: 'v8',
       thresholds: {
