@@ -14,7 +14,7 @@ export function isGroupStageComplete(results: ResultsMap): boolean {
   return GROUP_IDS.every((groupId) => isGroupComplete(groupId, results))
 }
 
-export type MatchOutcome = 'W' | 'D' | 'L'
+type MatchOutcome = 'W' | 'D' | 'L'
 
 export interface TeamStat {
   team: Team

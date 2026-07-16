@@ -2,7 +2,7 @@ import type { InjectionKey, Ref } from 'vue'
 import type { MatchSlot, Team } from '../types/tournament'
 import { inject, provide, ref } from 'vue'
 
-export interface ScoreDialogConfig {
+interface ScoreDialogConfig {
   match: MatchSlot
   homeTeam: Team
   awayTeam: Team
