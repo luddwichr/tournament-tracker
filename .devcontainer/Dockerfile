@@ -8,7 +8,7 @@ ARG NODE_VERSION=24.18.0
 # package.json (Renovate groups both under "npm")
 ARG NPM_VERSION=12.0.1
 # https://github.com/astral-sh/uv/releases
-ARG UV_VERSION=0.11.28
+ARG UV_VERSION=0.11.29
 # https://www.python.org/downloads/
 ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes — keep in sync with @playwright/test in package.json
