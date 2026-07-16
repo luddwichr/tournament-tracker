@@ -7,5 +7,6 @@
     "public/spa-github-pages.js",
     ".claude/hooks/statusline.js"
   ],
-  "ignoreBinaries": ["gitleaks"]
+  "ignoreBinaries": ["gitleaks"],
+  "include": ["cycles"]
 }
