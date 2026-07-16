@@ -1,5 +1,6 @@
 import { _internal, espnProvider } from './espn'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fixtures } from '../../../data/fixtures-2026'
 
 interface TeamSide {
   id: string
@@ -206,6 +207,13 @@ describe('espnProvider.fetchResults', () => {
     await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
     expect(calls).toHaveLength(1)
     expect(calls[0]).toContain('dates=20260611-20260702')
+  })
+
+  it('requests a limit above the fixture count so the tournament tail is not paged off', async () => {
+    const { impl, calls } = recordingFetch({ events: [] })
+    await espnProvider.fetchResults({ fetchImpl: impl, now: pinnedNow })
+    const limit = Number(new URL(calls[0] ?? '').searchParams.get('limit'))
+    expect(limit).toBeGreaterThanOrEqual(fixtures.length)
   })
 
   it('uses a single date when the range spans one day', async () => {
