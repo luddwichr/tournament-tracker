@@ -8,6 +8,7 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 import SettingsView from './SettingsView.vue'
 import SyncDialog from '../components/SyncDialog.vue'
 import ThemePicker from '../components/ThemePicker.vue'
+import { findButtonByText } from '../test-support/find-button'
 import { makeResult } from '../test-support/results'
 import { syncResults } from '../lib/results-sync'
 import { useSettingsStore } from '../stores/settings'
@@ -89,10 +90,7 @@ describe('SettingsView – export', () => {
   it('calls exportJson with store results when Exportieren is clicked', async () => {
     const store = useTournamentStore()
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Exportieren')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Exportieren').trigger('click')
     expect(vi.mocked(persistence.exportJson)).toHaveBeenCalledWith(store.results)
   })
 })
@@ -101,10 +99,7 @@ describe('SettingsView – import', () => {
   it('clicking Importieren clears any previous error and clicks the file input', async () => {
     const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click')
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Importieren')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Importieren').trigger('click')
     expect(clickSpy).toHaveBeenCalledOnce()
   })
 
@@ -143,10 +138,7 @@ describe('SettingsView – import', () => {
     const wrapper = mountView()
     await triggerFileChange(wrapper, 'bad')
     expect(wrapper.find('.settings-view__error').exists()).toBe(true)
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Importieren')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Importieren').trigger('click')
     expect(wrapper.find('.settings-view__error').exists()).toBe(false)
     expect(clickSpy).toHaveBeenCalledOnce()
   })
@@ -164,11 +156,7 @@ describe('SettingsView – import', () => {
     vi.mocked(persistence.parseImport).mockReturnValue(mockResults)
     const wrapper = mountView()
     await triggerFileChange(wrapper, '...')
-    await wrapper
-      .findComponent(ConfirmDialog)
-      .findAll('button')
-      .find((b) => b.text() === 'Ersetzen')!
-      .trigger('click')
+    await findButtonByText(wrapper.findComponent(ConfirmDialog), 'Ersetzen').trigger('click')
     expect(store.results).toEqual(mockResults)
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })
@@ -187,10 +175,7 @@ describe('SettingsView – import', () => {
 describe('SettingsView – reset', () => {
   it('shows ConfirmDialog with reset title when Zurücksetzen is clicked', async () => {
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Zurücksetzen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Zurücksetzen').trigger('click')
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(true)
     expect(wrapper.find('.base-dialog__title').text()).toBe('Zurücksetzen')
   })
@@ -199,15 +184,8 @@ describe('SettingsView – reset', () => {
     const store = useTournamentStore()
     const resetSpy = vi.spyOn(store, 'reset')
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Zurücksetzen')!
-      .trigger('click')
-    await wrapper
-      .findComponent(ConfirmDialog)
-      .findAll('button')
-      .find((b) => b.text() === 'Zurücksetzen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Zurücksetzen').trigger('click')
+    await findButtonByText(wrapper.findComponent(ConfirmDialog), 'Zurücksetzen').trigger('click')
     expect(resetSpy).toHaveBeenCalledOnce()
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })
@@ -216,10 +194,7 @@ describe('SettingsView – reset', () => {
     const store = useTournamentStore()
     const resetSpy = vi.spyOn(store, 'reset')
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Zurücksetzen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Zurücksetzen').trigger('click')
     await wrapper.find('dialog').trigger('close')
     expect(resetSpy).not.toHaveBeenCalled()
     expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
@@ -227,18 +202,11 @@ describe('SettingsView – reset', () => {
 })
 
 function clickSync(wrapper: ReturnType<typeof mountView>) {
-  return wrapper
-    .findAll('button')
-    .find((b) => b.text() === 'Ergebnisse abrufen')!
-    .trigger('click')
+  return findButtonByText(wrapper, 'Ergebnisse abrufen').trigger('click')
 }
 
 function dialogButton(wrapper: ReturnType<typeof mountView>, text: string) {
-  return wrapper
-    .findComponent(SyncDialog)
-    .findAll('button')
-    .find((b) => b.text().includes(text))!
-    .trigger('click')
+  return findButtonByText(wrapper.findComponent(SyncDialog), text).trigger('click')
 }
 
 const oneResult = { M01: makeResult('M01', 2, 0) }
@@ -315,10 +283,7 @@ describe('SettingsView – error log (Diagnose)', () => {
     logError('vue', 'Kaputt (render)')
 
     const wrapper = mountView()
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Protokoll löschen')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Protokoll löschen').trigger('click')
 
     expect(wrapper.find('.settings-view__log').exists()).toBe(false)
     expect(wrapper.find('.settings-view__log-empty').exists()).toBe(true)

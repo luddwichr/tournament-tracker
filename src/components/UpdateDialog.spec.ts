@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import UpdateDialog from './UpdateDialog.vue'
+import { findButtonByText } from '../test-support/find-button'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
@@ -36,20 +37,14 @@ describe('UpdateDialog', () => {
   it('calls updateServiceWorker when "Aktualisieren" is clicked', async () => {
     const { updateServiceWorker } = mockRegisterSW(true)
     const wrapper = mount(UpdateDialog)
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Aktualisieren')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Aktualisieren').trigger('click')
     expect(updateServiceWorker).toHaveBeenCalledOnce()
   })
 
   it('dismisses without reloading when "Später" is clicked', async () => {
     const { needRefresh, updateServiceWorker } = mockRegisterSW(true)
     const wrapper = mount(UpdateDialog)
-    await wrapper
-      .findAll('button')
-      .find((b) => b.text() === 'Später')!
-      .trigger('click')
+    await findButtonByText(wrapper, 'Später').trigger('click')
     expect(needRefresh.value).toBe(false)
     expect(updateServiceWorker).not.toHaveBeenCalled()
     await wrapper.vm.$nextTick()
