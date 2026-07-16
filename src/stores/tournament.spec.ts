@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import type { Result } from '../types/tournament'
 import { STORAGE_KEY } from '../lib/persistence'
-import { allGroupResults } from '../test-support/results'
 import { clearStandingsCache } from '../lib/standings'
+import { invalidatedDownstream } from '../lib/invalidation'
 import { createApp } from 'vue'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
@@ -22,6 +22,16 @@ vi.mock('../lib/possible-teams', async (importOriginal) => {
 vi.mock('../lib/standings', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/standings')>()
   return { ...original, clearStandingsCache: vi.fn<() => void>() }
+})
+
+// Spy on the invalidation detector (keeping resultsWithout real) so the store
+// tests can prove *wiring* — that enterResult/clearResult feed the pending edit
+// to invalidatedDownstream and drop exactly the ids it returns — without
+// re-encoding the standings math, which is invalidation.spec.ts's job. Defaults
+// to "nothing invalidated" so the unrelated tests behave as a plain store.
+vi.mock('../lib/invalidation', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../lib/invalidation')>()
+  return { ...original, invalidatedDownstream: vi.fn<typeof original.invalidatedDownstream>(() => []) }
 })
 
 function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
@@ -115,45 +125,45 @@ describe('tournament store', () => {
 
 // ---------------------------------------------------------------------------
 // enterResult/clearResult enforce the "no stale downstream knockout result"
-// invariant themselves (REVIEW.md §9.1) — see src/lib/invalidation.ts for the
-// detection logic and its own spec for the standings math behind these
-// specific matches/scores.
+// invariant themselves (REVIEW.md §9.1). These tests prove only the *wiring* to
+// invalidatedDownstream (spied above); the standings math that decides which
+// matches are actually invalidated lives in src/lib/invalidation.spec.ts, and
+// the end-to-end confirm flow in src/components/ScoreDialog.spec.ts.
 // ---------------------------------------------------------------------------
 
 describe('tournament store — invalidation invariant', () => {
-  it('enterResult drops invalidated downstream knockout results in the same write', () => {
+  it('enterResult feeds the pending edit to invalidatedDownstream and drops exactly the ids it returns', () => {
     const store = useTournamentStore()
-    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
-    // M79: R32 slot for Group A's rank-1 team; M92: R16 slot fed by M79's winner.
-    store.enterResult(makeResult('M79', 2, 1))
-    store.enterResult(makeResult('M92', 1, 0))
+    store.enterResult(makeResult('M90', 2, 1)) // a stored downstream result
+    vi.mocked(invalidatedDownstream).mockReturnValueOnce(['M90'])
 
-    // M53: Tschechien (home) vs Mexiko (away) — flips Group A's rank 1/2.
-    store.enterResult(makeResult('M53', 0, 3))
+    const edit = makeResult('M73', 2, 1)
+    store.enterResult(edit)
 
-    expect(store.results['M53']).toEqual(makeResult('M53', 0, 3))
-    expect(store.results['M79']).toBeUndefined()
-    expect(store.results['M92']).toBeUndefined()
+    expect(invalidatedDownstream).toHaveBeenLastCalledWith(expect.any(Object), 'M73', edit)
+    expect(store.results['M73']).toEqual(edit)
+    expect(store.results['M90']).toBeUndefined()
   })
 
-  it('enterResult keeps downstream results for a harmless edit', () => {
+  it('enterResult keeps every downstream result when the detector reports none', () => {
     const store = useTournamentStore()
-    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
-    store.enterResult(makeResult('M79', 2, 1))
+    store.enterResult(makeResult('M90', 2, 1))
 
-    // M01: Mexiko 1:0 → 2:0 — order-preserving (see invalidation.spec.ts).
-    store.enterResult(makeResult('M01', 2, 0))
+    store.enterResult(makeResult('M73', 2, 1)) // detector returns [] by default
 
-    expect(store.results['M79']).toEqual(makeResult('M79', 2, 1))
+    expect(store.results['M73']).toBeDefined()
+    expect(store.results['M90']).toBeDefined()
   })
 
-  it('clearResult drops orphaned R32 results when clearing a group match makes the group incomplete', () => {
+  it('clearResult removes the cleared match plus the downstream ids the detector reports', () => {
     const store = useTournamentStore()
-    for (const r of Object.values(allGroupResults(1, 0))) store.enterResult(r)
+    store.enterResult(makeResult('M01', 1, 0))
     store.enterResult(makeResult('M73', 2, 1))
+    vi.mocked(invalidatedDownstream).mockReturnValueOnce(['M73'])
 
     store.clearResult('M01')
 
+    expect(invalidatedDownstream).toHaveBeenLastCalledWith(expect.any(Object), 'M01', null)
     expect(store.results['M01']).toBeUndefined()
     expect(store.results['M73']).toBeUndefined()
   })
