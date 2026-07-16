@@ -19,31 +19,12 @@ test.beforeEach(async ({ page }) => {
 })
 
 // ---------------------------------------------------------------------------
-// Structure
-// ---------------------------------------------------------------------------
-
-test('shows all 5 round headings', async () => {
-  await knockout.goto()
-  for (const title of ['Runde der 32', 'Achtelfinale', 'Viertelfinale', 'Halbfinale', 'Finale']) {
-    await expect(knockout.roundHeading(title)).toBeVisible()
-  }
-})
-
-test('renders 32 match cards in total', async () => {
-  await knockout.goto()
-  await expect(knockout.allMatchCards()).toHaveCount(32)
-})
-
-test('final column shows section labels for both end-stage matches', async () => {
-  await knockout.goto()
-  const labels = knockout.sectionLabels()
-  await expect(labels).toHaveCount(2)
-  await expect(labels.nth(0)).toContainText('Spiel um Platz 3')
-  await expect(labels.nth(1)).toContainText('Finale')
-})
-
-// ---------------------------------------------------------------------------
 // Placeholder labels
+//
+// The static bracket structure (5 round headings, 32 cards, the two
+// end-stage section labels) is proven at unit speed in BracketView.spec.ts;
+// the browser tests below all `goto()` and interact, so they double as the
+// wiring/mount check that the bracket actually renders.
 // ---------------------------------------------------------------------------
 
 test('placeholder labels are meaningful — no bare "?" shown', async () => {
