@@ -158,49 +158,21 @@ describe('ScoreDialog', () => {
     expect(store.results['M01']).toMatchObject({ awayGoals: 1 })
   })
 
+  // DisciplineInput's own spec parametrizes the home/away × yellow/red emit
+  // symmetry; here we only need to prove each discipline field is wired through
+  // a full ScoreDialog mount to the store on save.
   describe('discipline inputs', () => {
-    it('home yellow card increments are saved to the store', async () => {
+    it.each([
+      ['Gelbe Karte für Deutschland hinzufügen', 'homeYellow'],
+      ['Rote Karte für Deutschland hinzufügen', 'homeRed'],
+      ['Gelbe Karte für Frankreich hinzufügen', 'awayYellow'],
+      ['Rote Karte für Frankreich hinzufügen', 'awayRed'],
+    ] as const)('saves the %s card increment to the store', async (label, field) => {
       const store = useTournamentStore()
       const wrapper = mountDialog()
-      const btn = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Gelbe Karte für Deutschland hinzufügen')
-      await btn!.trigger('click')
+      await findButtonByLabel(wrapper, label).trigger('click')
       await saveButton(wrapper).trigger('click')
-      expect(store.results['M01']).toMatchObject({ homeYellow: 1 })
-    })
-
-    it('home red card increments are saved to the store', async () => {
-      const store = useTournamentStore()
-      const wrapper = mountDialog()
-      const btn = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Rote Karte für Deutschland hinzufügen')
-      await btn!.trigger('click')
-      await saveButton(wrapper).trigger('click')
-      expect(store.results['M01']).toMatchObject({ homeRed: 1 })
-    })
-
-    it('away yellow card increments are saved to the store', async () => {
-      const store = useTournamentStore()
-      const wrapper = mountDialog()
-      const btn = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Gelbe Karte für Frankreich hinzufügen')
-      await btn!.trigger('click')
-      await saveButton(wrapper).trigger('click')
-      expect(store.results['M01']).toMatchObject({ awayYellow: 1 })
-    })
-
-    it('away red card increments are saved to the store', async () => {
-      const store = useTournamentStore()
-      const wrapper = mountDialog()
-      const btn = wrapper
-        .findAll('button')
-        .find((b) => b.attributes('aria-label') === 'Rote Karte für Frankreich hinzufügen')
-      await btn!.trigger('click')
-      await saveButton(wrapper).trigger('click')
-      expect(store.results['M01']).toMatchObject({ awayRed: 1 })
+      expect(store.results['M01']).toMatchObject({ [field]: 1 })
     })
   })
 
