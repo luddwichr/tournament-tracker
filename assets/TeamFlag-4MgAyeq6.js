@@ -1,0 +1,1 @@
+import{D as e,ht as t,mt as n,o as r,p as i,v as a}from"./teams-Cc0qLmpo.js";var o=r(a({__name:`TeamFlag`,props:{flagCode:{},size:{}},setup(r){return(a,o)=>(e(),i(`span`,{class:n([`team-flag fi`,`fi-${r.flagCode}`]),style:t({fontSize:r.size}),"aria-hidden":`true`},null,6))}}),[[`__scopeId`,`data-v-6234d9f2`]]);export{o as t};
