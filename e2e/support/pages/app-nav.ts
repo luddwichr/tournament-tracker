@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 /** Main navigation (the `Hauptnavigation` landmark) link labels per route. */
-export const NAV_LABELS = {
+const NAV_LABELS = {
   groups: 'Gruppen',
   knockout: 'K.-o.-Runde',
   ranking: 'Weltrangliste',

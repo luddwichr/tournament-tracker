@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "entry": [
+    "public/boot-safety-net.js",
+    "public/boot-fallback-nomodule.js",
+    "public/spa-github-pages.js",
+    ".claude/hooks/statusline.js"
+  ],
+  "ignoreBinaries": ["gitleaks"]
+}
