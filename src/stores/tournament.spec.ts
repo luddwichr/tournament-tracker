@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import type { Result } from '../types/tournament'
 import { STORAGE_KEY } from '../lib/persistence'
 import { clearStandingsCache } from '../lib/standings'
-import { invalidatedDownstream } from '../lib/invalidation'
 import { createApp } from 'vue'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
+import { invalidatedDownstream } from '../lib/invalidation'
+import { makeResult } from '../test-support/results'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { useTournamentStore } from './tournament'
 
@@ -33,10 +33,6 @@ vi.mock('../lib/invalidation', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/invalidation')>()
   return { ...original, invalidatedDownstream: vi.fn<typeof original.invalidatedDownstream>(() => []) }
 })
-
-function makeResult(matchId: string, homeGoals = 1, awayGoals = 0): Result {
-  return { awayGoals, awayRed: 0, awayYellow: 0, homeGoals, homeRed: 0, homeYellow: 0, matchId }
-}
 
 // Pinia only activates plugins queued via `pinia.use(...)` once the pinia
 // instance is actually installed into an app (mirrors main.ts's

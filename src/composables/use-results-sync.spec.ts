@@ -1,20 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Result } from '../types/tournament'
+import { makeResult } from '../test-support/results'
 import { nextTick } from 'vue'
 import { syncResults } from '../lib/results-sync'
 import { useResultsSync } from './use-results-sync'
 
 vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn<typeof syncResults>() }))
-
-const result = (matchId: string): Result => ({
-  awayGoals: 0,
-  awayRed: 0,
-  awayYellow: 0,
-  homeGoals: 1,
-  homeRed: 0,
-  homeYellow: 0,
-  matchId,
-})
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -29,7 +19,7 @@ describe('useResultsSync', () => {
 
   it('run() applies results and reports done with a count', async () => {
     const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
-    const results = { M01: result('M01'), M02: result('M02') }
+    const results = { M01: makeResult('M01'), M02: makeResult('M02') }
     vi.mocked(syncResults).mockResolvedValue(results)
 
     const sync = useResultsSync(apply)
@@ -86,7 +76,7 @@ describe('useResultsSync', () => {
       () =>
         new Promise((resolve) => {
           finish = () => {
-            resolve({ M01: result('M01') })
+            resolve({ M01: makeResult('M01') })
           }
         }),
     )
@@ -114,7 +104,7 @@ describe('useResultsSync', () => {
     const apply = vi.fn<Parameters<typeof useResultsSync>[0]>()
     vi.mocked(syncResults)
       .mockRejectedValueOnce(new Error('Netzfehler'))
-      .mockResolvedValueOnce({ M01: result('M01') })
+      .mockResolvedValueOnce({ M01: makeResult('M01') })
 
     const sync = useResultsSync(apply)
     await sync.run()
