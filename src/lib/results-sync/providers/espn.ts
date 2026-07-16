@@ -1,14 +1,20 @@
 // One `scoreboard?dates=START-END` request returns the whole date range —
-// goals (competitor `score`) and cards (competition `details`) — with no cap,
-// no auth, and CORS `*`. ESPN's `team.abbreviation` is the FIFA code, so
-// lower-casing it yields our team id (`RSA` → `rsa`); knockout placeholders
-// (`RD16 W1`) map to nothing and drop out.
+// goals (competitor `score`) and cards (competition `details`) — with no auth
+// and CORS `*`. ESPN's `team.abbreviation` is the FIFA code, so lower-casing it
+// yields our team id (`RSA` → `rsa`); knockout placeholders (`RD16 W1`) map to
+// nothing and drop out. The endpoint defaults to 100 events per request, which
+// silently drops the tail of a 104-match tournament (semi-finals onward), so we
+// pass an explicit `limit` wide enough to cover every fixture.
 
 import type { FetchResultsOptions, ResultsProvider, SourceMatch } from '../provider'
 import { fixtures } from '../../../data/fixtures-2026'
 import { teamsById } from '../../../data/teams'
 
 const SCOREBOARD = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'
+
+// ESPN's scoreboard pages at 100 events by default; ask for enough to return
+// every fixture in one call, with headroom for replays/re-scheduled entries.
+const EVENT_LIMIT = fixtures.length + 50
 
 const NETWORK_ERROR = 'Ergebnisse konnten nicht abgerufen werden. Bitte Internetverbindung prüfen und erneut versuchen.'
 
@@ -153,7 +159,11 @@ async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch
 
   let data: ScoreboardResponse
   try {
-    data = await fetchJson<ScoreboardResponse>(fetchImpl, `${SCOREBOARD}?dates=${dates}`, opts.signal)
+    data = await fetchJson<ScoreboardResponse>(
+      fetchImpl,
+      `${SCOREBOARD}?dates=${dates}&limit=${EVENT_LIMIT}`,
+      opts.signal,
+    )
   } catch (e) {
     // Cancellation isn't a fetch failure — let AbortError propagate as-is so
     // callers can tell "the user cancelled" from "the network is broken".
