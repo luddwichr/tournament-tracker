@@ -1,3 +1,4 @@
+import boundaries from 'eslint-plugin-boundaries'
 import eslint from '@eslint/js'
 import { fileURLToPath } from 'node:url'
 import globals from 'globals'
@@ -107,6 +108,70 @@ export default tseslint.config(
     files: ['.claude/**/*.js'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['src/**/*.{ts,vue}', 'e2e/**/*.ts'],
+    plugins: { boundaries },
+    rules: {
+      'boundaries/dependencies': [
+        'error',
+        {
+          default: 'disallow',
+          // Order matters: unit-test files also match a layer element, so their
+          // (broader) policy must come first to win.
+          policies: [
+            // Unit tests may reach into any production layer plus shared support,
+            // but never into e2e.
+            {
+              allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root', 'test-support'] } } } },
+              from: { file: { categories: 'unit-test' } },
+            },
+            // Shared test helpers stay pure: domain + siblings only.
+            {
+              allow: { to: { element: { types: { anyOf: ['domain', 'test-support'] } } } },
+              from: { element: { types: 'test-support' } },
+            },
+            // e2e exercises the app through the browser: only the pure domain
+            // layer (types/data/lib) and shared test-support, never UI/runtime.
+            {
+              allow: { to: { element: { types: { anyOf: ['domain', 'test-support', 'e2e'] } } } },
+              from: { element: { types: 'e2e' } },
+            },
+            // Production code may only import production code — never test-support,
+            // specs, or e2e (keeps test helpers out of the shipped bundle).
+            {
+              allow: { to: { element: { types: 'domain' } } },
+              from: { element: { types: 'domain' } },
+            },
+            {
+              allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root'] } } } },
+              from: { element: { types: { anyOf: ['ui', 'app-root'] } } },
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      // Architectural layer, matched by folder. First match wins, so these run
+      // most-specific to least: `app-root` (bare `src`) is the catch-all for
+      // App.vue / main.ts / router.ts that no earlier layer claimed.
+      'boundaries/elements': [
+        { pattern: 'src/test-support', type: 'test-support' },
+        { pattern: 'src/(types|data|lib)', type: 'domain' },
+        { pattern: 'src/(components|views|stores|composables)', type: 'ui' },
+        { pattern: 'src', type: 'app-root' },
+        { pattern: 'e2e', type: 'e2e' },
+      ],
+      // Orthogonal file dimension: a `.spec.ts` is a unit test regardless of
+      // which layer folder it sits in. Scoped to src so e2e specs stay purely
+      // `e2e` and never inherit the unit-test import allowances above.
+      'boundaries/files': [{ category: 'unit-test', pattern: 'src/**/*.spec.ts' }],
+      // boundaries resolves each import to a file before classifying it; teach
+      // the node resolver the TS/Vue extensions this project imports without.
+      'import/resolver': {
+        node: { extensions: ['.ts', '.tsx', '.vue', '.js', '.mjs', '.json', '.d.ts'] },
+      },
     },
   },
   oxlint.buildFromOxlintConfigFile('./.oxlintrc.json'),
