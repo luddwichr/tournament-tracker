@@ -47,17 +47,9 @@ export class KnockoutPage {
     return this.bracketView().evaluate((el) => el.scrollLeft)
   }
 
-  allMatchCards(): Locator {
-    return this.page.locator('.match-card')
-  }
-
   /** A single match card by its stable `data-match-id`, e.g. "M73". */
   matchCard(matchId: string): Locator {
     return this.page.locator(`[data-match-id="${matchId}"]`)
-  }
-
-  sectionLabels(): Locator {
-    return this.page.locator('.bracket-round__section-label')
   }
 
   placeholders(): Locator {
