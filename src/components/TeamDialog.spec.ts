@@ -144,6 +144,34 @@ describe('TeamDialog', () => {
       expect(scheduleTab!.attributes('tabindex')).toBe('-1')
       expect(document.activeElement).toBe(teamTab!.element)
     })
+
+    it('jumps focus and selection to the first tab on Home', async () => {
+      const wrapper = mountDialog({}, true)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+
+      // Move to the last tab first, then Home must return to the first.
+      await teamTab!.trigger('keydown', { key: 'ArrowRight' })
+      await scheduleTab!.trigger('keydown', { key: 'Home' })
+
+      expect(teamTab!.attributes('aria-selected')).toBe('true')
+      expect(teamTab!.attributes('tabindex')).toBe('0')
+      expect(scheduleTab!.attributes('aria-selected')).toBe('false')
+      expect(scheduleTab!.attributes('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(teamTab!.element)
+    })
+
+    it('jumps focus and selection to the last tab on End', async () => {
+      const wrapper = mountDialog({}, true)
+      const [teamTab, scheduleTab] = tabs(wrapper)
+
+      await teamTab!.trigger('keydown', { key: 'End' })
+
+      expect(scheduleTab!.attributes('aria-selected')).toBe('true')
+      expect(scheduleTab!.attributes('tabindex')).toBe('0')
+      expect(teamTab!.attributes('aria-selected')).toBe('false')
+      expect(teamTab!.attributes('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(scheduleTab!.element)
+    })
   })
 
   describe('schedule tab', () => {
