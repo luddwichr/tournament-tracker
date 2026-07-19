@@ -34,10 +34,14 @@
   },
   "mounts": [
     /*
-    Create a dedicated volume for the bash history and claude code config, so that they persist across container re-builds and restarts.
-    The volumes are isolated per devcontainer instance (using the devcontainerId in the volume name). 
+    Create a dedicated volume for the bash history, claude code config, and gh CLI
+    auth, so that they persist across container re-builds and restarts. Without the
+    gh volume, `gh auth login` has to be repeated after every rebuild (its token
+    lives in ~/.config/gh/hosts.yml). The volumes are isolated per devcontainer
+    instance (using the devcontainerId in the volume name).
     */
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-${devcontainerId},target=/home/developer/.claude,type=volume"
+    "source=claude-code-config-${devcontainerId},target=/home/developer/.claude,type=volume",
+    "source=gh-config-${devcontainerId},target=/home/developer/.config/gh,type=volume"
   ]
 }

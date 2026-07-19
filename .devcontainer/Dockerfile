@@ -59,9 +59,9 @@ RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-li
 # Create user, directories, files and set ownership
 RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && useradd --uid ${USER_UID} --gid ${USER_GID} --create-home --shell /bin/bash ${USERNAME} \
-    && mkdir -p ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} \
+    && mkdir -p ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} /home/${USERNAME}/.config/gh \
     && touch ${COMMAND_HISTORY_FOLDER}/.bash_history \
-    && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR}
+    && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} /home/${USERNAME}/.config
 
 # Install Playwright system dependencies (requires root); clean up the apt lists
 # left behind by its internal apt-get update and root's npm cache from npx
