@@ -28,6 +28,11 @@
       "matchDepNames": ["gitleaks"],
     },
     {
+      "groupName": "zizmor",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["zizmor"],
+    },
+    {
       // renovate-the-CLI ships multiple releases a day; without a schedule the
       // exact pin below would otherwise get a bump PR almost every day.
       "groupName": "renovate-cli",
@@ -110,6 +115,22 @@
       "matchStrings": ["GITLEAKS_VERSION: (?<currentValue>[\\d.]+)"],
       "depNameTemplate": "gitleaks",
       "packageNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-releases",
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG ZIZMOR_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "zizmor",
+      "packageNameTemplate": "zizmorcore/zizmor",
+      "datasourceTemplate": "github-releases",
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
+      "matchStrings": ["ZIZMOR_VERSION: (?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "zizmor",
+      "packageNameTemplate": "zizmorcore/zizmor",
       "datasourceTemplate": "github-releases",
     },
     {
