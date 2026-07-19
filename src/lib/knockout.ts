@@ -36,6 +36,31 @@ export function foldedScore(result: Result): { home: number; away: number } {
 }
 
 /**
+ * Resolve a `matchWinner` / `matchLoser` ref to a concrete Team. Returns null
+ * while the match is unplayed, its feeders unresolved, or its score still level.
+ */
+function resolveMatchOutcome(
+  ref: Extract<TeamRef, { kind: 'matchWinner' | 'matchLoser' }>,
+  results: ResultsMap,
+): Team | null {
+  const match = fixturesById.get(ref.matchId)
+  if (!match) return null
+  const matchResult = results[ref.matchId]
+  if (!matchResult) return null
+
+  const homeTeam = resolveTeamRef(match.homeRef, results)
+  const awayTeam = resolveTeamRef(match.awayRef, results)
+  if (!homeTeam || !awayTeam) return null
+
+  const score = foldedScore(matchResult)
+  if (score.home === score.away) return null
+  const homeWon = score.home > score.away
+
+  if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam
+  return homeWon ? awayTeam : homeTeam
+}
+
+/**
  * Resolve a TeamRef to a concrete Team given current results.
  * Returns null when the referenced team cannot yet be determined.
  */
@@ -57,21 +82,7 @@ export function resolveTeamRef(ref: TeamRef, results: ResultsMap): Team | null {
 
     case 'matchWinner':
     case 'matchLoser': {
-      const match = fixturesById.get(ref.matchId)
-      if (!match) return null
-      const matchResult = results[ref.matchId]
-      if (!matchResult) return null
-
-      const homeTeam = resolveTeamRef(match.homeRef, results)
-      const awayTeam = resolveTeamRef(match.awayRef, results)
-      if (!homeTeam || !awayTeam) return null
-
-      const score = foldedScore(matchResult)
-      if (score.home === score.away) return null
-      const homeWon = score.home > score.away
-
-      if (ref.kind === 'matchWinner') return homeWon ? homeTeam : awayTeam
-      return homeWon ? awayTeam : homeTeam
+      return resolveMatchOutcome(ref, results)
     }
 
     default: {

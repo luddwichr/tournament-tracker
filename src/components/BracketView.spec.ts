@@ -56,31 +56,31 @@ describe('BracketView – round match counts', () => {
   it('r32 round contains 16 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const r32 = wrapper.findAllComponents(BracketRound)[0]!
-    expect((r32.props('matches') as unknown[]).length).toBe(16)
+    expect(r32.props('matches') as unknown[]).toHaveLength(16)
   })
 
   it('r16 round contains 8 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const r16 = wrapper.findAllComponents(BracketRound)[1]!
-    expect((r16.props('matches') as unknown[]).length).toBe(8)
+    expect(r16.props('matches') as unknown[]).toHaveLength(8)
   })
 
   it('qf round contains 4 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const qf = wrapper.findAllComponents(BracketRound)[2]!
-    expect((qf.props('matches') as unknown[]).length).toBe(4)
+    expect(qf.props('matches') as unknown[]).toHaveLength(4)
   })
 
   it('sf round contains 2 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const sf = wrapper.findAllComponents(BracketRound)[3]!
-    expect((sf.props('matches') as unknown[]).length).toBe(2)
+    expect(sf.props('matches') as unknown[]).toHaveLength(2)
   })
 
   it('Finale round contains 2 matches (third-place + final)', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finale = wrapper.findAllComponents(BracketRound)[4]!
-    expect((finale.props('matches') as unknown[]).length).toBe(2)
+    expect(finale.props('matches') as unknown[]).toHaveLength(2)
   })
 })
 

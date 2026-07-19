@@ -280,7 +280,8 @@ function parseRanking(html: string): RankingRow[] {
     const start = html.indexOf('<th>Rank</th>', searchFrom)
     if (start === -1) break
     const end = html.indexOf('</table>', start)
-    const table = html.slice(start, end === -1 ? undefined : end)
+    const tableEnd = end === -1 ? html.length : end
+    const table = html.slice(start, tableEnd)
     searchFrom = end === -1 ? html.length : end + '</table>'.length
 
     const rows: RankingRow[] = []

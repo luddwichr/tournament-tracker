@@ -184,6 +184,7 @@ test('settings page has no detectable accessibility violations', async ({ page }
 
 test('settings page has no detectable accessibility violations in dark theme', async ({ page }) => {
   await settings.goto()
+  // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- the native radio is visually replaced by a custom control, so Playwright sees it as not actionable; forcing is the documented way to drive a visually-hidden native input
   await page.getByRole('radio', { name: 'Dunkel' }).check({ force: true })
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 

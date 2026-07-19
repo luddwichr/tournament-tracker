@@ -6,6 +6,7 @@ import { includeIgnoreFile } from 'eslint/config'
 import oxlint from 'eslint-plugin-oxlint'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVueA11y from 'eslint-plugin-vuejs-accessibility'
+import sonarjs from 'eslint-plugin-sonarjs'
 import tseslint from 'typescript-eslint'
 
 const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
@@ -13,6 +14,7 @@ const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   eslint.configs.recommended,
+  sonarjs.configs.recommended,
   tseslint.configs.strictTypeChecked,
   pluginVue.configs['flat/recommended'],
   pluginVueA11y.configs['flat/recommended'],
@@ -31,6 +33,14 @@ export default tseslint.config(
       // TypeScript's compiler already catches undefined references;
       // no-undef from eslint/recommended is redundant and flags DOM globals.
       'no-undef': 'off',
+      // This project deliberately relies on default (code-unit) ordering for
+      // deterministic branded keys — e.g. `ThirdPlaceKey` is the sorted-join of
+      // group letters, and `pairKey` is an order-independent team-pair key.
+      // A locale-aware compare would be semantically wrong there, and every
+      // other flagged sort is over short ASCII strings where the default order
+      // is already correct. The rule's real value (catching numeric `.sort()`
+      // bugs) does not apply to any sort in this codebase.
+      'sonarjs/no-alphabetical-sort': 'off',
     },
   },
   {
@@ -101,6 +111,11 @@ export default tseslint.config(
       // the method, so no `this` scoping issue exists — a known false
       // positive of unbound-method in vitest/jest assertions.
       '@typescript-eslint/unbound-method': 'off',
+      // Whether to parameterize a small group of tests is a readability call,
+      // not a correctness one. Several suites here keep sibling cases spelled
+      // out on purpose (distinct names, per-case comments); leave that choice
+      // to the author rather than forcing a single table-driven test.
+      'sonarjs/parameterized-tests': 'off',
       'vue/one-component-per-file': 'off',
     },
   },
@@ -108,6 +123,22 @@ export default tseslint.config(
     files: ['.claude/**/*.js'],
     languageOptions: {
       globals: globals.node,
+    },
+    rules: {
+      // Local dev tooling (statusline hook) shells out to fixed, trusted
+      // commands like `git`. The PATH-hardening rule guards binaries invoked on
+      // untrusted input, which these are not.
+      'sonarjs/no-os-command-from-path': 'off',
+    },
+  },
+  {
+    // One-off maintenance scripts (FIFA-ranking / squad fetchers) run locally
+    // at dev time against trusted sources, never on user input. The ReDoS rule
+    // guards regexes exposed to untrusted input, which these parsers are not —
+    // and their inputs are bounded, fetched pages of a known shape.
+    files: ['scripts/**/*.ts'],
+    rules: {
+      'sonarjs/super-linear-regex': 'off',
     },
   },
   {
