@@ -26,6 +26,7 @@
     "fetch:squads": "node scripts/fetch-squads.ts",
     "security": "sh .opengrep/scan.sh",
     "secrets": "gitleaks git --no-banner --redact .",
+    "workflows": "zizmor .github/workflows",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage security secrets",
     "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
     "prepare": "git config core.hooksPath .githooks",

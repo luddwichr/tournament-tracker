@@ -1,0 +1,8 @@
+#!/bin/sh
+# Lint GitHub Actions workflows with zizmor whenever a workflow file is staged.
+# Kept out of the pre-push gate so misconfigured workflows are caught at the
+# moment they're committed; runs offline (online audits are owned by CI).
+set -eu
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '^\.github/workflows/'; then
+  npm run workflows
+fi

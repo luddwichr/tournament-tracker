@@ -20,6 +20,8 @@ ARG PLAYWRIGHT_CLI_VERSION=0.1.17
 ARG OPENGREP_VERSION=1.25.0
 # https://github.com/gitleaks/gitleaks/releases — keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml
 ARG GITLEAKS_VERSION=8.30.1
+# https://github.com/zizmorcore/zizmor/releases — keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml
+ARG ZIZMOR_VERSION=1.27.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -101,6 +103,10 @@ RUN curl -fsSL --retry 3 --retry-all-errors \
         https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz \
     | tar -xz -C ~/.local/bin gitleaks \
     && gitleaks version
+
+# Install zizmor - static analysis for GitHub Actions workflows (installed via uv above)
+RUN uv tool install zizmor==${ZIZMOR_VERSION} \
+    && zizmor --version
 
 # Install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \
