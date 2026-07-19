@@ -72,6 +72,11 @@
     "vitest": "4.1.10",
     "vue-tsc": "3.3.7"
   },
+  "overrides": {
+    "eslint-plugin-oxlint": {
+      "oxlint": "$oxlint"
+    }
+  },
   "size-limit": [
     {
       "name": "Entry JS (loaded on every page load)",
