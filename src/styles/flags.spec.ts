@@ -12,7 +12,7 @@ import { teams } from '../data/teams'
 const FLAGS_FILE = join(__dirname, 'flags.scss')
 
 function extractIncludedCountries(scss: string): string[] {
-  const listMatch = scss.match(/\$flag-icons-included-countries:\s*\(([^)]*)\)/)
+  const listMatch = /\$flag-icons-included-countries:\s*\(([^)]*)\)/.exec(scss)
   if (!listMatch?.[1]) throw new Error('flags.scss: $flag-icons-included-countries list not found')
   return [...listMatch[1].matchAll(/'([^']+)'/g)].map((m) => m[1]!)
 }
@@ -33,6 +33,6 @@ describe('flag-icons subset', () => {
   })
 
   it('has no duplicate entries', () => {
-    expect(included.length).toBe(includedSet.size)
+    expect(included).toHaveLength(includedSet.size)
   })
 })

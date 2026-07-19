@@ -17,7 +17,7 @@ import { useBracketHighlight } from './use-bracket-highlight'
 type ResizeCallback = () => void
 
 class FakeResizeObserver {
-  static instances: FakeResizeObserver[] = []
+  static readonly instances: FakeResizeObserver[] = []
   callback: ResizeCallback
   observed: Element[] = []
   disconnected = false
@@ -82,7 +82,7 @@ function buildContainer(): { container: HTMLElement; matchCard: HTMLElement } {
 
 describe('useBracketHighlight — connectorPaths reactivity to DOM geometry', () => {
   beforeEach(() => {
-    FakeResizeObserver.instances = []
+    FakeResizeObserver.instances.length = 0
     vi.stubGlobal('ResizeObserver', FakeResizeObserver)
   })
 

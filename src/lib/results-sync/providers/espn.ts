@@ -96,20 +96,26 @@ async function fetchJson<T>(fetchImpl: typeof fetch, url: string, signal?: Abort
   return (await response.json()) as T
 }
 
+/** Which side a card belongs to, or null when it matches neither team. */
+function cardSide(
+  teamId: string | undefined,
+  homeTeamId: string | undefined,
+  awayTeamId: string | undefined,
+): 'home' | 'away' | null {
+  if (teamId == null) return null
+  if (homeTeamId != null && teamId === homeTeamId) return 'home'
+  if (awayTeamId != null && teamId === awayTeamId) return 'away'
+  return null
+}
+
 function tallyCards(details: RawDetail[], homeTeamId: string | undefined, awayTeamId: string | undefined): CardTally {
   const tally: CardTally = { awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 }
   for (const detail of details) {
     if (!detail.redCard && !detail.yellowCard) continue
-    const isHome = homeTeamId != null && detail.team?.id === homeTeamId
-    const isAway = awayTeamId != null && detail.team?.id === awayTeamId
-    if (!isHome && !isAway) continue
-    if (detail.redCard) {
-      if (isHome) tally.homeRed++
-      else tally.awayRed++
-    } else {
-      if (isHome) tally.homeYellow++
-      else tally.awayYellow++
-    }
+    const side = cardSide(detail.team?.id, homeTeamId, awayTeamId)
+    if (!side) continue
+    if (detail.redCard) tally[`${side}Red`]++
+    else tally[`${side}Yellow`]++
   }
   return tally
 }

@@ -39,7 +39,9 @@ import { resolveThirdPlaceSlot } from './third-place'
 // Base caps per remaining-match count; gdSpread lifts them so a team can
 // always overcome the worst current GD deficit in the simulated scenarios.
 function maxGoalsPerSide(remainingCount: number, gdSpread: number): number {
-  const base = remainingCount <= 3 ? 7 : remainingCount <= 5 ? 4 : 3
+  let base = 3
+  if (remainingCount <= 3) base = 7
+  else if (remainingCount <= 5) base = 4
   return Math.max(base, gdSpread + 1)
 }
 

@@ -37,6 +37,34 @@ function nearestIndex(candidates: readonly SourceMatch[], kickoff: string): numb
 // Matches by unordered team pair; a recurring pair (group meeting + knockout
 // rematch) picks the candidate nearest the kickoff, consuming each fetched match
 // once so it can't be reused.
+// Resolve one fixture slot against the remaining source matches, consuming the
+// matched candidate from `byPair`. Returns null when the slot's teams aren't yet
+// known or no source match remains for their pairing.
+function resolveSlotResult(slot: MatchSlot, results: ResultsMap, byPair: Map<string, SourceMatch[]>): Result | null {
+  const home = resolveTeamRef(slot.homeRef, results)
+  const away = resolveTeamRef(slot.awayRef, results)
+  if (!home || !away) return null
+
+  const key = pairKey(home.id, away.id)
+  const candidates = byPair.get(key)
+  if (!candidates || candidates.length === 0) return null
+
+  const index = nearestIndex(candidates, slot.kickoff)
+  const source = candidates[index]
+  if (!source) return null // unreachable: nearestIndex indexes the non-empty `candidates`
+  byPair.set(key, candidates.toSpliced(index, 1))
+
+  const homeFirst = source.homeId === home.id
+  return {
+    ...toScore(source, slot, homeFirst),
+    awayRed: homeFirst ? source.awayRed : source.homeRed,
+    awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
+    homeRed: homeFirst ? source.homeRed : source.awayRed,
+    homeYellow: homeFirst ? source.homeYellow : source.awayYellow,
+    matchId: slot.id,
+  }
+}
+
 export function buildResultsFromSource(fetched: readonly SourceMatch[]): ResultsMap {
   const byPair = new Map<string, SourceMatch[]>()
   for (const match of fetched) {
@@ -48,28 +76,8 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
 
   const results: Record<string, Result> = {}
   for (const slot of fixtures) {
-    const home = resolveTeamRef(slot.homeRef, results)
-    const away = resolveTeamRef(slot.awayRef, results)
-    if (!home || !away) continue
-
-    const key = pairKey(home.id, away.id)
-    const candidates = byPair.get(key)
-    if (!candidates || candidates.length === 0) continue
-
-    const index = nearestIndex(candidates, slot.kickoff)
-    const source = candidates[index]
-    if (!source) continue // unreachable: nearestIndex indexes the non-empty `candidates`
-    byPair.set(key, candidates.toSpliced(index, 1))
-
-    const homeFirst = source.homeId === home.id
-    results[slot.id] = {
-      ...toScore(source, slot, homeFirst),
-      awayRed: homeFirst ? source.awayRed : source.homeRed,
-      awayYellow: homeFirst ? source.awayYellow : source.homeYellow,
-      homeRed: homeFirst ? source.homeRed : source.awayRed,
-      homeYellow: homeFirst ? source.homeYellow : source.awayYellow,
-      matchId: slot.id,
-    }
+    const result = resolveSlotResult(slot, results, byPair)
+    if (result) results[slot.id] = result
   }
   return results
 }
