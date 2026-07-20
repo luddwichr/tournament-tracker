@@ -27,7 +27,11 @@
     "security": "sh .opengrep/scan.sh",
     "secrets": "gitleaks git --no-banner --redact .",
     "workflows": "zizmor .github/workflows",
-    "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage security secrets",
+    "licenses": "trivy fs --quiet --scanners license --pkg-types library --severity UNKNOWN,MEDIUM,HIGH,CRITICAL --ignore-policy .trivy/license-exceptions.rego --exit-code 1 .",
+    "vulns": "trivy fs --quiet --scanners vuln --pkg-types library --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .",
+    "dockerfile": "trivy config --quiet --severity HIGH,CRITICAL --exit-code 1 .devcontainer/Dockerfile",
+    "sbom": "trivy fs --quiet --format cyclonedx --scanners license --output sbom.cdx.json .",
+    "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage security secrets licenses vulns dockerfile",
     "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
     "prepare": "git config core.hooksPath .githooks",
     "knip": "knip"

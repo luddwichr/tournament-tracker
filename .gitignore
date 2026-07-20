@@ -5,6 +5,9 @@ node_modules
 dist/
 dev-dist/
 
+# Generated SBOM
+sbom.cdx.json
+
 # Test artifacts
 coverage/
 playwright-report/

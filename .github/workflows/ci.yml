@@ -65,12 +65,58 @@ jobs:
             | tar -xz -C "$install_dir" gitleaks
           echo "$install_dir" >> "$GITHUB_PATH"
           "$install_dir/gitleaks" version
+      - name: Install trivy
+        env:
+          # keep in sync with TRIVY_VERSION in .devcontainer/Dockerfile
+          TRIVY_VERSION: 0.72.0
+        run: |
+          install_dir="$HOME/.trivy/bin"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            | tar -xz -C "$install_dir" trivy
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/trivy" --version
+      - name: Trivy DB cache date
+        id: trivy-db-date
+        # The Trivy vuln DB refreshes ~daily upstream, so key the cache on the
+        # date: the first run of a day saves one entry and every later same-day
+        # run is an exact hit (no multi-hundred-MB re-upload). restore-keys still
+        # warm-starts a new day from the previous day's DB before updating it,
+        # avoiding a full re-download (and the GHCR rate limits that come with it).
+        run: echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
+      - name: Cache trivy data (vuln DB + misconfig checks)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/trivy
+          key: trivy-${{ runner.os }}-${{ steps.trivy-db-date.outputs.date }}
+          restore-keys: |
+            trivy-${{ runner.os }}-
       - run: npm ci
       - name: Verify registry signatures and provenance
         run: npm audit signatures
       - name: Validate renovate config
         run: npm run renovate:validate
       - run: npm run check:code
+      - name: Generate SBOM (CycloneDX)
+        run: npm run sbom
+      - name: Upload SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 30
+      - name: Scan Dockerfile base image for OS CVEs
+        # Read the pinned FROM image out of the Dockerfile so this stays in sync
+        # with (and never drifts from) the digest Renovate bumps there (single
+        # stage, literal ref). Gates on fixable HIGH/CRITICAL only: a failure
+        # means "bump the pinned base". Runs in this job — rather than a separate
+        # one — to reuse the trivy binary and the already-warm vuln DB.
+        run: |
+          image="$(grep -m1 '^FROM ' .devcontainer/Dockerfile | awk '{ print $2 }')"
+          echo "Scanning base image: $image"
+          trivy image --quiet --pkg-types os \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"

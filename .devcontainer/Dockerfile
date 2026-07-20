@@ -22,6 +22,8 @@ ARG OPENGREP_VERSION=1.25.0
 ARG GITLEAKS_VERSION=8.30.1
 # https://github.com/zizmorcore/zizmor/releases — keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml
 ARG ZIZMOR_VERSION=1.27.0
+# https://github.com/aquasecurity/trivy/releases — keep in sync with TRIVY_VERSION in .github/workflows/ci.yml
+ARG TRIVY_VERSION=0.72.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
@@ -107,6 +109,13 @@ RUN curl -fsSL --retry 3 --retry-all-errors \
 # Install zizmor - static analysis for GitHub Actions workflows (installed via uv above)
 RUN uv tool install zizmor==${ZIZMOR_VERSION} \
     && zizmor --version
+
+# Install trivy - SBOM generation, permissive-license policy and dependency /
+# Dockerfile vulnerability scanning (the tarball contains a single static binary)
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+    | tar -xz -C ~/.local/bin trivy \
+    && trivy --version
 
 # Install claude (version not pinned since it auto-updates itself and update is released more or less daily)
 RUN curl -fsSL https://claude.ai/install.sh | bash \
