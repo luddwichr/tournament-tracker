@@ -65,6 +65,18 @@ jobs:
             | tar -xz -C "$install_dir" gitleaks
           echo "$install_dir" >> "$GITHUB_PATH"
           "$install_dir/gitleaks" version
+      - name: Install zizmor
+        env:
+          # keep in sync with ZIZMOR_VERSION in .devcontainer/Dockerfile
+          ZIZMOR_VERSION: 1.27.0
+        run: |
+          install_dir="$HOME/.zizmor/bin"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar -xz -C "$install_dir" zizmor
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/zizmor" --version
       - name: Install trivy
         env:
           # keep in sync with TRIVY_VERSION in .devcontainer/Dockerfile
@@ -98,6 +110,11 @@ jobs:
       - name: Validate renovate config
         run: npm run renovate:validate
       - run: npm run check:code
+      - name: Lint workflows
+        # Same npm script the pre-commit hook runs, so CI and local use one
+        # source of truth. Kept out of check:code to match the hook's scope:
+        # workflows are linted when they change, not on every push.
+        run: npm run scan:workflows
       - name: Generate SBOM (CycloneDX)
         run: npm run sbom
       - name: Upload SBOM
@@ -107,12 +124,12 @@ jobs:
           path: sbom.cdx.json
           retention-days: 30
       - name: Scan Dockerfile base image for OS CVEs
-        # `vulns:image` reads the pinned FROM image out of the Dockerfile (single
+        # `scan:image` reads the pinned FROM image out of the Dockerfile (single
         # stage, literal ref) so CI and local runs scan the exact same base and
         # never drift from the digest Renovate bumps there. Gates on fixable
         # HIGH/CRITICAL only: a failure means "bump the pinned base". Runs in this
         # job — not a separate one — to reuse the trivy binary and warm vuln DB.
-        run: npm run vulns:image
+        run: npm run scan:image
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -166,23 +183,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-
-  zizmor:
-    name: Lint workflows
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read # checkout only; the action's online audits use the default GITHUB_TOKEN
-    env:
-      # keep in sync with ZIZMOR_VERSION in .devcontainer/Dockerfile
-      ZIZMOR_VERSION: 1.27.0
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-      - uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
-        with:
-          version: ${{ env.ZIZMOR_VERSION }}
-          # fail the job on findings instead of uploading SARIF to code scanning,
-          # matching the opengrep/gitleaks gates (no security-events permission needed)
-          advanced-security: false
