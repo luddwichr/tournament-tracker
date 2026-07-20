@@ -25,7 +25,13 @@
   font-size: var(--font-size-sm);
 }
 
-.stat-table th {
+/*
+ * `thead th` deliberately, not bare `th`. The row components render their team
+ * name as a `<th scope="row">`, and this is a global rule, so a bare `th`
+ * would style those body cells too — the per-component rules this replaced
+ * were scoped, which meant they never reached a child component's cells.
+ */
+.stat-table thead th {
   padding: var(--space-1);
   text-align: center;
   font-weight: var(--font-weight-semibold);

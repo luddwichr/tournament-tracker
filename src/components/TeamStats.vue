@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import CardIcon from './icons/CardIcon.vue'
 import StatHeaderCell from './StatHeaderCell.vue'
+import { TEAM_STATS_COLUMNS } from './stat-columns'
 import type { TeamOverallStats } from '../lib/team-schedule'
 
 defineProps<{ stats: TeamOverallStats }>()
 
-const columns = [
-  { abbr: 'Sp', label: 'Spiele' },
-  { abbr: 'S', label: 'Siege' },
-  { abbr: 'U', label: 'Unentschieden' },
-  { abbr: 'N', label: 'Niederlagen' },
-  { abbr: 'T+', label: 'Tore' },
-  { abbr: 'T-', label: 'Gegentore' },
-]
+const columns = TEAM_STATS_COLUMNS
 </script>
 
 <template>

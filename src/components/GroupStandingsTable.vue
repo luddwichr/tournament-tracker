@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { GROUP_STANDINGS_COLUMNS } from './stat-columns'
 import type { GroupId } from '../types/tournament'
 import StandingsRow from './StandingsRow.vue'
 import StatHeaderCell from './StatHeaderCell.vue'
@@ -10,16 +11,7 @@ defineProps<{
   groupId: GroupId
 }>()
 
-const columns = [
-  { abbr: 'Sp', label: 'Spiele' },
-  { abbr: 'S', label: 'Siege' },
-  { abbr: 'U', label: 'Unentschieden' },
-  { abbr: 'N', label: 'Niederlagen' },
-  { abbr: 'T+', label: 'Tore' },
-  { abbr: 'T-', label: 'Gegentore' },
-  { abbr: 'TD', label: 'Tordifferenz' },
-  { abbr: 'Pkt', label: 'Punkte' },
-]
+const columns = GROUP_STANDINGS_COLUMNS
 </script>
 
 <template>

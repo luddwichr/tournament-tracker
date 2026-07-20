@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { GROUP_IDS } from '../types/tournament'
+import { GROUP_STANDINGS_COLUMNS } from '../components/stat-columns'
 import GroupTable from '../components/GroupTable.vue'
+import StatLegend from '../components/StatLegend.vue'
 import ThirdPlaceTable from '../components/ThirdPlaceTable.vue'
 import { computed } from 'vue'
 import { rankThirdPlacedLive } from '../lib/third-place'
@@ -14,6 +16,9 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 <template>
   <div class="groups-view">
     <h1 class="view-heading">Gruppen</h1>
+    <!-- One legend for all twelve group tables, which share a column set —
+         repeating it per card would be twelve identical disclosures. -->
+    <StatLegend class="groups-view__legend" :columns="GROUP_STANDINGS_COLUMNS" />
     <div class="groups-view__grid">
       <GroupTable v-for="groupId in GROUP_IDS" :key="groupId" :group-id="groupId" />
       <ThirdPlaceTable class="groups-view__third-place" :live-ranking="liveRanking" />
@@ -22,6 +27,11 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 </template>
 
 <style scoped>
+.groups-view__legend {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
 .groups-view__grid {
   display: grid;
   /* min(360px,100%) prevents the column from exceeding the container width on

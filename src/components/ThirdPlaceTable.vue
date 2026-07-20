@@ -2,6 +2,8 @@
 import InfoDisclosure from './InfoDisclosure.vue'
 import { QUALIFYING_THIRDS_COUNT } from '../lib/third-place'
 import StatHeaderCell from './StatHeaderCell.vue'
+import StatLegend from './StatLegend.vue'
+import { THIRD_PLACE_COLUMNS } from './stat-columns'
 import type { ThirdPlaceRanking } from '../lib/third-place'
 import ThirdPlaceRow from './ThirdPlaceRow.vue'
 
@@ -9,13 +11,7 @@ defineProps<{
   liveRanking: ThirdPlaceRanking
 }>()
 
-const columns = [
-  { abbr: 'Pkt', label: 'Punkte' },
-  { abbr: 'TD', label: 'Tordifferenz' },
-  { abbr: 'Tore', label: 'Erzielte Tore' },
-  { abbr: 'FP', label: 'Fair-Play-Punkte' },
-  { abbr: 'FIFA', label: 'FIFA-Weltrangliste' },
-]
+const columns = THIRD_PLACE_COLUMNS
 </script>
 
 <template>
@@ -47,6 +43,8 @@ const columns = [
         </li>
       </ol>
     </InfoDisclosure>
+
+    <StatLegend :columns="THIRD_PLACE_COLUMNS" class="third-place-table__explainer" />
 
     <section class="third-place-table__scroll" aria-label="Rangliste" tabindex="0">
       <table class="third-place-table__table stat-table tinted-header">
