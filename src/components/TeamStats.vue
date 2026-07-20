@@ -16,7 +16,7 @@ const columns = [
 </script>
 
 <template>
-  <table class="team-stats tinted-header">
+  <table class="team-stats stat-table tinted-header">
     <caption class="visually-hidden">
       Statistik
     </caption>
@@ -47,18 +47,10 @@ const columns = [
 </template>
 
 <style scoped>
+/* Table base and th recipe come from .stat-table (standings-row.css); this
+   table additionally centers its body cells. */
 .team-stats {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
   text-align: center;
-}
-
-.team-stats th {
-  padding: var(--space-1);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  white-space: nowrap;
 }
 
 .team-stats__num {
