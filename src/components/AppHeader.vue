@@ -60,6 +60,11 @@ function handleKeydown(e: KeyboardEvent): void {
   display: flex;
   align-items: center;
   padding: var(--space-3) var(--space-4);
+  /* Sticky bar sits under the notch/Dynamic Island once viewport-fit=cover is
+     set, so grow the top and side padding by whatever the device reserves. */
+  padding-top: calc(var(--space-3) + env(safe-area-inset-top));
+  padding-inline-start: calc(var(--space-4) + env(safe-area-inset-left));
+  padding-inline-end: calc(var(--space-4) + env(safe-area-inset-right));
 }
 
 .app-header__title {

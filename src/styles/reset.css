@@ -33,7 +33,10 @@ ol[role='list'] {
 
 /* Set core body defaults */
 body {
+  /* vh first as the fallback for browsers without dvh; dvh tracks the mobile
+     URL bar collapsing instead of overflowing by its height. */
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
 }
 
