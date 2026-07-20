@@ -47,7 +47,9 @@ function handleKeydown(e: KeyboardEvent): void {
   </header>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@use '../styles/breakpoints' as bp;
+
 .app-header {
   position: sticky;
   top: 0;
@@ -126,7 +128,7 @@ function handleKeydown(e: KeyboardEvent): void {
   border-radius: 2px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: bp.$nav-expanded) {
   .app-header__burger {
     display: none;
   }
