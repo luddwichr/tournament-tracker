@@ -97,6 +97,6 @@ the "Build for deploy" step in `.github/workflows/ci.yml`), which
 
 ## Domain rules
 
-See [`REQUIREMENTS.md`](./REQUIREMENTS.md) and
-[`docs/tournament-rules.md`](./docs/tournament-rules.md) for the tournament
+See [`docs/requirements.md`](./docs/requirements.md) and [`docs/tournament-rules.md`](./docs/tournament-rules.md) for the tournament
 format and product rules this app implements.
+The PWA Architecture is described in [`docs/pwa-architecture.md`](docs/pwa-architecture.md)
