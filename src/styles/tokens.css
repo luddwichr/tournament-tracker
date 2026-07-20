@@ -59,6 +59,11 @@
 
 /* Light palette — default */
 :root {
+  /* Tells the UA which palettes the document supports, so scrollbars, form
+     controls and text carets follow the theme instead of staying light. The
+     [data-theme] blocks below narrow this to the single chosen scheme. */
+  color-scheme: light dark;
+
   --color-bg: #f8fafc;
   --color-surface: #ffffff;
   --color-text: #0f172a;
@@ -116,6 +121,8 @@
 /* Explicit user overrides — declared after the media query so they win via
    source order (same specificity as :root, which is a pseudo-class at 0,1,0) */
 [data-theme='light'] {
+  color-scheme: light;
+
   --color-bg: #f8fafc;
   --color-surface: #ffffff;
   --color-text: #0f172a;
@@ -138,6 +145,8 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
+
   --color-bg: #0f172a;
   --color-surface: #1e293b;
   --color-text: #f1f5f9;
