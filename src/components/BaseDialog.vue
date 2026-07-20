@@ -87,10 +87,50 @@ defineExpose({ close })
   max-width: var(--dialog-max-width, var(--dialog-width-sm));
   width: 100%;
   box-shadow: var(--elevation-3);
+  transition:
+    opacity var(--motion-duration-base) var(--motion-easing-standard),
+    scale var(--motion-duration-base) var(--motion-easing-standard);
+  opacity: 1;
+  scale: 1;
+}
+
+/*
+ * Entry animation only — the dialog fades and scales in from @starting-style.
+ *
+ * There is deliberately no matching `:not([open])` exit state. It would need
+ * `display`/`overlay` with allow-discrete to keep the element in the top layer
+ * while it animates out, and jsdom's showModal() never sets the `open`
+ * attribute, so that selector matches permanently under test and renders every
+ * dialog's content invisible to isVisible() assertions. The open animation is
+ * the part users actually notice.
+ */
+@starting-style {
+  .base-dialog[open] {
+    opacity: 0;
+    scale: 0.95;
+  }
 }
 
 .base-dialog::backdrop {
   background: var(--color-scrim);
+  transition: opacity var(--motion-duration-base) var(--motion-easing-standard);
+  opacity: 1;
+}
+
+@starting-style {
+  .base-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* reset.css already collapses the durations under reduced motion; the scale
+   start is neutralised here so no movement is implied at all. */
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .base-dialog[open] {
+      scale: 1;
+    }
+  }
 }
 
 .base-dialog__inner {

@@ -32,10 +32,25 @@ const links = [
   list-style: none;
   flex-direction: column;
   gap: var(--space-1);
+  /* The menu used to appear by flipping `display` with no easing. `display`
+     needs allow-discrete to participate, so the fade/slide can run across it. */
+  opacity: 0;
+  translate: 0 calc(-1 * var(--space-2));
+  transition:
+    opacity var(--motion-duration-base) var(--motion-easing-standard),
+    translate var(--motion-duration-base) var(--motion-easing-standard),
+    display var(--motion-duration-base) allow-discrete;
 }
 
 .app-nav__list--open {
   display: flex;
+  opacity: 1;
+  translate: 0 0;
+
+  @starting-style {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--space-2));
+  }
 }
 
 .app-nav__item {
@@ -66,11 +81,15 @@ const links = [
 }
 
 @media (min-width: bp.$nav-expanded) {
+  /* Always-visible inline row here, so the collapsed state's hidden opacity
+     and offset must be reset — otherwise the nav is laid out but invisible. */
   .app-nav__list {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     gap: var(--space-2);
+    opacity: 1;
+    translate: 0 0;
   }
 
   .app-nav__item {

@@ -104,6 +104,13 @@ const shootout = computed(() => (result ? decidedByShootout(result) : false))
   background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
+/* Press feedback: the pill lifts onto the elevation scale, which otherwise
+   never responds to interaction anywhere in the app. */
+.match-score-btn:active:not(:disabled) .match-score-btn__pill {
+  background-color: color-mix(in srgb, var(--color-primary) var(--state-pressed), transparent);
+  box-shadow: var(--elevation-1);
+}
+
 /* Digits are the one thing an early reader can read unaided, so the score gets
    the dedicated score scale rather than the button's --font-size-sm. This is
    free vertically: the pill is stretched across both team rows, which are
