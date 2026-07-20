@@ -29,6 +29,7 @@
     "workflows": "zizmor .github/workflows",
     "licenses": "trivy fs --quiet --scanners license --pkg-types library --severity UNKNOWN,MEDIUM,HIGH,CRITICAL --ignore-policy .trivy/license-exceptions.rego --exit-code 1 .",
     "vulns": "trivy fs --quiet --scanners vuln --pkg-types library --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .",
+    "vulns:image": "trivy image --quiet --pkg-types os --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \"$(grep -m1 '^FROM ' .devcontainer/Dockerfile | awk '{print $2}')\"",
     "dockerfile": "trivy config --quiet --severity HIGH,CRITICAL --exit-code 1 .devcontainer/Dockerfile",
     "sbom": "trivy fs --quiet --format cyclonedx --scanners license --output sbom.cdx.json .",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint test:unit:coverage security secrets licenses vulns dockerfile",
