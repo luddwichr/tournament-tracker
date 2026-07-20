@@ -2,8 +2,12 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f172a" />
+    <!-- viewport-fit=cover lets the app paint into the notch/home-indicator area;
+         the env(safe-area-inset-*) paddings in AppHeader/App keep content clear of it. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Static default matches the light palette's --color-bg (the default
+         theme); theme-boot.js below rewrites it for dark before first paint. -->
+    <meta name="theme-color" content="#f8fafc" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
     <!-- csp:start (stripped in dev by vite.config.ts — see comment there) -->
     <!--
@@ -36,11 +40,14 @@
     <link rel="apple-touch-icon" href="/tournament-tracker/icons/icon-192.png" />
     <title>WM 2026 Tracker</title>
     <link rel="stylesheet" href="/tournament-tracker/boot-fallback.css" />
+    <!-- Must stay synchronous and ahead of the app bundle: it sets data-theme
+         before first paint, which is the whole point (see the file header). -->
+    <script type="text/javascript" src="/tournament-tracker/theme-boot.js"></script>
     <script type="text/javascript" src="/tournament-tracker/boot-safety-net.js"></script>
     <script type="text/javascript" src="/tournament-tracker/spa-github-pages.js"></script>
-    <script type="module" crossorigin src="/tournament-tracker/assets/index-CIajJZ4z.js"></script>
+    <script type="module" crossorigin src="/tournament-tracker/assets/index-DP3E7au4.js"></script>
     <link rel="modulepreload" crossorigin href="/tournament-tracker/assets/teams-BldxfLEv.js">
-    <link rel="stylesheet" crossorigin href="/tournament-tracker/assets/index-CBkNfeON.css">
+    <link rel="stylesheet" crossorigin href="/tournament-tracker/assets/index-Delk75u8.css">
   <link rel="manifest" href="/tournament-tracker/manifest.webmanifest"></head>
   <body>
     <noscript>
