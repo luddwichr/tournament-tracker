@@ -6,9 +6,8 @@
 // <head>, ahead of the app bundle, so the correct `data-theme` is on <html>
 // before anything is painted.
 //
-// It also keeps the theme-color meta in sync. That tag used to be hardcoded to
-// the dark surface, so in light mode the OS browser chrome was dark navy above
-// an off-white app.
+// It also keeps the theme-color meta in sync, so the OS browser chrome tracks
+// the active palette instead of a fixed one.
 //
 // Kept out of index.html (rather than inline) so the CSP can keep script-src
 // at 'self' with no 'unsafe-inline' — same reasoning as boot-safety-net.js.

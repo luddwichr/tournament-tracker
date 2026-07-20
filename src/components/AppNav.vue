@@ -32,8 +32,8 @@ const links = [
   list-style: none;
   flex-direction: column;
   gap: var(--space-1);
-  /* The menu used to appear by flipping `display` with no easing. `display`
-     needs allow-discrete to participate, so the fade/slide can run across it. */
+  /* `display` only participates in a transition with allow-discrete, which is
+     what lets the fade and slide run while the menu flips none ↔ flex. */
   opacity: 0;
   translate: 0 calc(-1 * var(--space-2));
   transition:
