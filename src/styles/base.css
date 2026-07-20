@@ -12,11 +12,12 @@ body {
   font-size: var(--font-size-base);
 }
 
-/* Visible focus ring on every interactive element */
+/* Visible focus ring on every interactive element. Deliberately no
+   border-radius here: the outline already follows each element's own radius,
+   so setting one would reshape the element itself while focused. */
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
 }
 
 /* Skip link for keyboard users */
