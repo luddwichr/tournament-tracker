@@ -33,6 +33,11 @@
       "matchDepNames": ["zizmor"],
     },
     {
+      "groupName": "trivy",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["trivy"],
+    },
+    {
       // renovate-the-CLI ships multiple releases a day; without a schedule the
       // exact pin below would otherwise get a bump PR almost every day.
       "groupName": "renovate-cli",
@@ -131,6 +136,22 @@
       "matchStrings": ["ZIZMOR_VERSION: (?<currentValue>[\\d.]+)"],
       "depNameTemplate": "zizmor",
       "packageNameTemplate": "zizmorcore/zizmor",
+      "datasourceTemplate": "github-releases",
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
+      "matchStrings": ["ARG TRIVY_VERSION=(?<currentValue>.*)"],
+      "depNameTemplate": "trivy",
+      "packageNameTemplate": "aquasecurity/trivy",
+      "datasourceTemplate": "github-releases",
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
+      "matchStrings": ["TRIVY_VERSION: (?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "trivy",
+      "packageNameTemplate": "aquasecurity/trivy",
       "datasourceTemplate": "github-releases",
     },
     {
