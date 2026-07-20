@@ -20,9 +20,11 @@ describe('ThirdPlaceTable', () => {
     expect(abbreviations).toEqual(['Team', 'Pkt', 'TD', 'Tore', 'FP', 'FIFA'])
   })
 
-  it('names each abbreviated tiebreaker header trigger with its full label', () => {
+  it('gives each abbreviated tiebreaker header a visually-hidden full label', () => {
     const wrapper = mount(ThirdPlaceTable, { props: { liveRanking: rankThirdPlacedLive({}) } })
-    const fullLabels = wrapper.findAll('th[scope="col"] button').map((btn) => btn.attributes('aria-label'))
+    const fullLabels = wrapper
+      .findAll('th[scope="col"] abbr')
+      .map((abbr) => abbr.element.nextElementSibling?.textContent)
     expect(fullLabels).toEqual(['Punkte', 'Tordifferenz', 'Erzielte Tore', 'Fair-Play-Punkte', 'FIFA-Weltrangliste'])
   })
 

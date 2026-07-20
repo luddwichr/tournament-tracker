@@ -36,9 +36,11 @@ describe('GroupStandingsTable', () => {
     expect(abbreviations).toEqual(['Team', 'Sp', 'S', 'U', 'N', 'T+', 'T-', 'TD', 'Pkt'])
   })
 
-  it('names each abbreviated header trigger with its full label', () => {
+  it('gives each abbreviated header a visually-hidden full label', () => {
     const wrapper = mount(GroupStandingsTable, { props: { groupDone: false, groupId: 'A', standings } })
-    const fullLabels = wrapper.findAll('th[scope="col"] button').map((btn) => btn.attributes('aria-label'))
+    const fullLabels = wrapper
+      .findAll('th[scope="col"] abbr')
+      .map((abbr) => abbr.element.nextElementSibling?.textContent)
     expect(fullLabels).toEqual([
       'Spiele',
       'Siege',

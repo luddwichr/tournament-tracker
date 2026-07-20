@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { TEAM_STATS_CARD_LEGEND, TEAM_STATS_COLUMNS } from './stat-columns'
 import { computeTeamStats, matchesForTeam } from '../lib/team-schedule'
 import { computed, ref, useId, useTemplateRef } from 'vue'
 import BaseDialog from './BaseDialog.vue'
 import ScheduleIcon from './icons/ScheduleIcon.vue'
 import SquadList from './SquadList.vue'
+import StatLegend from './StatLegend.vue'
 import type { Team } from '../types/tournament'
 import TeamFlag from './TeamFlag.vue'
 import TeamIcon from './icons/TeamIcon.vue'
@@ -22,6 +24,9 @@ const store = useTournamentStore()
 const players = computed(() => squadFor(team.id))
 const entries = computed(() => matchesForTeam(team, store.results))
 const stats = computed(() => computeTeamStats(team, entries.value))
+
+// The two card columns render as icons, so the legend names them too.
+const teamStatsLegend = [...TEAM_STATS_COLUMNS, ...TEAM_STATS_CARD_LEGEND]
 
 type TabId = 'team' | 'schedule'
 const tabs: { id: TabId; label: string }[] = [
@@ -106,6 +111,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
       class="team-dialog__panel"
     >
       <TeamStats :stats="stats" />
+      <StatLegend :columns="teamStatsLegend" />
       <SquadList :players="players" />
     </div>
 
