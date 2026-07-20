@@ -232,8 +232,11 @@ can never serve stale data.
 
 ## 7. UI / routes
 
-Bottom navigation derived from router meta (`navIcon` + German `title`); browser
-tab title synced to route. Four routes:
+Navigation is a header bar that collapses behind a burger toggle below 640px and
+expands to a persistent inline row at or above it (`AppNav.vue`,
+`AppHeader.vue`). Each entry pairs an icon with its German label; both live in
+`AppNav`'s own `links` list, not in router meta, which carries only `title`.
+Browser tab title is synced to the route. Four routes:
 
 | Route       | Title (DE)    | Content                                          |
 | ----------- | ------------- | ------------------------------------------------ |
