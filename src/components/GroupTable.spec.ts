@@ -19,7 +19,7 @@ vi.mock('../data/fixtures-2026', async (importOriginal) => {
     groupMatches: [
       ...original.groupMatches,
       // Unknown teamId: covers the `?? null` branch in resolveTeam. (A
-      // non-team-kind ref in a group match is no longer representable —
+      // non-team-kind ref in a group match is not representable —
       // `GroupMatchSlot`/`ResolvedTeamRef` rule it out at the type level.)
       {
         awayRef: { kind: 'team' as const, teamId: 'UNKNOWN_ABC' },
