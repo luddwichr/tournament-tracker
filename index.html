@@ -2,7 +2,9 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover lets the app paint into the notch/home-indicator area;
+         the env(safe-area-inset-*) paddings in AppHeader/App keep content clear of it. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
     <!-- csp:start (stripped in dev by vite.config.ts — see comment there) -->

@@ -15,7 +15,7 @@ const emit = defineEmits<{ close: [] }>()
   <BaseDialog
     title="Mögliche Teams"
     max-width="var(--dialog-width-sm)"
-    max-height="min(90vh, 36rem)"
+    max-height="min(90dvh, 36rem)"
     @close="emit('close')"
   >
     <div class="possible-teams-dialog__content">

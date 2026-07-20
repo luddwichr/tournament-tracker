@@ -69,6 +69,11 @@ watch(
 <style scoped>
 .app-main {
   padding: var(--space-4);
+  /* Keep the last row of content clear of the home indicator and the rounded
+     display corners in the installed PWA (viewport-fit=cover, see index.html). */
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  padding-inline-start: max(var(--space-4), env(safe-area-inset-left));
+  padding-inline-end: max(var(--space-4), env(safe-area-inset-right));
 }
 
 .app-main:focus {
@@ -78,6 +83,9 @@ watch(
 @media (min-width: 640px) {
   .app-main {
     padding: var(--space-5);
+    padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+    padding-inline-start: max(var(--space-5), env(safe-area-inset-left));
+    padding-inline-end: max(var(--space-5), env(safe-area-inset-right));
   }
 }
 </style>
