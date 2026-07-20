@@ -19,7 +19,9 @@ Use `playwright-cli` (globally installed): `playwright-cli open http://localhost
 then `find "<German label>"` / `click <ref>` / `eval`. Close with `playwright-cli close`.
 
 For scripted scenarios prefer extending the e2e suite (`e2e/*.spec.ts`, page objects in
-`e2e/support/`) — `npx playwright test <spec>` starts the dev server itself.
+`e2e/support/`). `npx playwright test <spec>` starts a server itself, but it is
+`npm run preview` serving the prebuilt `dist/` — **not** the dev server — so run
+`npm run build` first or you are testing stale output (see the `ci` skill).
 `e2e/error-visibility.spec.ts` shows how to simulate boot failures (module interception
 needs a JavaScript MIME type) and how to assert on `<noscript>` content (Playwright's
 visibility check misreports it — use text + boundingBox).
