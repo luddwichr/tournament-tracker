@@ -22,7 +22,9 @@ const links = [
   </nav>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@use '../styles/breakpoints' as bp;
+
 .app-nav__list {
   display: none;
   margin: 0;
@@ -63,7 +65,7 @@ const links = [
   background-color: color-mix(in srgb, var(--color-primary) var(--state-focus), transparent);
 }
 
-@media (min-width: 640px) {
+@media (min-width: bp.$nav-expanded) {
   .app-nav__list {
     display: flex;
     flex-direction: row;

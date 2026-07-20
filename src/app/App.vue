@@ -76,7 +76,9 @@ watch(
   <ScoreDialog v-if="scoreDialogConfig" v-bind="scoreDialogConfig" @close="closeScoreDialog" />
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@use '../styles/breakpoints' as bp;
+
 .app-main {
   padding: var(--space-4);
   /* Keep the last row of content clear of the home indicator and the rounded
@@ -90,7 +92,7 @@ watch(
   outline: none;
 }
 
-@media (min-width: 640px) {
+@media (min-width: bp.$nav-expanded) {
   .app-main {
     padding: var(--space-5);
     padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
