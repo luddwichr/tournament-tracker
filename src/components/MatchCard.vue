@@ -152,8 +152,21 @@ const ariaLabel = computed(() => {
   font-size: var(--font-size-sm);
 }
 
+/* The whole body is the click target, so it carries the hover/press feedback
+   itself — previously only the score pill lit up, leaving most of the
+   clickable area looking inert. */
 .match-card:not(.match-card--blocked) .match-card__body {
   cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--motion-duration-base) var(--motion-easing-standard);
+}
+
+.match-card:not(.match-card--blocked) .match-card__body:hover {
+  background-color: color-mix(in srgb, var(--color-text) var(--state-hover), transparent);
+}
+
+.match-card:not(.match-card--blocked) .match-card__body:active {
+  background-color: color-mix(in srgb, var(--color-text) var(--state-pressed), transparent);
 }
 
 .match-card__team--home {
