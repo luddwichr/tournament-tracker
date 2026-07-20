@@ -116,6 +116,9 @@ function handleKeydown(e: KeyboardEvent): void {
   width: 20px;
 }
 
+/* The glyph's dimensions are drawing geometry, not scale steps — the radius is
+   half the line height to round the caps, so it tracks `height` rather than
+   --radius-*. Deliberately literal. */
 .app-header__burger-line {
   display: block;
   height: 2px;

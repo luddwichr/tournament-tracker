@@ -61,6 +61,9 @@
 }
 
 .standings-cell__num {
+  /* The 2px inline padding is deliberately below the spacing scale's 4px
+     floor: eight numeric columns have to fit a 360px phone, and --space-1 on
+     each side would add ~32px and force horizontal scrolling. */
   padding: var(--space-1) 2px;
   text-align: center;
   font-variant-numeric: tabular-nums;

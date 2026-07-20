@@ -75,9 +75,11 @@ const sorted = computed(() => sortBySquadPosition(players))
   font-size: var(--font-size-sm);
 }
 
+/* Medium rather than the browser's bold <th> default: a player name is a row
+   label, not a heading to scan by. */
 .squad-list__name {
   padding: var(--space-2) var(--space-3);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   text-align: start;
 }
 </style>
