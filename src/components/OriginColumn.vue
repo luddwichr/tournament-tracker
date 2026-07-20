@@ -35,7 +35,7 @@ const emit = defineEmits<{
     <div class="origin-column__groups">
       <div v-for="group in groupData" :key="group.id" class="origin-column__group">
         <div class="origin-column__group-label">Gruppe {{ group.id }}</div>
-        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/mouse-events-have-key-events -- purely a mouse-hover highlight sync with elsewhere in the bracket view; not focusable/keyboard-actionable on purpose (no click/select action, nothing to activate), see REVIEW.md §4 finding 5 -->
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/mouse-events-have-key-events -- purely a mouse-hover highlight sync with elsewhere in the bracket view; not focusable/keyboard-actionable on purpose (no click/select action, nothing to activate) -->
         <div
           v-for="row in group.teams"
           :key="row.team.id"
