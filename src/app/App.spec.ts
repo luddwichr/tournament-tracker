@@ -141,6 +141,29 @@ describe('App', () => {
     expect(document.documentElement.dataset['theme']).toBeUndefined()
   })
 
+  it('keeps the theme-color meta on the resolved background colour', async () => {
+    const meta = document.createElement('meta')
+    meta.setAttribute('name', 'theme-color')
+    document.head.append(meta)
+    // jsdom computes no stylesheet, so pin --color-bg explicitly; the point
+    // under test is that the watcher mirrors whatever the token resolves to.
+    document.documentElement.style.setProperty('--color-bg', '#0f172a')
+
+    const { wrapper } = await mountApp()
+    const settings = useSettingsStore()
+    settings.theme = 'dark'
+    await wrapper.vm.$nextTick()
+    expect(meta.getAttribute('content')).toBe('#0f172a')
+
+    document.documentElement.style.setProperty('--color-bg', '#f8fafc')
+    settings.theme = 'light'
+    await wrapper.vm.$nextTick()
+    expect(meta.getAttribute('content')).toBe('#f8fafc')
+
+    meta.remove()
+    document.documentElement.style.removeProperty('--color-bg')
+  })
+
   it('announces the new page title and focuses main on route change', async () => {
     const { wrapper, router } = await mountApp()
 
