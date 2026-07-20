@@ -111,12 +111,8 @@ const shootout = computed(() => (result ? decidedByShootout(result) : false))
   box-shadow: var(--elevation-1);
 }
 
-/* Digits are the one thing an early reader can read unaided, so the score gets
-   the dedicated score scale rather than the button's --font-size-sm. This is
-   free vertically: the pill is stretched across both team rows, which are
-   taller than the numerals even at this size, so the card does not grow. */
 .match-score-btn__value {
-  font-size: var(--font-size-score);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   line-height: 1;
   font-variant-numeric: tabular-nums;
