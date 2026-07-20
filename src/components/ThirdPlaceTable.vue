@@ -49,7 +49,7 @@ const columns = [
     </InfoDisclosure>
 
     <section class="third-place-table__scroll" aria-label="Rangliste" tabindex="0">
-      <table class="third-place-table__table tinted-header">
+      <table class="third-place-table__table stat-table tinted-header">
         <caption class="visually-hidden">
           Rangliste der zwölf Gruppendritten
         </caption>
@@ -90,20 +90,7 @@ const columns = [
   overflow-x: auto;
 }
 
-.third-place-table__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
-.third-place-table__table th {
-  padding: var(--space-1) var(--space-1);
-  text-align: center;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
+/* Table base and th recipe come from .stat-table (standings-row.css). */
 .third-place-table__table thead .third-place-table__team-col {
   text-align: start;
   padding-inline-start: var(--space-3);

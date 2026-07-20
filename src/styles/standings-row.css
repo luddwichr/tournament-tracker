@@ -12,6 +12,27 @@
  * width/flex-shrink (1ch vs 2ch).
  */
 
+/*
+ * Shared stat-table recipe — the table base and header-cell styling that
+ * GroupStandingsTable, ThirdPlaceTable, TeamStats and SquadList each used to
+ * hand-write identically. Apply `.stat-table` to the <table>; components
+ * override only the axis they genuinely differ on (SquadList left-aligns and
+ * pads wider, TeamStats centers its body cells).
+ */
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.stat-table th {
+  padding: var(--space-1);
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .standings-cell__team {
   white-space: nowrap;
   font-weight: inherit;

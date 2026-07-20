@@ -9,7 +9,7 @@ const sorted = computed(() => sortBySquadPosition(players))
 </script>
 
 <template>
-  <table class="squad-list tinted-header">
+  <table class="squad-list stat-table tinted-header">
     <caption class="visually-hidden">
       Kader
     </caption>
@@ -37,18 +37,11 @@ const sorted = computed(() => sortBySquadPosition(players))
 </template>
 
 <style scoped>
-.squad-list {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
+/* Table base and th recipe come from .stat-table (standings-row.css); a squad
+   list is read as names, not numbers, so it left-aligns and pads wider. */
 .squad-list thead th {
   padding: var(--space-1) var(--space-3);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
   text-align: start;
-  white-space: nowrap;
 }
 
 .squad-list__col--num {

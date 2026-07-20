@@ -24,7 +24,7 @@ const columns = [
 
 <template>
   <section class="group-standings" tabindex="0" :aria-label="`Tabelle Gruppe ${groupId}`">
-    <table class="standings-table tinted-header">
+    <table class="standings-table stat-table tinted-header">
       <caption class="visually-hidden">
         Tabelle Gruppe
         {{
@@ -61,20 +61,7 @@ const columns = [
   overflow-x: auto;
 }
 
-.standings-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
-.standings-table th {
-  padding: var(--space-1) var(--space-1);
-  text-align: center;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
+/* Table base and th recipe come from .stat-table (standings-row.css). */
 .standings-table thead .standings-table__team-col {
   text-align: start;
   padding-inline-start: var(--space-3);
