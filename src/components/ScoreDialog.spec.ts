@@ -161,6 +161,16 @@ describe('ScoreDialog', () => {
   // DisciplineInput's own spec parametrizes the home/away × yellow/red emit
   // symmetry; here we only need to prove each discipline field is wired through
   // a full ScoreDialog mount to the store on save.
+  describe('team heading', () => {
+    it('shows a flag next to each team name so non-readers can tell the sides apart', () => {
+      const wrapper = mountDialog()
+      const teams = wrapper.findAll('.score-dialog__team')
+      expect(teams).toHaveLength(2)
+      expect(teams.map((t) => t.text())).toEqual(['Deutschland', 'Frankreich'])
+      expect(teams.map((t) => t.find('.team-flag').exists())).toEqual([true, true])
+    })
+  })
+
   describe('discipline inputs', () => {
     it.each([
       ['Gelbe Karte für Deutschland hinzufügen', 'homeYellow'],

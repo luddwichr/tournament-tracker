@@ -5,6 +5,7 @@ import BaseDialog from './BaseDialog.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import DisciplineInput from './DisciplineInput.vue'
 import ScoreInput from './ScoreInput.vue'
+import TeamFlag from './TeamFlag.vue'
 import { useMatchResultForm } from '../composables/use-match-result-form'
 
 const { match, homeTeam, awayTeam } = defineProps<{
@@ -66,9 +67,18 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
 <template>
   <BaseDialog ref="baseDialog" :title="title" max-width="var(--dialog-width-lg)" @close="emit('close')">
     <div class="score-dialog__body">
+      <!-- aria-hidden: the steppers below already name their team in every
+           label, so announcing the heading row again would just be noise. It
+           exists for the sighted non-reader, who navigates by flag. -->
       <div class="score-dialog__teams" aria-hidden="true">
-        <span class="score-dialog__team-name">{{ homeTeam.name }}</span>
-        <span class="score-dialog__team-name">{{ awayTeam.name }}</span>
+        <p class="score-dialog__team">
+          <TeamFlag :flag-code="homeTeam.flagCode" size="2.5rem" />
+          <span class="score-dialog__team-name">{{ homeTeam.name }}</span>
+        </p>
+        <p class="score-dialog__team">
+          <TeamFlag :flag-code="awayTeam.flagCode" size="2.5rem" />
+          <span class="score-dialog__team-name">{{ awayTeam.name }}</span>
+        </p>
       </div>
 
       <ScoreInput v-model:home="goals.home" v-model:away="goals.away" :home-team="homeTeam" :away-team="awayTeam" />
@@ -160,13 +170,27 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
   padding: 0 var(--space-1);
 }
 
-.score-dialog__team-name {
+.score-dialog__team {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  min-width: 0;
+}
+
+/* Full text color, not muted: this is the label a child matches against the
+   flag to know which stepper is whose. */
+.score-dialog__team-name {
+  max-width: 100%;
   text-align: center;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .score-dialog__draw-error {
