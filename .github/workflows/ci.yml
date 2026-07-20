@@ -107,16 +107,12 @@ jobs:
           path: sbom.cdx.json
           retention-days: 30
       - name: Scan Dockerfile base image for OS CVEs
-        # Read the pinned FROM image out of the Dockerfile so this stays in sync
-        # with (and never drifts from) the digest Renovate bumps there (single
-        # stage, literal ref). Gates on fixable HIGH/CRITICAL only: a failure
-        # means "bump the pinned base". Runs in this job — rather than a separate
-        # one — to reuse the trivy binary and the already-warm vuln DB.
-        run: |
-          image="$(grep -m1 '^FROM ' .devcontainer/Dockerfile | awk '{ print $2 }')"
-          echo "Scanning base image: $image"
-          trivy image --quiet --pkg-types os \
-            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
+        # `vulns:image` reads the pinned FROM image out of the Dockerfile (single
+        # stage, literal ref) so CI and local runs scan the exact same base and
+        # never drift from the digest Renovate bumps there. Gates on fixable
+        # HIGH/CRITICAL only: a failure means "bump the pinned base". Runs in this
+        # job — not a separate one — to reuse the trivy binary and warm vuln DB.
+        run: npm run vulns:image
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"

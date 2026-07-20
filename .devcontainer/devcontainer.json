@@ -4,6 +4,21 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   /*
+  Enable rootless podman-in-podman (see the podman setup in the Dockerfile).
+  --device=/dev/fuse lets the nested containers use the fuse-overlayfs storage
+  driver; /dev/net/tun is required by pasta for rootless user-space networking;
+  seccomp=unconfined permits the syscalls nested containers make; and
+  label=disable stops an SELinux host from blocking the nested storage. On a
+  host WITHOUT /dev/fuse, drop that arg and switch the nested driver to vfs
+  (`podman --storage-driver=vfs ...`), which needs no device but is slower.
+  */
+  "runArgs": [
+    "--device=/dev/fuse",
+    "--device=/dev/net/tun",
+    "--security-opt=seccomp=unconfined",
+    "--security-opt=label=disable"
+  ],
+  /*
   npm ci runs as updateContentCommand (not postCreateCommand) because waitFor defaults
   to updateContentCommand: VS Code blocks connecting/activating extensions until it
   finishes. Extensions like oxc's language server spawn node_modules binaries on
@@ -42,6 +57,12 @@
     */
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
     "source=claude-code-config-${devcontainerId},target=/home/developer/.claude,type=volume",
-    "source=gh-config-${devcontainerId},target=/home/developer/.config/gh,type=volume"
+    "source=gh-config-${devcontainerId},target=/home/developer/.config/gh,type=volume",
+    /*
+    Nested podman image storage on its own volume: keeping it off the container's
+    overlay filesystem avoids stacking an overlay mount on an overlay mount, and
+    it survives rebuilds so locally built images are not re-pulled every time.
+    */
+    "source=podman-storage-${devcontainerId},target=/home/developer/.local/share/containers,type=volume"
   ]
 }

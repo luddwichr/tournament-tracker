@@ -50,7 +50,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # ssh client so git can push via the host's ssh-agent (VS Code forwards
     # SSH_AUTH_SOCK into the container automatically; no keys live in here)
     openssh-client \
+    # Rootless podman-in-podman — lets tooling inside this (itself rootless)
+    # container build, run and scan container images locally, e.g. `trivy image`
+    # against a locally built image. This setup follows the working reference at
+    # github.com/andrena/software-excellence-day-2026-sandboxing (demos/3), which
+    # itself derives from containers/image_build's Podman Containerfile.
+    # uidmap provides newuidmap/newgidmap for nested user namespaces
+    # fuse-overlayfs is the rootless storage driver (needs /dev/fuse, passed in via runArgs in devcontainer.json)
+    # passt/slirp4netns provide rootless networking
+    # libcap2-bin provides setcap for the capability fix further down.
+    podman crun uidmap fuse-overlayfs slirp4netns passt libcap2-bin catatonit \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# `podman build` defaults to an isolation mode that needs privileges this nested
+# container does not have; chroot isolation works without them.
+ENV BUILDAH_ISOLATION=chroot
+
+# Podman engine and storage configuration; each file documents its own settings.
+COPY containers.conf storage.conf /etc/containers/
 
 # Pin GitHub's published ed25519 host key (https://api.github.com/meta) so the
 # first push doesn't hit an interactive host-key prompt
@@ -66,6 +83,27 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && mkdir -p ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} /home/${USERNAME}/.config/gh \
     && touch ${COMMAND_HISTORY_FOLDER}/.bash_history \
     && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE_FOLDER} ${COMMAND_HISTORY_FOLDER} ${CLAUDE_CONFIG_DIR} /home/${USERNAME}/.config
+
+# Size the nested subordinate id ranges to fit INSIDE this container's own user
+# namespace, so rootless podman-in-podman can map them. useradd defaults to
+# 100000-165535, but a rootless devcontainer only gets the host user's 65536
+# subordinate ids mapped in (here: container uids 0-65536), so podman's
+# `newuidmap ... 1 100000 65536` call fails with "Operation not permitted". The
+# two ranges below skip uid 1000 (${USERNAME} itself), which podman maps
+# separately onto the nested container's root — the ranges must not overlap.
+# Widen only if the host grants more than the default 65536 subids (check
+# `cat /proc/self/uid_map` inside the container).
+#
+# newuidmap/newgidmap are setuid-root on Debian, and setuid does not work inside
+# a rootless container, so grant them the equivalent file capabilities instead
+# and drop the setuid bit — otherwise every podman command fails with
+# "newuidmap: write to uid_map failed: Operation not permitted".
+RUN printf '%s\n' "${USERNAME}:1:999" "${USERNAME}:1001:64535" > /etc/subuid \
+    && cp /etc/subuid /etc/subgid \
+    && setcap cap_setuid=ep /usr/bin/newuidmap && chmod 755 /usr/bin/newuidmap \
+    && setcap cap_setgid=ep /usr/bin/newgidmap && chmod 755 /usr/bin/newgidmap \
+    && mkdir -p /home/${USERNAME}/.local/share/containers \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
 
 # Install Playwright system dependencies (requires root); clean up the apt lists
 # left behind by its internal apt-get update and root's npm cache from npx
