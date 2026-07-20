@@ -20,6 +20,10 @@ const ScoreDialog = defineAsyncComponent(() => import('../components/ScoreDialog
 
 const settings = useSettingsStore()
 watchEffect(() => {
+  // The initial application happens before first paint in public/theme-boot.js
+  // (which must stay in sync with this block); this watcher owns every later
+  // change, i.e. the user picking a theme in Einstellungen.
+  //
   // 'system' means no explicit user choice — remove the attribute so the
   // unscoped `@media (prefers-color-scheme: dark)` block in tokens.css can
   // apply based on the OS preference instead of being overridden by the
@@ -29,6 +33,12 @@ watchEffect(() => {
   } else {
     document.documentElement.dataset['theme'] = settings.theme
   }
+
+  // Keep the OS browser chrome on the app's actual background colour. Reading
+  // the resolved token covers 'system' without re-deriving the media query.
+  const meta = document.querySelector('meta[name="theme-color"]')
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim()
+  if (meta && bg) meta.setAttribute('content', bg)
 })
 
 const route = useRoute()
