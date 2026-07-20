@@ -4,5 +4,5 @@
 # moment they're committed; runs offline (online audits are owned by CI).
 set -eu
 if git diff --cached --name-only --diff-filter=ACMR | grep -q '^\.github/workflows/'; then
-  npm run workflows
+  npm run scan:workflows
 fi

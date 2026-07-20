@@ -29,23 +29,30 @@ gh auth login --with-token < gh-token.txt
 
 ## Scripts
 
-| Script                            | Purpose                                                                                          |
-| --------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `npm run dev`                     | Start the Vite dev server                                                                        |
-| `npm run build`                   | Build for production (no type-check — run `typecheck` or `check:code` for that)                  |
-| `npm run preview`                 | Serve the production build locally                                                               |
-| `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects             |
-| `npm run test:unit`               | Run unit tests (Vitest)                                                                          |
-| `npm run test:unit:coverage`      | Run unit tests with coverage                                                                     |
-| `npm run test:e2e`                | Run e2e tests against the production build (Playwright) — needs `npm run build` first            |
-| `npm run test:e2e:pwa`            | Run the offline/PWA e2e suite — needs `npm run build` first                                      |
-| `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                                        |
-| `npm run format` / `format:check` | Format / check formatting with oxfmt                                                             |
-| `npm run security`                | Scan for security issues with opengrep (registry rulesets + `.opengrep/rules.yml`)               |
-| `npm run secrets`                 | Scan the full git history for committed credentials with gitleaks                                |
-| `npm run check:code`              | Run typecheck, format:check, lint, test:unit:coverage, security and secrets — run before pushing |
-| `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size — run this before pushing                             |
-| `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first                             |
+| Script                            | Purpose                                                                                                        |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Start the Vite dev server                                                                                      |
+| `npm run build`                   | Build for production (no type-check — run `typecheck` or `check:code` for that)                                |
+| `npm run preview`                 | Serve the production build locally                                                                             |
+| `npm run typecheck`               | Type-check only — vue-tsc (TS 6) for the app, `tsc` (TS 7) for the Vue-free projects                           |
+| `npm run test:unit`               | Run unit tests (Vitest)                                                                                        |
+| `npm run test:unit:coverage`      | Run unit tests with coverage                                                                                   |
+| `npm run test:e2e`                | Run e2e tests against the production build (Playwright) — needs `npm run build` first                          |
+| `npm run test:e2e:pwa`            | Run the offline/PWA e2e suite — needs `npm run build` first                                                    |
+| `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                                                      |
+| `npm run lint:unused`             | Find unused files, exports and dependencies (knip)                                                             |
+| `npm run format` / `format:check` | Format / check formatting with oxfmt                                                                           |
+| `npm run scan:sast`               | Scan for security issues with opengrep (registry rulesets + `.opengrep/rules.yml`)                             |
+| `npm run scan:secrets`            | Scan the full git history for committed credentials with gitleaks                                              |
+| `npm run scan:workflows`          | Lint GitHub Actions workflows for security issues with zizmor                                                  |
+| `npm run scan:licenses`           | Enforce the permissive-only license policy (trivy, see `trivy.yaml`)                                           |
+| `npm run scan:deps`               | Scan dependencies for fixable HIGH/CRITICAL vulnerabilities (trivy)                                            |
+| `npm run scan:dockerfile`         | Scan the devcontainer Dockerfile for misconfigurations (trivy)                                                 |
+| `npm run scan:image`              | Scan the pinned Dockerfile base image for fixable OS CVEs (trivy)                                              |
+| `npm run sbom`                    | Generate a CycloneDX SBOM into `sbom.cdx.json` (trivy)                                                         |
+| `npm run check:code`              | Run typecheck, format:check, lint, lint:unused, test:unit:coverage and the `scan:*` gates — run before pushing |
+| `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size — run this before pushing                                           |
+| `npm run size`                    | Check bundle size budgets (size-limit) — needs `npm run build` first                                           |
 
 ## TypeScript 6 + 7 side-by-side
 
