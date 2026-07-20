@@ -4,8 +4,7 @@ import { readFileSync } from 'node:fs'
 
 // Regression guard for the ES target duplicated across tsconfig.base.json,
 // tsconfig.app.json's/tsconfig.node.json's `lib`, and vite.config.ts's
-// `build.target` — previously kept in sync only by "keep in sync" comments
-// with nothing enforcing it.
+// `build.target`: nothing in the toolchain itself makes those four agree.
 
 const ROOT = join(__dirname, '..', '..')
 
