@@ -1,6 +1,4 @@
-/**
- * Unit tests for third-place ranking and slot resolution.
- */
+/** Unit tests for third-place ranking and slot resolution. */
 
 import { allGroupResults, makeResult } from '../test-support/results'
 import {

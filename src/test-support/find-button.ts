@@ -28,8 +28,10 @@ export function findButtonByText(host: ButtonHost, text: string): DOMWrapper<Ele
   return match
 }
 
-/** The `<button>` whose aria-label equals `label`, throwing (listing the
- *  available aria-labels) when none matches. */
+/**
+ * The `<button>` whose aria-label equals `label`, throwing (listing the
+ * available aria-labels) when none matches.
+ */
 export function findButtonByLabel(host: ButtonHost, label: string): DOMWrapper<Element> {
   const buttons = host.findAll('button')
   const match = buttons.find((b) => b.attributes('aria-label') === label)

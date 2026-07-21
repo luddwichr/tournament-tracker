@@ -4,13 +4,13 @@
  * Teams are first separated by points.
  * Teams level on points are ranked by:
  *
- *  Step 1, head-to-head among all the tied teams, counting matches between them only:
- *    a. points, b. goal difference, c. goals scored
- *  Step 2, for teams still tied, re-apply a–c to the matches among only the teams that remain tied.
- *    If that is still undecided, apply the following in order, without restarting the chain:
- *    d. overall goal difference, e. overall goals scored, f. fair-play score
- *  Step 3:
- *    g. FIFA World Ranking (lower position = better, and it always resolves)
+ * Step 1, head-to-head among all the tied teams, counting matches between them only:
+ * a. points, b. goal difference, c. goals scored
+ * Step 2, for teams still tied, re-apply a–c to the matches among only the teams that remain tied.
+ * If that is still undecided, apply the following in order, without restarting the chain:
+ * d. overall goal difference, e. overall goals scored, f. fair-play score
+ * Step 3:
+ * g. FIFA World Ranking (lower position = better, and it always resolves)
  *
  * Note the 2026 reordering.
  * Head-to-head (Step 1) is applied BEFORE overall goal difference (Step 2 d).

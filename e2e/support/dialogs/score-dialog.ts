@@ -56,8 +56,10 @@ export class ScoreDialog {
     return this.root.getByRole('alert')
   }
 
-  /** Clicks the "+" penalty stepper for the named team (the shootout steppers
-   * appear automatically while a knockout score is level). */
+  /**
+   * Clicks the "+" penalty stepper for the named team (the shootout steppers
+   * appear automatically while a knockout score is level).
+   */
   async incrementShootoutGoals(teamName: string): Promise<void> {
     await this.root.getByRole('button', { name: `Elfmetertor für ${teamName} hinzufügen` }).click()
   }

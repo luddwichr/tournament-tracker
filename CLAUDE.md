@@ -67,14 +67,11 @@ Exceptions, left alone deliberately:
 ## Formatting tooling and what it does _not_ do
 
 `oxfmt` owns formatting for JS, TS, Vue, JSON, CSS and Markdown via `npm run format`.
-Two settings matter for the rules above.
+A few settings matter for the rules above.
 
 - `printWidth: 120` is the hard line limit.
 - `proseWrap` is explicitly set to the default `"preserve"` to make the formatter respect manual line breaks in Markdown.
-
-Do **not** enable oxfmt's `jsdoc` option.
-It greedily refills JSDoc comments to `printWidth`, which would collapse one-sentence-per-line back into justified
-paragraphs.
+- `jsdoc` is configured with `lineWrappingStyle": "balance"`to preserve original line breaks if all lines fit within print width
 
 No formatter or linter enforces the em-dash, semicolon-splice or separator-bar rules.
-They are conventions, and it is on the author to follow them.
+They are conventions, and it is on the author to follow them

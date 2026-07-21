@@ -6,11 +6,11 @@
  * full 6-match group scenario for every edge case.
  *
  * Group A (real teams and match slots from fixtures-2026.ts):
- *   mex (FIFA rank 14), kor (25), cze (40), rsa (60)
- *   H2H matches among mex/kor/cze:
- *     M28: mex(h) vs kor(a)
- *     M02: kor(h) vs cze(a)
- *     M53: cze(h) vs mex(a)
+ * mex (FIFA rank 14), kor (25), cze (40), rsa (60)
+ * H2H matches among mex/kor/cze:
+ * M28: mex(h) vs kor(a)
+ * M02: kor(h) vs cze(a)
+ * M53: cze(h) vs mex(a)
  */
 
 import { describe, expect, it } from 'vitest'
