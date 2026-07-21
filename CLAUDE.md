@@ -70,11 +70,7 @@ Exceptions, left alone deliberately:
 Two settings matter for the rules above.
 
 - `printWidth: 120` is the hard line limit.
-- `proseWrap` is left at its default of `"preserve"`.
-  That default is load-bearing, because it makes the formatter respect manual line breaks in Markdown.
-  Manual line breaks are what let one-sentence-per-line survive `npm run format`.
-  **Never set it to `"always"`.**
-  That would reflow prose to the print width and destroy the convention.
+- `proseWrap` is explicitly set to the default `"preserve"` to make the formatter respect manual line breaks in Markdown.
 
 Do **not** enable oxfmt's `jsdoc` option.
 It greedily refills JSDoc comments to `printWidth`, which would collapse one-sentence-per-line back into justified
@@ -82,9 +78,3 @@ paragraphs.
 
 No formatter or linter enforces the em-dash, semicolon-splice or separator-bar rules.
 They are conventions, and it is on the author to follow them.
-
-## Verification
-
-Run `npm run check:code` before pushing.
-It runs typecheck, format:check, lint, lint:unused, unit tests with coverage, and the `scan:*` security gates.
-`npm run check:build` covers the build, e2e, the PWA e2e suite and size budgets.
