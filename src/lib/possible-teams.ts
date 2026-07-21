@@ -195,13 +195,13 @@ function possibleTeamIdsFor(ref: TeamRef, results: ResultsMap): Set<string> {
 
     case 'matchWinner':
     case 'matchLoser': {
-      const existingResult = results[ref.matchId]
-      if (existingResult) {
-        // Match already played, so resolve it exactly.
+      // A decisive score resolves the slot exactly.
+      if (results[ref.matchId]) {
         const resolved = resolveTeamRef(ref, results)
-        return resolved ? new Set([resolved.id]) : new Set()
+        if (resolved) return new Set([resolved.id])
       }
-      // Match unplayed, so either the home or the away team could win (or lose).
+      // Otherwise the match is unplayed, or its score is level without shootout goals, which means "not decided yet".
+      // Either way both sides remain possible, so fall through to the union.
       const match = fixturesById.get(ref.matchId)
       if (!match) return new Set()
       const homeIds = possibleTeamIdsFor(match.homeRef, results)
