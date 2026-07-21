@@ -103,6 +103,15 @@ describe('tournament store', () => {
     expect(clearStandingsCache).toHaveBeenCalledTimes(1)
   })
 
+  it('importResults drops a knockout result whose participants the imported map cannot resolve', () => {
+    const store = useTournamentStore()
+
+    // M89 is fed by the winners of M74 and M77, neither of which the import carries.
+    store.importResults({ M02: makeResult('M02', 3, 3), M89: makeResult('M89', 1, 0) })
+
+    expect(store.results).toEqual({ M02: makeResult('M02', 3, 3) })
+  })
+
   it('standingsByGroup recomputes a group when a result affecting it changes', () => {
     const store = useTournamentStore()
 
@@ -178,6 +187,17 @@ describe('tournament store — localStorage rehydration', () => {
     const store = useTournamentStore()
 
     expect(store.results).toEqual({ M01: makeResult('M01', 2, 1) })
+  })
+
+  it('drops an orphaned knockout result on rehydration and re-persists the swept map', () => {
+    // Shape-valid, so isValidResultsMap accepts it, but M89's participants depend on results that aren't there.
+    const persisted = { M01: makeResult('M01', 2, 1), M89: makeResult('M89', 1, 0) }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ results: persisted }))
+
+    const store = useTournamentStore()
+
+    expect(store.results).toEqual({ M01: makeResult('M01', 2, 1) })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ results: { M01: makeResult('M01', 2, 1) } })
   })
 
   it('resets to an empty state instead of propagating a non-object results value', () => {
