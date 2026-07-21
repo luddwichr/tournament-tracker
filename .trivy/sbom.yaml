@@ -1,0 +1,9 @@
+# Trivy config for the "sbom" npm script.
+# Goal: CycloneDX SBOM generation.
+#
+# Deliberately no exit-code: this run reports, it does not gate.
+quiet: true
+scan:
+  scanners: [license]
+format: cyclonedx
+output: sbom.cdx.json
