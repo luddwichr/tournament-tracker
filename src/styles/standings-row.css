@@ -1,10 +1,9 @@
 /*
- * Shared cell recipe for the standings-style table rows used by StandingsRow
- * and ThirdPlaceRow (group standings vs. best-third-place ranking). Both
- * components render structurally identical <th>/<td> cells — team, rank,
- * numeric stat, points — plus the same left-edge status-color strip and
- * background tint pattern. Loaded once (see main.ts) rather than duplicated
- * as scoped CSS in each component.
+ * Shared cell recipe for the standings-style table rows used by StandingsRow and ThirdPlaceRow.
+ * Those cover the group standings and the best-third-place ranking.
+ * Both components render structurally identical <th> and <td> cells for team, rank, numeric stat and points.
+ * They also share the same left-edge status-color strip and background tint pattern.
+ * This is loaded once, see main.ts, rather than duplicated as scoped CSS in each component.
  *
  * What stays local to each component instead: the exact status enum (7
  * statuses for StandingsRow vs. 5 for ThirdPlaceRow), ThirdPlaceRow's extra
@@ -13,11 +12,11 @@
  */
 
 /*
- * Shared stat-table recipe — the table base and header-cell styling that
- * GroupStandingsTable, ThirdPlaceTable, TeamStats and SquadList each used to
- * hand-write identically. Apply `.stat-table` to the <table>; components
- * override only the axis they genuinely differ on (SquadList left-aligns and
- * pads wider, TeamStats centers its body cells).
+ * Shared stat-table recipe holding the table base and header-cell styling.
+ * GroupStandingsTable, ThirdPlaceTable, TeamStats and SquadList all share it.
+ * Apply `.stat-table` to the <table>.
+ * Components override only the axis they genuinely differ on.
+ * SquadList left-aligns and pads wider, and TeamStats centers its body cells.
  */
 .stat-table {
   width: 100%;
@@ -28,8 +27,7 @@
 /*
  * `thead th` deliberately, not bare `th`. The row components render their team
  * name as a `<th scope="row">`, and this is a global rule, so a bare `th`
- * would style those body cells too — the per-component rules this replaced
- * were scoped, which meant they never reached a child component's cells.
+ * would style those body cells too.
  */
 .stat-table thead th {
   padding: var(--space-1);
@@ -99,9 +97,8 @@
 }
 
 /*
- * Row background tint — apply to the <tr> alongside the component-specific
- * status class; only used once a status is "locked in" (final qualified/
- * eliminated), matching the original per-component behaviour.
+ * Row background tint, applied to the <tr> alongside the component-specific status class.
+ * It is only used once a status is "locked in", meaning finally qualified or eliminated.
  */
 .standings-cell--win-tint td {
   background-color: color-mix(in srgb, var(--color-win) 8%, transparent);

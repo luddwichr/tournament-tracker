@@ -2,8 +2,8 @@
 // browser the module fails to parse and Vue (including its errorHandler)
 // never runs. This script must therefore stay self-contained ES5. It
 // logs every uncaught error/rejection to localStorage (same key + entry
-// shape as src/lib/error-log.ts — keep in sync) and, if the app never
-// mounted, replaces the silent white screen with a visible message.
+// shape as src/lib/error-log.ts, so keep them in sync).
+// If the app never mounted, it replaces the silent white screen with a visible message.
 //
 // Loaded as a plain (non-module) <script src> ahead of the app bundle so it
 // keeps executing even where module scripts are unsupported or blocked; kept
@@ -19,7 +19,7 @@
       localStorage.setItem(key, JSON.stringify(entries.slice(-20)))
       // eslint-disable-next-line sonarjs/no-ignored-exceptions -- must stay ES5 (see file header), so optional catch binding isn't available; localStorage being unavailable is genuinely unrecoverable here
     } catch (e) {
-      // localStorage unavailable — nothing sensible left to do.
+      // localStorage is unavailable, and there is nothing sensible left to do.
     }
   }
   function showFallbackIfNotMounted() {

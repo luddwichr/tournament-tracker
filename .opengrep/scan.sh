@@ -1,7 +1,7 @@
 #!/bin/sh
 # Config for `npm run security`. opengrep has no project config file for
-# listing registry packs by name — multiple --config flags is the documented
-# way to combine them (see `opengrep scan --help`).
+# listing registry packs by name.
+# Multiple --config flags is the documented way to combine them, see `opengrep scan --help`.
 #
 # p/security-audit, p/javascript, p/typescript: community registry rulesets.
 # rules.yml: our own rule guarding against incomplete regex-based sanitization

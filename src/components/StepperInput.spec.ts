@@ -32,7 +32,7 @@ describe('StepperInput', () => {
       props: { decLabel: 'dec', incLabel: 'inc', modelValue: 0, valueLabel: 'Wert' },
     })
     await wrapper.findAll('button')[0]!.trigger('click')
-    // value is already at 0 — defineModel skips emitting unchanged values
+    // The value is already at 0, and defineModel skips emitting unchanged values.
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 

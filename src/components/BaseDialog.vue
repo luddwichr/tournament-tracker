@@ -2,9 +2,9 @@
 import { computed, onMounted, useId, useTemplateRef } from 'vue'
 import { useScrollLock } from '../composables/use-scroll-lock'
 
-// Vue's macro types mark boolean props as always-defined (absent casts to
-// false), so typescript-eslint thinks this default is useless — but it is the
-// runtime default that makes an omitted prop mean `true`.
+// Vue's macro types mark boolean props as always-defined, since an absent prop casts to false.
+// So typescript-eslint thinks this default is useless.
+// It is in fact the runtime default that makes an omitted prop mean `true`.
 const {
   maxWidth,
   maxHeight,
@@ -95,7 +95,7 @@ defineExpose({ close })
 }
 
 /*
- * Entry animation only — the dialog fades and scales in from @starting-style.
+ * Entry animation only, where the dialog fades and scales in from @starting-style.
  *
  * There is deliberately no matching `:not([open])` exit state. It would need
  * `display`/`overlay` with allow-discrete to keep the element in the top layer

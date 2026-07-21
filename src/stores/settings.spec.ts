@@ -5,10 +5,10 @@ import { createPinia, setActivePinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { useSettingsStore } from './settings'
 
-// Pinia only activates plugins queued via `pinia.use(...)` once the pinia
-// instance is actually installed into an app (mirrors main.ts's
-// `createApp(App).use(pinia)`) — merely calling `setActivePinia` skips that
-// step, so the persistedstate plugin would silently never hydrate/persist.
+// Pinia only activates plugins queued via `pinia.use(...)` once the pinia instance is installed into an app.
+// This mirrors main.ts's `createApp(App).use(pinia)`.
+// Merely calling `setActivePinia` skips that step, so the persistedstate plugin would silently never hydrate or
+// persist.
 function createPersistedPinia() {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
@@ -27,8 +27,8 @@ describe('settings store', () => {
     expect(store.theme).toBe('system')
   })
 
-  // The store's one real piece of behavior is `persist: true` — everything
-  // else here is Pinia/Vue ref semantics, not this store's logic.
+  // The store's one real piece of behavior is `persist: true`.
+  // Everything else here is Pinia and Vue ref semantics, not this store's logic.
   it('persists theme changes to localStorage under the store id key', async () => {
     const store = useSettingsStore()
     store.theme = 'dark'

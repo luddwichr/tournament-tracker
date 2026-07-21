@@ -17,9 +17,8 @@ import { useTournamentStore } from '../stores/tournament'
 const store = useTournamentStore()
 const openScoreDialog = useScoreDialog()
 
-// The row already carries both teams resolved by `toRow`, so opening the
-// dialog needs no second `resolveTeamRef` pass. A slot only stays null while
-// its feeder match is unplayed — the dialog can't open on those.
+// The row already carries both teams resolved by `toRow`, so opening the dialog needs no second `resolveTeamRef` pass.
+// A slot only stays null while its feeder match is unplayed, and the dialog can't open on those.
 function selectMatch(row: MatchRow): void {
   if (row.homeTeam && row.awayTeam) openScoreDialog(row.match, row.homeTeam, row.awayTeam)
 }

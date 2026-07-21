@@ -18,9 +18,9 @@ test('shows all 12 group headings', async () => {
 
 test('shows all 4 team names of a group', async () => {
   // Scoped to a single group's standings table, where each team name appears
-  // exactly once (one row per team) — no strict-mode-dodging `.first()`
-  // needed, and no need to check all 48 teams across the page to prove names
-  // render correctly.
+  // exactly once, one row per team.
+  // So no strict-mode-dodging `.first()` is needed.
+  // There is also no need to check all 48 teams across the page to prove names render correctly.
   for (const team of teams.filter((t) => t.group === 'A')) {
     await expect(groups.standings('A').getByText(team.name, { exact: true })).toBeVisible()
   }
@@ -38,8 +38,8 @@ test('groups view has no detectable accessibility violations', async ({ page }) 
 })
 
 test('score dialog has no detectable accessibility violations', async ({ page }) => {
-  // M25 (Group A): Tschechien vs Südafrika — an as-yet-unplayed match, so the
-  // dialog opens in its default (0:0, no draw-guard error) state.
+  // M25 in Group A is Tschechien vs Südafrika, an as-yet-unplayed match.
+  // So the dialog opens in its default state of 0:0 with no draw-guard error.
   await groups.openScoreDialog('Tschechien', 'Südafrika')
 
   await expectNoA11yViolations(page)
@@ -56,23 +56,20 @@ test('the third-place tiebreaker explainer can be expanded', async ({ page }) =>
   await expect(page.getByText('geschossenen Tore')).toBeVisible()
 })
 
-// ---------------------------------------------------------------------------
 // Primary user journey: enter a score through the UI and see the standings
 // table re-rank accordingly (rather than only verifying persistence via
 // localStorage seeding).
-// ---------------------------------------------------------------------------
 
 test('entering a score via the stepper dialog re-ranks the standings table', async () => {
   // M25 (Group A): Tschechien (home, FIFA #40) vs Südafrika (away, FIFA #60).
   // With no results yet, standings order is by FIFA ranking: Mexiko, Südkorea,
-  // Tschechien, Südafrika — Südafrika sits last.
+  // Tschechien, Südafrika, so Südafrika sits last.
   await expect(groups.teamRows('A').last()).toContainText('Südafrika')
 
   const dialog = await groups.openScoreDialog('Tschechien', 'Südafrika')
 
-  // Bump Südafrika's (away) goals twice via its own "+" stepper button —
-  // targeted by aria-label, so this can't accidentally increment the home
-  // team's stepper instead.
+  // Bump Südafrika's away goals twice via its own "+" stepper button.
+  // It is targeted by aria-label, so this can't accidentally increment the home team's stepper instead.
   await dialog.incrementGoals('Südafrika')
   await dialog.incrementGoals('Südafrika')
   await dialog.save()
@@ -81,9 +78,9 @@ test('entering a score via the stepper dialog re-ranks the standings table', asy
   // The match card now shows the entered result.
   await expect(groups.scoredMatchButton('Tschechien', 0, 2, 'Südafrika')).toBeVisible()
 
-  // Südafrika won 2:0 — despite the worst FIFA ranking in the group, it now
-  // leads the table (3 points, +2 goal difference), while Tschechien (the
-  // loser) drops to the bottom.
+  // Südafrika won 2:0.
+  // Despite the worst FIFA ranking in the group, it now leads the table on 3 points and +2 goal difference.
+  // Tschechien, the loser, drops to the bottom.
   const topRow = groups.teamRows('A').first()
   await expect(topRow).toContainText('Südafrika')
   await expect(topRow.locator('.standings-row__pts')).toHaveText('3')

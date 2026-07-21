@@ -30,8 +30,8 @@ export default defineConfig({
     url: BASE_URL,
   },
   // pwa-offline.spec.ts phase 2 rewrites dist/index.html on disk while `preview`
-  // serves it — a second worker running concurrently would race that rewrite.
-  // fullyParallel: false already prevents parallel tests within a single
-  // worker; workers: 1 makes the single-worker guarantee explicit too.
+  // serves it, and a second worker running concurrently would race that rewrite.
+  // fullyParallel: false already prevents parallel tests within a single worker.
+  // workers: 1 makes the single-worker guarantee explicit too.
   workers: 1,
 })

@@ -21,10 +21,6 @@ import { makeResult } from '../test-support/results'
 import { sortTeams } from './tiebreakers'
 import { teamsInGroup } from '../data/teams'
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const groupATeams = teamsInGroup('A') // mex(14), rsa(60), kor(25), cze(40)
 const groupAMatches = groupMatches.filter((m) => m.group === 'A')
 
@@ -37,10 +33,6 @@ function tiedStats(): Map<string, TiebreakerStat> {
     ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
   ])
 }
-
-// ---------------------------------------------------------------------------
-// 2026 reordering: head-to-head is applied BEFORE overall goal difference
-// ---------------------------------------------------------------------------
 
 describe('sortTeams — Step 1 head-to-head outranks overall goal difference', () => {
   it('ranks the head-to-head winner above a team with a better overall GD', () => {
@@ -55,7 +47,7 @@ describe('sortTeams — Step 1 head-to-head outranks overall goal difference', (
       ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
     ])
     const results: ResultsMap = {
-      M28: makeResult('M28', 1, 0), // mex(h) 1-0 kor(a) — mex wins the head-to-head
+      M28: makeResult('M28', 1, 0), // mex(h) 1-0 kor(a), mex wins the head-to-head
     }
 
     const sorted = sortTeams(groupATeams, groupAMatches, results, stats)
@@ -77,7 +69,7 @@ describe('sortTeams — Step 2 overall GD decides when head-to-head is level', (
       ['rsa', { fairPlayScore: 0, goalDiff: -3, goalsFor: 0, points: 0 }],
     ])
     const results: ResultsMap = {
-      M28: makeResult('M28', 1, 1), // mex(h) 1-1 kor(a) — head-to-head level
+      M28: makeResult('M28', 1, 1), // mex(h) 1-1 kor(a), head-to-head level
     }
 
     const sorted = sortTeams(groupATeams, groupAMatches, results, stats)
@@ -86,10 +78,6 @@ describe('sortTeams — Step 2 overall GD decides when head-to-head is level', (
     expect(ids.indexOf('kor')).toBeLessThan(ids.indexOf('mex'))
   })
 })
-
-// ---------------------------------------------------------------------------
-// H2H goal difference as tiebreaker
-// ---------------------------------------------------------------------------
 
 describe('sortTeams — H2H goal difference as tiebreaker', () => {
   it('uses H2H GD when H2H pts are tied among three teams', () => {
@@ -115,10 +103,6 @@ describe('sortTeams — H2H goal difference as tiebreaker', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// H2H goals for as tiebreaker
-// ---------------------------------------------------------------------------
-
 describe('sortTeams — H2H goals scored as tiebreaker', () => {
   it('uses H2H GF when H2H pts AND H2H GD are tied among three teams', () => {
     // Symmetric H2H cycle (each win by exactly 1 goal, so H2H GD cancels):
@@ -143,10 +127,6 @@ describe('sortTeams — H2H goals scored as tiebreaker', () => {
     expect(ids[3]).toBe('rsa')
   })
 })
-
-// ---------------------------------------------------------------------------
-// H2H recursion — narrows but does not fully resolve
-// ---------------------------------------------------------------------------
 
 describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
   it('recurses on remaining tied sub-cluster after H2H splits one team off', () => {
@@ -177,7 +157,7 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
       M01: makeResult('M01', 0, 0), // mex(h) 0-0 rsa(a)
       M02: makeResult('M02', 0, 0), // kor(h) 0-0 cze(a)
       M25: makeResult('M25', 0, 0), // cze(h) 0-0 rsa(a)
-      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a) — the one decisive H2H match
+      M28: makeResult('M28', 3, 0), // mex(h) 3-0 kor(a), the one decisive H2H match
       M53: makeResult('M53', 0, 0), // cze(h) 0-0 mex(a)
       M54: makeResult('M54', 0, 0), // rsa(h) 0-0 kor(a)
     }
@@ -192,11 +172,8 @@ describe('sortTeams — H2H recursion when tie is partially narrowed', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Missing-stats precondition (issue 2.6) — a team without an overallStats
-// entry must fail loudly, not silently produce a NaN-driven mis-ordering via
-// the internal `.get(id)!` assertions.
-// ---------------------------------------------------------------------------
+// A team without an overallStats entry must fail loudly.
+// Otherwise the internal `.get(id)!` assertions silently produce a NaN-driven mis-ordering.
 
 describe('sortTeams — missing overallStats entry', () => {
   it('throws a descriptive error instead of silently mis-sorting when a team has no stats', () => {

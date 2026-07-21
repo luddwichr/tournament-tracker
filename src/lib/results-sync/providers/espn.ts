@@ -1,8 +1,8 @@
-// One `scoreboard?dates=START-END` request returns the whole date range —
-// goals (competitor `score`) and cards (competition `details`) — with no auth
-// and CORS `*`. ESPN's `team.abbreviation` is the FIFA code, so lower-casing it
-// yields our team id (`RSA` → `rsa`); knockout placeholders (`RD16 W1`) map to
-// nothing and drop out. The endpoint defaults to 100 events per request, which
+// One `scoreboard?dates=START-END` request returns the whole date range, with no auth and CORS `*`.
+// That covers goals via the competitor `score` and cards via the competition `details`.
+// ESPN's `team.abbreviation` is the FIFA code, so lower-casing it yields our team id, turning `RSA` into `rsa`.
+// Knockout placeholders such as `RD16 W1` map to nothing and drop out.
+// The endpoint defaults to 100 events per request, which
 // silently drops the tail of a 104-match tournament (semi-finals onward), so we
 // pass an explicit `limit` wide enough to cover every fixture.
 
@@ -132,10 +132,10 @@ function toSourceMatch(event: RawEvent): SourceMatch | null {
   if (!homeId || !awayId) return null
 
   const cards = tallyCards(competition?.details ?? [], home.team?.id, away.team?.id)
-  // ESPN's `score` is the real goal count after extra time — which is level
-  // when a shootout decided the match — with the shootout reported separately
-  // as `shootoutScore`. That matches `SourceMatch` directly; only report a
-  // shootout when either side actually scored in one.
+  // ESPN's `score` is the real goal count after extra time, which is level when a shootout decided the match.
+  // The shootout itself is reported separately as `shootoutScore`.
+  // That matches `SourceMatch` directly.
+  // Only report a shootout when either side actually scored in one.
   const homeShootout = nonNegativeInteger(home.shootoutScore)
   const awayShootout = nonNegativeInteger(away.shootoutScore)
   const shootout =
@@ -171,8 +171,8 @@ async function fetchResults(opts: FetchResultsOptions = {}): Promise<SourceMatch
       opts.signal,
     )
   } catch (e) {
-    // Cancellation isn't a fetch failure — let AbortError propagate as-is so
-    // callers can tell "the user cancelled" from "the network is broken".
+    // Cancellation isn't a fetch failure, so let AbortError propagate as-is.
+    // That way callers can tell "the user cancelled" from "the network is broken".
     if (e instanceof Error && e.name === 'AbortError') throw e
     throw new Error(NETWORK_ERROR, { cause: e })
   }

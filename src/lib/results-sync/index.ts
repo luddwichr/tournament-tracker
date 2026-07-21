@@ -32,14 +32,8 @@ function nearestIndex(candidates: readonly SourceMatch[], kickoff: string): numb
   return best
 }
 
-// Walks `fixtures` in order so each slot's teams resolve from the results
-// gathered so far — knockout matchups become known once their feeders land.
-// Matches by unordered team pair; a recurring pair (group meeting + knockout
-// rematch) picks the candidate nearest the kickoff, consuming each fetched match
-// once so it can't be reused.
-// Resolve one fixture slot against the remaining source matches, consuming the
-// matched candidate from `byPair`. Returns null when the slot's teams aren't yet
-// known or no source match remains for their pairing.
+// Resolve one fixture slot against the remaining source matches, consuming the matched candidate from `byPair`.
+// Returns null when the slot's teams aren't yet known, or when no source match remains for their pairing.
 function resolveSlotResult(slot: MatchSlot, results: ResultsMap, byPair: Map<string, SourceMatch[]>): Result | null {
   const home = resolveTeamRef(slot.homeRef, results)
   const away = resolveTeamRef(slot.awayRef, results)
@@ -65,6 +59,11 @@ function resolveSlotResult(slot: MatchSlot, results: ResultsMap, byPair: Map<str
   }
 }
 
+// Walks `fixtures` in order so each slot's teams resolve from the results gathered so far.
+// Knockout matchups therefore become known once their feeders land.
+// Slots are matched by unordered team pair.
+// A recurring pair, such as a group meeting plus a knockout rematch, picks the candidate nearest the kickoff.
+// Each fetched match is consumed once so it can't be reused.
 export function buildResultsFromSource(fetched: readonly SourceMatch[]): ResultsMap {
   const byPair = new Map<string, SourceMatch[]>()
   for (const match of fetched) {
@@ -84,12 +83,11 @@ export function buildResultsFromSource(fetched: readonly SourceMatch[]): Results
 
 /**
  * A source match's score in `Result` form, oriented to the slot's home side.
- * Shootout goals are kept as separate fields only when they satisfy the
- * `Result` invariants (knockout slot, level real score, decisive shootout);
- * any other shootout report from the feed is folded into the goals instead —
- * a `Result` violating the invariants would be rejected wholesale at the
- * persistence boundary (`isValidResultsMap`), wiping the user's state on the
- * next app load.
+ * Shootout goals are kept as separate fields only when they satisfy the `Result` invariants.
+ * Those invariants are a knockout slot, a level real score and a decisive shootout.
+ * Any other shootout report from the feed is folded into the goals instead.
+ * A `Result` violating the invariants would be rejected wholesale at the persistence boundary by
+ * `isValidResultsMap`, which would wipe the user's state on the next app load.
  */
 function toScore(
   source: SourceMatch,

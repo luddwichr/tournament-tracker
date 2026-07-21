@@ -5,9 +5,9 @@
 // variables instead, so the components that must agree on a threshold cannot
 // drift apart.
 //
-// Note this is only for thresholds shared across components. A breakpoint
-// derived from one component's own content stays local and documented there —
-// see GroupsView's 49rem, which is where its second 360px column first fits.
+// Note this is only for thresholds shared across components.
+// A breakpoint derived from one component's own content stays local and documented there.
+// See GroupsView's 49rem, which is where its second 360px column first fits.
 
 // Below this the header navigation collapses behind the burger toggle; at or
 // above it the nav renders as a persistent inline row. Shared by AppNav (list

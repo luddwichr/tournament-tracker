@@ -19,11 +19,10 @@ export const useTournamentStore = defineStore(
       (): Map<GroupId, TeamStat[]> => new Map(GROUP_IDS.map((id) => [id, computeGroupStandings(id, results.value)])),
     )
 
-    // Invariant: the store never keeps a knockout result whose participants
-    // no longer match what it was entered for — enterResult/clearResult
-    // compute the invalidated set (see invalidation.ts) and drop those
-    // entries in the same atomic write, so no caller can forget. The UI is
-    // responsible for asking the user first (see use-match-result-form.ts).
+    // Invariant: the store never keeps a knockout result whose participants don't match what it was entered for.
+    // enterResult and clearResult compute the invalidated set, see invalidation.ts.
+    // They drop those entries in the same atomic write, so no caller can forget.
+    // The UI is responsible for asking the user first, see use-match-result-form.ts.
     function enterResult(result: Result): void {
       const invalidated = invalidatedDownstream(results.value, result.matchId, result)
       results.value = { ...resultsWithout(results.value, invalidated), [result.matchId]: result }
@@ -54,12 +53,11 @@ export const useTournamentStore = defineStore(
      * so it works against the store's own typed state and actions instead of
      * casting the loosely-typed plugin `context.store`.
      *
-     * `pinia-plugin-persistedstate`'s automatic rehydration bypasses
-     * `parseImport`'s validation entirely — it just JSON.parses whatever is in
-     * localStorage and `$patch`es it straight into state. A corrupted entry
-     * (manual devtools editing, a buggy extension, a stale schema from a
-     * previous version) would otherwise flow into `computeGroupStandings` and
-     * friends unvalidated (e.g. a string where a number was expected silently
+     * `pinia-plugin-persistedstate`'s automatic rehydration bypasses `parseImport`'s validation entirely.
+     * It just JSON.parses whatever is in localStorage and `$patch`es it straight into state.
+     * A corrupted entry would otherwise flow into `computeGroupStandings` and friends unvalidated.
+     * Such an entry can come from manual devtools editing, a buggy extension, or a stale schema.
+     * For example a string where a number was expected silently
      * does `'2' + 3` string concatenation instead of numeric addition), so
      * invalid state falls back to a safe empty state via the same `reset()`.
      */
@@ -67,9 +65,9 @@ export const useTournamentStore = defineStore(
       if (!isValidResultsMap(results.value)) reset()
 
       // One-shot v1 → v2 migration (see persistence.ts): adopt results
-      // persisted under the old key when the new key has none yet; the hook
-      // persists them under the new key and only then is the old entry dropped
-      // — so a failure in between never loses the data.
+      // persisted under the old key when the new key has none yet.
+      // The hook persists them under the new key, and only then is the old entry dropped.
+      // So a failure in between never loses the data.
       const legacy = readLegacyResults()
       let adopted = false
       if (legacy && Object.keys(results.value).length === 0) {
@@ -85,8 +83,8 @@ export const useTournamentStore = defineStore(
   {
     persist: {
       afterHydrate: ({ store }) => {
-        // Only this one action needs a typed shape — everything else it touches
-        // lives inside `hydrate` against the store's real types.
+        // Only this one action needs a typed shape.
+        // Everything else it touches lives inside `hydrate` against the store's real types.
         if ((store as unknown as { hydrate: () => boolean }).hydrate()) {
           store.$persist()
         }

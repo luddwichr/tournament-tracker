@@ -11,7 +11,7 @@ export {}
 
 declare module 'vue-router' {
   interface RouteMeta {
-    /** Page title — drives both the document title and the a11y announcement. */
+    /** Page title, driving both the document title and the a11y announcement. */
     title?: string
   }
 }

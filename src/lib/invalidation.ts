@@ -1,18 +1,18 @@
-// Detect knockout results that would silently apply to a different pairing
-// after a group or knockout result is edited or cleared (REVIEW.md §9.1).
+// Detect knockout results that would silently apply to a different pairing after a group or knockout result is edited
+// or cleared.
 //
-// A `Result` stores only scores, never participants — participants are always
-// derived on demand via `resolveTeamRef` (`knockout.ts`). So when editing (or
-// clearing) `matchId` changes who a later knockout match's `homeRef`/`awayRef`
-// resolve to, any result already stored for that later match was entered for
-// a *different* pairing and must be discarded, not silently reinterpreted.
+// A `Result` stores only scores, never participants.
+// Participants are always derived on demand via `resolveTeamRef` in `knockout.ts`.
+// So when editing or clearing `matchId` changes who a later knockout match's `homeRef` or `awayRef` resolve to, any
+// result already stored for that later match was entered for a *different* pairing.
+// It must be discarded rather than silently reinterpreted.
 
 import { KNOCKOUT_STAGE_LABEL, teamRefLabel } from './bracket-labels'
 import type { Result, ResultsMap, TeamRef } from '../types/tournament'
 import { fixturesById, knockoutMatches } from '../data/fixtures-2026'
 import { resolveTeamRef } from './knockout'
 
-/** Resolve a ref to a team id, or `null` when unresolved — `null` is a distinct value from any team id. */
+/** Resolve a ref to a team id, or `null` when unresolved, which is a distinct value from any team id. */
 function resolvedTeamId(ref: TeamRef, results: ResultsMap): string | null {
   return resolveTeamRef(ref, results)?.id ?? null
 }
@@ -24,25 +24,25 @@ export function resultsWithout(results: ResultsMap, ids: Iterable<string>): Resu
 }
 
 /**
- * Match ids of knockout matches whose stored result would apply to a different
- * pairing if `newResult` replaced (or, when null, removed) the result of
- * `matchId`. Ids are returned in bracket order (M73 → M104). Cascades:
- * a match flagged here is treated as cleared when evaluating later matches.
+ * Match ids of knockout matches whose stored result would apply to a different pairing if `newResult` replaced the
+ * result of `matchId`, or removed it when null.
+ * Ids are returned in bracket order (M73 → M104).
+ * Cascades are handled by treating a match flagged here as cleared when evaluating later matches.
  *
- * Performance note: this runs once per save/clear click, resolves at most 32
- * knockout matches, and `computeGroupStandings` behind `groupRank` refs is
- * memoized — no hot-path concern.
+ * This is not a hot path.
+ * It runs once per save or clear click, resolves at most 32 knockout matches, and `computeGroupStandings` behind
+ * `groupRank` refs is memoized.
  */
 export function invalidatedDownstream(results: ResultsMap, matchId: string, newResult: Result | null): string[] {
-  // Working copy: `newResult` applied (or the entry removed).
+  // Working copy with `newResult` applied, or with the entry removed.
   let candidate: ResultsMap = newResult ? { ...results, [matchId]: newResult } : resultsWithout(results, [matchId])
 
   const invalidated: string[] = []
 
-  // Single forward pass — `knockoutMatches` is already in bracket order
-  // (M73…M104) and feeder refs only ever point to earlier matches (guarded by
-  // `data.spec.ts`), so one pass suffices. Dropping a flagged match's entry
-  // from `candidate` as we go is what makes matchWinner/matchLoser cascades
+  // A single forward pass suffices.
+  // `knockoutMatches` is already in bracket order (M73…M104), and feeder refs only ever point to earlier matches,
+  // which `data.spec.ts` guards.
+  // Dropping a flagged match's entry from `candidate` as we go is what makes matchWinner and matchLoser cascades
   // propagate into later rounds.
   for (const m of knockoutMatches) {
     if (m.id === matchId) continue // the edited match's own new value is intentional
@@ -61,22 +61,20 @@ export function invalidatedDownstream(results: ResultsMap, matchId: string, newR
 }
 
 /**
- * German label for the confirm dialog, e.g.
- * "Achtelfinale (Spiel 89): Deutschland – Spanien" — participants under the
- * CURRENT results (the old attribution the user is about to discard).
+ * German label for the confirm dialog, for example "Achtelfinale (Spiel 89): Deutschland – Spanien".
+ * Participants are resolved under the CURRENT results, which is the old attribution the user is about to discard.
  */
 export function invalidatedMatchLabel(matchId: string, results: ResultsMap): string {
   const match = fixturesById.get(matchId)
   if (!match || match.stage === 'group') {
-    // invalidatedDownstream only ever returns knockout match ids — this
-    // would indicate a caller bug, not bad user data.
+    // invalidatedDownstream only ever returns knockout match ids, so this indicates a caller bug, not bad user data.
     throw new Error(`invalidatedMatchLabel: '${matchId}' is not a knockout match`)
   }
 
   const stageLabel = KNOCKOUT_STAGE_LABEL[match.stage]
   const number = matchId.slice(1)
-  // Imported data can carry a matchId whose fixture participants no longer
-  // resolve; fall back to the unresolved-ref label rather than throwing.
+  // Imported data can carry a matchId whose fixture participants do not resolve.
+  // Fall back to the unresolved-ref label rather than throwing.
   const homeName = resolveTeamRef(match.homeRef, results)?.name ?? teamRefLabel(match.homeRef)
   const awayName = resolveTeamRef(match.awayRef, results)?.name ?? teamRefLabel(match.awayRef)
 

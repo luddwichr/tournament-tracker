@@ -14,8 +14,8 @@ import { useSettingsStore } from '../stores/settings'
 const TeamDialog = defineAsyncComponent(() => import('../components/TeamDialog.vue'))
 
 // Loaded lazily for the same reason: ScoreDialog pulls in use-match-result-form,
-// which pulls in the ESPN live-sync provider and the full fixtures/teams data —
-// none of that belongs in the entry chunk that every route pays for upfront.
+// which pulls in the ESPN live-sync provider and the full fixtures and teams data.
+// None of that belongs in the entry chunk that every route pays for upfront.
 const ScoreDialog = defineAsyncComponent(() => import('../components/ScoreDialog.vue'))
 
 const settings = useSettingsStore()
@@ -24,10 +24,9 @@ watchEffect(() => {
   // (which must stay in sync with this block); this watcher owns every later
   // change, i.e. the user picking a theme in Einstellungen.
   //
-  // 'system' means no explicit user choice — remove the attribute so the
-  // unscoped `@media (prefers-color-scheme: dark)` block in tokens.css can
-  // apply based on the OS preference instead of being overridden by the
-  // `[data-theme='light']` block.
+  // 'system' means no explicit user choice, so remove the attribute.
+  // That lets the unscoped `@media (prefers-color-scheme: dark)` block in tokens.css apply based on the OS preference.
+  // Otherwise the `[data-theme='light']` block would override it.
   if (settings.theme === 'system') {
     delete document.documentElement.dataset['theme']
   } else {

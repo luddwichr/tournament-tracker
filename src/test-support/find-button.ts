@@ -12,15 +12,15 @@ function describeButtons(buttons: DOMWrapper<Element>[], attr?: string): string 
   return buttons.length ? buttons.map((b) => `"${label(b)}"`).join(', ') : '(none)'
 }
 
-/** The first `<button>` whose visible text includes `text`, or undefined when
- *  none matches — for existence assertions. */
+/** The first `<button>` whose visible text includes `text`, or undefined when none matches. */
 export function queryButtonByText(host: ButtonHost, text: string): DOMWrapper<Element> | undefined {
   return host.findAll('button').find((b) => b.text().includes(text))
 }
 
-/** Like {@link queryButtonByText}, but throws (listing the available buttons)
- *  when none matches — a real failure message instead of the bare `.find(...)!`
- *  idiom's "undefined is not an object". */
+/**
+ * Like {@link queryButtonByText}, but throws when none matches, listing the available buttons.
+ * That gives a real failure message instead of the bare `.find(...)!` idiom's "undefined is not an object".
+ */
 export function findButtonByText(host: ButtonHost, text: string): DOMWrapper<Element> {
   const buttons = host.findAll('button')
   const match = buttons.find((b) => b.text().includes(text))

@@ -1,10 +1,10 @@
 /**
- * Unit tests for computeGroupStandings — the core aggregation that builds
- * per-team played/wins/draws/losses/GF/GA/GD/points/cards/form stats and
- * sorts them by the full FIFA tiebreaker chain.
+ * Unit tests for computeGroupStandings.
+ * That is the core aggregation building per-team played, W/D/L, GF, GA, GD, points, cards and form stats.
+ * It then sorts them by the full FIFA tiebreaker chain.
  *
- * Uses real Group A teams and match IDs from the fixture data so we test the
- * actual production function, not a re-implemented copy.
+ * These tests use real Group A teams and match IDs from the fixture data.
+ * That way they exercise the actual production function rather than a re-implemented copy.
  */
 
 import { allGroupResults, makeResult, resultsMap } from '../test-support/results'
@@ -13,8 +13,7 @@ import { clearStandingsCache, computeGroupStandings, isGroupStageComplete, resul
 import { groupMatches } from '../data/fixtures-2026'
 import { resultsWithout } from './invalidation'
 
-// ---------------------------------------------------------------------------
-// Group A fixtures (real IDs from fixtures-2026.ts, chronological order)
+// Group A fixtures, using real IDs from fixtures-2026.ts in chronological order.
 // mex (rank 14), rsa (rank 60), kor (rank 25), cze (rank 40)
 // idx 0 M01: mex vs rsa
 // idx 1 M02: kor vs cze
@@ -22,15 +21,12 @@ import { resultsWithout } from './invalidation'
 // idx 3 M28: mex vs kor
 // idx 4 M53: cze vs mex  ← mex is AWAY here
 // idx 5 M54: rsa vs kor
-// ---------------------------------------------------------------------------
 
 const groupAMatches = groupMatches.filter((m) => m.group === 'A')
 
 function mid(i: number): string {
   return groupAMatches[i]!.id
 }
-
-// ---------------------------------------------------------------------------
 
 describe('computeGroupStandings — basic aggregation', () => {
   it('accumulates played, wins, draws, losses, GF, GA, GD, points correctly', () => {
@@ -105,7 +101,7 @@ describe('computeGroupStandings — basic aggregation', () => {
 
 describe('computeGroupStandings — partial group (unplayed matches)', () => {
   it('handles partial results: only 2 of 6 matches played', () => {
-    // M01 mex 2-1 rsa, M02 kor 1-0 cze — remaining 4 matches unplayed
+    // M01 mex 2-1 rsa and M02 kor 1-0 cze, with the remaining 4 matches unplayed.
     const standings = computeGroupStandings(
       'A',
       resultsMap(
@@ -125,9 +121,9 @@ describe('computeGroupStandings — partial group (unplayed matches)', () => {
   it('uses overall goals scored (Step 2 e) when points and GD are equal — partial group', () => {
     // M01 mex 2-1 rsa: mex 3pts +1GD 2GF, rsa 0pts -1GD 1GF
     // M02 kor 1-0 cze: kor 3pts +1GD 1GF, cze 0pts -1GD 0GF
-    // mex vs kor never met (no head-to-head), so Step 1 makes no progress;
-    // Step 2 d (overall GD) ties at +1, then e (overall goals): mex 2GF > kor 1GF → mex first.
-    // rsa vs cze likewise: overall GD ties at -1, then rsa 1GF > cze 0GF → rsa before cze.
+    // mex and kor never met, so there is no head-to-head and Step 1 makes no progress.
+    // Step 2 d (overall GD) ties at +1, then e (overall goals) gives mex 2GF > kor 1GF → mex first.
+    // rsa and cze work the same way: overall GD ties at -1, then rsa 1GF > cze 0GF → rsa before cze.
     const standings = computeGroupStandings(
       'A',
       resultsMap(
@@ -136,15 +132,15 @@ describe('computeGroupStandings — partial group (unplayed matches)', () => {
       ),
     )
     expect(standings[0]!.team.id).toBe('mex') // 3pts +1GD 2GF
-    expect(standings[1]!.team.id).toBe('kor') // 3pts +1GD 1GF — loses by criterion 3
-    expect(standings[2]!.team.id).toBe('rsa') // 0pts -1GD 1GF — wins criterion 3 vs cze
+    expect(standings[1]!.team.id).toBe('kor') // 3pts +1GD 1GF, loses by criterion 3
+    expect(standings[2]!.team.id).toBe('rsa') // 0pts -1GD 1GF, wins criterion 3 vs cze
     expect(standings[3]!.team.id).toBe('cze') // 0pts -1GD 0GF
   })
 })
 
 describe('computeGroupStandings — correct ordering', () => {
   it('orders teams by points descending', () => {
-    // mex wins all → 9pts; kor/cze each 4pts (D+L+W); rsa loses all → 0pts
+    // mex wins all → 9pts, kor and cze each take 4pts (D+L+W), rsa loses all → 0pts.
     // M01(0): mex 1-0 rsa   M02(1): kor 1-1 cze   M25(2): cze 1-0 rsa
     // M28(3): mex 1-0 kor   M53(4): cze 0-1 mex   M54(5): rsa 0-1 kor
     const standings = computeGroupStandings(
@@ -159,7 +155,8 @@ describe('computeGroupStandings — correct ordering', () => {
       ),
     )
     // mex: 9pts | kor: 4pts (D+L+W) GD=0 GF=2 | cze: 4pts (D+W+L) GD=0 GF=2 | rsa: 0pts
-    // kor/cze H2H: M02 draw (1-1) → equal. Overall stats equal → FIFA ranking: kor(25) > cze(40)
+    // The kor/cze head-to-head M02 is a 1-1 draw, so they are equal there.
+    // Overall stats are equal too, so the FIFA ranking decides: kor(25) > cze(40).
     expect(standings[0]!.team.id).toBe('mex')
     expect(standings[3]!.team.id).toBe('rsa')
     expect(standings[1]!.team.id).toBe('kor')
@@ -167,8 +164,8 @@ describe('computeGroupStandings — correct ordering', () => {
   })
 
   it('uses FIFA ranking as final decider when all stats are equal', () => {
-    // All 6 matches draw 0-0 → all teams on 3pts, 0GD, 0GF → FIFA ranking decides
-    // mex(14) < kor(25) < cze(40) < rsa(60) → mex ranks highest
+    // All 6 matches draw 0-0, so all teams sit on 3pts, 0GD and 0GF and the FIFA ranking decides.
+    // mex(14) < kor(25) < cze(40) < rsa(60), so mex ranks highest.
     const standings = computeGroupStandings(
       'A',
       resultsMap(
@@ -187,20 +184,21 @@ describe('computeGroupStandings — correct ordering', () => {
   })
 
   it('red card is weighted ×3 vs ×1 for yellow — 1 red beats 2 yellows in fair-play', () => {
-    // All 1-1 draws → same pts/GD/GF for all; H2H also all 1-1 draws → no H2H progress.
-    // mex gets 1 red card in M01 (home): fairPlay = -3
-    // cze gets 2 yellow cards in M25 (home): fairPlay = -2
-    // kor and rsa: no cards, fairPlay = 0
+    // All matches are 1-1 draws, so every team has the same points, GD and GF.
+    // The head-to-head matches are all 1-1 draws too, so head-to-head makes no progress.
+    // mex gets 1 red card in M01 at home, so fairPlay = -3.
+    // cze gets 2 yellow cards in M25 at home, so fairPlay = -2.
+    // kor and rsa pick up no cards, so fairPlay = 0.
     //
-    // Fair-play decides: kor=rsa=0 > cze=-2 > mex=-3.
-    // kor vs rsa (same fair-play): FIFA rank: kor(25) > rsa(60) → kor first.
-    // Expected order: kor, rsa, cze, mex
+    // Fair-play therefore decides: kor=rsa=0 > cze=-2 > mex=-3.
+    // kor and rsa have the same fair-play score, so the FIFA rank decides: kor(25) > rsa(60) → kor first.
+    // The expected order is kor, rsa, cze, mex.
     const standings = computeGroupStandings(
       'A',
       resultsMap(
-        makeResult(mid(0), 1, 1, { homeRed: 1 }), // M01 mex(h) 1-1 rsa  — mex gets 1 red
+        makeResult(mid(0), 1, 1, { homeRed: 1 }), // M01 mex(h) 1-1 rsa, mex gets 1 red
         makeResult(mid(1), 1, 1), //                  M02 kor(h) 1-1 cze
-        makeResult(mid(2), 1, 1, { homeYellow: 2 }), // M25 cze(h) 1-1 rsa — cze gets 2 yellows
+        makeResult(mid(2), 1, 1, { homeYellow: 2 }), // M25 cze(h) 1-1 rsa, cze gets 2 yellows
         makeResult(mid(3), 1, 1), //                  M28 mex(h) 1-1 kor
         makeResult(mid(4), 1, 1), //                  M53 cze(h) 1-1 mex
         makeResult(mid(5), 1, 1), //                  M54 rsa(h) 1-1 kor
@@ -213,9 +211,7 @@ describe('computeGroupStandings — correct ordering', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// resultFingerprint — cache-key builder shared with possible-teams.ts
-// ---------------------------------------------------------------------------
+// resultFingerprint is the cache-key builder shared with possible-teams.ts.
 
 describe('resultFingerprint', () => {
   it('is identical for two equal results maps', () => {
@@ -236,10 +232,6 @@ describe('resultFingerprint', () => {
     expect(resultFingerprint('A', a)).not.toBe(resultFingerprint('A', b))
   })
 })
-
-// ---------------------------------------------------------------------------
-// computeGroupStandings — memoization
-// ---------------------------------------------------------------------------
 
 describe('computeGroupStandings — memoization', () => {
   beforeEach(() => {
@@ -266,14 +258,10 @@ describe('computeGroupStandings — memoization', () => {
     clearStandingsCache()
     const second = computeGroupStandings('A', results)
     expect(second).not.toBe(first)
-    // Content is still equivalent — only the cache identity changed.
+    // Content is still equivalent, and only the cache identity changed.
     expect(second.map((s) => s.team.id)).toEqual(first.map((s) => s.team.id))
   })
 })
-
-// ---------------------------------------------------------------------------
-// isGroupStageComplete — true once every one of the 12 groups is complete
-// ---------------------------------------------------------------------------
 
 describe('isGroupStageComplete', () => {
   it('is false for an empty results map', () => {

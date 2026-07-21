@@ -1,10 +1,9 @@
-// Subset build of flag-icons: only the 4x3 (rectangular) variant of the flag
-// codes the app actually renders — the union of `flagCode` values in
-// src/data/teams.ts and src/data/fifa-ranking.ts. Importing the package's
-// prebuilt flag-icons.min.css instead would pull in all ~270 countries in two
-// variants (~4 MB of SVGs, all service-worker-precached); this subset plus the
-// disabled square variant halves that. flags.spec.ts guards the list against
-// drift from the data modules.
+// Subset build of flag-icons, covering only the 4x3 rectangular variant of the flag codes the app actually renders.
+// That is the union of `flagCode` values in src/data/teams.ts and src/data/fifa-ranking.ts.
+// Importing the package's prebuilt flag-icons.min.css instead would pull in all ~270 countries in two variants.
+// That is roughly 4 MB of SVGs, all service-worker-precached.
+// This subset plus the disabled square variant halves that.
+// flags.spec.ts guards the list against drift from the data modules.
 @use '../../node_modules/flag-icons/sass/flag-icons' with (
   $flag-icons-path: '../../node_modules/flag-icons/flags',
   $flag-icons-use-square: false,

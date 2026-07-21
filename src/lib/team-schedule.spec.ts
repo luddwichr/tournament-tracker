@@ -1,6 +1,6 @@
 /**
- * Unit tests for matchesForTeam / computeTeamStats — the per-team schedule
- * and overall-stats aggregation used by TeamDialog.
+ * Unit tests for matchesForTeam and computeTeamStats.
+ * Those are the per-team schedule and overall-stats aggregation used by TeamDialog.
  *
  * Uses real fixture data (Germany, group A) so we test the actual production
  * function against real match ids, not a re-implemented copy.
@@ -63,8 +63,8 @@ describe('computeTeamStats', () => {
   })
 
   it('counts a shootout-decided match as a draw and excludes the penalty goals (FIFA convention)', () => {
-    // Synthetic entry — resolving a real knockout pairing would need full
-    // group results, and computeTeamStats only reads homeTeam/result anyway.
+    // This is a synthetic entry, because resolving a real knockout pairing would need full group results.
+    // computeTeamStats only reads homeTeam and result anyway.
     const entries = [
       {
         awayTeam: teamsById.get('fra')!,

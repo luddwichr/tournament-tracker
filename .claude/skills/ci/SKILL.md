@@ -22,9 +22,10 @@ cells that fell below axe's 24×24 target-size minimum.
 
 ## e2e runs against the built `dist/`, never the dev server
 
-Both Playwright configs set `webServer.command` to `npm run preview` — that is
-`vite preview`, which serves whatever is already in `dist/`. `npm run check:build` builds
-first, so it is always self-consistent. Running a spec directly is not:
+Both Playwright configs set `webServer.command` to `npm run preview`.
+That is `vite preview`, which serves whatever is already in `dist/`.
+`npm run check:build` builds first, so it is always self-consistent.
+Running a spec directly is not:
 
 ```bash
 npm run build && npx playwright test e2e/knockout.spec.ts   # correct
@@ -37,9 +38,10 @@ e2e run.
 
 ## Watching a run
 
-**`gh pr checks` has no `--json` flag in the pinned CLI** (Debian `gh` 2.46.0 — verify with
-`gh --version` before assuming otherwise; `gh run list` _does_ support `--json`). Passing it
-fails with `unknown flag: --json` and prints nothing to stdout. Its human output is TSV:
+**`gh pr checks` has no `--json` flag in the pinned CLI**, which is Debian `gh` 2.46.0.
+Verify with `gh --version` before assuming otherwise, and note that `gh run list` _does_ support `--json`.
+Passing it fails with `unknown flag: --json` and prints nothing to stdout.
+Its human output is TSV:
 
 ```
 name <TAB> state <TAB> elapsed <TAB> url
@@ -48,8 +50,8 @@ name <TAB> state <TAB> elapsed <TAB> url
 States are `pass`, `fail`, `pending`, `skipping`, `cancel`. Terminal means anything except
 `pending`; `skipping` is terminal and normal here ("Deploy to Pages" skips on PRs).
 
-A poll loop that emits each check as it lands, exits when all are terminal, and — critically —
-reports its own breakage instead of going quiet:
+A poll loop that emits each check as it lands, exits when all are terminal, and, critically, reports its own breakage
+instead of going quiet:
 
 ```bash
 PR=67; prev=""
@@ -82,8 +84,8 @@ The fixes generalise: send stderr somewhere you can see it, validate that the ou
 like_ the data you expect before parsing it, and make the error branch **emit** rather than
 `continue`.
 
-Run any command standalone once before wrapping it in a loop — one `gh pr checks 67 --json ...`
-at the prompt would have shown the unknown flag immediately.
+Run any command standalone once before wrapping it in a loop.
+One `gh pr checks 67 --json ...` at the prompt would have shown the unknown flag immediately.
 
 **Silence is never a status.** A watcher emitting nothing is indistinguishable from one whose
 command never worked, so it is not evidence that CI is still running, and never evidence that
@@ -105,9 +107,10 @@ gh run view <id> --log-failed | grep -iE "error|✘|expect|Received|violation" |
 
 For a11y failures the CI log only shows the violation count. Reproduce locally
 (`npm run build && npx playwright test e2e/groups.spec.ts`) and read
-`test-results/<test>/error-context.md`, which Playwright writes on failure — it holds the full
-axe violation including the offending element's measured size. A `test-failed-1.png` lands
-beside it, and for layout bugs that screenshot is usually faster than the assertion message:
+`test-results/<test>/error-context.md`, which Playwright writes on failure.
+It holds the full axe violation including the offending element's measured size.
+A `test-failed-1.png` lands beside it, and for layout bugs that screenshot is usually faster than the assertion
+message:
 the bracket `scroll-snap` regression was obvious the moment the screenshot showed the group
 column missing.
 

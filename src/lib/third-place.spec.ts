@@ -14,10 +14,6 @@ import { GROUP_IDS } from '../types/tournament'
 import type { Result } from '../types/tournament'
 import { groupMatches } from '../data/fixtures-2026'
 
-// ---------------------------------------------------------------------------
-// rankThirdPlaced
-// ---------------------------------------------------------------------------
-
 describe('rankThirdPlaced', () => {
   it('returns null when no matches have been played', () => {
     expect(rankThirdPlaced({})).toBeNull()
@@ -118,10 +114,6 @@ describe('rankThirdPlaced', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// rankThirdPlacedLive
-// ---------------------------------------------------------------------------
-
 describe('rankThirdPlacedLive', () => {
   it('returns 12 teams and final: false when no matches have been played', () => {
     const { ranked, final } = rankThirdPlacedLive({})
@@ -155,10 +147,6 @@ describe('rankThirdPlacedLive', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// resolveThirdPlaceSlot
-// ---------------------------------------------------------------------------
-
 describe('resolveThirdPlaceSlot', () => {
   it('returns null when group stage is incomplete', () => {
     expect(resolveThirdPlaceSlot(1, {})).toBeNull()
@@ -190,10 +178,6 @@ describe('resolveThirdPlaceSlot', () => {
     }
   })
 })
-
-// ---------------------------------------------------------------------------
-// buildGroupToThirdPlaceSlotMap
-// ---------------------------------------------------------------------------
 
 describe('buildGroupToThirdPlaceSlotMap', () => {
   it('returns an empty map when given an empty ranked array', () => {

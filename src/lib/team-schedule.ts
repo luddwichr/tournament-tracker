@@ -10,9 +10,9 @@ export interface TeamMatchEntry {
 }
 
 /**
- * All fixtures `team` participates in. Knockout matches are included as soon
- * as this team's side of the bracket resolves to it, even while the other
- * side is still an unresolved placeholder (e.g. "Sieger Gruppe B").
+ * All fixtures `team` participates in.
+ * Knockout matches are included as soon as this team's side of the bracket resolves to it.
+ * That holds even while the other side is still an unresolved placeholder such as "Sieger Gruppe B".
  */
 export function matchesForTeam(team: Team, results: ResultsMap): TeamMatchEntry[] {
   return fixtures
@@ -37,11 +37,11 @@ export interface TeamOverallStats {
 }
 
 /**
- * Aggregate `team`'s played matches (from `matchesForTeam`) into overall stats.
+ * Aggregate `team`'s played matches from `matchesForTeam` into overall stats.
  *
- * Uses `homeGoals`/`awayGoals` as stored — the real goals, never shootout
- * kicks — so per FIFA statistical convention a shootout-decided match counts
- * as a draw and its penalty goals don't inflate the goal tally.
+ * This uses `homeGoals` and `awayGoals` as stored, which are the real goals and never shootout kicks.
+ * So per FIFA statistical convention a shootout-decided match counts as a draw.
+ * Its penalty goals also don't inflate the goal tally.
  */
 export function computeTeamStats(team: Team, entries: TeamMatchEntry[]): TeamOverallStats {
   const stats: TeamOverallStats = {

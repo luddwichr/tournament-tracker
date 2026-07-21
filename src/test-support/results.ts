@@ -37,8 +37,8 @@ export function allGroupResults(
   return results
 }
 
-// Test fixtures are mutable on purpose — callers routinely tweak individual
-// entries after building the base map (see e.g. knockout.spec.ts).
+// Test fixtures are mutable on purpose.
+// Callers routinely tweak individual entries after building the base map, as knockout.spec.ts does.
 export function resultsMap(...results: Result[]): Record<string, Result> {
   return Object.fromEntries(results.map((r) => [r.matchId, r]))
 }

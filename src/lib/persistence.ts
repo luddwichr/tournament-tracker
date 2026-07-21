@@ -5,44 +5,41 @@ export const SCHEMA_VERSION = 2
 
 /**
  * localStorage key used by the `tournament` store's persistence plugin.
- * Single source of truth — also imported by `e2e/support/results.ts` so the
- * e2e seed helper can never silently drift from the real persisted key.
+ * This is the single source of truth.
+ * It is also imported by `e2e/support/results.ts` so the e2e seed helper can never silently drift from the real key.
  */
 export const STORAGE_KEY = `wc2026:results:v${SCHEMA_VERSION}`
 
 /**
- * The outgoing v1 localStorage key, still read (once) for migration.
- * v1 → v2 needs no field rewrite: v2 only *added* the optional shootout
- * fields, so a v1 `Result` is a valid v2 `Result`. The semantic caveat: v1
- * stored shootout matches with the penalty goals folded into
- * `homeGoals`/`awayGoals`; that padding is indistinguishable after the fact
- * and is consciously absorbed — such a match keeps its folded score and reads
- * as decided in regular time.
+ * The outgoing v1 localStorage key, still read once for migration.
+ * v1 → v2 needs no field rewrite, because v2 only *added* the optional shootout fields.
+ * So a v1 `Result` is a valid v2 `Result`.
+ * There is one semantic caveat.
+ * v1 stored shootout matches with the penalty goals folded into `homeGoals` and `awayGoals`.
+ * That padding is indistinguishable after the fact and is consciously absorbed.
+ * Such a match keeps its folded score and reads as decided in regular time.
  */
 const LEGACY_STORAGE_KEY = 'wc2026:results:v1'
 
 /** Import-file versions the current code can read (see LEGACY_STORAGE_KEY on v1). */
 const READABLE_VERSIONS: ReadonlySet<number> = new Set([1, SCHEMA_VERSION])
 
-/** Every real fixture id — used to reject a results map keyed by an unknown match. */
+/** Every real fixture id, used to reject a results map keyed by an unknown match. */
 const VALID_FIXTURE_IDS = new Set(fixtures.map((f) => f.id))
 
 /**
- * Schema-change tripwire. This literal is the runtime shape of a persisted
- * `Result` under the current SCHEMA_VERSION, and the `satisfies` clause pins
- * it to the `Result` type: adding, removing, renaming or retyping a field on
- * `Result` stops this file from compiling. That is deliberate — persisted
- * data outlives the code that wrote it. The shootout removal (d46bd91)
- * changed what a persisted level knockout score means without bumping
- * SCHEMA_VERSION; that was consciously absorbed (the few affected users reset
- * their state manually), but it must never happen *unnoticed* again — v2
- * (optional shootout fields, `homeGoals` back to real goals) got the full
- * treatment: version bump, new key, v1 migration. Do NOT fix the type error
- * by only editing this literal: bump SCHEMA_VERSION, keep reading data
- * persisted under the outgoing key/version (localStorage and `parseImport`)
- * via a migration, and only then update this shape. A semantics-only change —
- * a field keeping its type but changing meaning — needs the same treatment
- * even though the compiler cannot see it.
+ * Schema-change tripwire.
+ * This literal is the runtime shape of a persisted `Result` under the current SCHEMA_VERSION.
+ * The `satisfies` clause pins it to the `Result` type.
+ * Adding, removing, renaming or retyping a field on `Result` therefore stops this file from compiling.
+ * That is deliberate, because persisted data outlives the code that wrote it.
+ *
+ * Do NOT fix the resulting type error by only editing this literal.
+ * Bump SCHEMA_VERSION, keep reading data persisted under the outgoing key and version via a migration, and only then
+ * update this shape.
+ * That outgoing data lives in both localStorage and `parseImport`.
+ * A semantics-only change needs the same treatment even though the compiler cannot see it.
+ * Such a change is a field keeping its type but changing meaning.
  */
 const PERSISTED_RESULT_FIELDS = {
   awayGoals: 'number',
@@ -66,7 +63,7 @@ const PERSISTED_RESULT_FIELDS = {
 
 /**
  * Trigger a browser download of the results as a JSON file.
- * Exported format: `{ version, results }` — see PersistedState.
+ * The exported format is `{ version, results }`, see PersistedState.
  */
 export function exportJson(results: ResultsMap): void {
   const payload: PersistedState = { results, version: SCHEMA_VERSION }
@@ -85,7 +82,8 @@ export function exportJson(results: ResultsMap): void {
 
 /**
  * Parse and validate an import file's text content.
- * Returns the results map on success; throws a user-readable Error on failure.
+ * Returns the results map on success.
+ * Throws a user-readable Error on failure.
  */
 export function parseImport(text: string): ResultsMap {
   let parsed: unknown
@@ -108,11 +106,10 @@ function isValidPersistedState(value: unknown): value is PersistedState {
 }
 
 /**
- * Results persisted under the outgoing v1 localStorage key, or null when
- * there are none (or they don't validate). Read-only — call
- * `clearLegacyResults` once the migration is through (see the store's
- * `afterHydrate` hook for the adopt-then-persist-then-clear order that makes
- * the migration safe against losing data mid-way).
+ * Results persisted under the outgoing v1 localStorage key, or null when there are none or they don't validate.
+ * This is read-only, so call `clearLegacyResults` once the migration is through.
+ * See the store's `afterHydrate` hook for the adopt-then-persist-then-clear order that makes the migration safe
+ * against losing data mid-way.
  */
 export function readLegacyResults(storage: Pick<Storage, 'getItem'> = localStorage): ResultsMap | null {
   const raw = storage.getItem(LEGACY_STORAGE_KEY)
@@ -123,27 +120,28 @@ export function readLegacyResults(storage: Pick<Storage, 'getItem'> = localStora
   } catch {
     return null
   }
-  // pinia-plugin-persistedstate's on-disk shape is `{ results }` — the
-  // version lives in the key, not the payload (unlike export files).
+  // pinia-plugin-persistedstate's on-disk shape is `{ results }`.
+  // The version lives in the key rather than the payload, unlike export files.
   const results = (parsed as { results?: unknown } | null)?.results
   return isValidResultsMap(results) ? results : null
 }
 
-/** Drop the v1 localStorage entry so the migration is one-shot — without this,
- * a later `reset()` would resurrect the old data on the next app load. */
+/**
+ * Drop the v1 localStorage entry so the migration is one-shot.
+ * Without this, a later `reset()` would resurrect the old data on the next app load.
+ */
 export function clearLegacyResults(storage: Pick<Storage, 'removeItem'> = localStorage): void {
   storage.removeItem(LEGACY_STORAGE_KEY)
 }
 
 /**
- * Validate that `value` is a well-formed results map: a plain object (not an
- * array — `typeof [] === 'object'` would otherwise slip past a naive check)
- * keyed only by real fixture ids, where every entry is a structurally valid
- * `Result` whose `matchId` matches the key it's stored under.
+ * Validate that `value` is a well-formed results map.
+ * That means a plain object keyed only by real fixture ids, where every entry is a structurally valid `Result` whose
+ * `matchId` matches the key it's stored under.
+ * Arrays are rejected explicitly, since `typeof [] === 'object'` would otherwise slip past a naive check.
  *
- * Exported so `stores/tournament.ts` can reuse it in the persistence plugin's
- * `afterHydrate` hook, giving localStorage rehydration the same validation
- * that file import already gets via `parseImport`.
+ * This is exported so `stores/tournament.ts` can reuse it in the persistence plugin's `afterHydrate` hook.
+ * That gives localStorage rehydration the same validation that file import already gets via `parseImport`.
  */
 export function isValidResultsMap(value: unknown): value is ResultsMap {
   if (Array.isArray(value) || typeof value !== 'object' || value === null) return false
@@ -153,8 +151,7 @@ export function isValidResultsMap(value: unknown): value is ResultsMap {
 }
 
 function isNonNegativeInteger(n: number): boolean {
-  // `Number.isInteger` already rejects NaN and ±Infinity, so no separate
-  // `Number.isFinite` check is needed.
+  // `Number.isInteger` already rejects NaN and ±Infinity, so no separate `Number.isFinite` check is needed.
   return Number.isInteger(n) && n >= 0
 }
 
@@ -171,10 +168,10 @@ function isValidResult(value: unknown): value is Result {
 }
 
 /**
- * The `Result` shootout invariants (see `types/tournament.ts`): both fields
- * set together, knockout matches only, level regular score, decisive shootout.
- * Anything else could make `resolveTeamRef` disagree with the displayed
- * folded score, so it is rejected at the persistence boundary.
+ * The `Result` shootout invariants, see `types/tournament.ts`.
+ * Both fields must be set together, on knockout matches only, with a level regular score and a decisive shootout.
+ * Anything else could make `resolveTeamRef` disagree with the displayed folded score.
+ * So it is rejected at the persistence boundary.
  */
 function hasValidShootout(result: Result): boolean {
   const home = result.homeShootoutGoals

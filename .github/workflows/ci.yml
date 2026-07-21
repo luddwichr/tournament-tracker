@@ -127,8 +127,8 @@ jobs:
         # `scan:image` reads the pinned FROM image out of the Dockerfile (single
         # stage, literal ref) so CI and local runs scan the exact same base and
         # never drift from the digest Renovate bumps there. Gates on fixable
-        # HIGH/CRITICAL only: a failure means "bump the pinned base". Runs in this
-        # job — not a separate one — to reuse the trivy binary and warm vuln DB.
+        # HIGH/CRITICAL only: a failure means "bump the pinned base".
+        # This runs in this job rather than a separate one, to reuse the trivy binary and warm vuln DB.
         run: npm run scan:image
       - name: Get Playwright version
         id: playwright-version

@@ -61,11 +61,11 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   const filePath = await download.path()
   const fileContent = await readFile(filePath, 'utf-8')
 
-  // Step 2: Reset — click settings button, then confirm in the custom dialog
+  // Step 2 is the reset: click the settings button, then confirm in the custom dialog.
   await settings.resetAndConfirm()
 
-  // Wait for the store to persist the cleared state — navigating earlier lets
-  // the next page load rehydrate the stale results (flaky on mobile-chrome CI)
+  // Wait for the store to persist the cleared state.
+  // Navigating earlier lets the next page load rehydrate the stale results, which is flaky on mobile-chrome CI.
   await page.waitForFunction(
     ([key]) => {
       const stored = localStorage.getItem(key as string)
@@ -80,7 +80,7 @@ test('export → Zurücksetzen → Importieren restores state', async ({ page })
   await groups.goto()
   await expect(groups.emptyMatchButton('Mexiko', 'Südafrika')).toBeVisible()
 
-  // Step 3: Import — upload file, then confirm in the custom dialog
+  // Step 3 is the import: upload the file, then confirm in the custom dialog.
   await settings.goto()
   await settings.importAndReplace({
     buffer: Buffer.from(fileContent),
@@ -141,8 +141,8 @@ test('confirm dialog has no detectable accessibility violations', async ({ page 
 test('sync dialog has no detectable accessibility violations', async ({ page }) => {
   await settings.goto()
   // "Ergebnisse abrufen" opens the SyncDialog straight into its 'confirm'
-  // state — no network request has fired yet, so this is reachable without
-  // mocking the sync provider.
+  // state.
+  // No network request has fired yet, so this is reachable without mocking the sync provider.
   await page.getByRole('button', { name: 'Ergebnisse abrufen' }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
 

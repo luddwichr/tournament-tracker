@@ -3,10 +3,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { useBracketConnectors } from './use-bracket-connectors'
 
-// ---------------------------------------------------------------------------
-// useBracketConnectors — geometry composable
-// ---------------------------------------------------------------------------
-
 function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
   vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
     bottom: 0,

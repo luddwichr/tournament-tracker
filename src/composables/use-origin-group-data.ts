@@ -7,9 +7,8 @@ import { GROUP_IDS } from '../types/tournament'
 import { useTournamentStore } from '../stores/tournament'
 
 /**
- * Build the `OriginColumn` `groupData` prop from the store's shared
- * `standingsByGroup` getter — the per-group top-3 rows with their bracket
- * `refKey` (groupRank or thirdPlace) and elimination flag.
+ * Build the `OriginColumn` `groupData` prop from the store's shared `standingsByGroup` getter.
+ * That is the per-group top-3 rows with their bracket `refKey`, either groupRank or thirdPlace, and elimination flag.
  *
  * Lives in a composable (rather than inline in `BracketView.vue`) purely to
  * keep that component's `<script setup>` block under the lint's line limit;

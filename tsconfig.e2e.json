@@ -1,18 +1,19 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    // false to match tsconfig.vitest.json — not required here (nothing
-    // references this project), and composite's stricter file-listing rules
-    // would preclude narrowing "include" the way tsconfig.vitest.json does.
+    // false to match tsconfig.vitest.json.
+    // It is not required here, since nothing references this project.
+    // composite's stricter file-listing rules would also preclude narrowing "include" the way tsconfig.vitest.json
+    // does.
     "composite": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo",
     "types": ["vite/client", "node"]
   },
   // Kept Vue-free on purpose so this project is type-checked by TypeScript 7 (`tsc`), not vue-tsc; see docs/typescript-7-side-by-side.md for more.
   // Don't widen this to `src/**/*.ts`/`src/**/*.vue`.
-  // These are root files, not an allowlist — tsc still follows imports transitively
-  // (e2e reaches src/test-support that way). The e2e -> domain import boundary is
-  // enforced by `boundaries/dependencies` in eslint.config.js, not here.
+  // These are root files, not an allowlist, and tsc still follows imports transitively.
+  // That is how e2e reaches src/test-support.
+  // The e2e -> domain import boundary is enforced by `boundaries/dependencies` in eslint.config.js, not here.
   "include": [
     "e2e/**/*.ts",
     "playwright.pwa.config.ts",

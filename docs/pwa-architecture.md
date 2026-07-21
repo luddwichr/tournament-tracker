@@ -1,9 +1,9 @@
 # PWA architecture
 
-This document describes how the pieces configured in `vite.config.ts` (the `VitePWA` plugin), `index.html`,
-`public/404.html`, and `src/components/UpdateDialog.vue` fit together to make the app
-installable, offline-capable, and updatable — including the GitHub Pages quirks that
-several of the config options exist to work around.
+This document describes how several pieces fit together to make the app installable, offline-capable and updatable.
+Those pieces are the `VitePWA` plugin in `vite.config.ts`, `index.html`, `public/404.html` and
+`src/components/UpdateDialog.vue`.
+It also covers the GitHub Pages quirks that several of the config options exist to work around.
 
 ## The moving parts
 
@@ -27,21 +27,22 @@ flowchart TB
 
 ## Key decisions in `vite.config.ts`
 
-| Option                 | Value                                   | Why                                                                                                                                                                                     |
-| ---------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `registerType`         | `'prompt'`                              | A new SW installs and **waits** instead of activating on its own; the user decides when to reload (see [Update flow](#update-flow)).                                                    |
-| `injectRegister`       | `false`                                 | Registration happens in `UpdateDialog.vue` via `useRegisterSW()` so the app can observe `needRefresh`. The plugin's auto-injected `registerSW.js` would register the SW a second time.  |
-| `devOptions.enabled`   | `false`                                 | No SW in dev — keeps the dev server and e2e tests deterministic.                                                                                                                        |
-| `includeManifestIcons` | `false`                                 | The icons live in `public/icons/*.png` and already match `globPatterns`; including them again would duplicate the precache entries.                                                     |
-| `navigateFallback`     | `null`                                  | The plugin's default (`index.html`) registers a precache-only route for navigations that would shadow the `NetworkFirst` runtime route below.                                           |
-| `directoryIndex`       | `null`                                  | Precaching's own route by default maps any URL ending in `/` (the start URL!) to precached `index.html` cache-first — silently bypassing `NetworkFirst` for the most common navigation. |
-| `base`                 | `DEPLOY_BASE_PATH` env var, default `/` | GH Pages serves from `/<repo>/`, not the domain root.                                                                                                                                   |
-| `manifest.id`          | `'.'`                                   | Resolved relative to the manifest URL, so the installed app's identity is the same locally (`/`) and on GH Pages (`/<repo>/`).                                                          |
+| Option                 | Value                                   | Why                                                                                                                                                                                                 |
+| ---------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `registerType`         | `'prompt'`                              | A new SW installs and **waits** instead of activating on its own, so the user decides when to reload. See [Update flow](#update-flow).                                                              |
+| `injectRegister`       | `false`                                 | Registration happens in `UpdateDialog.vue` via `useRegisterSW()` so the app can observe `needRefresh`. The plugin's auto-injected `registerSW.js` would register the SW a second time.              |
+| `devOptions.enabled`   | `false`                                 | No SW in dev, which keeps the dev server and e2e tests deterministic.                                                                                                                               |
+| `includeManifestIcons` | `false`                                 | The icons live in `public/icons/*.png` and already match `globPatterns`, so including them again would duplicate the precache entries.                                                              |
+| `navigateFallback`     | `null`                                  | The plugin's default of `index.html` registers a precache-only route for navigations that would shadow the `NetworkFirst` runtime route below.                                                      |
+| `directoryIndex`       | `null`                                  | Precaching's own route by default maps any URL ending in `/`, including the start URL, to precached `index.html` cache-first. That silently bypasses `NetworkFirst` for the most common navigation. |
+| `base`                 | `DEPLOY_BASE_PATH` env var, default `/` | GH Pages serves from `/<repo>/` rather than the domain root.                                                                                                                                        |
+| `manifest.id`          | `'.'`                                   | Resolved relative to the manifest URL, so the installed app's identity is the same locally (`/`) and on GH Pages (`/<repo>/`).                                                                      |
 
 ## How the service worker handles requests
 
-Two cache layers work together: the **precache** (app shell, cache-first, populated at
-SW install) and the **`pages` runtime cache** (navigations, network-first).
+Two cache layers work together.
+The **precache** holds the app shell, is cache-first, and is populated at SW install.
+The **`pages` runtime cache** holds navigations and is network-first.
 
 ```mermaid
 flowchart TB
@@ -66,21 +67,19 @@ flowchart TB
 
 Why navigations are `NetworkFirst` rather than served from the precached shell:
 
-- **Online** users always get the freshest HTML the server has (and GH Pages 404
-  responses are rejected by the `fetchDidSucceed` plugin instead of being cached or
-  shown).
-- **Offline** users get the page they visited before, or — as a last resort via
-  `handlerDidError` — the precached `index.html` shell, which the SPA router then
-  resolves client-side.
+- **Online** users always get the freshest HTML the server has.
+  GH Pages 404 responses are rejected by the `fetchDidSucceed` plugin instead of being cached or shown.
+- **Offline** users get the page they visited before.
+  As a last resort via `handlerDidError` they get the precached `index.html` shell, which the SPA router then resolves
+  client-side.
 
-The precached `index.html` exists _only_ for that last-resort fallback: a brand-new
-page load is never controlled by its own not-yet-installed service worker, so
-precaching at install time is the only way to have a shell ready before the second
-visit.
+The precached `index.html` exists _only_ for that last-resort fallback.
+A brand-new page load is never controlled by its own not-yet-installed service worker.
+So precaching at install time is the only way to have a shell ready before the second visit.
 
 ## Update flow
 
-`registerType: 'prompt'` + `useRegisterSW()` in `UpdateDialog.vue`:
+This combines `registerType: 'prompt'` with `useRegisterSW()` in `UpdateDialog.vue`:
 
 ```mermaid
 sequenceDiagram
@@ -91,9 +90,9 @@ sequenceDiagram
     participant UD as UpdateDialog.vue
 
     U->>B: User opens the app after a deploy
-    B->>NEW: Fetch sw.js — byte diff detected
+    B->>NEW: Fetch sw.js, byte diff detected
     NEW->>NEW: install: precache new shell assets
-    NEW-->>NEW: state = "waiting"<br/>(no skipWaiting — registerType 'prompt')
+    NEW-->>NEW: state = "waiting"<br/>(no skipWaiting, registerType 'prompt')
     NEW-->>UD: useRegisterSW: needRefresh = true
     UD->>U: Dialog "Update verfügbar"
 
@@ -108,16 +107,16 @@ sequenceDiagram
     end
 ```
 
-Registering the SW inside a component (rather than letting the plugin inject
-`registerSW.js`) is what makes this possible: `useRegisterSW()` both performs the
-registration and exposes the reactive `needRefresh` flag that drives the dialog.
+Registering the SW inside a component, rather than letting the plugin inject `registerSW.js`, is what makes this
+possible.
+`useRegisterSW()` both performs the registration and exposes the reactive `needRefresh` flag that drives the dialog.
 
 ## GitHub Pages deep links (404.html redirect)
 
-GH Pages is a static file host: a fresh visit to `/wm2026-tracker/groups` has no
-server-side route and no service worker yet, so GH Pages serves `404.html`. The
-[spa-github-pages](https://github.com/rafgraph/spa-github-pages) trick smuggles the
-path through a query string:
+GH Pages is a static file host.
+A fresh visit to `/wm2026-tracker/groups` has no server-side route and no service worker yet, so GH Pages serves
+`404.html`.
+The [spa-github-pages](https://github.com/rafgraph/spa-github-pages) trick smuggles the path through a query string:
 
 ```mermaid
 sequenceDiagram
@@ -135,12 +134,12 @@ sequenceDiagram
     R-->>U: Renders /groups view
 ```
 
-This only matters **before** the service worker controls the page. Once it does, the
-`NetworkFirst` navigation route intercepts deep links itself — and if GH Pages still
-answers 404, the `fetchDidSucceed` plugin converts that into a fallback to the cached
-shell (see the request-handling diagram above).
+This only matters **before** the service worker controls the page.
+Once it does, the `NetworkFirst` navigation route intercepts deep links itself.
+If GH Pages still answers 404, the `fetchDidSucceed` plugin converts that into a fallback to the cached shell.
+See the request-handling diagram above.
 
-## Lifecycle: first visit → offline → update
+## Lifecycle: first visit, offline, update
 
 ```mermaid
 stateDiagram-v2
@@ -166,8 +165,8 @@ stateDiagram-v2
 
 ## Related files
 
-- `vite.config.ts` — all `VitePWA` configuration (this doc's main subject)
-- `src/components/UpdateDialog.vue` — SW registration + update prompt
-- `public/404.html` — GH Pages deep-link redirect (encode side)
-- `index.html` — redirect decode script, plus the SW-independent boot-error safety net
-- `playwright.pwa.config.ts` / `e2e/pwa-offline.spec.ts` — e2e tests that exercise the built SW
+- `vite.config.ts` holds all `VitePWA` configuration, which is this doc's main subject.
+- `src/components/UpdateDialog.vue` does SW registration and the update prompt.
+- `public/404.html` is the encode side of the GH Pages deep-link redirect.
+- `index.html` holds the redirect decode script, plus the SW-independent boot-error safety net.
+- `playwright.pwa.config.ts` and `e2e/pwa-offline.spec.ts` are the e2e tests that exercise the built SW.

@@ -3,16 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { useBracketHighlight } from './use-bracket-highlight'
 
-// ---------------------------------------------------------------------------
-// useBracketHighlight — ResizeObserver-driven recompute of connectorPaths
-// ---------------------------------------------------------------------------
-//
-// connectorPaths ultimately reads DOM geometry via useBracketConnectors
-// (querySelector + getBoundingClientRect), which Vue's reactivity system
-// cannot see. These tests stub a global ResizeObserver, capture the callback
-// the composable registers, and fire it manually to simulate a real layout
-// shift (window resize, late web-font/flag load, etc.) — proving that
-// connectorPaths recomputes even though no *reactive* dependency changed.
+// connectorPaths ultimately reads DOM geometry via useBracketConnectors, using querySelector and
+// getBoundingClientRect.
+// Vue's reactivity system cannot see that.
+// These tests stub a global ResizeObserver, capture the callback the composable registers, and fire it manually.
+// That simulates a real layout shift such as a window resize or a late web-font or flag load.
+// It proves that connectorPaths recomputes even though no *reactive* dependency changed.
 
 type ResizeCallback = () => void
 
@@ -127,11 +123,6 @@ describe('useBracketHighlight — connectorPaths reactivity to DOM geometry', ()
   })
 })
 
-// ---------------------------------------------------------------------------
-// useBracketHighlight — hover/pin precedence, ref-key vs match-id selection,
-// pin toggling
-// ---------------------------------------------------------------------------
-//
 // These tests rely on the real bracket graph (src/lib/bracket-graph.ts),
 // built from src/data/fixtures-2026.ts. For the fixtures the DOM built by
 // buildContainer() represents:

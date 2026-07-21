@@ -1,8 +1,8 @@
 // Theme bootstrap: applies the persisted theme before first paint.
 //
 // App.vue applies the theme in a post-hydration watchEffect, which is far too
-// late — a light-mode user on a dark-OS device (or vice versa) sees a flash of
-// the wrong palette on every cold start. This script runs synchronously in
+// late.
+// A light-mode user on a dark-OS device, or vice versa, sees a flash of the wrong palette on every cold start. This script runs synchronously in
 // <head>, ahead of the app bundle, so the correct `data-theme` is on <html>
 // before anything is painted.
 //
@@ -10,13 +10,13 @@
 // the active palette instead of a fixed one.
 //
 // Kept out of index.html (rather than inline) so the CSP can keep script-src
-// at 'self' with no 'unsafe-inline' — same reasoning as boot-safety-net.js.
+// at 'self' with no 'unsafe-inline', which is the same reasoning as boot-safety-net.js.
 // Must stay self-contained ES5 for the same reason as that file: it has to run
 // even where the es2025 app bundle fails to parse.
 //
 // The storage key and value shape mirror the `settings` Pinia store
-// (src/stores/settings.ts, persisted via pinia-plugin-persistedstate) — keep
-// in sync. The colors mirror --color-bg in src/styles/tokens.css.
+// in src/stores/settings.ts, persisted via pinia-plugin-persistedstate, so keep them in sync.
+// The colors mirror --color-bg in src/styles/tokens.css.
 ;(function () {
   var LIGHT_BG = '#f8fafc'
   var DARK_BG = '#0f172a'

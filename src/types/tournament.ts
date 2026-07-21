@@ -27,7 +27,7 @@ export interface Team {
   /** Group the team was drawn into. */
   readonly group: GroupId
   /**
-   * FIFA World Ranking position (snapshot — see header of `teams.ts`).
+   * FIFA World Ranking position, a snapshot documented in the header of `teams.ts`.
    * Used as the deterministic last-resort group tiebreaker.
    */
   readonly fifaRanking: number
@@ -42,15 +42,15 @@ export interface Player {
 /**
  * One of the eight slots in the round of 32 that is filled by a third-placed
  * team. Which group's third-placed team lands in which slot depends on *which*
- * eight groups produce a qualifying third-placed team — resolved through the
- * FIFA allocation table (`THIRD_PLACE_ALLOCATION` in `fixtures-2026.ts`).
+ * eight groups produce a qualifying third-placed team.
+ * That is resolved through the FIFA allocation table `THIRD_PLACE_ALLOCATION` in `fixtures-2026.ts`.
  */
 export type ThirdPlaceSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
 /**
- * A branded string key for `THIRD_PLACE_ALLOCATION` — the eight qualifying
- * group letters sorted and joined (e.g. `'ABCEFGHI'`). Branding prevents
- * unsorted or otherwise malformed strings from indexing the table silently.
+ * A branded string key for `THIRD_PLACE_ALLOCATION`.
+ * It is the eight qualifying group letters sorted and joined, for example `'ABCEFGHI'`.
+ * Branding prevents unsorted or otherwise malformed strings from indexing the table silently.
  * Construct via `toThirdPlaceKey(groups)`.
  */
 export type ThirdPlaceKey = string & { readonly _thirdPlaceKeyBrand: never }
@@ -72,7 +72,7 @@ export type TeamRef =
   | { kind: 'matchWinner'; matchId: string }
   | { kind: 'matchLoser'; matchId: string } // only for the third-place play-off
 
-/** A `TeamRef` already resolved to a concrete team — what group matches always have. */
+/** A `TeamRef` already resolved to a concrete team, which is what group matches always have. */
 export type ResolvedTeamRef = Extract<TeamRef, { kind: 'team' }>
 
 interface BaseMatchSlot {
@@ -83,10 +83,10 @@ interface BaseMatchSlot {
 }
 
 /**
- * A group-stage match. Both sides are always concrete teams — there is
- * nothing to resolve — so `homeRef`/`awayRef` are narrowed to
- * `ResolvedTeamRef` and `group` is non-optional, instead of that invariant
- * living only in comments and being re-checked at every call site.
+ * A group-stage match.
+ * Both sides are always concrete teams, so there is nothing to resolve.
+ * That lets `homeRef` and `awayRef` narrow to `ResolvedTeamRef` and `group` be non-optional.
+ * Otherwise the invariant would live only in comments and be re-checked at every call site.
  */
 export interface GroupMatchSlot extends BaseMatchSlot {
   readonly stage: 'group'
@@ -96,8 +96,9 @@ export interface GroupMatchSlot extends BaseMatchSlot {
 }
 
 /**
- * A knockout-stage match. Either side may reference an outcome that isn't
- * determined yet (group rank, third place, winner/loser of an earlier tie).
+ * A knockout-stage match.
+ * Either side may reference an outcome that isn't determined yet, such as a group rank, a third place, or the winner
+ * or loser of an earlier tie.
  */
 export interface KnockoutMatchSlot extends BaseMatchSlot {
   readonly stage: Exclude<Stage, 'group'>
@@ -111,19 +112,18 @@ export type MatchSlot = GroupMatchSlot | KnockoutMatchSlot
 export interface Result {
   readonly matchId: string
   /**
-   * Goals after regulation and extra time — the real goal count, never
-   * including penalty-shootout goals. A level knockout score without shootout
-   * goals means "not decided yet" (see `resolveTeamRef` in `knockout.ts`).
+   * Goals after regulation and extra time, meaning the real goal count and never penalty-shootout goals.
+   * A level knockout score without shootout goals means "not decided yet", see `resolveTeamRef` in `knockout.ts`.
    */
   readonly homeGoals: number
   readonly awayGoals: number
   /**
-   * Penalty-shootout goals per side. Present only when the match was decided
-   * by a shootout: knockout matches only, both fields set together, the
-   * regular score level, and the shootout score decisive (enforced in
-   * `persistence.ts` and the score form). The UI shows the *folded* score —
-   * shootout goals added in, marked "i.E." — via `foldedScore` in
-   * `knockout.ts`; stats keep using the real goals (`team-schedule.ts`).
+   * Penalty-shootout goals per side.
+   * These are present only when the match was decided by a shootout.
+   * That means knockout matches only, both fields set together, a level regular score and a decisive shootout score.
+   * `persistence.ts` and the score form enforce that.
+   * The UI shows the *folded* score via `foldedScore` in `knockout.ts`, with shootout goals added in and marked "i.E.".
+   * Stats keep using the real goals, see `team-schedule.ts`.
    */
   readonly homeShootoutGoals?: number
   readonly awayShootoutGoals?: number
@@ -135,7 +135,7 @@ export interface Result {
   readonly awayRed: number
 }
 
-/** Results keyed by match id — the one piece of mutable/persisted app state. */
+/** Results keyed by match id, the one piece of mutable and persisted app state. */
 export type ResultsMap = Readonly<Record<string, Result>>
 
 /** Persisted state: results keyed by match id, plus a schema version. */

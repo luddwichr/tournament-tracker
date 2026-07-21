@@ -346,7 +346,7 @@ describe('ScoreDialog', () => {
     })
 
     it('shows the shootout inputs exactly while a knockout score is level', async () => {
-      const wrapper = mountDialog(knockoutMatch) // opens at 0:0 — level
+      const wrapper = mountDialog(knockoutMatch) // opens at 0:0, which is level
       expect(scoreInputs(wrapper)).toHaveLength(2)
       await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       expect(scoreInputs(wrapper)).toHaveLength(1)
@@ -390,7 +390,7 @@ describe('ScoreDialog', () => {
       const store = useTournamentStore()
       store.enterResult(makeResult('M90', 1, 1, { awayShootoutGoals: 2, homeShootoutGoals: 4 }))
       const wrapper = mountDialog(knockoutMatch)
-      // 2:1 — decisive without a shootout
+      // 2:1 is decisive without a shootout.
       await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
       await saveButton(wrapper).trigger('click')
       expect(store.results['M90']).toMatchObject({ awayGoals: 1, homeGoals: 2 })
@@ -399,16 +399,13 @@ describe('ScoreDialog', () => {
     })
   })
 
-  // -------------------------------------------------------------------------
-  // Cascade confirmation (REVIEW.md §9.1) — editing/clearing a result must not
-  // silently re-attribute a downstream knockout result to a different pairing.
-  // -------------------------------------------------------------------------
+  // Editing or clearing a result must not silently re-attribute a downstream knockout result to a different pairing.
   describe('cascade confirmation', () => {
-    // M53 (group A) real fixture data: with every group match a 1:0 home win,
-    // Tschechien beats Mexiko head-to-head and takes Group A's rank 1. Group
-    // A's rank-1 R32 slot (M79) and the R16 slot fed by M79's winner (M92)
-    // are seeded with stored results, so flipping M53 invalidates both — see
-    // invalidation.spec.ts for the standings math behind this scenario.
+    // This uses M53's real Group A fixture data.
+    // With every group match a 1:0 home win, Tschechien beats Mexiko head-to-head and takes Group A's rank 1.
+    // Group A's rank-1 R32 slot (M79) and the R16 slot fed by M79's winner (M92) are seeded with stored results.
+    // Flipping M53 therefore invalidates both.
+    // See invalidation.spec.ts for the standings math behind this scenario.
     const m53Match = makeMatch({
       awayRef: { kind: 'team', teamId: 'fra' },
       group: 'A',
@@ -464,7 +461,7 @@ describe('ScoreDialog', () => {
     it('a harmless save shows no ConfirmDialog and behaves as before', async () => {
       const store = seedGroupInvalidationScenario()
       const wrapper = mountDialog(m53Match)
-      // M53: 1:0 → 2:0 — Tschechien still wins, group order is unaffected.
+      // M53 goes from 1:0 to 2:0, so Tschechien still wins and the group order is unaffected.
       await findButtonByLabel(wrapper, 'Tor für Deutschland hinzufügen').trigger('click')
 
       await saveButton(wrapper).trigger('click')

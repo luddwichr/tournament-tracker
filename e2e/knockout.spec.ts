@@ -18,14 +18,12 @@ test.beforeEach(async ({ page }) => {
   knockout = new KnockoutPage(page)
 })
 
-// ---------------------------------------------------------------------------
 // Placeholder labels
 //
 // The static bracket structure (5 round headings, 32 cards, the two
 // end-stage section labels) is proven at unit speed in BracketView.spec.ts;
 // the browser tests below all `goto()` and interact, so they double as the
 // wiring/mount check that the bracket actually renders.
-// ---------------------------------------------------------------------------
 
 test('placeholder labels are meaningful — no bare "?" shown', async () => {
   await knockout.goto()
@@ -52,9 +50,7 @@ test('R32 group-rank placeholders include "Gruppe" and the group letter', async 
   }
 })
 
-// ---------------------------------------------------------------------------
 // Disabled / enabled state
-// ---------------------------------------------------------------------------
 
 test('all 16 R32 cards are disabled without group results', async () => {
   await knockout.goto()
@@ -69,15 +65,13 @@ test('all 16 R32 cards become enabled after all group results are entered', asyn
   await expect(knockout.round(R32).locator('.match-card')).toHaveCount(16)
 })
 
-// ---------------------------------------------------------------------------
 // ScoreDialog interaction
-// ---------------------------------------------------------------------------
 
 test('clicking an enabled R32 card opens ScoreDialog with resolved team names', async ({ page }) => {
   await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
-  // M73 is A2 vs B2 — the first R32 match
+  // M73 is A2 vs B2, the first R32 match.
   const dialog = await knockout.openScoreDialog('M73')
   const text = await dialog.title().textContent()
   // Title must name two real teams, not generic fallback strings
@@ -107,22 +101,20 @@ test('entering a knockout result propagates to the next round', async ({ page })
   await dialog.expectHidden()
 
   // M73 winner (A2, home win) should now appear as the resolved home team in M90
-  // M90 homeRef = winner(M73), awayRef = winner(M75) — M75 still unresolved
+  // M90 homeRef = winner(M73) and awayRef = winner(M75), with M75 still unresolved.
   const m90card = knockout.matchCard('M90')
   await expect(m90card.locator('.team-label')).toHaveCount(1)
   await expect(m90card.locator('.match-team-slot__placeholder')).toHaveCount(1)
 })
 
-// ---------------------------------------------------------------------------
 // Knockout draw guard
-// ---------------------------------------------------------------------------
 
 test('saving a tied knockout score shows a draw error and keeps the dialog open', async ({ page }) => {
   await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
   const dialog = await knockout.openScoreDialog('M73')
 
-  // Default score is 0:0 — a knockout match cannot end in a draw
+  // The default score is 0:0, and a knockout match cannot end in a draw.
   await dialog.save()
   await expect(dialog.drawError()).toBeVisible()
   await dialog.expectVisible()
@@ -144,13 +136,11 @@ test('the draw error clears once the score is no longer tied, then the result sa
   await dialog.save()
   await dialog.expectHidden()
 
-  // M90 homeRef = winner(M73) — home team should now be resolved.
+  // M90 homeRef = winner(M73), so the home team should now be resolved.
   await expect(knockout.matchCard('M90').locator('.team-label')).toHaveCount(1)
 })
 
-// ---------------------------------------------------------------------------
 // Penalty shootout
-// ---------------------------------------------------------------------------
 
 test('a shootout result saves at a level score, shows the folded score with an i.E. badge, and propagates the winner', async ({
   page,
@@ -158,7 +148,7 @@ test('a shootout result saves at a level score, shows the folded score with an i
   await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
 
-  // M73 ends 0:0 — the shootout steppers appear on their own for the level
+  // M73 ends 0:0, so the shootout steppers appear on their own for the level
   // knockout score; the home side wins the shootout 1:0.
   const dialog = await knockout.openScoreDialog('M73')
   const { home } = await dialog.teamNames()
@@ -171,17 +161,15 @@ test('a shootout result saves at a level score, shows the folded score with an i
   await expect(m73card.locator('.match-score-btn__shootout')).toHaveText('i.E.')
   await expect(m73card.locator('.match-score-btn__value')).toHaveText(['1', '0'])
 
-  // M90 homeRef = winner(M73) — the shootout winner must resolve there.
+  // M90 homeRef = winner(M73), so the shootout winner must resolve there.
   await expect(knockout.matchCard('M90').locator('.team-label')).toHaveCount(1)
 })
 
-// ---------------------------------------------------------------------------
 // Accessibility
-// ---------------------------------------------------------------------------
 
 test('knockout view has no detectable accessibility violations', async ({ page }) => {
   await knockout.goto()
-  // Routes are lazily imported (see router.ts) — wait for the view to
+  // Routes are lazily imported, see router.ts, so wait for the view to
   // actually be mounted before scanning, otherwise axe can run against the
   // pre-hydration DOM and misreport a missing level-one heading.
   await knockout.expectLoaded()
@@ -195,9 +183,7 @@ test('knockout view with group results has no detectable accessibility violation
   await expectNoA11yViolations(page)
 })
 
-// ---------------------------------------------------------------------------
 // Scroll to the currently ongoing round on load
-// ---------------------------------------------------------------------------
 
 test('does not scroll away from R32 while the group stage is still ongoing', async () => {
   await knockout.goto()

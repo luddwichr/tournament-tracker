@@ -3,26 +3,32 @@ FROM docker.io/library/debian:trixie-slim@sha256:020c0d20b9880058cbe785a9db10715
 
 # https://nodejs.org/en/about/previous-releases
 ARG NODE_VERSION=24.18.0
-# https://github.com/npm/cli/releases — installed over the Node-bundled npm (Node no
-# longer bumps npm majors within a release line); keep in sync with engines.npm in
-# package.json (Renovate groups both under "npm")
+# https://github.com/npm/cli/releases
+# Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
+# Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
 ARG NPM_VERSION=12.0.1
 # https://github.com/astral-sh/uv/releases
 ARG UV_VERSION=0.11.29
 # https://www.python.org/downloads/
 ARG PYTHON_VERSION=3.14.6
-# https://playwright.dev/docs/release-notes — keep in sync with @playwright/test in package.json
+# https://playwright.dev/docs/release-notes
+# Keep in sync with @playwright/test in package.json.
 ARG PLAYWRIGHT_VERSION=1.61.1
-# https://www.npmjs.com/package/@playwright/cli?activeTab=versions — versioned
-# independently of @playwright/test/playwright, do NOT assume it tracks PLAYWRIGHT_VERSION
+# https://www.npmjs.com/package/@playwright/cli?activeTab=versions
+# Versioned independently of @playwright/test and playwright.
+# Do NOT assume it tracks PLAYWRIGHT_VERSION.
 ARG PLAYWRIGHT_CLI_VERSION=0.1.17
-# https://github.com/opengrep/opengrep/releases — keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml
+# https://github.com/opengrep/opengrep/releases
+# Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
 ARG OPENGREP_VERSION=1.25.0
-# https://github.com/gitleaks/gitleaks/releases — keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml
+# https://github.com/gitleaks/gitleaks/releases
+# Keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml.
 ARG GITLEAKS_VERSION=8.30.1
-# https://github.com/zizmorcore/zizmor/releases — keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml
+# https://github.com/zizmorcore/zizmor/releases
+# Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
 ARG ZIZMOR_VERSION=1.27.0
-# https://github.com/aquasecurity/trivy/releases — keep in sync with TRIVY_VERSION in .github/workflows/ci.yml
+# https://github.com/aquasecurity/trivy/releases
+# Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 ARG TRIVY_VERSION=0.72.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
@@ -50,9 +56,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # ssh client so git can push via the host's ssh-agent (VS Code forwards
     # SSH_AUTH_SOCK into the container automatically; no keys live in here)
     openssh-client \
-    # Rootless podman-in-podman — lets tooling inside this (itself rootless)
-    # container build, run and scan container images locally, e.g. `trivy image`
-    # against a locally built image. This setup follows the working reference at
+    # Rootless podman-in-podman.
+    # It lets tooling inside this itself-rootless container build, run and scan container images locally.
+    # One example is `trivy image` against a locally built image. This setup follows the working reference at
     # github.com/andrena/software-excellence-day-2026-sandboxing (demos/3), which
     # itself derives from containers/image_build's Podman Containerfile.
     # uidmap provides newuidmap/newgidmap for nested user namespaces
@@ -90,14 +96,14 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
 # subordinate ids mapped in (here: container uids 0-65536), so podman's
 # `newuidmap ... 1 100000 65536` call fails with "Operation not permitted". The
 # two ranges below skip uid 1000 (${USERNAME} itself), which podman maps
-# separately onto the nested container's root — the ranges must not overlap.
+# separately onto the nested container's root, so the ranges must not overlap.
 # Widen only if the host grants more than the default 65536 subids (check
 # `cat /proc/self/uid_map` inside the container).
 #
 # newuidmap/newgidmap are setuid-root on Debian, and setuid does not work inside
 # a rootless container, so grant them the equivalent file capabilities instead
-# and drop the setuid bit — otherwise every podman command fails with
-# "newuidmap: write to uid_map failed: Operation not permitted".
+# and drop the setuid bit.
+# Otherwise every podman command fails with "newuidmap: write to uid_map failed: Operation not permitted".
 RUN printf '%s\n' "${USERNAME}:1:999" "${USERNAME}:1001:64535" > /etc/subuid \
     && cp /etc/subuid /etc/subgid \
     && setcap cap_setuid=ep /usr/bin/newuidmap && chmod 755 /usr/bin/newuidmap \
@@ -107,7 +113,7 @@ RUN printf '%s\n' "${USERNAME}:1:999" "${USERNAME}:1001:64535" > /etc/subuid \
 
 # Install Playwright system dependencies (requires root); clean up the apt lists
 # left behind by its internal apt-get update and root's npm cache from npx
-# (never reused — all later npm activity runs as ${USERNAME})
+# (never reused, since all later npm activity runs as ${USERNAME})
 RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 

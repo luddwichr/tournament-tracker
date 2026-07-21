@@ -21,8 +21,8 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   testDir: './e2e',
   // pwa-offline.spec.ts rewrites dist/index.html on disk mid-test, which would
-  // race this parallel suite on the same preview server — it runs in its own
-  // serial config via test:e2e:pwa.
+  // race this parallel suite on the same preview server.
+  // It runs in its own serial config via test:e2e:pwa.
   testIgnore: ['**/pwa-offline.spec.ts'],
   use: {
     baseURL: BASE_URL,

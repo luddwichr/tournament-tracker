@@ -9,10 +9,6 @@ import { describe, expect, it } from 'vitest'
 import { groupMatches, knockoutMatches } from '../data/fixtures-2026'
 import { teamsById } from '../data/teams'
 
-// ---------------------------------------------------------------------------
-// 'team' kind
-// ---------------------------------------------------------------------------
-
 describe("resolveTeamRef — kind 'team'", () => {
   it('returns the team immediately', () => {
     const ref: TeamRef = { kind: 'team', teamId: 'ger' }
@@ -26,10 +22,6 @@ describe("resolveTeamRef — kind 'team'", () => {
     expect(resolveTeamRef(ref, {})).toBeNull()
   })
 })
-
-// ---------------------------------------------------------------------------
-// 'groupRank' kind
-// ---------------------------------------------------------------------------
 
 describe("resolveTeamRef — kind 'groupRank'", () => {
   it('returns null while the group is incomplete', () => {
@@ -79,10 +71,6 @@ describe("resolveTeamRef — kind 'groupRank'", () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// 'thirdPlace' kind
-// ---------------------------------------------------------------------------
-
 describe("resolveTeamRef — kind 'thirdPlace'", () => {
   it('returns null when group stage is incomplete', () => {
     const ref: TeamRef = { kind: 'thirdPlace', slot: 1 }
@@ -97,10 +85,6 @@ describe("resolveTeamRef — kind 'thirdPlace'", () => {
     expect(teamsById.has(team!.id)).toBe(true)
   })
 })
-
-// ---------------------------------------------------------------------------
-// 'matchWinner' / 'matchLoser' kind
-// ---------------------------------------------------------------------------
 
 describe("resolveTeamRef — kind 'matchWinner'", () => {
   it('returns null for an unknown matchId', () => {
@@ -171,10 +155,6 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// foldedScore / decidedByShootout
-// ---------------------------------------------------------------------------
-
 describe('foldedScore / decidedByShootout', () => {
   it('returns the plain goals for a result without shootout', () => {
     const result = makeResult('M01', 2, 1)
@@ -224,10 +204,6 @@ describe("resolveTeamRef — kind 'matchLoser'", () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Full bracket propagation: R32 → R16 → QF → SF → Final
-// ---------------------------------------------------------------------------
-
 describe('full bracket propagation', () => {
   it('resolves M89 (R16) winner once M74 and M77 are played', () => {
     // M89: winner(M74) vs winner(M77)
@@ -268,14 +244,10 @@ describe('full bracket propagation', () => {
       results[m.id] = makeResult(m.id, 2, 1)
     }
     const m89 = knockoutMatches.find((m) => m.id === 'M89')!
-    // M89 homeRef is winner(M74) which is unresolved — result entry must be blocked.
+    // M89 homeRef is winner(M74), which is unresolved, so result entry must be blocked.
     expect(resolveTeamRef(m89.homeRef, results)).toBeNull()
   })
 })
-
-// ---------------------------------------------------------------------------
-// currentBracketColumn
-// ---------------------------------------------------------------------------
 
 describe('currentBracketColumn', () => {
   it('returns null while the group stage is still ongoing', () => {

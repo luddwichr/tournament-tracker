@@ -25,10 +25,10 @@ vi.mock('../lib/standings', async (importOriginal) => {
 })
 
 // Spy on the invalidation detector (keeping resultsWithout real) so the store
-// tests can prove *wiring* — that enterResult/clearResult feed the pending edit
-// to invalidatedDownstream and drop exactly the ids it returns — without
-// re-encoding the standings math, which is invalidation.spec.ts's job. Defaults
-// to "nothing invalidated" so the unrelated tests behave as a plain store.
+// tests can prove *wiring* without re-encoding the standings math, which is invalidation.spec.ts's job.
+// The wiring is that enterResult and clearResult feed the pending edit to invalidatedDownstream and drop exactly the
+// ids it returns.
+// This defaults to "nothing invalidated" so the unrelated tests behave as a plain store.
 vi.mock('../lib/invalidation', async (importOriginal) => {
   const original = await importOriginal<typeof import('../lib/invalidation')>()
   return { ...original, invalidatedDownstream: vi.fn<typeof original.invalidatedDownstream>(() => []) }
@@ -36,8 +36,8 @@ vi.mock('../lib/invalidation', async (importOriginal) => {
 
 // Pinia only activates plugins queued via `pinia.use(...)` once the pinia
 // instance is actually installed into an app (mirrors main.ts's
-// `createApp(App).use(pinia)`) — merely calling `setActivePinia` skips that
-// step, so the persistedstate plugin would silently never hydrate.
+// `createApp(App).use(pinia)`).
+// Merely calling `setActivePinia` skips that step, so the persistedstate plugin would silently never hydrate.
 function createPersistedPinia() {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
@@ -119,13 +119,10 @@ describe('tournament store', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// enterResult/clearResult enforce the "no stale downstream knockout result"
-// invariant themselves (REVIEW.md §9.1). These tests prove only the *wiring* to
-// invalidatedDownstream (spied above); the standings math that decides which
-// matches are actually invalidated lives in src/lib/invalidation.spec.ts, and
-// the end-to-end confirm flow in src/components/ScoreDialog.spec.ts.
-// ---------------------------------------------------------------------------
+// enterResult and clearResult enforce the "no stale downstream knockout result" invariant themselves.
+// These tests prove only the *wiring* to invalidatedDownstream, which is spied above.
+// The standings math that decides which matches are actually invalidated lives in src/lib/invalidation.spec.ts.
+// The end-to-end confirm flow lives in src/components/ScoreDialog.spec.ts.
 
 describe('tournament store — invalidation invariant', () => {
   it('enterResult feeds the pending edit to invalidatedDownstream and drops exactly the ids it returns', () => {
@@ -165,11 +162,8 @@ describe('tournament store — invalidation invariant', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// localStorage rehydration (issue 2.4) — the persistedstate plugin's automatic
-// rehydration bypasses parseImport's validation entirely, so the store's own
-// `afterHydrate` hook must catch a corrupted entry itself.
-// ---------------------------------------------------------------------------
+// The persistedstate plugin's automatic rehydration bypasses parseImport's validation entirely.
+// So the store's own `afterHydrate` hook must catch a corrupted entry itself.
 
 describe('tournament store — localStorage rehydration', () => {
   beforeEach(() => {

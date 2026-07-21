@@ -83,8 +83,8 @@ const isPastKickoff = computed(() => new Date(match.kickoff).getTime() <= Date.n
 
       <ScoreInput v-model:home="goals.home" v-model:away="goals.away" :home-team="homeTeam" :away-team="awayTeam" />
 
-      <!-- A knockout match can't end level, so a level score means "goes to
-           a shootout" — the shootout steppers appear exactly then. -->
+      <!-- A knockout match can't end level, so a level score means "goes to a shootout".
+           The shootout steppers appear exactly then. -->
       <ScoreInput
         v-if="shootoutRequired"
         v-model:home="shootout.home"

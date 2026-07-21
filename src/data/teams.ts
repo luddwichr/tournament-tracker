@@ -79,7 +79,7 @@ export type TeamId = (typeof teams)[number]['id']
  */
 export const teamsById: ReadonlyMap<string, Team> = new Map(teams.map((t) => [t.id, t]))
 
-/** Teams grouped by their `group`, precomputed once — backs `teamsInGroup`. */
+/** Teams grouped by their `group`, precomputed once to back `teamsInGroup`. */
 const teamsByGroup: ReadonlyMap<Team['group'], readonly Team[]> = new Map(
   GROUP_IDS.map((group) => [group, teams.filter((t) => t.group === group)]),
 )

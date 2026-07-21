@@ -21,8 +21,8 @@
   },
   "overrides": [
     {
-      // Playwright steps are inherently sequential — each await depends on the
-      // page state left by the previous one, so Promise.all is not an option.
+      // Playwright steps are inherently sequential.
+      // Each await depends on the page state left by the previous one, so Promise.all is not an option.
       "files": ["e2e/**"],
       "rules": {
         "no-await-in-loop": "off"

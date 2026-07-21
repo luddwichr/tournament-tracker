@@ -23,12 +23,10 @@ describe('invalidatedDownstream', () => {
     results[m79.id] = makeResult(m79.id, 2, 1)
     results[m92.id] = makeResult(m92.id, 1, 0)
 
-    // M53: Tschechien (home) vs Mexiko (away). Under the baseline (every
-    // group match 1:0 to the home side), Tschechien and Mexiko are tied on
-    // points and Tschechien wins the head-to-head 1:0, taking Group A's rank
-    // 1. Replaying M53 as a 0:3 away win flips that head-to-head, so Mexiko
-    // takes rank 1 instead — verified against computeGroupStandings before
-    // writing this test.
+    // M53 is Tschechien (home) vs Mexiko (away).
+    // Under the baseline, where every group match is 1:0 to the home side, Tschechien and Mexiko are tied on points.
+    // Tschechien wins the head-to-head 1:0 and takes Group A's rank 1.
+    // Replaying M53 as a 0:3 away win flips that head-to-head, so Mexiko takes rank 1 instead.
     const flipped = makeResult('M53', 0, 3)
 
     expect(invalidatedDownstream(results, 'M53', flipped)).toEqual([m79.id, m92.id])
@@ -41,16 +39,16 @@ describe('invalidatedDownstream', () => {
     )!
     results[m79.id] = makeResult(m79.id, 2, 1)
 
-    // M01: Mexiko (home) 1:0 → 2:0. Mexiko still wins the match, and Group
-    // A's rank 1/2 order is decided by the M53 head-to-head, which this edit
-    // doesn't touch — so nothing downstream changes.
+    // M01 goes from Mexiko (home) 1:0 to 2:0, so Mexiko still wins the match.
+    // Group A's rank 1/2 order is decided by the M53 head-to-head, which this edit doesn't touch.
+    // So nothing downstream changes.
     expect(invalidatedDownstream(results, 'M01', makeResult('M01', 2, 0))).toEqual([])
   })
 
   it('flags a downstream R16 match, cascading into a QF match with its own stored result, when a knockout edit flips the winner', () => {
     const results: Record<string, Result> = { ...allGroupResults(1, 0) }
     results['M73'] = makeResult('M73', 2, 1) // home (Group A rank 2) wins
-    results['M75'] = makeResult('M75', 2, 1) // M90's other feeder — needed so M90 itself resolves
+    results['M75'] = makeResult('M75', 2, 1) // M90's other feeder, needed so M90 itself resolves
     results['M90'] = makeResult('M90', 2, 1) // R16, fed by M73's winner
     results['M97'] = makeResult('M97', 2, 1) // QF, fed by M90's winner
 
@@ -70,10 +68,10 @@ describe('invalidatedDownstream', () => {
     results['M73'] = makeResult('M73', 2, 1) // groupRank-fed: home = Group A rank 2
     results['M85'] = makeResult('M85', 2, 1) // thirdPlace-fed: away = slot 2 (an unrelated group)
 
-    // M01 is one of Group A's six matches; clearing it makes Group A
-    // incomplete, which unresolves M73's groupRank ref AND — because the
-    // third-place ranking requires all 12 groups complete — every thirdPlace
-    // ref across the whole bracket, including M85's.
+    // M01 is one of Group A's six matches, so clearing it makes Group A incomplete.
+    // That unresolves M73's groupRank ref.
+    // It also unresolves every thirdPlace ref across the whole bracket, including M85's.
+    // That is because the third-place ranking requires all 12 groups to be complete.
     expect(invalidatedDownstream(results, 'M01', null)).toEqual(['M73', 'M85'])
   })
 
@@ -99,8 +97,7 @@ describe('invalidatedDownstream', () => {
     // A match. With no cards anywhere, Group A's order is decided purely by
     // FIFA ranking (Mexiko, Südkorea, Tschechien, Südafrika). Giving Mexiko
     // two red cards drops its fair-play score below the rest, moving
-    // Südkorea into rank 2 — verified against computeGroupStandings before
-    // writing this test.
+    // Südkorea into rank 2.
     const flipped = makeResult('M28', 0, 0, { homeRed: 2 })
 
     expect(invalidatedDownstream(results, 'M28', flipped)).toEqual([m73.id])
