@@ -10,10 +10,7 @@ import { useTournamentStore } from '../stores/tournament'
  * Build the `OriginColumn` `groupData` prop from the store's shared `standingsByGroup` getter.
  * That is the per-group top-3 rows with their bracket `refKey`, either groupRank or thirdPlace, and elimination flag.
  *
- * Lives in a composable (rather than inline in `BracketView.vue`) purely to
- * keep that component's `<script setup>` block under the lint's line limit;
- * `BracketView` remains the store-connected container, this is just where the
- * derivation is expressed.
+ * `BracketView` remains the store-connected container, this is just where the derivation is expressed.
  */
 export function useOriginGroupData(): ComputedRef<OriginGroupData[]> {
   const store = useTournamentStore()
