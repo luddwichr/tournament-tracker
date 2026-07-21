@@ -2,34 +2,28 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <!-- viewport-fit=cover lets the app paint into the notch/home-indicator area;
+    <!-- viewport-fit=cover lets the app paint into the notch/home-indicator area.
          the env(safe-area-inset-*) paddings in AppHeader/App keep content clear of it. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Static default matches the light palette's --color-bg (the default
-         theme); theme-boot.js below rewrites it for dark before first paint. -->
+    <!-- Static default matches the light palette's --color-bg (the default theme).
+         theme-boot.js below rewrites it for dark before first paint. -->
     <meta name="theme-color" content="#f8fafc" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
     <!-- csp:start (stripped in dev by vite.config.ts — see comment there) -->
     <!--
-      GH Pages serves static files with no control over HTTP response headers,
-      so this <meta> tag is the only way to ship a CSP at all.
+      GH Pages serves static files with no control over HTTP response headers, so this <meta> tag is the only way to ship a CSP at all.
       - default-src 'self': fallback for any directive not listed below.
-      - script-src 'self': only same-origin script files run; no inline
-        scripts, no 'unsafe-inline'/'unsafe-eval'. All boot-time scripts are
-        loaded via <script src> from public/ so they qualify.
+      - script-src 'self': only same-origin script files run; no inline scripts, no 'unsafe-inline'/'unsafe-eval'. 
+        All boot-time scripts are loaded via <script src> from public/ so they qualify.
       - style-src 'self': same, for stylesheets — no inline <style>/style="".
       - img-src 'self': only same-origin images.
-      - connect-src 'self' https://site.api.espn.com: fetch/XHR targets,
-        scoped to same-origin plus the ESPN scoreboard API, the app's only external
-        network dependency.
-      - base-uri 'self': blocks a <base> tag from redirecting relative URLs
-        (script/style/img src, fetches) elsewhere.
+      - connect-src 'self' https://site.api.espn.com: fetch/XHR targets, scoped to same-origin plus the ESPN scoreboard API (app's only external
+        network dependency).
+      - base-uri 'self': blocks a <base> tag from redirecting relative URLs (script/style/img src, fetches) elsewhere.
       - form-action 'none': the app has no <form> submissions.
       - object-src 'none': blocks <object>/<embed>/<applet> plugin content.
-      - frame-ancestors is deliberately omitted: it's a header-only directive
-        per spec, ignored (with a console warning) when set via <meta> —
-        framing protection would need an actual HTTP header, which GH Pages
-        doesn't let us set.
+      - frame-ancestors is deliberately omitted: it's a header-only directive per spec, ignored (with a console warning) when set via <meta>.
+        framing protection would need an actual HTTP header, which GH Pages doesn't let us set.
     -->
     <meta
       http-equiv="Content-Security-Policy"
@@ -40,17 +34,14 @@
     <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.png" />
     <title>WM 2026 Tracker</title>
     <link rel="stylesheet" href="%BASE_URL%boot-fallback.css" />
-    <!-- Must stay synchronous and ahead of the app bundle: it sets data-theme
-         before first paint, which is the whole point (see the file header). -->
+    <!-- Must stay synchronous and ahead of the app bundle: it sets data-theme before first paint, which is the whole point (see the file header). -->
     <script type="text/javascript" src="%BASE_URL%theme-boot.js"></script>
     <script type="text/javascript" src="%BASE_URL%boot-safety-net.js"></script>
     <script type="text/javascript" src="%BASE_URL%spa-github-pages.js"></script>
   </head>
   <body>
     <noscript>
-      <p class="boot-fallback">
-        Der WM 2026 Tracker benötigt JavaScript. Bitte aktiviere JavaScript in deinem Browser.
-      </p>
+      <p class="boot-fallback">Diese Anwendung benötigt JavaScript. Bitte aktiviere JavaScript in deinem Browser.</p>
     </noscript>
     <div id="app"></div>
     <script type="module" src="/src/app/main.ts"></script>

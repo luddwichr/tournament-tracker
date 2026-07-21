@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// vue-tsc6.mjs — run vue-tsc against the real TypeScript 6 compiler.
+// run vue-tsc against the real TypeScript 6 compiler.
 //
 // Part of the TS 6 + 7 side-by-side setup; background, tracking issues and
 // removal checklist live in docs/typescript-7-side-by-side.md. In short:
@@ -14,7 +14,7 @@
 // typescript@6 hidden behind the alias — and hand its tsc entry point to
 // vue-tsc's run().
 //
-// Usage: node scripts/vue-tsc6.mjs [vue-tsc args, e.g. -b]
+// Usage: node scripts/vue-tsc6.js [vue-tsc args, e.g. -b]
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs'

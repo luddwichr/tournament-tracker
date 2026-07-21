@@ -102,8 +102,8 @@ running `npm run lint`, `size-limit`, inspecting the built `dist/`, and reading 
 
 ### Findings
 
-1. **[LOW] `vue-tsc6.mjs` reaches into the undocumented internal `@typescript/old` repackage
-   artifact.** `scripts/vue-tsc6.mjs:26-27` — `realpathSync` +
+1. **[LOW] `vue-tsc6.js` reaches into the undocumented internal `@typescript/old` repackage
+   artifact.** `scripts/vue-tsc6.js:26-27` — `realpathSync` +
    `require.resolve('@typescript/old/lib/tsc.js')` depends on Microsoft's internal repackage
    layout and on `install-strategy=linked` symlink shape. Thoroughly commented and currently
    works, but it is the single most fragile point in the toolchain; the doc's unwind checklist
@@ -141,7 +141,7 @@ prior review that wasn't fixed _by deletion_ is still open.
   specifically to catch a re-import regression of the full flag catalog.
 - **Comment quality is top-percentile.** Sampled broadly: `vite.config.ts:22-30` (why `prompt`
   not `autoUpdate`), `stores/tournament.ts:59-68` (rehydration trust boundary),
-  `espn.ts:111-114` (why shootout goals are summed), `scripts/vue-tsc6.mjs:24-26` (why
+  `espn.ts:111-114` (why shootout goals are summed), `scripts/vue-tsc6.js:24-26` (why
   `realpathSync` under linked installs). Near-zero noise comments found.
 - **Domain/UI separation held under change:** both big refactors landed without a single Vue
   import leaking into `src/lib` or store logic migrating into components.

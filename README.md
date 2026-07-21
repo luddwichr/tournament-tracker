@@ -63,7 +63,7 @@ API (expected in TS 7.1). `npm run typecheck` uses both: the real TS 7 (`tsc`)
 checks the Vue-free projects (build config, e2e) and vue-tsc (TS 6) checks
 everything that touches a `.vue` SFC. See
 [`docs/typescript-7-side-by-side.md`](./docs/typescript-7-side-by-side.md)
-for the tracking issues, the `scripts/vue-tsc6.mjs` workaround, and how to
+for the tracking issues, the `scripts/vue-tsc6.js` workaround, and how to
 unwind the setup once upstream support lands.
 
 ## Two Playwright configs
