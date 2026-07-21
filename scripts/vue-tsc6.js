@@ -23,7 +23,21 @@ const require = createRequire(import.meta.url)
 
 // realpathSync: with install-strategy=linked, node_modules/typescript is a
 // symlink and @typescript/old is only resolvable from its store location.
-const aliasRequire = createRequire(fs.realpathSync(require.resolve('typescript/package.json')))
-const realTsc6 = aliasRequire.resolve('@typescript/old/lib/tsc.js')
+//
+// Both steps below depend on layout this project does not own, meaning Microsoft's internal repackage shape and the
+// linked-install symlink shape. That makes this the most fragile point in the toolchain, so a failure here explains
+// itself rather than surfacing as a bare MODULE_NOT_FOUND during an unrelated bump.
+let realTsc6
+try {
+  const aliasRequire = createRequire(fs.realpathSync(require.resolve('typescript/package.json')))
+  realTsc6 = aliasRequire.resolve('@typescript/old/lib/tsc.js')
+} catch (cause) {
+  throw new Error(
+    'Could not resolve the real TypeScript 6 compiler behind the `typescript` alias. ' +
+      'A TypeScript or vue-tsc bump most likely changed the @typescript/old repackage layout. ' +
+      'See docs/typescript-7-side-by-side.md, which carries the checklist for unwinding this setup entirely.',
+    { cause },
+  )
+}
 
 require('vue-tsc').run(realTsc6)
