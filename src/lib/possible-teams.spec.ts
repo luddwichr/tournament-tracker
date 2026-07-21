@@ -220,12 +220,23 @@ describe('possibleTeamsFor — matchWinner, played match', () => {
     expect(teams).toHaveLength(1)
   })
 
-  it('returns empty set when match result is a draw', () => {
+  it('returns both sides when a level score carries no shootout goals', () => {
+    // A level knockout score without shootout goals means "not decided yet", so both sides stay possible.
     const results = allGroupResults(1, 0)
     results['M73'] = makeResult('M73', 1, 1)
     const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
     const teams = possibleTeamsFor(ref, results)
-    expect(teams).toHaveLength(0)
+    expect(teams).toHaveLength(2)
+    expect([...teams].map((t) => t.group).toSorted()).toEqual(['A', 'B'])
+  })
+
+  it('returns only the shootout winner when a level score is decided on penalties', () => {
+    const results = allGroupResults(1, 0)
+    results['M73'] = { ...makeResult('M73', 1, 1), awayShootoutGoals: 2, homeShootoutGoals: 4 }
+    const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
+    const teams = possibleTeamsFor(ref, results)
+    expect(teams).toHaveLength(1)
+    expect([...teams][0]!.group).toBe('A')
   })
 })
 
