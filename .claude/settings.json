@@ -25,9 +25,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/check-ts-vue.sh",
-            "timeout": 120,
-            "statusMessage": "Typechecking, linting, and running unit tests...",
+            "command": ".claude/hooks/check-code.sh",
+            "timeout": 300,
+            "statusMessage": "Running the full check:code gate...",
             "asyncRewake": true
           }
         ]
