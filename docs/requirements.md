@@ -318,8 +318,9 @@ There are two tabs, with "Team" selected by default:
 A theme radio group of Hell ☀️, Dunkel 🌙 and System 🖥️, rendered by `ThemePicker`.
 Alongside it sit Exportieren, Importieren, Zurücksetzen and "Ergebnisse abrufen".
 Reset and import-replace go through an accessible `ConfirmDialog`.
-"Ergebnisse abrufen" opens `SyncDialog`, which confirms before fetching and then reports how many matches were
-updated.
+"Ergebnisse abrufen" is styled as a destructive action, because the fetch replaces the whole store rather than merging.
+It opens `SyncDialog`, which spells out that hand-entered results are lost when the feed does not carry the match.
+After the fetch it reports how many matches were retrieved.
 Import errors are shown as German messages.
 
 ---

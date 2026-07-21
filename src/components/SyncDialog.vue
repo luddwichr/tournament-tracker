@@ -38,7 +38,7 @@ const statusMessage = computed(() => {
     return 'Daten werden abgerufen …'
   }
   if (status === 'done') {
-    return `${count} Spiele wurden aktualisiert.`
+    return `${count} Spiele wurden abgerufen.`
   }
   return ''
 })
@@ -59,9 +59,13 @@ function close(): void {
     @close="emit('close')"
   >
     <div :id="descId" class="sync-dialog__body">
-      <p v-if="status === 'confirm'">
-        Alle vorhandenen Ergebnisse werden durch die abgerufenen Daten (Tore und Karten) ersetzt.
-      </p>
+      <template v-if="status === 'confirm'">
+        <p>Alle vorhandenen Ergebnisse werden gelöscht und durch die abgerufenen Daten (Tore und Karten) ersetzt.</p>
+        <p>
+          Von Hand eingetragene Ergebnisse gehen dabei verloren, wenn das Spiel nicht abgerufen werden kann. Das
+          betrifft vor allem Spiele, die noch nicht beendet sind.
+        </p>
+      </template>
 
       <span v-if="status === 'syncing'" class="sync-dialog__spinner" role="img" aria-label="Wird geladen">⚽</span>
 

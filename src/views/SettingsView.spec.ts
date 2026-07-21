@@ -229,7 +229,7 @@ describe('SettingsView – sync results', () => {
     await flushPromises()
 
     expect(store.results).toEqual(oneResult)
-    expect(wrapper.findComponent(SyncDialog).text()).toContain('aktualisiert')
+    expect(wrapper.findComponent(SyncDialog).text()).toContain('abgerufen')
   })
 
   it('shows an error and can retry to success', async () => {
@@ -243,7 +243,7 @@ describe('SettingsView – sync results', () => {
 
     await dialogButton(wrapper, 'Erneut versuchen')
     await flushPromises()
-    expect(wrapper.findComponent(SyncDialog).text()).toContain('aktualisiert')
+    expect(wrapper.findComponent(SyncDialog).text()).toContain('abgerufen')
   })
 
   it('cancelling closes the dialog without syncing', async () => {
