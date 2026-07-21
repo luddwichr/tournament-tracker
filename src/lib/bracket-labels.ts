@@ -28,6 +28,14 @@ function matchNumber(matchId: string): string {
   return matchId.slice(1)
 }
 
+/**
+ * Short match-number badge for a card's meta row, for example "Sp. 73".
+ * Cards render it so that "Sieger Sp. 73" and the confirm dialog's "Spiel 73" point at something the reader can find.
+ */
+export function matchNumberLabel(matchId: string): string {
+  return `Sp. ${matchNumber(matchId)}`
+}
+
 export function teamRefLabel(ref: TeamRef): string {
   switch (ref.kind) {
     case 'team': {
