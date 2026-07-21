@@ -1,0 +1,12 @@
+# Trivy config for the "scan:deps" npm script.
+# Goal: search for dependency vulnerabilities.
+exit-code: 1
+quiet: true
+scan:
+  scanners: [vuln]
+# Library packages only; OS packages belong to the container and are covered by the "scan:image" script.
+pkg-types: [library]
+severity: [LOW, MEDIUM, HIGH, CRITICAL]
+vulnerability:
+  # No fix available means there is nothing to action, so don't block on it.
+  ignore-unfixed: true

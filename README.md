@@ -45,7 +45,7 @@ gh auth login --with-token < gh-token.txt
 | `npm run scan:sast`               | Scan for security issues with opengrep (registry rulesets + `.opengrep/rules.yml`)                             |
 | `npm run scan:secrets`            | Scan the full git history for committed credentials with gitleaks                                              |
 | `npm run scan:workflows`          | Lint GitHub Actions workflows for security issues with zizmor                                                  |
-| `npm run scan:licenses`           | Enforce the permissive-only license policy (trivy, see `trivy.yaml`)                                           |
+| `npm run scan:licenses`           | Enforce the permissive-only license policy (trivy, see `.trivy/licenses.yaml`)                                 |
 | `npm run scan:deps`               | Scan dependencies for fixable HIGH/CRITICAL vulnerabilities (trivy)                                            |
 | `npm run scan:dockerfile`         | Scan the devcontainer Dockerfile for misconfigurations (trivy)                                                 |
 | `npm run scan:image`              | Scan the pinned Dockerfile base image for fixable OS CVEs (trivy)                                              |

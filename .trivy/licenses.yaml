@@ -1,0 +1,42 @@
+# Trivy config for the "scan:licenses" npm script.
+# Goal: search for non-permissive licenses in the node dependencies.
+# The devcontainer base image is deliberately out of scope: it is development tooling that is never distributed.
+exit-code: 1
+quiet: true
+scan:
+  scanners: [license]
+# Library packages only. OS package licenses are out of scope per the note above.
+pkg-types: [library]
+# License policy: PERMISSIVE licenses only.
+# Trivy maps every license category to a severity:
+#  - permissive / notice / unencumbered -> LOW
+#  - reciprocal -> MEDIUM
+#  - restricted -> HIGH
+#  - forbidden -> CRITICAL
+#  - unrecognized -> UNKNOWN
+# Anything not classified as permissive below (or by Trivy's built-in license DB) blocks the build.
+# Violations need an explicit, deliberate decision recorded here.
+severity: [UNKNOWN, MEDIUM, HIGH, CRITICAL]
+
+# Package-scoped exceptions to the permissive-only rule live in license-exceptions.rego.
+# Each waiver should be scoped to a specific package rather than blanket-allowing a license everywhere.
+ignore-policy: .trivy/license-exceptions.rego
+
+license:
+  # Blessed permissive SPDX identifiers.
+  # Trivy already classifies most of these as LOW.
+  # listing them makes the policy explicit and pins any that its DB would otherwise report as UNKNOWN (e.g. BlueOak-1.0.0).
+  permissive:
+    - 0BSD
+    - Apache-2.0
+    - BSD-2-Clause
+    - BSD-3-Clause
+    - BlueOak-1.0.0
+    - ISC
+    - MIT
+    - MIT-0
+    - Python-2.0
+    - Zlib
+  unencumbered:
+    - CC0-1.0
+    - Unlicense

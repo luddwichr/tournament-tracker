@@ -1,0 +1,12 @@
+# Trivy config for the "scan:image" npm script.
+# Goal: search for OS CVEs in the pinned devcontainer base image.
+# The image name is not configurable here.
+# The script derives it from the FROM line in .devcontainer/Dockerfile and passes it as the scan target.
+exit-code: 1
+quiet: true
+# The mirror image of the library-only scans: here we want the OS packages and not the application libraries, which "scan:deps" already covers.
+pkg-types: [os]
+severity: [LOW, MEDIUM, HIGH, CRITICAL]
+vulnerability:
+  # No fix available means there is nothing to action, so don't block on it.
+  ignore-unfixed: true

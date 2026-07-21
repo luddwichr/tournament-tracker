@@ -1,0 +1,6 @@
+# Trivy config for the "scan:dockerfile" npm script.
+# Goal: perform misconfiguration checks against .devcontainer/Dockerfile, which the script passes as the scan target.
+# The `trivy config` subcommand selects the misconfig scanner itself.
+exit-code: 1
+quiet: true
+severity: [MEDIUM, HIGH, CRITICAL]
