@@ -125,7 +125,7 @@ function formatErrorTime(isoTime: string): string {
         <div class="settings-view__actions">
           <button type="button" class="btn btn--secondary" @click="handleExport">Exportieren</button>
           <button type="button" class="btn btn--secondary" @click="handleImportClick">Importieren</button>
-          <button type="button" class="btn btn--secondary" @click="openSync">Ergebnisse abrufen</button>
+          <button type="button" class="btn btn--danger" @click="openSync">Ergebnisse abrufen</button>
           <button type="button" class="btn btn--danger" @click="handleReset">Zurücksetzen</button>
         </div>
 

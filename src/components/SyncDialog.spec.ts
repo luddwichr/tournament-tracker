@@ -24,6 +24,11 @@ describe('SyncDialog', () => {
     expect(wrapper.emitted('confirm')).toHaveLength(1)
   })
 
+  it('confirm: names the loss of hand-entered results', () => {
+    const wrapper = mountDialog({ status: 'confirm' })
+    expect(wrapper.text()).toContain('Von Hand eingetragene Ergebnisse gehen dabei verloren')
+  })
+
   it('sets aria-describedby on the dialog pointing to the body id', () => {
     const wrapper = mountDialog({ status: 'confirm' })
     const body = wrapper.find('.sync-dialog__body')

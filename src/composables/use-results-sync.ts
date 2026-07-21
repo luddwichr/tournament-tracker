@@ -37,6 +37,7 @@ export function useResultsSync(apply: (results: ResultsMap) => void) {
       const results = await syncResults({ signal: ctrl.signal })
       if (ctrl.signal.aborted) return
       apply(results)
+      // The store is replaced wholesale, so the fetched-map size is the count the dialog reports.
       count.value = Object.keys(results).length
       status.value = 'done'
     } catch (e) {
