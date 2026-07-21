@@ -1,7 +1,7 @@
 /*
- * Global base styles — applies design tokens to document-level elements and
- * sets the project-wide focus ring. Component-specific styling stays scoped to
- * each component.
+ * Global base styles.
+ * They apply design tokens to document-level elements and set the project-wide focus ring.
+ * Component-specific styling stays scoped to each component.
  */
 
 body {
@@ -39,8 +39,8 @@ body {
 }
 
 /*
- * Shared surface-card recipe — used by GroupTable, BracketRound, OriginColumn,
- * RankingView. Components apply this class instead of copy-pasting the recipe.
+ * Shared surface-card recipe, used by GroupTable, BracketRound, OriginColumn and RankingView.
+ * Components apply this class instead of copy-pasting the recipe.
  */
 .surface-card {
   background-color: var(--color-surface);
@@ -101,9 +101,8 @@ body {
 }
 
 /*
- * Primary-coloured card header — used by GroupTable, ThirdPlaceTable,
- * BracketRound and OriginColumn. Apply alongside the component-specific class
- * that controls width/padding overrides.
+ * Primary-coloured card header, used by GroupTable, ThirdPlaceTable, BracketRound and OriginColumn.
+ * Apply it alongside the component-specific class that controls width and padding overrides.
  */
 .card-header {
   padding: var(--space-3) var(--space-4);
@@ -112,10 +111,10 @@ body {
 }
 
 /*
- * Sticky variant — apply together with .card-header on headers that sit
- * inside a scrolling container and should stay pinned to its top (BracketRound,
- * OriginColumn). GroupTable/ThirdPlaceTable headers live in a non-scrolling
- * grid, so they use .card-header alone.
+ * Sticky variant, applied together with .card-header.
+ * Use it on headers that sit inside a scrolling container and should stay pinned to its top.
+ * BracketRound and OriginColumn do that.
+ * GroupTable and ThirdPlaceTable headers live in a non-scrolling grid, so they use .card-header alone.
  */
 .sticky-card-header {
   position: sticky;
@@ -123,20 +122,20 @@ body {
   z-index: var(--z-sticky);
 }
 
-/* Focus-style highlight ring — used by BracketRound match targets and OriginColumn team rows */
+/* Focus-style highlight ring, used by BracketRound match targets and OriginColumn team rows. */
 .highlight-ring {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
-/* Tinted header row — apply to any <table> whose <thead tr> needs a tinted background */
+/* Tinted header row, applied to any <table> whose <thead tr> needs a tinted background. */
 .tinted-header thead tr {
   background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
-/* Shared page-heading recipe — used by every view's top-level <h1>, keeping
-   heading size/weight/spacing consistent across GroupsView, KnockoutView,
-   RankingView and SettingsView. */
+/* Shared page-heading recipe, used by every view's top-level <h1>.
+   It keeps heading size, weight and spacing consistent across GroupsView, KnockoutView, RankingView and
+   SettingsView. */
 .view-heading {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-lg);

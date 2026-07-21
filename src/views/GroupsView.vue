@@ -16,8 +16,8 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 <template>
   <div class="groups-view">
     <h1 class="view-heading">Gruppen</h1>
-    <!-- One legend for all twelve group tables, which share a column set —
-         repeating it per card would be twelve identical disclosures. -->
+    <!-- One legend for all twelve group tables, which share a column set.
+         Repeating it per card would be twelve identical disclosures. -->
     <StatLegend class="groups-view__legend" :columns="GROUP_STANDINGS_COLUMNS" />
     <div class="groups-view__grid">
       <GroupTable v-for="groupId in GROUP_IDS" :key="groupId" :group-id="groupId" />
@@ -47,15 +47,15 @@ const liveRanking = computed(() => rankThirdPlacedLive(store.results))
 /*
  * Sharing the grid (rather than a hardcoded max-width) means this tracks the
  * *actual* rendered column width, including the extra space 1fr columns pick
- * up on wide viewports — a static px estimate would run narrower than the
- * real group cards above it. Spans 2 tracks so a 12-row table doesn't stretch
- * across all 4 columns on wide screens.
+ * up on wide viewports.
+ * A static px estimate would run narrower than the real group cards above it.
+ * This spans 2 tracks so a 12-row table doesn't stretch across all 4 columns on wide screens.
  *
  * 49rem is where a second 360px column plus the gap first fits inside the
  * .app-main content box once its padding steps up to --space-5 at 640px
  * (2 × 360px + 16px gap + 2 × 24px padding = 784px = 49rem). Below that the
- * grid itself is down to a single column, so span 1 (full width) already
- * matches it — this only needs to widen, never explicitly narrow.
+ * grid itself is down to a single column, so span 1 at full width already matches it.
+ * This only needs to widen, never to explicitly narrow.
  */
 @media (min-width: 49rem) {
   .groups-view__third-place {

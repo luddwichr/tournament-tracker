@@ -6,13 +6,14 @@ import path from 'node:path'
 const indexHtmlPath = path.resolve(import.meta.dirname, '..', 'dist', 'index.html')
 
 /**
- * PWA offline tests — run against the production build via `npm run preview`.
+ * PWA offline tests, run against the production build via `npm run preview`.
  * Usage: npm run build && npm run test:e2e:pwa
  *
  * Each new BrowserContext has isolated storage, so online and offline phases
  * must run in the SAME context. We prime the SW cache online, then toggle
- * context.setOffline(true) — Workbox intercepts fetch events before they reach
- * the network layer, so cached responses still work when network is emulated off.
+ * context.setOffline(true).
+ * Workbox intercepts fetch events before they reach the network layer.
+ * So cached responses still work when the network is emulated off.
  */
 
 test('app loads from the production build', async ({ page }) => {
@@ -48,7 +49,7 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   // --- Phase 2: go offline and verify the app still works ---
   await context.setOffline(true)
 
-  // In-page (Vue Router) navigation never hits the network — always works offline.
+  // In-page Vue Router navigation never hits the network, so it always works offline.
   await nav.goToKnockout()
   await expect(page).toHaveURL(/\/knockout$/)
   await knockout.expectLoaded()
@@ -57,8 +58,8 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   await expect(page).toHaveURL(/\/settings$/)
   await settings.expectLoaded()
 
-  // Full navigation while offline — SW serves the cached shell (NetworkFirst
-  // falls back to the 'pages' cache when the network is unreachable).
+  // Full navigation while offline, where the service worker serves the cached shell.
+  // NetworkFirst falls back to the 'pages' cache when the network is unreachable.
   await page.goto('/')
   await expect(page).toHaveURL(/\/groups$/)
   await groups.expectLoaded()
@@ -88,8 +89,8 @@ test('reload fetches a new deploy over the network instead of a stale cache', as
     await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
     await new GroupsPage(page).expectLoaded()
 
-    // --- Phase 3: the freshly-fetched shell is now cached — verify it (not
-    // the phase-1 shell) is what NetworkFirst falls back to when offline.
+    // Phase 3: the freshly-fetched shell is now cached.
+    // Verify that it, rather than the phase-1 shell, is what NetworkFirst falls back to when offline.
     await context.setOffline(true)
     await page.reload()
 

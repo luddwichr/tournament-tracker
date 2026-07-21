@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 // on-disk shape (wrapping state, adding metadata, …) fails loudly here instead of
 // producing confusing failures across every seeded test.
 test('the plugin persists results in the exact shape seedResults()/storedState() assume', async ({ page }) => {
-  // M01: Mexiko vs Südafrika (Group A) — enter a result through the real UI.
+  // M01 is Mexiko vs Südafrika in Group A, so enter a result through the real UI.
   await groups.emptyMatchButton('Mexiko', 'Südafrika').click()
   const dialog = new ScoreDialog(page)
   await dialog.expectVisible()
@@ -44,7 +44,7 @@ test('the plugin persists results in the exact shape seedResults()/storedState()
     matchId: 'M01',
   })
 
-  // The plugin's actual serialization must round-trip through storedState() exactly —
-  // this is the literal contract seedResults() depends on.
+  // The plugin's actual serialization must round-trip through storedState() exactly.
+  // This is the literal contract seedResults() depends on.
   expect(raw).toBe(storedState(parsed.results as Record<string, never>))
 })

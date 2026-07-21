@@ -86,8 +86,9 @@ export default tseslint.config(
   {
     // typescript-eslint runs plain tsc, which cannot resolve `.vue` module types
     // (vue-tsc owns that; `npm run typecheck` covers it).
-    // Every SFC import — template refs, mount() in specs, createApp(App) —
-    // therefore surfaces as `any`/error-typed and would trip the no-unsafe-* family with false positives.
+    // Every SFC import therefore surfaces as `any` or error-typed and would trip the no-unsafe-* family with false
+    // positives.
+    // That covers template refs, mount() in specs and createApp(App).
     // All other typed rules stay active here.
     files: ['**/*.vue', 'src/**/*.spec.ts', 'src/app/main.ts'],
     rules: {
@@ -103,7 +104,8 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       // `expect(obj.method).toHaveBeenCalled()` on a vi.fn/spy never invokes the method,
-      // so no `this` scoping issue exists — a known false positive of unbound-method in vitest/jest assertions.
+      // so no `this` scoping issue exists.
+      // This is a known false positive of unbound-method in vitest and jest assertions.
       '@typescript-eslint/unbound-method': 'off',
       'sonarjs/parameterized-tests': 'off',
       'vue/one-component-per-file': 'off',
@@ -149,7 +151,8 @@ export default tseslint.config(
               from: { file: { categories: 'unit-test' } },
             },
             // Shared test helpers stay pure: domain only.
-            // No self-allow needed — patterns without a capture group are a single element, and imports within one element are never reported.
+            // No self-allow is needed, because patterns without a capture group are a single element.
+            // Imports within one element are never reported.
             // Contrast `domain` below.
             {
               allow: { to: { element: { types: 'domain' } } },
@@ -160,7 +163,8 @@ export default tseslint.config(
               allow: { to: { element: { types: { anyOf: ['domain', 'test-support'] } } } },
               from: { element: { types: 'e2e' } },
             },
-            // Production code may only import production code — never test-support, specs, or e2e (keeps test helpers out of the shipped bundle).
+            // Production code may only import production code, never test-support, specs or e2e.
+            // That keeps test helpers out of the shipped bundle.
             // The capture group splits `domain` into three elements (types/data/lib), so the self-allow here is load-bearing: it permits lib -> data.
             {
               allow: { to: { element: { types: 'domain' } } },

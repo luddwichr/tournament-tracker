@@ -10,9 +10,9 @@
 // that as a one-line `require("@typescript/old/lib/tsc.js")` shim that
 // @volar/typescript does not recognize (it only handles the genuine
 // compiler source or the relative `module.exports = require("./_tsc.js")`
-// shim TypeScript itself ships). So resolve @typescript/old — the genuine
-// typescript@6 hidden behind the alias — and hand its tsc entry point to
-// vue-tsc's run().
+// shim TypeScript itself ships).
+// So resolve @typescript/old, which is the genuine typescript@6 hidden behind the alias.
+// Then hand its tsc entry point to vue-tsc's run().
 //
 // Usage: node scripts/vue-tsc6.js [vue-tsc args, e.g. -b]
 

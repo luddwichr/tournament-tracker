@@ -5,25 +5,20 @@ import { defineComponent } from 'vue'
 import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
 
-// ---------------------------------------------------------------------------
-// provideTeamViewer / useTeamViewer — inject/provide contract
-// ---------------------------------------------------------------------------
-//
-// App.spec.ts and TeamLabel.spec.ts exercise `useTeamViewer()` indirectly —
-// they provide their own stub `open` function via `global.provide` and never
-// touch the real `provideTeamViewer()`. Nothing directly covers
-// provideTeamViewer's own contract: the `team` ref starting at null, `open`
-// setting it, `close` nulling it again, and what a lone `useTeamViewer()`
+// App.spec.ts and TeamLabel.spec.ts exercise `useTeamViewer()` only indirectly.
+// They provide their own stub `open` function via `global.provide` and never touch the real `provideTeamViewer()`.
+// Nothing directly covers provideTeamViewer's own contract.
+// That contract is the `team` ref starting at null, `open` setting it, `close` nulling it again, and what a lone
+// `useTeamViewer()`
 // consumer gets when nothing above it provided.
 //
 // Vue's provide()/inject() only resolve through real component instances,
 // and a component can't inject something it provided itself in the same
-// setup() — injection walks the *parent* chain. So, as in
-// use-scroll-lock.spec.ts, minimal defineComponents stand in for a full app:
-// a Provider mounts provideTeamViewer() and exposes its state, a nested
-// Child consumes useTeamViewer() and exposes the injected `open` — no
-// template markup or DOM assertions needed, just the composables' own
-// return values.
+// setup(), because injection walks the *parent* chain.
+// So, as in use-scroll-lock.spec.ts, minimal defineComponents stand in for a full app.
+// A Provider mounts provideTeamViewer() and exposes its state.
+// A nested Child consumes useTeamViewer() and exposes the injected `open`.
+// No template markup or DOM assertions are needed, just the composables' own return values.
 
 const team = makeTeam({ id: 'ger', name: 'Deutschland' })
 

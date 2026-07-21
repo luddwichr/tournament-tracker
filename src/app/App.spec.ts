@@ -91,8 +91,8 @@ async function openTeamDialog(wrapper: ReturnType<typeof mount>) {
 
 async function openScoreDialog(wrapper: ReturnType<typeof mount>) {
   await wrapper.find('.score-opener').trigger('click')
-  // ScoreDialog is also a defineAsyncComponent(() => import(...)) — same
-  // real-transform-time caveat as TeamDialog above.
+  // ScoreDialog is also a defineAsyncComponent(() => import(...)).
+  // The same real-transform-time caveat as TeamDialog above applies.
   await vi.waitFor(
     () => {
       if (!wrapper.find('dialog').exists()) throw new Error('ScoreDialog not rendered yet')
@@ -124,8 +124,8 @@ describe('App', () => {
   it('sets data-theme on the document element from the settings store', async () => {
     const { wrapper } = await mountApp()
     const settings = useSettingsStore()
-    // Default theme is 'system' — no explicit data-theme attribute, so the
-    // `@media (prefers-color-scheme: dark)` block in tokens.css can apply.
+    // The default theme is 'system', so there is no explicit data-theme attribute.
+    // That lets the `@media (prefers-color-scheme: dark)` block in tokens.css apply.
     expect(document.documentElement.dataset['theme']).toBeUndefined()
 
     settings.theme = 'dark'

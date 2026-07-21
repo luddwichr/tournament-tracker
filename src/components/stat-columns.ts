@@ -40,9 +40,8 @@ export const TEAM_STATS_COLUMNS: readonly StatColumn[] = [
 ]
 
 /**
- * The two card columns render as icons rather than text, so they carry no
- * abbreviation in the header — the legend names them with the emoji the app
- * already uses elsewhere.
+ * The two card columns render as icons rather than text, so they carry no abbreviation in the header.
+ * The legend names them with the emoji the app already uses elsewhere.
  */
 export const TEAM_STATS_CARD_LEGEND: readonly StatColumn[] = [
   { abbr: '🟨', label: 'Gelbe Karten' },

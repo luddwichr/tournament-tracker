@@ -11,13 +11,13 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
   // Tap-pinned match (touch devices have no hover): persists until toggled off.
   const pinnedMatchId = ref<string | null>(null)
 
-  // matchConnector/originConnector read DOM geometry (querySelector +
-  // getBoundingClientRect), which is invisible to Vue's reactivity system.
-  // Bump this whenever roundsEl's box (or its descendants') size changes —
-  // window resize, device rotation, late web-font/flag-image loads shifting
-  // layout — so connectorPaths below has a reactive dependency to key off.
+  // matchConnector and originConnector read DOM geometry via querySelector and getBoundingClientRect.
+  // That is invisible to Vue's reactivity system.
+  // Bump this whenever the size of roundsEl's box or its descendants changes.
+  // Causes include a window resize, a device rotation, and late web-font or flag-image loads shifting layout.
+  // That gives connectorPaths below a reactive dependency to key off.
   const measureVersion = ref(0)
-  // jsdom (unit tests) has no ResizeObserver; guard so tests don't crash.
+  // jsdom, which the unit tests run in, has no ResizeObserver, so guard to keep tests from crashing.
   if (typeof ResizeObserver !== 'undefined') {
     watch(
       roundsEl,

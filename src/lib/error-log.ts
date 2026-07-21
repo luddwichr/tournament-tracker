@@ -1,41 +1,43 @@
 /**
- * Persistent error log backing the global error handlers (review §6.1).
+ * Persistent error log backing the global error handlers.
  *
- * Runtime errors are appended to localStorage so they survive the session and
- * can be inspected later in Settings → Diagnose — without this, a crash on a
- * family member's device is a silent white screen the maintainer never hears
- * about.
+ * Runtime errors are appended to localStorage so they survive the session and can be inspected in Settings → Diagnose.
+ * Without this, a crash on a family member's device is a silent white screen the maintainer never hears about.
  *
- * The key and entry shape are duplicated in index.html's inline boot-error
- * script (which must be self-contained ES5 because it exists precisely for
- * browsers that cannot parse the es2025 module bundle). Keep both in sync.
+ * The key and entry shape are duplicated in index.html's inline boot-error script.
+ * That script must be self-contained ES5, because it exists precisely for browsers that cannot parse the es2025 module
+ * bundle.
+ * Keep both in sync.
  */
 
 export const ERROR_LOG_KEY = 'wc2026:errors:v1'
 
-/** Cap so a crash loop cannot grow the log unboundedly; oldest entries drop first. */
+/** Cap so a crash loop cannot grow the log unboundedly, dropping the oldest entries first. */
 export const ERROR_LOG_MAX_ENTRIES = 20
 
 export interface ErrorLogEntry {
   /** ISO timestamp of when the error was recorded. */
   time: string
-  /** Where the error was caught: Vue's errorHandler, window error/rejection, or the boot script. */
+  /** Where the error was caught, meaning Vue's errorHandler, a window error or rejection, or the boot script. */
   source: 'vue' | 'window' | 'promise' | 'boot'
   message: string
 }
 
-/** Append an entry, dropping the oldest beyond the cap. Storage failures are swallowed. */
+/**
+ * Append an entry, dropping the oldest beyond the cap.
+ * Storage failures are swallowed.
+ */
 export function logError(source: ErrorLogEntry['source'], message: string): void {
   try {
     const entries = readErrorLog()
     entries.push({ message, source, time: new Date().toISOString() })
     localStorage.setItem(ERROR_LOG_KEY, JSON.stringify(entries.slice(-ERROR_LOG_MAX_ENTRIES)))
   } catch {
-    // localStorage full or unavailable — logging must never crash the app.
+    // localStorage is full or unavailable, and logging must never crash the app.
   }
 }
 
-/** Read all logged entries; corrupt or foreign data yields an empty log. */
+/** Read all logged entries, where corrupt or foreign data yields an empty log. */
 export function readErrorLog(): ErrorLogEntry[] {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(ERROR_LOG_KEY) ?? '[]')

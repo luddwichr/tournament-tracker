@@ -18,8 +18,8 @@ export class AppNav {
 
   private async click(label: string): Promise<void> {
     // Below the 640px breakpoint the link list starts collapsed behind a
-    // burger button (see AppHeader.vue) — open it first when present, so nav
-    // helpers work on both desktop and mobile-viewport projects.
+    // burger button, see AppHeader.vue.
+    // Open it first when present, so nav helpers work on both desktop and mobile-viewport projects.
     const burger = this.page.getByRole('button', { name: 'Navigation öffnen' })
     if (await burger.isVisible()) await burger.click()
 

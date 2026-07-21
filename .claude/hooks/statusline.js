@@ -30,7 +30,7 @@ try {
 
   gitPart = `🌿 ${branch}${changes ? ' ' + changes : ''}`
 } catch {
-  // Not a git repo or git not available — omit git section
+  // Not a git repo, or git is not available, so omit the git section.
 }
 
 // --- Context window usage ---

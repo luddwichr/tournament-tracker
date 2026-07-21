@@ -46,8 +46,8 @@ describe('fifaRanking', () => {
   // The German name is duplicated between the two files (linked only by
   // flagCode, not a shared id) with no structural guard. RankingView already
   // renders teams.ts's name for WC teams via TeamLabel, so this duplication
-  // is otherwise invisible in the UI — guard it here so a rename in one file
-  // that misses the other still fails loudly instead of silently drifting.
+  // is otherwise invisible in the UI.
+  // Guard it here so a rename in one file that misses the other still fails loudly instead of silently drifting.
   it('agrees with teams.ts on the German name of every World Cup team', () => {
     const byFlag = new Map(fifaRanking.map((e) => [e.flagCode, e]))
     for (const team of teams) {

@@ -1,12 +1,12 @@
 /**
  * Third-place ranking for the FIFA 2026 World Cup.
  *
- * After all 12 groups complete, the 12 third-placed teams are ranked using
- * the cross-group tiebreaker chain (no H2H — teams come from different groups):
+ * After all 12 groups complete, the 12 third-placed teams are ranked using the cross-group tiebreaker chain:
  *   1. Points, 2. GD, 3. GF, 4. Fair-play, 5. FIFA ranking (deterministic)
+ * There is no head-to-head step, because the teams come from different groups.
  *
- * The top 8 are then mapped to round-of-32 slots via the FIFA Annex C allocation
- * table (THIRD_PLACE_ALLOCATION in fixtures-2026.ts).
+ * The top 8 are then mapped to round-of-32 slots via the FIFA Annex C allocation table.
+ * That table is THIRD_PLACE_ALLOCATION in fixtures-2026.ts.
  */
 
 import { GROUP_IDS, toThirdPlaceKey } from '../types/tournament'
@@ -46,10 +46,10 @@ export interface ThirdPlaceRanking {
 }
 
 /**
- * Rank the 12 third-placed teams (best → worst) from the *current* results,
- * regardless of whether the group stage is finished. Use this for a live
- * "who currently qualifies" view; `final` tells the caller whether the order
- * is still provisional.
+ * Rank the 12 third-placed teams from best to worst using the *current* results.
+ * This works regardless of whether the group stage is finished.
+ * Use it for a live "who currently qualifies" view.
+ * `final` tells the caller whether the order is still provisional.
  */
 export function rankThirdPlacedLive(results: ResultsMap): ThirdPlaceRanking {
   const final = isGroupStageComplete(results)
@@ -66,14 +66,14 @@ export function rankThirdPlaced(results: ResultsMap): TeamStat[] | null {
 }
 
 /**
- * The shared Annex-C lookup: from the ranked third-placed teams' top 8, resolve
- * the qualifying-groups allocation key and return the Annex-C table row — the
- * host-group → source-group map for that combination. Both
- * `buildGroupToThirdPlaceSlotMap` and `resolveThirdPlaceSlot` are defined in
- * terms of this so there is only one place that keys `THIRD_PLACE_ALLOCATION`.
+ * The shared Annex-C lookup.
+ * From the ranked third-placed teams' top 8, it resolves the qualifying-groups allocation key.
+ * It then returns the Annex-C table row, which is the host-group → source-group map for that combination.
+ * Both `buildGroupToThirdPlaceSlotMap` and `resolveThirdPlaceSlot` are defined in terms of this.
+ * That way only one place keys `THIRD_PLACE_ALLOCATION`.
  *
- * Returns null if the allocation key is not found (should not happen with
- * valid ranked input but guards against unknown combinations).
+ * Returns null if the allocation key is not found.
+ * That should not happen with valid ranked input, but it guards against unknown combinations.
  */
 function qualifyingAllocation(ranked: TeamStat[]): Readonly<Record<ThirdPlaceHostGroup, GroupId>> | null {
   const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)
@@ -83,8 +83,8 @@ function qualifyingAllocation(ranked: TeamStat[]): Readonly<Record<ThirdPlaceHos
 
 /**
  * Build a map from each qualifying group → its assigned ThirdPlaceSlot.
- * Returns an empty map if the allocation key is not found (should not happen
- * with valid ranked input but guards against unknown combinations).
+ * Returns an empty map if the allocation key is not found.
+ * That should not happen with valid ranked input, but it guards against unknown combinations.
  */
 export function buildGroupToThirdPlaceSlotMap(ranked: TeamStat[]): Map<GroupId, ThirdPlaceSlot> {
   const allocation = qualifyingAllocation(ranked)
@@ -108,7 +108,7 @@ export function resolveThirdPlaceSlot(slot: ThirdPlaceSlot, results: ResultsMap)
   const allocation = qualifyingAllocation(ranked)
   if (!allocation) return null
 
-  // Direct lookup: slot → its host group → the group whose third fills it.
+  // Direct lookup from slot to its host group to the group whose third fills it.
   const sourceGroup = allocation[THIRD_PLACE_SLOT_HOST[slot]]
 
   const top8 = ranked.slice(0, QUALIFYING_THIRDS_COUNT)

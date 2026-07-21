@@ -10,9 +10,7 @@ test.beforeEach(async ({ page }) => {
   knockout = new KnockoutPage(page)
 })
 
-// ---------------------------------------------------------------------------
 // Button visibility
-// ---------------------------------------------------------------------------
 
 test('each R32 card has a "Mögliche Teams" button when no results entered', async () => {
   await knockout.goto()
@@ -24,13 +22,11 @@ test('each R32 card has a "Mögliche Teams" button when no results entered', asy
 test('"Mögliche Teams" buttons disappear from R32 once all group results are entered', async ({ page }) => {
   await seedResultsOnLoad(page, allGroupResults())
   await knockout.goto()
-  // All R32 participants now known — buttons should be gone
+  // All R32 participants are now known, so the buttons should be gone.
   await expect(knockout.possibleTeamsButtons(R32)).toHaveCount(0)
 })
 
-// ---------------------------------------------------------------------------
 // Dialog opens and shows teams
-// ---------------------------------------------------------------------------
 
 test('the possible-teams dialog lists team names with flags', async () => {
   await knockout.goto()
@@ -53,9 +49,7 @@ test('dialog shows only the possible teams for the clicked slot (home side of M7
   await expect(dialog.items()).toHaveCount(4)
 })
 
-// ---------------------------------------------------------------------------
 // Dialog close
-// ---------------------------------------------------------------------------
 
 test('Escape closes the possible-teams dialog', async () => {
   await knockout.goto()
@@ -71,9 +65,7 @@ test('close button (✕) closes the possible-teams dialog', async () => {
   await dialog.expectHidden()
 })
 
-// ---------------------------------------------------------------------------
 // Partial results: partially-played bracket shows narrowed-down possible teams
-// ---------------------------------------------------------------------------
 
 test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches', async ({ page }) => {
   // Seed all group results so R32 is populated. Leave R32 unplayed so R16 slots
@@ -84,13 +76,11 @@ test('R16 "Mögliche Teams" dialog lists teams from correct upstream R32 matches
   const dialog = await knockout.openPossibleTeamsDialog(R16)
 
   // Clicking the home-slot button of M90 shows only 2 possible teams:
-  // the winner of M73 (A2 or B2) — both R32 participants are known but M73 is unplayed.
+  // the winner of M73, so A2 or B2, since both R32 participants are known but M73 is unplayed.
   await expect(dialog.items()).toHaveCount(2)
 })
 
-// ---------------------------------------------------------------------------
 // Accessibility
-// ---------------------------------------------------------------------------
 
 test('possible-teams dialog has no accessibility violations', async ({ page }) => {
   await knockout.goto()
@@ -100,7 +90,7 @@ test('possible-teams dialog has no accessibility violations', async ({ page }) =
 
 test('knockout view with possible-teams buttons has no accessibility violations', async ({ page }) => {
   await knockout.goto()
-  // Routes are lazily imported (see router.ts) — wait for the view to
+  // Routes are lazily imported, see router.ts, so wait for the view to
   // actually be mounted before scanning, otherwise axe can run against the
   // pre-hydration DOM and misreport a missing level-one heading.
   await knockout.expectLoaded()

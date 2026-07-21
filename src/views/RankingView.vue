@@ -79,9 +79,8 @@ const numberFormat = new Intl.NumberFormat('de-DE', {
 }
 
 /*
- * .view-heading (base.css) gives the <h1> a larger bottom margin than this
- * view used before (space-4 vs. the old space-2) — trimmed by the same
- * amount here so the header's total height is unchanged.
+ * .view-heading in base.css gives the <h1> a space-4 bottom margin.
+ * This view wants space-2, so the difference is trimmed here to keep the header's total height unchanged.
  */
 .ranking-view__header {
   margin-block-end: var(--space-4);

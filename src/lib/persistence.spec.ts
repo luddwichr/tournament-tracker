@@ -54,7 +54,7 @@ describe('parseImport', () => {
   })
 
   it("throws when a result's matchId does not match the key it's stored under", () => {
-    // Stored under M01 but claims to be M02 — invisible/unresolvable per REQUIREMENTS.md §9.8.
+    // Stored under M01 but claims to be M02, which is invisible and unresolvable.
     const json = JSON.stringify({ results: { M01: validResult('M02') }, version: 1 })
     expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
@@ -65,12 +65,12 @@ describe('parseImport', () => {
     expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
-  // Corrupt-import cases that must be caught by isNonNegativeInteger (used
-  // inside isValidResult) and the matchId type check. Each row's override is
-  // inlined as raw JSON text rather than JSON.stringify'd, since that lets us
-  // express a value — like a number that overflows to Infinity — that
-  // JSON.stringify cannot produce (it turns Infinity/NaN into `null`) but
-  // JSON.parse can.
+  // Corrupt-import cases that must be caught by isNonNegativeInteger, used inside isValidResult, and by the
+  // matchId type check.
+  // Each row's override is inlined as raw JSON text rather than JSON.stringify'd.
+  // That lets the test express a value JSON.stringify cannot produce but JSON.parse can, such as a number that
+  // overflows to Infinity.
+  // JSON.stringify turns Infinity and NaN into `null`.
   it.each([
     ['a negative goal count', '"homeGoals":-1'],
     ['a fractional goal count', '"homeGoals":1.5'],
@@ -104,10 +104,6 @@ describe('parseImport', () => {
     })
   })
 })
-
-// ---------------------------------------------------------------------------
-// readLegacyResults / clearLegacyResults (v1 → v2 localStorage migration)
-// ---------------------------------------------------------------------------
 
 describe('readLegacyResults / clearLegacyResults', () => {
   const LEGACY_KEY = 'wc2026:results:v1'
@@ -143,10 +139,6 @@ describe('readLegacyResults / clearLegacyResults', () => {
     expect(localStorage.getItem('other')).toBe('kept')
   })
 })
-
-// ---------------------------------------------------------------------------
-// exportJson
-// ---------------------------------------------------------------------------
 
 describe('exportJson', () => {
   let anchor: HTMLAnchorElement

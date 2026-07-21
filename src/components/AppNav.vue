@@ -81,8 +81,8 @@ const links = [
 }
 
 @media (min-width: bp.$nav-expanded) {
-  /* Always-visible inline row here, so the collapsed state's hidden opacity
-     and offset must be reset — otherwise the nav is laid out but invisible. */
+  /* Always-visible inline row here, so the collapsed state's hidden opacity and offset must be reset.
+     Otherwise the nav is laid out but invisible. */
   .app-nav__list {
     display: flex;
     flex-direction: row;

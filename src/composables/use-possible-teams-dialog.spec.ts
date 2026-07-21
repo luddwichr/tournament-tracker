@@ -7,15 +7,10 @@ import { resolveTeamRef } from '../lib/knockout'
 import { usePossibleTeamsDialog } from './use-possible-teams-dialog'
 import { useTournamentStore } from '../stores/tournament'
 
-// ---------------------------------------------------------------------------
-// usePossibleTeamsDialog — `label` computed
-// ---------------------------------------------------------------------------
-//
-// PossibleTeamsDialog.spec.ts only mounts the presentational component with
-// a `label` prop supplied directly, so it never exercises the composable's
-// own `label` computed — in particular its fallback to `teamRefLabel()`
-// (src/lib/bracket-labels.ts) while `resolveTeamRef` can't yet determine a
-// concrete team from `store.results`.
+// PossibleTeamsDialog.spec.ts only mounts the presentational component with a `label` prop supplied directly.
+// So it never exercises the composable's own `label` computed.
+// In particular it never covers the fallback to `teamRefLabel()` in src/lib/bracket-labels.ts.
+// That fallback applies while `resolveTeamRef` can't yet determine a concrete team from `store.results`.
 
 describe('usePossibleTeamsDialog — label', () => {
   beforeEach(() => {
@@ -33,8 +28,8 @@ describe('usePossibleTeamsDialog — label', () => {
 
     open(match, 'home')
 
-    // No results entered yet — group A isn't complete, so resolveTeamRef
-    // returns null and label must fall back to the ref's placeholder text.
+    // No results have been entered yet, so group A isn't complete.
+    // resolveTeamRef therefore returns null and label must fall back to the ref's placeholder text.
     expect(label.value).toBe('Sieger Gruppe A')
   })
 

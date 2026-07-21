@@ -135,9 +135,9 @@ describe('buildResultsFromSource', () => {
       expect(resolveTeamRef(winnerRef, results)!.id).toBe(home.id)
     })
 
-    // Feed data violating the `Result` shootout invariants must never produce
-    // a result the persistence validator would reject wholesale — it is
-    // folded into the goals instead (the pre-v2 behaviour).
+    // Feed data violating the `Result` shootout invariants must never produce a result the persistence validator
+    // would reject wholesale.
+    // It is folded into the goals instead.
     it('folds a shootout reported with a non-level score into the goals', () => {
       const results = buildResultsFromSource([
         ...groupSources,

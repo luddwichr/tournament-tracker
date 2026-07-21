@@ -11,7 +11,7 @@ const { result } = defineProps<{
 
 const emit = defineEmits<{ openScore: [] }>()
 
-/** Folded score for display — shootout goals included, marked by the i.E. badge. */
+/** Folded score for display, including shootout goals, which the i.E. badge marks. */
 const score = computed(() => (result ? foldedScore(result) : null))
 const shootout = computed(() => (result ? decidedByShootout(result) : false))
 </script>

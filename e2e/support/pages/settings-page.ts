@@ -8,7 +8,7 @@ interface ImportFile {
   buffer: Buffer
 }
 
-/** The settings view (`/settings`) — export, reset and import of results. */
+/** The settings view at `/settings`, covering export, reset and import of results. */
 export class SettingsPage {
   static readonly path = '/settings'
   static readonly heading = 'Einstellungen'

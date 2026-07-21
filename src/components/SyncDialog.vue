@@ -27,11 +27,12 @@ const descId = useId()
 
 const title = computed(() => TITLES[status])
 
-/** Text for the persistent `role="status"` element below — kept as a single
- * computed so the element itself stays mounted across the confirm → syncing →
- * done transition instead of being freshly created by `v-if`/`v-else-if`,
- * which most screen readers won't announce (the live region must already
- * exist before its content changes). */
+/**
+ * Text for the persistent `role="status"` element below.
+ * It is kept as a single computed so the element itself stays mounted across the confirm → syncing → done transition.
+ * Creating it freshly via `v-if` and `v-else-if` is what most screen readers won't announce.
+ * The live region must already exist before its content changes.
+ */
 const statusMessage = computed(() => {
   if (status === 'syncing') {
     return 'Daten werden abgerufen …'

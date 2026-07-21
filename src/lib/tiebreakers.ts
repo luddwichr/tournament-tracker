@@ -1,26 +1,31 @@
 /**
  * FIFA 2026 group-stage tiebreaker chain (FWC2026 Regulations, Article 13).
  *
- * Teams are first separated by points. Teams level on points are ranked by:
+ * Teams are first separated by points.
+ * Teams level on points are ranked by:
  *
- *  Step 1 — head-to-head among all the tied teams (matches between them only):
+ *  Step 1, head-to-head among all the tied teams, counting matches between them only:
  *    a. points, b. goal difference, c. goals scored
- *  Step 2 — for teams still tied, re-apply a–c to the matches among only the
- *    teams that remain tied; if still undecided, apply in order (no restart):
+ *  Step 2, for teams still tied, re-apply a–c to the matches among only the teams that remain tied.
+ *    If that is still undecided, apply the following in order, without restarting the chain:
  *    d. overall goal difference, e. overall goals scored, f. fair-play score
  *  Step 3:
- *    g. FIFA World Ranking (lower position = better; always resolves)
+ *    g. FIFA World Ranking (lower position = better, and it always resolves)
  *
- * Note the 2026 reordering: head-to-head (Step 1) is applied BEFORE overall goal
- * difference (Step 2 d). Criterion (g) uses a single stored FIFA ranking — the
- * regulation's "older editions" fallback (h) is never reached, since rankings
- * are unique. Fair-play (f) uses this project's simplified score (see
- * standings.ts). See docs/tournament-rules.md for the regulatory source.
+ * Note the 2026 reordering.
+ * Head-to-head (Step 1) is applied BEFORE overall goal difference (Step 2 d).
+ * Criterion (g) uses a single stored FIFA ranking.
+ * So the regulation's "older editions" fallback (h) is never reached, since rankings are unique.
+ * Fair-play (f) uses this project's simplified score, see standings.ts.
+ * See docs/tournament-rules.md for the regulatory source.
  */
 
 import type { GroupMatchSlot, ResultsMap, Team } from '../types/tournament'
 
-/** Minimum stat shape required by sortTeams. Covers all tiebreaker criteria. */
+/**
+ * Minimum stat shape required by sortTeams.
+ * It covers all tiebreaker criteria.
+ */
 export interface TiebreakerStat {
   points: number
   goalDiff: number
@@ -98,10 +103,10 @@ function computeH2HStats(
 }
 
 /**
- * Look up a team's stats, failing loudly on a missing entry. Every lookup
- * below assumes stats exist for every team passed in; returning `undefined`
- * instead would flow into the sort comparators, where `undefined - 5` is
- * `NaN` — which doesn't throw, it just silently mis-orders the group.
+ * Look up a team's stats, failing loudly on a missing entry.
+ * Every lookup below assumes stats exist for every team passed in.
+ * Returning `undefined` instead would flow into the sort comparators, where `undefined - 5` is `NaN`.
+ * That doesn't throw, it just silently mis-orders the group.
  */
 function statsFor<S>(stats: Map<string, S>, teamId: string): S {
   const s = stats.get(teamId)
@@ -114,10 +119,10 @@ function statsFor<S>(stats: Map<string, S>, teamId: string): S {
 /**
  * Resolve a set of teams that are level on points (Article 13).
  *
- * Step 1 applies the head-to-head criteria (a–c) among the tied teams. Where
- * that leaves a smaller still-tied subset, Step 2 re-applies a–c to the matches
- * among only those remaining teams (the recursion). When head-to-head makes no
- * further progress, the no-restart sequence d → e → f → g decides the order.
+ * Step 1 applies the head-to-head criteria (a–c) among the tied teams.
+ * Where that leaves a smaller still-tied subset, Step 2 re-applies a–c to the matches among only those remaining teams.
+ * That re-application is the recursion below.
+ * When head-to-head makes no further progress, the no-restart sequence d → e → f → g decides the order.
  */
 function resolveH2H<S extends TiebreakerStat>(
   teams: Team[],
@@ -133,12 +138,12 @@ function resolveH2H<S extends TiebreakerStat>(
     if (cluster.length === 1) return cluster
 
     if (cluster.length < teams.length) {
-      // Step 2: head-to-head narrowed the tie — re-apply a–c among the remaining teams.
+      // Step 2: head-to-head narrowed the tie, so re-apply a–c among the remaining teams.
       return resolveH2H(cluster, allGroupMatches, results, overallStats)
     }
 
-    // Head-to-head made no progress — apply overall GD (d), overall goals (e),
-    // fair-play (f), then FIFA ranking (g) as a single no-restart sequence.
+    // Head-to-head made no progress.
+    // Apply overall GD (d), overall goals (e), fair-play (f), then FIFA ranking (g) as a single no-restart sequence.
     return cluster.toSorted((a, b) => {
       const sa = statsFor(overallStats, a.id)
       const sb = statsFor(overallStats, b.id)
@@ -151,11 +156,11 @@ function resolveH2H<S extends TiebreakerStat>(
 }
 
 /**
- * Sort `teams` into final group-stage ranking order using the full FIFA
- * tiebreaker chain. `overallStats` must be computed from ALL group matches.
+ * Sort `teams` into final group-stage ranking order using the full FIFA tiebreaker chain.
+ * `overallStats` must be computed from ALL group matches.
  *
- * The generic `S extends TiebreakerStat` lets callers pass a richer stat map
- * (e.g. `TeamStat` from standings.ts) without unsafe casts.
+ * The generic `S extends TiebreakerStat` lets callers pass a richer stat map without unsafe casts.
+ * One such map is `TeamStat` from standings.ts.
  */
 export function sortTeams<S extends TiebreakerStat>(
   teams: readonly Team[],
@@ -163,17 +168,16 @@ export function sortTeams<S extends TiebreakerStat>(
   results: ResultsMap,
   overallStats: Map<string, S>,
 ): Team[] {
-  // `statsFor` fails loudly on any missing entry, but only for teams a
-  // comparator happens to touch — validate the whole precondition up front
-  // so the error names the caller's actual mistake.
+  // `statsFor` fails loudly on any missing entry, but only for teams a comparator happens to touch.
+  // Validate the whole precondition up front so the error names the caller's actual mistake.
   for (const team of teams) {
     if (!overallStats.has(team.id)) {
       throw new Error(`sortTeams: no stats for team '${team.id}' in overallStats.`)
     }
   }
 
-  // Teams are first separated by points; only equal-points clusters go through
-  // the Article 13 chain (head-to-head before overall goal difference).
+  // Teams are first separated by points.
+  // Only equal-points clusters go through the Article 13 chain, which puts head-to-head before overall goal difference.
   const pointClusters = clusterBy(
     teams,
     (a, b) => statsFor(overallStats, b.id).points - statsFor(overallStats, a.id).points,

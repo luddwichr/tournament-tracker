@@ -18,7 +18,7 @@ import { computed } from 'vue'
 const { stat, rank, final } = defineProps<{
   stat: TeamStat
   rank: number
-  /** True once all 12 groups have finished — locks the status in as final. */
+  /** True once all 12 groups have finished, which locks the status in as final. */
   final: boolean
 }>()
 
@@ -30,15 +30,15 @@ const status = computed((): ThirdPlaceStatus => {
   return inTopEight.value ? 'safe' : 'danger'
 })
 
-// Left-edge status strip on the team cell — see src/styles/standings-row.css
-// for the shared .standings-cell--*-strip recipes.
+// Left-edge status strip on the team cell.
+// See src/styles/standings-row.css for the shared .standings-cell--*-strip recipes.
 const stripClass = computed((): string | undefined => {
   if (status.value === 'qualified' || status.value === 'safe') return 'standings-cell--win-strip'
   if (status.value === 'eliminated' || status.value === 'danger') return 'standings-cell--loss-strip'
   return undefined
 })
 
-// Row background tint — only once a status is locked in (group stage final).
+// Row background tint, applied only once a status is locked in and the group stage is final.
 const tintClass = computed((): string | undefined => {
   if (status.value === 'qualified') return 'standings-cell--win-tint'
   if (status.value === 'eliminated') return 'standings-cell--muted'

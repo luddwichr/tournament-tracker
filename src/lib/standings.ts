@@ -28,48 +28,44 @@ export interface TeamStat {
   points: number
   yellowCards: number
   redCards: number
-  /** -1 × yellow - 3 × red across all group matches; higher (less negative) = better. */
+  /** -1 × yellow - 3 × red across all group matches, where higher (less negative) is better. */
   fairPlayScore: number
   /** Match outcomes in chronological order (up to 3). */
   form: MatchOutcome[]
 }
 
-// ---------------------------------------------------------------------------
-// Fingerprint — a string key built from a group's match results (including
-// discipline counts). Shared by the memoization below and by
-// possible-teams.ts, which keys its own cache on (group, rank, fingerprint).
-// ---------------------------------------------------------------------------
+// A string key built from a group's match results, including discipline counts.
+// It is shared by the memoization below and by possible-teams.ts, which keys its own cache on
+// (group, rank, fingerprint).
 
 export function resultFingerprint(groupId: GroupId, results: ResultsMap): string {
   return (groupMatchesByGroup.get(groupId) ?? [])
     .map((m) => {
       const r = results[m.id]
-      // Include discipline counts: fair-play (yellow/red cards) breaks ties and
-      // must be part of the cache key, otherwise two identical-score results with
-      // different cards would collide and return a stale cached set.
+      // Include discipline counts, because fair-play (yellow and red cards) breaks ties.
+      // They must be part of the cache key.
+      // Otherwise two identical-score results with different cards would collide and return a stale cached set.
       return r ? `${r.homeGoals}:${r.awayGoals}:${r.homeYellow}:${r.homeRed}:${r.awayYellow}:${r.awayRed}` : '_'
     })
     .join(',')
 }
 
-// ---------------------------------------------------------------------------
-// Memoization — keyed by (groupId, result fingerprint). Without this, a
-// single score entry can trigger dozens of redundant recomputations: every
-// GroupTable/OriginColumn instance, the third-place ranking, and every
-// bracket TeamRef resolution each call computeGroupStandings independently.
-// ---------------------------------------------------------------------------
+// Memoization, keyed by (groupId, result fingerprint).
+// Without this, a single score entry can trigger dozens of redundant recomputations.
+// Every GroupTable and OriginColumn instance, the third-place ranking, and every bracket TeamRef resolution each call
+// computeGroupStandings independently.
 
 const standingsCache = boundedCache<string, TeamStat[]>(200)
 
-/** Clear the memoization cache — call after resetting or importing results. */
+/** Clear the memoization cache, which should happen after resetting or importing results. */
 export function clearStandingsCache(): void {
   standingsCache.clear()
 }
 
 /**
- * Compute the sorted group standings for `groupId` given the current `results`
- * map. Teams with no results played appear last, ordered by FIFA ranking.
- * Memoized per (groupId, results fingerprint) — see `resultFingerprint`.
+ * Compute the sorted group standings for `groupId` given the current `results` map.
+ * Teams with no results played appear last, ordered by FIFA ranking.
+ * The result is memoized per (groupId, results fingerprint), see `resultFingerprint`.
  */
 export function computeGroupStandings(groupId: GroupId, results: ResultsMap): TeamStat[] {
   const cacheKey = `${groupId}:${resultFingerprint(groupId, results)}`

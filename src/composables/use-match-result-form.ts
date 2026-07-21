@@ -6,8 +6,10 @@ import { syncResults } from '../lib/results-sync'
 import { useAnnounce } from './use-announce'
 import { useTournamentStore } from '../stores/tournament'
 
-/** A save/clear whose write is on hold pending user confirmation (REVIEW.md §9.1) —
- * the write would silently re-attribute the results of these later knockout matches. */
+/**
+ * A save or clear whose write is on hold pending user confirmation.
+ * The write would silently re-attribute the results of these later knockout matches.
+ */
 interface PendingAction {
   kind: 'save' | 'clear'
   invalidatedIds: readonly string[]
@@ -40,8 +42,10 @@ export function useMatchResultForm(
     home: initial.value?.homeShootoutGoals ?? 0,
   })
 
-  /** A level knockout score goes to a shootout — the dialog shows the shootout
-   * steppers exactly then, and only then does `buildResult` keep their values. */
+  /**
+   * A level knockout score goes to a shootout.
+   * The dialog shows the shootout steppers exactly then, and only then does `buildResult` keep their values.
+   */
   const shootoutRequired = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
 
   /** German error message blocking the save, or null when the form is saveable
@@ -104,9 +108,8 @@ export function useMatchResultForm(
    * the dialog; false while the form is blocked or a confirmation is pending. */
   function save(): boolean {
     if (saveError.value) return false
-    // Computed before the store write (the store recomputes the same thing
-    // internally) — state hasn't changed in between, so the results are
-    // identical either way.
+    // Computed before the store write, which recomputes the same thing internally.
+    // State hasn't changed in between, so the results are identical either way.
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, buildResult())
     if (invalidated.length > 0) {
       pendingAction.value = { invalidatedIds: invalidated, kind: 'save' }
@@ -150,11 +153,12 @@ export function useMatchResultForm(
     controller.abort()
   })
 
-  /** Visible confirmation for `success`/`not-found`, so the live-fetch outcome
-   * is perceivable even while `announce()`'s global `role="status"` region is
-   * inert (it lives outside the modal `<dialog>`, which `showModal()` makes
-   * `inert`). Empty for `idle`/`loading`/`error` — `error` has its own
-   * `role="alert"` element instead. */
+  /**
+   * Visible confirmation for `success` and `not-found`, so the live-fetch outcome stays perceivable.
+   * That matters while `announce()`'s global `role="status"` region is inert.
+   * It lives outside the modal `<dialog>`, which `showModal()` makes `inert`.
+   * This is empty for `idle`, `loading` and `error`, since `error` has its own `role="alert"` element instead.
+   */
   const fetchMessage = computed(() => {
     if (fetchStatus.value === 'success') {
       return `Live-Ergebnis übernommen: ${scoreText()}.`
@@ -165,10 +169,11 @@ export function useMatchResultForm(
     return ''
   })
 
-  /** Fetches the whole results feed and plucks this match's result, filling
-   * the fields for review — nothing is written to the store here, so there's
-   * nothing to warn about overwriting. The fetch is aborted on unmount so a
-   * request still in flight can't later write to a closed dialog. */
+  /**
+   * Fetches the whole results feed and plucks this match's result, filling the fields for review.
+   * Nothing is written to the store here, so there's nothing to warn about overwriting.
+   * The fetch is aborted on unmount so a request still in flight can't later write to a closed dialog.
+   */
   async function fetchLive(): Promise<void> {
     fetchStatus.value = 'loading'
     fetchError.value = null

@@ -7,8 +7,10 @@ const {
 } = defineProps<{
   decLabel: string
   incLabel: string
-  /** Accessible name for the spin button so it isn't announced as a naked
-   * number — e.g. "Tor für Team A", read as "Tor für Team A, spin button, 3". */
+  /**
+   * Accessible name for the spin button so it isn't announced as a naked number.
+   * For example "Tor für Team A" is read as "Tor für Team A, spin button, 3".
+   */
   valueLabel: string
   size?: 'sm' | 'lg'
 }>()
@@ -42,8 +44,8 @@ function onValueKeydown(event: KeyboardEvent) {
     <button type="button" class="stepper__step" :aria-label="decLabel" :disabled="model === 0" @click="decrement">
       −
     </button>
-    <!-- role="spinbutton" already announces aria-valuenow changes natively, so
-         no aria-live is needed here — a live region would double-announce. -->
+    <!-- role="spinbutton" already announces aria-valuenow changes natively, so no aria-live is needed here.
+         A live region would double-announce. -->
     <span
       class="stepper__value"
       role="spinbutton"

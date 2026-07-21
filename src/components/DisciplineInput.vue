@@ -16,10 +16,9 @@ const homeRed = defineModel<number>('homeRed', { required: true })
 const awayYellow = defineModel<number>('awayYellow', { required: true })
 const awayRed = defineModel<number>('awayRed', { required: true })
 
-// Each side's stepper labels and its group are named after the actual team —
-// matching ScoreInput's "… für <Team>" pattern instead of the abstract
-// "Heim"/"Gast", which sighted non-readers never saw and which read
-// inconsistently against the goal steppers one dialog over.
+// Each side's stepper labels and its group are named after the actual team.
+// That matches ScoreInput's "… für <Team>" pattern instead of the abstract "Heim" and "Gast".
+// The abstract labels read inconsistently against the goal steppers one dialog over.
 const homeLabelId = useId()
 const awayLabelId = useId()
 </script>

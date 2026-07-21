@@ -2,11 +2,11 @@ import type { GroupMatchSlot, KnockoutMatchSlot, MatchSlot } from '../types/tour
 
 let counter = 1
 
-// Overloaded so a `stage: 'group'` override (which requires a concrete
-// `group` and team-only refs) is checked against `GroupMatchSlot`, while
-// every other call keeps the knockout-shaped default — `Partial<MatchSlot>`
-// alone would flatten the discriminated union and silently accept
-// mismatched `stage`/`group`/`homeRef` combinations.
+// Overloaded so a `stage: 'group'` override is checked against `GroupMatchSlot`.
+// Such an override requires a concrete `group` and team-only refs.
+// Every other call keeps the knockout-shaped default.
+// `Partial<MatchSlot>` alone would flatten the discriminated union.
+// It would then silently accept mismatched `stage`, `group` and `homeRef` combinations.
 export function makeMatch(overrides?: Partial<KnockoutMatchSlot>): KnockoutMatchSlot
 export function makeMatch(overrides: Partial<GroupMatchSlot>): GroupMatchSlot
 export function makeMatch(overrides: Partial<MatchSlot> = {}): MatchSlot {

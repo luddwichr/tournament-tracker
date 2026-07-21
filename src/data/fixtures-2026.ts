@@ -1,14 +1,14 @@
 // All 104 match slots of the 2026 FIFA World Cup, plus the FIFA allocation
 // table that maps the eight qualifying third-placed teams to round-of-32 slots.
 //
-// Match ids: M01–M72 are the group matches (chronological, matching FIFA's
-// numbering); M73–M104 are the knockout matches (R32 73–88, R16 89–96, QF
-// 97–100, SF 101–102, third-place play-off 103, final 104). `kickoff` is an
-// ISO 8601 timestamp carrying the venue's local UTC offset.
+// Match ids M01–M72 are the group matches, in chronological order matching FIFA's numbering.
+// Match ids M73–M104 are the knockout matches: R32 73–88, R16 89–96, QF 97–100, SF 101–102, third-place play-off
+// 103, final 104.
+// `kickoff` is an ISO 8601 timestamp carrying the venue's local UTC offset.
 //
 // The knockout bracket and the third-place allocation table are THE source of
-// truth for resolving matchups — see docs/tournament-rules.md. Encoded verbatim
-// from FIFA's regulations as reproduced on Wikipedia:
+// truth for resolving matchups, see docs/tournament-rules.md.
+// They are encoded verbatim from FIFA's regulations as reproduced on Wikipedia:
 //   - https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage
 //   - https://en.wikipedia.org/wiki/Template:2026_FIFA_World_Cup_third-place_table
 //   - per-group fixtures: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
@@ -42,8 +42,8 @@ export const THIRD_PLACE_SLOT_HOST = {
 /**
  * The exact set of eight group letters that host a third-place R32 slot
  * (the values of `THIRD_PLACE_SLOT_HOST`). Every entry in
- * `THIRD_PLACE_ALLOCATION` has exactly these eight keys — never more, never
- * fewer — so this is narrower than `GroupId`.
+ * `THIRD_PLACE_ALLOCATION` has exactly these eight keys, never more and never fewer.
+ * So this is narrower than `GroupId`.
  */
 export type ThirdPlaceHostGroup = (typeof THIRD_PLACE_SLOT_HOST)[keyof typeof THIRD_PLACE_SLOT_HOST]
 
@@ -861,7 +861,7 @@ export const fixtures: readonly MatchSlot[] = [...groupMatches, ...knockoutMatch
 /** Quick lookup of any match slot (group or knockout) by id. */
 export const fixturesById: ReadonlyMap<string, MatchSlot> = new Map(fixtures.map((f) => [f.id, f]))
 
-/** Group-stage matches grouped by `group`, precomputed once — avoids a `.filter` scan per lookup. */
+/** Group-stage matches grouped by `group`, precomputed once to avoid a `.filter` scan per lookup. */
 export const groupMatchesByGroup: ReadonlyMap<GroupId, readonly GroupMatchSlot[]> = new Map(
   GROUP_IDS.map((group) => [group, groupMatches.filter((m) => m.group === group)]),
 )

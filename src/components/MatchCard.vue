@@ -35,9 +35,8 @@ function onBodyClick(): void {
   if (!blocked.value) emit('openScore')
 }
 
-// Appended to a side's goal count in `ariaLabel` so a screen reader user can
-// learn about bookings too — the visual card badges next to the score are
-// `aria-hidden`, so this text is the only place that information exists.
+// Appended to a side's goal count in `ariaLabel` so a screen reader user can learn about bookings too.
+// The visual card badges next to the score are `aria-hidden`, so this text is the only place that information exists.
 function cardSummary(yellow: number, red: number): string {
   const parts: string[] = []
   if (yellow) parts.push(`${yellow} ${yellow === 1 ? 'gelbe Karte' : 'gelbe Karten'}`)
@@ -52,8 +51,7 @@ const ariaLabel = computed(() => {
     const homeCards = cardSummary(result.homeYellow, result.homeRed)
     const awayCards = cardSummary(result.awayYellow, result.awayRed)
     const score = foldedScore(result)
-    // The visual "i.E." badge next to the score is aria-hidden; this is its
-    // accessible counterpart.
+    // The visual "i.E." badge next to the score is aria-hidden, and this is its accessible counterpart.
     const shootout = decidedByShootout(result) ? ' nach Elfmeterschießen' : ''
     return `${home} ${score.home}${homeCards} : ${score.away}${awayCards} ${away}${shootout} – Ergebnis bearbeiten`
   }
@@ -71,7 +69,7 @@ const ariaLabel = computed(() => {
     }"
   >
     <MatchCardMeta :kickoff="match.kickoff" :pinned="!!pinned" :plain="plain" @toggle="emit('toggleHighlight')" />
-    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -- mouse-only convenience click zone around the real MatchScoreButton control, which is already keyboard-accessible; see REVIEW.md §6 -->
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -- mouse-only convenience click zone around the real MatchScoreButton control, which is already keyboard-accessible -->
     <div class="match-card__body" @click="onBodyClick">
       <MatchTeamSlot
         :team="homeTeam"

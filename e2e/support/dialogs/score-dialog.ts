@@ -40,13 +40,13 @@ export class ScoreDialog {
   }
 
   /**
-   * Clicks the "+" stepper for the named team (aria-label
-   * "Tor für <Team> hinzufügen"), bumping that team's goals by one. Targeting
-   * by team name — rather than the first `.stepper__step` element containing
-   * "+" — avoids silently incrementing the wrong side if DOM order changes.
+   * Clicks the "+" stepper for the named team, bumping that team's goals by one.
+   * The stepper is found by its aria-label "Tor für <Team> hinzufügen".
+   * Targeting by team name, rather than by the first `.stepper__step` element containing "+", avoids silently
+   * incrementing the wrong side if DOM order changes.
    */
   async incrementGoals(teamName: string): Promise<void> {
-    // `exact` — the label is a substring of the shootout stepper's
+    // `exact` is needed because the label is a substring of the shootout stepper's
     // "Elfmetertor für <Team> hinzufügen", visible while the score is level.
     await this.root.getByRole('button', { exact: true, name: `Tor für ${teamName} hinzufügen` }).click()
   }

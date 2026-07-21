@@ -9,13 +9,13 @@
          theme-boot.js below rewrites it for dark before first paint. -->
     <meta name="theme-color" content="#f8fafc" />
     <meta name="description" content="Offline-Tracker für die FIFA Weltmeisterschaft 2026" />
-    <!-- csp:start (stripped in dev by vite.config.ts — see comment there) -->
+    <!-- csp:start (stripped in dev by vite.config.ts, see the comment there) -->
     <!--
       GH Pages serves static files with no control over HTTP response headers, so this <meta> tag is the only way to ship a CSP at all.
       - default-src 'self': fallback for any directive not listed below.
       - script-src 'self': only same-origin script files run; no inline scripts, no 'unsafe-inline'/'unsafe-eval'. 
         All boot-time scripts are loaded via <script src> from public/ so they qualify.
-      - style-src 'self': same, for stylesheets — no inline <style>/style="".
+      - style-src 'self': same, for stylesheets. No inline <style> or style="".
       - img-src 'self': only same-origin images.
       - connect-src 'self' https://site.api.espn.com: fetch/XHR targets, scoped to same-origin plus the ESPN scoreboard API (app's only external
         network dependency).

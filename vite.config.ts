@@ -84,8 +84,8 @@ export default defineConfig(({ command }) => ({
         theme_color: '#0f172a',
       },
       // 'prompt' (rather than 'autoUpdate') so an updated SW installs and waits
-      // instead of skip-waiting/reloading on its own — UpdateDialog.vue surfaces
-      // the waiting update via useRegisterSW() and lets the user trigger the reload.
+      // instead of skip-waiting or reloading on its own.
+      // UpdateDialog.vue surfaces the waiting update via useRegisterSW() and lets the user trigger the reload.
       registerType: 'prompt',
       workbox: {
         // Precaching's own route matches requests before runtimeCaching gets a
@@ -93,13 +93,12 @@ export default defineConfig(({ command }) => ({
         // start_url, both locally and under the GH Pages base path) to the
         // precached index.html and serves it cache-first, silently bypassing
         // the NetworkFirst navigate route below. Disabling it ensures every
-        // navigation — including the root — goes through that route instead.
+        // navigation, including the root, goes through that route instead.
         directoryIndex: null,
         // Precache the built shell (hashed JS/CSS, fonts, icons, index.html).
-        // index.html is precached only as a last-resort offline fallback — see
-        // handlerDidError below — since a brand-new page load is never
-        // controlled by its own not-yet-installed service worker, so there's
-        // no other way to have an app shell ready before a second visit.
+        // index.html is precached only as a last-resort offline fallback, see handlerDidError below.
+        // A brand-new page load is never controlled by its own not-yet-installed service worker.
+        // So there is no other way to have an app shell ready before a second visit.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // vite-plugin-pwa defaults navigateFallback to 'index.html', which
         // registers a precache-only NavigationRoute ahead of the runtimeCaching

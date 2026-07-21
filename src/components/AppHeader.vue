@@ -23,7 +23,7 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- keydown delegation to catch Escape while focus is anywhere within the header/nav, see REVIEW.md §6 -->
+  <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -- keydown delegation to catch Escape while focus is anywhere within the header or nav -->
   <header class="app-header" @keydown="handleKeydown">
     <div class="app-header__bar">
       <p class="app-header__title"><span class="app-header__ball" aria-hidden="true">⚽</span> WM 2026 Tracker</p>
@@ -118,9 +118,9 @@ function handleKeydown(e: KeyboardEvent): void {
   width: 20px;
 }
 
-/* The glyph's dimensions are drawing geometry, not scale steps — the radius is
-   half the line height to round the caps, so it tracks `height` rather than
-   --radius-*. Deliberately literal. */
+/* The glyph's dimensions are drawing geometry, not scale steps.
+   The radius is half the line height to round the caps, so it tracks `height` rather than --radius-*.
+   This is deliberately literal. */
 .app-header__burger-line {
   display: block;
   height: 2px;

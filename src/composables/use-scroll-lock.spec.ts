@@ -49,7 +49,7 @@ describe('useScrollLock', () => {
     const w1 = mount(LockComponent)
     const w2 = mount(LockComponent)
     w1.unmount()
-    // w2 still mounted — lock must remain
+    // w2 is still mounted, so the lock must remain
     expect(document.body.style.position).toBe('fixed')
     w2.unmount()
     expect(document.body.style.position).toBe('')
