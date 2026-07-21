@@ -68,7 +68,7 @@ function buildContainer(): { container: HTMLElement; matchCard: HTMLElement } {
   const toGroup = document.createElement('div')
   toGroup.dataset['matchId'] = 'M90'
   const matchCard = document.createElement('div')
-  matchCard.className = 'match-card'
+  matchCard.dataset['connectorAnchor'] = ''
   mockRect(matchCard, { height: 20, left: 100, top: 30 })
   toGroup.appendChild(matchCard)
   container.appendChild(toGroup)

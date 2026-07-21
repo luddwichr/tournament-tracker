@@ -1,5 +1,11 @@
 import type { Ref } from 'vue'
 
+// The card element a connector line attaches to, or the wrapper itself when the card isn't there.
+// `MatchCard` marks it with `data-connector-anchor` so this stays independent of the component's scoped class names.
+function connectorAnchor(group: HTMLElement): HTMLElement {
+  return group.querySelector<HTMLElement>('[data-connector-anchor]') ?? group
+}
+
 function connectorBetween(fromEl: HTMLElement, toEl: HTMLElement, container: HTMLElement): string {
   const cRect = container.getBoundingClientRect()
   const sR = fromEl.getBoundingClientRect()
@@ -19,9 +25,7 @@ export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>) {
     const fromGroup = container.querySelector<HTMLElement>(`[data-match-id="${fromId}"]`)
     const toGroup = container.querySelector<HTMLElement>(`[data-match-id="${toId}"]`)
     if (!fromGroup || !toGroup) return null
-    const fromEl = fromGroup.querySelector<HTMLElement>('.match-card') ?? fromGroup
-    const toEl = toGroup.querySelector<HTMLElement>('.match-card') ?? toGroup
-    return connectorBetween(fromEl, toEl, container)
+    return connectorBetween(connectorAnchor(fromGroup), connectorAnchor(toGroup), container)
   }
 
   function originConnector(refKey: string, matchId: string): string | null {
@@ -30,8 +34,7 @@ export function useBracketConnectors(roundsEl: Ref<HTMLElement | null>) {
     const fromEl = container.querySelector<HTMLElement>(`[data-ref-key="${refKey}"]`)
     const toGroup = container.querySelector<HTMLElement>(`[data-match-id="${matchId}"]`)
     if (!fromEl || !toGroup) return null
-    const toEl = toGroup.querySelector<HTMLElement>('.match-card') ?? toGroup
-    return connectorBetween(fromEl, toEl, container)
+    return connectorBetween(fromEl, connectorAnchor(toGroup), container)
   }
 
   return { matchConnector, originConnector }

@@ -62,6 +62,7 @@ const ariaLabel = computed(() => {
 <template>
   <div
     class="match-card"
+    data-connector-anchor
     :class="{
       'match-card--played': !!result,
       'match-card--blocked': blocked,
