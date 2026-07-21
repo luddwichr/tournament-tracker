@@ -6,6 +6,11 @@ automatically.
 This is reconstructed from the project's plan, its docs and the current implementation.
 Where the shipped code and the planning docs disagree, the **code is authoritative**.
 
+> **Last reconciled against the code on 2026-07-21.**
+> This document is prose, so nothing enforces it.
+> Anything below that a reader cannot find in the code should be treated as drift and fixed here, not in the code.
+> Bump the date when you next check the whole document through.
+
 ---
 
 ## 1. Product scope
@@ -58,11 +63,12 @@ Where the shipped code and the planning docs disagree, the **code is authoritati
 - **oxlint** and **eslint** for linting, and **oxfmt** for formatting.
   `npm run lint` runs both linters.
   eslint additionally enforces the import boundaries configured in `eslint.config.js`.
-- **All npm dependencies pinned to exact versions**, so no `^` or `~`, enforced by convention and CI.
-  `docs/` keeps one note file per significant dependency.
+- **All npm dependencies pinned to exact versions**, so no `^` or `~`, enforced by `save-exact` in `.npmrc` and by
+  Renovate's pinning config.
 - **Non-mutating array methods only**, meaning `toSorted`, `toReversed` and `toSpliced`.
   `oxlint unicorn/no-array-sort` enforces this.
-- Per-dependency upgrade notes are maintained under `docs/` before behavior-changing upgrades land.
+- `docs/` holds a note file per topic that needs one, currently the PWA architecture, the tournament rules and the
+  TypeScript 6/7 side-by-side setup.
 
 ---
 
@@ -169,7 +175,8 @@ either side is unresolved.
 
 ### 5.4 Possible teams (headline feature, `possible-teams.ts`)
 
-`possibleTeamsFor(ref, results) → Set<Team>` enumerates every team that could still fill an unresolved slot:
+`possibleTeamsFor(ref, results) → readonly Team[]` enumerates every team that could still fill an unresolved slot.
+The array is already deduplicated by team id, so no set is handed out:
 
 - **`groupRank`** enumerates plausible scores for the remaining group matches.
   It uses an adaptive per-side range, lifted to cover the current goal-difference spread and clamped to a fixed
@@ -179,8 +186,9 @@ either side is unresolved.
   Results are **memoized** per `(group, rank, result-fingerprint)`.
 - **`thirdPlace`** is exact via `resolveThirdPlaceSlot` once all groups complete.
   Otherwise it approximates by scanning Annex C for possible source groups and collecting their rank-3 candidates.
-- **`matchWinner` and `matchLoser`** are exact if played.
+- **`matchWinner` and `matchLoser`** are exact once the match carries a decisive score.
   Otherwise they return the union of upstream home and away possibilities, recursing as needed.
+  A level knockout score without shootout goals counts as undecided, so both sides stay possible.
 - **`team`** is a singleton, or empty for an unknown id.
 
 Memoization memory is proactively freed on any result change, reset or import via `freePossibleTeamsMemory`.
@@ -239,15 +247,17 @@ There are four routes:
 | `/groups`   | Gruppen       | 12 group cards (standings table + 6 match cards) |
 | `/knockout` | K.-o.-Runde   | Knockout bracket + group-origin column           |
 | `/ranking`  | Weltrangliste | Full FIFA ranking, WC participants highlighted   |
-| `/settings` | Einstellungen | Theme picker + export / import / reset           |
+| `/settings` | Einstellungen | Theme picker + export / import / reset / sync    |
 
-`/` redirects to `/groups`.
+`/` redirects to `/knockout` once the group stage is complete, and to `/groups` before that.
+The check is `isGroupStageComplete` in `src/lib/standings.ts`, called from the redirect in `src/app/router.ts`.
 
 ### 7.1 Groups view
 
 12 `GroupTable`s sit in a responsive CSS Grid that goes 1→2→3→4 columns by width.
-Each table has standings rows computed reactively, showing rank, `TeamLabel`, P/W/D/L/GF/GA/GD/Pts and recent-form
-`OutcomeBadge`s, plus the 6 group matches as `MatchCard`s.
+Each table has standings rows computed reactively, showing rank, `TeamLabel` and P/W/D/L/GF/GA/GD/Pts, plus the 6
+group matches as `MatchCard`s.
+`TeamStat.form` is computed but not rendered anywhere.
 
 Below the grid, `ThirdPlaceTable` ("Die besten 8 Drittplatzierten") shows all 12 current third-placed teams ranked by
 `rankThirdPlacedLive` from `third-place.ts`, live even before the group stage finishes.
@@ -283,6 +293,7 @@ Finale, where the Finale column also holds "Spiel um Platz 3".
 It is horizontally scrollable on narrow screens with sticky round headers.
 Teams are resolved reactively via `resolveTeamRef`, and unresolved sides show German placeholders such as "Sieger
 Gruppe A", "Bester 3. Platz" and "Sieger Sp. 73".
+Every card prints its own number in the meta row, so a "Sp. 73" placeholder points at a card the reader can find.
 An **`OriginColumn`** lists each group's top 3 with the qualification cut.
 Hovering or focusing a qualifying row highlights the matching bracket slots via the connector composable.
 Each unresolved slot offers a "Mögliche Teams" affordance opening `PossibleTeamsDialog`, with Heim and Gast lists of
@@ -308,8 +319,8 @@ There are two tabs, with "Team" selected by default:
   Mittelfeld and Sturm.
 - **Spielplan** shows the team's matches via `TeamSchedule`, latest kickoff first, each preceded by a stage label such
   as "Gruppenspiel 2/3" or "Achtelfinale".
-  It reuses `MatchCard` with `hide-link-icon`, so no connector icon and no datetime highlight toggle, but keeps the
-  normal click-to-edit behaviour, opening `ScoreDialog` nested on top.
+  It reuses `MatchCard` with `plain`, so no connector icon and no datetime highlight toggle, but keeps the normal
+  click-to-edit behaviour, opening `ScoreDialog` nested on top.
   Knockout matches only appear once this team's side of the bracket resolves to it, and the other side may still show
   a placeholder.
 
