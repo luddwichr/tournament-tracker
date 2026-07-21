@@ -1,7 +1,7 @@
 /**
  * Enumerate the set of teams that could still fill an unresolved TeamRef given current results.
  *
- * groupRank: iterates plausible score combos for remaining group matches.
+ * GroupRank: iterates plausible score combos for remaining group matches.
  * It collects every team that can achieve the target rank in at least one scenario.
  * The score range is adaptive, and it widens when few matches remain.
  * That means 0..6 goals per side for ≤3 remaining matches, and 0..2 when all 6 remain.
@@ -11,13 +11,13 @@
  * Enumeration stops early once all group teams have been found at the target rank.
  * Results are memoized per (group, rank, played-result fingerprint).
  *
- * thirdPlace: approximates the answer via the Annex C allocation table.
+ * ThirdPlace: approximates the answer via the Annex C allocation table.
  * It collects all groups that could be the source group for the given slot.
  * It then returns the teams that could finish 3rd in any of those groups.
  * It does not verify that a candidate actually makes the top-8 cut.
  * The slight over-approximation is acceptable for this informational feature.
  *
- * matchWinner / matchLoser: when the match is already played, this delegates to resolveTeamRef for an exact answer.
+ * MatchWinner / matchLoser: when the match is already played, this delegates to resolveTeamRef for an exact answer.
  * When the match is unplayed, it returns the union of possible home and away teams, since either could win or lose.
  */
 

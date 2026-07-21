@@ -48,8 +48,10 @@ export function useMatchResultForm(
    */
   const shootoutRequired = computed(() => toValue(match).stage !== 'group' && goals.home === goals.away)
 
-  /** German error message blocking the save, or null when the form is saveable
-   * (see the `Result` shootout invariants in `types/tournament.ts`). */
+  /**
+   * German error message blocking the save, or null when the form is saveable
+   * (see the `Result` shootout invariants in `types/tournament.ts`).
+   */
   const saveError = computed((): string | null => {
     if (shootoutRequired.value && shootout.home === shootout.away) {
       return 'Unentschieden geht nicht! Wer hat das Elfmeterschießen gewonnen?'
@@ -103,9 +105,11 @@ export function useMatchResultForm(
     announce('Ergebnis gelöscht')
   }
 
-  /** Writes the result, or holds it behind a confirm when it would invalidate
+  /**
+   * Writes the result, or holds it behind a confirm when it would invalidate
    * later matches. Returns true once the write happened so the caller can close
-   * the dialog; false while the form is blocked or a confirmation is pending. */
+   * the dialog; false while the form is blocked or a confirmation is pending.
+   */
   function save(): boolean {
     if (saveError.value) return false
     // Computed before the store write, which recomputes the same thing internally.
@@ -119,8 +123,10 @@ export function useMatchResultForm(
     return true
   }
 
-  /** Clears the result, or holds it behind a confirm when it would invalidate
-   * later matches. Returns true once the clear happened (see `save`). */
+  /**
+   * Clears the result, or holds it behind a confirm when it would invalidate
+   * later matches. Returns true once the clear happened (see `save`).
+   */
   function clear(): boolean {
     const invalidated = invalidatedDownstream(store.results, toValue(match).id, null)
     if (invalidated.length > 0) {
@@ -131,8 +137,10 @@ export function useMatchResultForm(
     return true
   }
 
-  /** Runs the held-back save/clear after the user confirms discarding the
-   * downstream results. Returns true when it committed so the caller can close. */
+  /**
+   * Runs the held-back save/clear after the user confirms discarding the
+   * downstream results. Returns true when it committed so the caller can close.
+   */
   function confirmPending(): boolean {
     const action = pendingAction.value
     pendingAction.value = null

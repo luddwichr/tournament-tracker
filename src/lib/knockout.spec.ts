@@ -1,6 +1,4 @@
-/**
- * Unit tests for knockout bracket resolution (resolveTeamRef / currentBracketColumn).
- */
+/** Unit tests for knockout bracket resolution (resolveTeamRef / currentBracketColumn). */
 
 import type { Result, TeamRef } from '../types/tournament'
 import { allGroupResults, makeResult } from '../test-support/results'

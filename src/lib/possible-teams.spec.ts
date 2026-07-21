@@ -2,22 +2,22 @@
  * Unit tests for possible-teams.ts.
  *
  * Constructed scenario for the "1 match left" test:
- *   Group A teams: mex, kor, cze, rsa
- *   Fixtures (home → away): M01 mex–rsa, M02 kor–cze, M25 cze–rsa,
- *                            M28 mex–kor, M53 cze–mex, M54 rsa–kor
+ * Group A teams: mex, kor, cze, rsa
+ * Fixtures (home → away): M01 mex–rsa, M02 kor–cze, M25 cze–rsa,
+ * M28 mex–kor, M53 cze–mex, M54 rsa–kor
  *
- *   After playing:
- *     M01: mex(h) 3–0 rsa(a)  →  mex +3pts, GD +3
- *     M02: kor(h) 3–0 cze(a)  →  kor +3pts, GD +3
- *     M25: cze(h) 0–0 rsa(a)  →  cze +1pt,  rsa +1pt
- *     M53: cze(h) 0–3 mex(a)  →  mex +3pts, GD +3   (away win: homeGoals=0, awayGoals=3)
- *     M54: rsa(h) 0–3 kor(a)  →  kor +3pts, GD +3   (away win: homeGoals=0, awayGoals=3)
+ * After playing:
+ * M01: mex(h) 3–0 rsa(a)  →  mex +3pts, GD +3
+ * M02: kor(h) 3–0 cze(a)  →  kor +3pts, GD +3
+ * M25: cze(h) 0–0 rsa(a)  →  cze +1pt,  rsa +1pt
+ * M53: cze(h) 0–3 mex(a)  →  mex +3pts, GD +3   (away win: homeGoals=0, awayGoals=3)
+ * M54: rsa(h) 0–3 kor(a)  →  kor +3pts, GD +3   (away win: homeGoals=0, awayGoals=3)
  *
- *   Standings (M28 mex–kor remaining):
- *     mex: 6 pts, GD +6   kor: 6 pts, GD +6
- *     cze: 1 pt,  GD −6   rsa: 1 pt,  GD −6
- *   cze and rsa have played all their matches and cannot improve.
- *   Therefore only mex and kor can reach rank 1.
+ * Standings (M28 mex–kor remaining):
+ * mex: 6 pts, GD +6   kor: 6 pts, GD +6
+ * cze: 1 pt,  GD −6   rsa: 1 pt,  GD −6
+ * cze and rsa have played all their matches and cannot improve.
+ * Therefore only mex and kor can reach rank 1.
  */
 
 import type { ResultsMap, TeamRef } from '../types/tournament'

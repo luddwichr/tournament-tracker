@@ -4,7 +4,7 @@ import { fixtures, fixturesById } from '../data/fixtures-2026'
 export const SCHEMA_VERSION = 2
 
 /**
- * localStorage key used by the `tournament` store's persistence plugin.
+ * LocalStorage key used by the `tournament` store's persistence plugin.
  * This is the single source of truth.
  * It is also imported by `e2e/support/results.ts` so the e2e seed helper can never silently drift from the real key.
  */

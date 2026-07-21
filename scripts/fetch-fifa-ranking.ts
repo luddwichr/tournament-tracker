@@ -256,8 +256,10 @@ async function fetchHtml(): Promise<string> {
   return html
 }
 
-/** Strip HTML tags, reapplying the regex until no more matches remain so that
- *  overlapping/nested markup (e.g. `<scr<script>ipt>`) can't survive a single pass. */
+/**
+ * Strip HTML tags, reapplying the regex until no more matches remain so that
+ * overlapping/nested markup (e.g. `<scr<script>ipt>`) can't survive a single pass.
+ */
 function stripTags(html: string): string {
   let stripped = html
   let previous: string

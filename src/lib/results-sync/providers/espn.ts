@@ -75,8 +75,10 @@ function fixtureDate(kickoff: string): string {
   return new Date(kickoff).toISOString().slice(0, 10)
 }
 
-/** First fixture date through the earlier of the last fixture date and today,
- * so no future days are queried. `null` before the tournament starts. */
+/**
+ * First fixture date through the earlier of the last fixture date and today,
+ * so no future days are queried. `null` before the tournament starts.
+ */
 function fixtureDateRange(now: Date): { start: string; end: string } | null {
   let start = ''
   let last = ''

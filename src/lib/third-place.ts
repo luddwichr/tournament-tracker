@@ -2,8 +2,9 @@
  * Third-place ranking for the FIFA 2026 World Cup.
  *
  * After all 12 groups complete, the 12 third-placed teams are ranked using the cross-group tiebreaker chain:
- *   1. Points, 2. GD, 3. GF, 4. Fair-play, 5. FIFA ranking (deterministic)
- * There is no head-to-head step, because the teams come from different groups.
+ *
+ * 1. Points, 2. GD, 3. GF, 4. Fair-play, 5. FIFA ranking (deterministic) There is no head-to-head step, because the teams
+ *    come from different groups.
  *
  * The top 8 are then mapped to round-of-32 slots via the FIFA Annex C allocation table.
  * That table is THIRD_PLACE_ALLOCATION in fixtures-2026.ts.
