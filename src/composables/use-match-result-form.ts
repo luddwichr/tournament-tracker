@@ -1,9 +1,9 @@
 import type { MatchSlot, Result, Team } from '../types/tournament'
-import { computed, onUnmounted, reactive, ref, toValue } from 'vue'
+import { computed, reactive, ref, toValue } from 'vue'
 import { invalidatedDownstream, invalidatedMatchLabel } from '../lib/invalidation'
 import type { MaybeRefOrGetter } from 'vue'
-import { syncResults } from '../lib/results-sync'
 import { useAnnounce } from './use-announce'
+import { useLiveResultFetch } from './use-live-result-fetch'
 import { useTournamentStore } from '../stores/tournament'
 
 /**
@@ -14,8 +14,6 @@ interface PendingAction {
   kind: 'save' | 'clear'
   invalidatedIds: readonly string[]
 }
-
-export type FetchLiveStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'
 
 export function useMatchResultForm(
   match: MaybeRefOrGetter<MatchSlot>,
@@ -154,66 +152,26 @@ export function useMatchResultForm(
     pendingAction.value = null
   }
 
-  const fetchStatus = ref<FetchLiveStatus>('idle')
-  const fetchError = ref<string | null>(null)
-  const controller = new AbortController()
-  onUnmounted(() => {
-    controller.abort()
-  })
-
-  /**
-   * Visible confirmation for `success` and `not-found`, so the live-fetch outcome stays perceivable.
-   * That matters while `announce()`'s global `role="status"` region is inert.
-   * It lives outside the modal `<dialog>`, which `showModal()` makes `inert`.
-   * This is empty for `idle`, `loading` and `error`, since `error` has its own `role="alert"` element instead.
-   */
-  const fetchMessage = computed(() => {
-    if (fetchStatus.value === 'success') {
-      return `Live-Ergebnis übernommen: ${scoreText()}.`
-    }
-    if (fetchStatus.value === 'not-found') {
-      return 'Kein Live-Ergebnis gefunden.'
-    }
-    return ''
-  })
-
-  /**
-   * Fetches the whole results feed and plucks this match's result, filling the fields for review.
-   * Nothing is written to the store here, so there's nothing to warn about overwriting.
-   * The fetch is aborted on unmount so a request still in flight can't later write to a closed dialog.
-   */
-  async function fetchLive(): Promise<void> {
-    fetchStatus.value = 'loading'
-    fetchError.value = null
-    try {
-      const results = await syncResults({ signal: controller.signal })
-      const result = results[toValue(match).id]
-      if (!result) {
-        fetchStatus.value = 'not-found'
-        return
-      }
-      goals.home = result.homeGoals
-      goals.away = result.awayGoals
-      cards.homeYellow = result.homeYellow
-      cards.homeRed = result.homeRed
-      cards.awayYellow = result.awayYellow
-      cards.awayRed = result.awayRed
-      shootout.home = result.homeShootoutGoals ?? 0
-      shootout.away = result.awayShootoutGoals ?? 0
-      fetchStatus.value = 'success'
-    } catch (e) {
-      if (controller.signal.aborted) return
-      fetchError.value = e instanceof Error ? e.message : 'Abruf fehlgeschlagen.'
-      fetchStatus.value = 'error'
-    }
+  /** Fills the form fields from a fetched result, leaving the save to the user. */
+  function applyFetched(result: Result): void {
+    goals.home = result.homeGoals
+    goals.away = result.awayGoals
+    cards.homeYellow = result.homeYellow
+    cards.homeRed = result.homeRed
+    cards.awayYellow = result.awayYellow
+    cards.awayRed = result.awayRed
+    shootout.home = result.homeShootoutGoals ?? 0
+    shootout.away = result.awayShootoutGoals ?? 0
   }
+
+  const liveFetch = useLiveResultFetch(() => toValue(match).id, applyFetched, scoreText)
 
   return {
     cancelPending,
     cards,
     clear,
     confirmPending,
-    fetch: reactive({ error: fetchError, message: fetchMessage, run: fetchLive, status: fetchStatus }),
+    fetch: reactive(liveFetch),
     goals,
     initial,
     pendingAction,
