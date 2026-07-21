@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "run-p -c typecheck:vue typecheck:ts7",
-    "typecheck:vue": "node scripts/vue-tsc6.mjs -b tsconfig.app.json tsconfig.vitest.json",
+    "typecheck:vue": "node scripts/vue-tsc6.js -b tsconfig.app.json tsconfig.vitest.json",
     "typecheck:ts7": "tsc -b tsconfig.node.json tsconfig.e2e.json",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

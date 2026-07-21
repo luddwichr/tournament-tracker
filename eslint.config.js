@@ -33,21 +33,18 @@ export default tseslint.config(
       // TypeScript's compiler already catches undefined references;
       // no-undef from eslint/recommended is redundant and flags DOM globals.
       'no-undef': 'off',
-      // This project deliberately relies on default (code-unit) ordering for
-      // deterministic branded keys — e.g. `ThirdPlaceKey` is the sorted-join of
-      // group letters, and `pairKey` is an order-independent team-pair key.
-      // A locale-aware compare would be semantically wrong there, and every
-      // other flagged sort is over short ASCII strings where the default order
-      // is already correct. The rule's real value (catching numeric `.sort()`
-      // bugs) does not apply to any sort in this codebase.
+      // This project deliberately relies on default (code-unit) ordering for deterministic branded keys.
+      // e.g. `ThirdPlaceKey` is the sorted-join of group letters, and `pairKey` is an order-independent team-pair key.
+      // A locale-aware compare would be semantically wrong there.
+      // every other flagged sort is over short ASCII strings where the default order is already correct.
+      // The rule's real value (catching numeric `.sort()` bugs) does not apply to any sort in this codebase.
       'sonarjs/no-alphabetical-sort': 'off',
     },
   },
   {
     extends: [tseslint.configs.disableTypeChecked],
-    // Plain JS files (this config, hooks, build scripts) have no tsconfig
-    // project; typed rules would error on them.
-    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
+    // Plain JS files (this config, hooks, build scripts) have no tsconfig project; typed rules would error on them.
+    files: ['**/*.js'],
   },
   {
     files: ['**/*.vue'],
@@ -65,9 +62,8 @@ export default tseslint.config(
       'vue/define-props-declaration': ['error', 'type-based'],
       'vue/define-props-destructuring': 'error',
       'vue/enforce-style-attribute': ['error', { allow: ['scoped'] }],
-      // oxfmt owns HTML formatting; disable conflicting vue layout rules
-      // (the html-* / max-attributes-per-line group here and
-      // singleline-html-element-content-newline further down).
+      // oxfmt owns HTML formatting; disable conflicting vue layout rules.
+      // (the html-* / max-attributes-per-line group here and singleline-html-element-content-newline further down).
       'vue/html-closing-bracket-newline': 'off',
       'vue/html-indent': 'off',
       'vue/html-self-closing': 'off',
@@ -81,19 +77,18 @@ export default tseslint.config(
       'vue/prefer-true-attribute-shorthand': 'error',
       'vue/prefer-use-template-ref': 'error',
       'vue/prefer-v-model': 'error',
-      // TypeScript's `?` already communicates optionality; explicit defaults are
-      // only needed when Vue's boolean-casting behaviour requires one (handled
-      // case-by-case with withDefaults).
+      // TypeScript's `?` already communicates optionality.
+      // explicit defaults are only needed when Vue's boolean-casting behaviour requires one (handled case-by-case with withDefaults).
       'vue/require-default-prop': 'off',
       'vue/singleline-html-element-content-newline': 'off',
     },
   },
   {
-    // typescript-eslint runs plain tsc, which cannot resolve `.vue` module
-    // types (vue-tsc owns that; `npm run typecheck` covers it). Every SFC
-    // import — template refs, mount() in specs, createApp(App) — therefore
-    // surfaces as `any`/error-typed and would trip the no-unsafe-* family
-    // with false positives. All other typed rules stay active here.
+    // typescript-eslint runs plain tsc, which cannot resolve `.vue` module types
+    // (vue-tsc owns that; `npm run typecheck` covers it).
+    // Every SFC import — template refs, mount() in specs, createApp(App) —
+    // therefore surfaces as `any`/error-typed and would trip the no-unsafe-* family with false positives.
+    // All other typed rules stay active here.
     files: ['**/*.vue', 'src/**/*.spec.ts', 'src/app/main.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-argument': 'off',
@@ -107,14 +102,9 @@ export default tseslint.config(
     files: ['**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
-      // `expect(obj.method).toHaveBeenCalled()` on a vi.fn/spy never invokes
-      // the method, so no `this` scoping issue exists — a known false
-      // positive of unbound-method in vitest/jest assertions.
+      // `expect(obj.method).toHaveBeenCalled()` on a vi.fn/spy never invokes the method,
+      // so no `this` scoping issue exists — a known false positive of unbound-method in vitest/jest assertions.
       '@typescript-eslint/unbound-method': 'off',
-      // Whether to parameterize a small group of tests is a readability call,
-      // not a correctness one. Several suites here keep sibling cases spelled
-      // out on purpose (distinct names, per-case comments); leave that choice
-      // to the author rather than forcing a single table-driven test.
       'sonarjs/parameterized-tests': 'off',
       'vue/one-component-per-file': 'off',
     },
@@ -125,17 +115,17 @@ export default tseslint.config(
       globals: globals.node,
     },
     rules: {
-      // Local dev tooling (statusline hook) shells out to fixed, trusted
-      // commands like `git`. The PATH-hardening rule guards binaries invoked on
-      // untrusted input, which these are not.
+      // Local dev tooling (statusline hook) shells out to fixed, trusted commands like `git`.
+      // The PATH-hardening rule guards binaries invoked on untrusted input, which these are not.
       'sonarjs/no-os-command-from-path': 'off',
     },
   },
   {
-    // One-off maintenance scripts (FIFA-ranking / squad fetchers) run locally
-    // at dev time against trusted sources, never on user input. The ReDoS rule
-    // guards regexes exposed to untrusted input, which these parsers are not —
-    // and their inputs are bounded, fetched pages of a known shape.
+    // One-off maintenance scripts (FIFA-ranking / squad fetchers) parse remote HTML and wikitext.
+    // The Wikipedia source is publicly editable, so this is untrusted input.
+    // It's still not a ReDoS concern: none of the flagged patterns nest quantifiers, so the worst case is quadratic rather than catastrophic.
+    // And, these run by hand at dev time with no service behind them.
+    // A hostile edit costs a maintainer one Ctrl-C.
     files: ['scripts/**/*.ts'],
     rules: {
       'sonarjs/super-linear-regex': 'off',
@@ -149,39 +139,34 @@ export default tseslint.config(
         'error',
         {
           default: 'disallow',
-          // Every policy below is an `allow`, so they union and the order is
-          // irrelevant. If a `disallow` is ever added it must come *after* any
-          // allow it overrides — the rule is last-match-wins, not first.
+          // Every policy below is an `allow`, so they union and the order is irrelevant.
+          // If a `disallow` is ever added it must come *after* any allow it overrides.
+          // The rule is last-match-wins, not first.
           policies: [
-            // Unit tests may reach into any production layer plus shared support,
-            // but never into e2e.
+            // Unit tests may reach into any production layer plus shared support, but never into e2e.
             {
               allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root', 'test-support'] } } } },
               from: { file: { categories: 'unit-test' } },
             },
-            // Shared test helpers stay pure: domain only. (No self-allow needed —
-            // patterns without a capture group are a single element, and imports
-            // within one element are never reported. Contrast `domain` below.)
+            // Shared test helpers stay pure: domain only.
+            // No self-allow needed — patterns without a capture group are a single element, and imports within one element are never reported.
+            // Contrast `domain` below.
             {
               allow: { to: { element: { types: 'domain' } } },
               from: { element: { types: 'test-support' } },
             },
-            // e2e exercises the app through the browser: only the pure domain
-            // layer (types/data/lib) and shared test-support, never UI/runtime.
+            // e2e exercises the app through the browser: only the pure domain layer (types/data/lib) and shared test-support, never UI/runtime.
             {
               allow: { to: { element: { types: { anyOf: ['domain', 'test-support'] } } } },
               from: { element: { types: 'e2e' } },
             },
-            // Production code may only import production code — never test-support,
-            // specs, or e2e (keeps test helpers out of the shipped bundle). The
-            // capture group splits `domain` into three elements (types/data/lib),
-            // so the self-allow here is load-bearing: it permits lib -> data.
+            // Production code may only import production code — never test-support, specs, or e2e (keeps test helpers out of the shipped bundle).
+            // The capture group splits `domain` into three elements (types/data/lib), so the self-allow here is load-bearing: it permits lib -> data.
             {
               allow: { to: { element: { types: 'domain' } } },
               from: { element: { types: 'domain' } },
             },
-            // `styles` is a leaf: stylesheets are imported by the app entry and by
-            // the components that need them, and import nothing back.
+            // `styles` is a leaf: stylesheets are imported by the app entry and by the components that need them, and import nothing back.
             {
               allow: { to: { element: { types: { anyOf: ['domain', 'ui', 'app-root', 'styles'] } } } },
               from: { element: { types: { anyOf: ['ui', 'app-root'] } } },
@@ -189,18 +174,15 @@ export default tseslint.config(
           ],
         },
       ],
-      // Every linted file must land in an element. Without this, a file matching no
-      // element is simply unchecked — the old `src` catch-all's failure mode wearing
-      // a different hat, since a new folder would import freely and silently.
+      // Every linted file must land in an element.
+      // Without this, a file matching no element would simply be unchecked.
       'boundaries/no-unknown-files': 'error',
     },
     settings: {
-      // Architectural layer, matched by folder. Every pattern names a real folder
-      // and they are mutually exclusive, so classification does not depend on the
-      // order here. Nothing is a catch-all: `src` has no loose root files, so a
-      // new top-level folder matches nothing and `no-unknown-files` above rejects
-      // it, forcing a deliberate choice of layer instead of silently granting it
-      // app-layer import rights.
+      // Architectural layer, matched by folder.
+      // Every pattern names a real folder and they are mutually exclusive, so classification does not depend on the order.
+      // Nothing is a catch-all: `src` has no loose root files, so a new top-level folder matches nothing and `no-unknown-files` above reject it.
+      // This enforces a deliberate choice of layer instead of silently granting it app-layer import rights.
       'boundaries/elements': [
         { pattern: 'src/test-support', type: 'test-support' },
         { pattern: 'src/(types|data|lib)', type: 'domain' },
@@ -210,14 +192,12 @@ export default tseslint.config(
         { pattern: 'src/build', type: 'build' },
         { pattern: 'e2e', type: 'e2e' },
       ],
-      // Orthogonal file dimension: a `.spec.ts` is a unit test regardless of
-      // which layer folder it sits in. Scoped to src so e2e specs stay purely
-      // `e2e` and never inherit the unit-test import allowances above.
+      // Orthogonal file dimension: a `.spec.ts` is a unit test regardless of which layer folder it sits in.
+      // Scoped to src so e2e specs stay purely  `e2e` and never inherit the unit-test import allowances above.
       'boundaries/files': [{ category: 'unit-test', pattern: 'src/**/*.spec.ts' }],
-      // boundaries resolves each import to a file before classifying it, and the
-      // node resolver's default extensions cover neither. `.ts` is what this
-      // project imports extensionlessly; `.vue` specifiers carry their own
-      // extension but are listed so resolution does not rely on that.
+      // bboundaries resolves each import to a file before classifying it, and the node resolver's default extensions cover neither.
+      // `.ts` is what this project imports extensionlessly.
+      // `.vue` specifiers carry their own extension but are listed so resolution does not rely on that.
       'import/resolver': {
         node: { extensions: ['.ts', '.vue'] },
       },

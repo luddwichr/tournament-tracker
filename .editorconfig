@@ -1,7 +1,7 @@
 root = true
 
-# JS/TS/Vue/JSON/CSS/Markdown formatting is owned by oxfmt (`npm run format`)
-# — this file only covers filetypes nothing else governs: Python, YAML, shell.
+# JS/TS/Vue/JSON/CSS/Markdown formatting is owned by oxfmt (`npm run format`).
+# This file only covers filetypes nothing else governs: Python, YAML, shell.
 
 [*]
 charset = utf-8
