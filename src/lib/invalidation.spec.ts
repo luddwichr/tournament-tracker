@@ -1,6 +1,6 @@
 import { allGroupResults, makeResult } from '../test-support/results'
 import { describe, expect, it } from 'vitest'
-import { invalidatedDownstream, invalidatedMatchLabel } from './invalidation'
+import { invalidatedDownstream, invalidatedMatchLabel, withResolvableKnockoutResults } from './invalidation'
 import type { Result } from '../types/tournament'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { resolveTeamRef } from './knockout'
@@ -101,6 +101,53 @@ describe('invalidatedDownstream', () => {
     const flipped = makeResult('M28', 0, 0, { homeRed: 2 })
 
     expect(invalidatedDownstream(results, 'M28', flipped)).toEqual([m73.id])
+  })
+})
+
+describe('withResolvableKnockoutResults', () => {
+  // M89 is the R16 slot fed by the winners of M74 and M77.
+  const m89 = knockoutMatches.find((m) => m.id === 'M89')!
+
+  it('returns the input itself when every knockout result resolves', () => {
+    const results: Record<string, Result> = { ...allGroupResults(1, 0), M74: makeResult('M74', 2, 1) }
+
+    expect(withResolvableKnockoutResults(results)).toBe(results)
+  })
+
+  it('keeps a group-only map untouched', () => {
+    const results = allGroupResults(1, 0)
+
+    expect(withResolvableKnockoutResults(results)).toBe(results)
+  })
+
+  it('drops a knockout result whose participants cannot be resolved', () => {
+    const results: Record<string, Result> = { ...allGroupResults(1, 0), [m89.id]: makeResult(m89.id, 1, 0) }
+
+    const swept = withResolvableKnockoutResults(results)
+
+    expect(swept[m89.id]).toBeUndefined()
+    expect(Object.keys(swept)).toHaveLength(Object.keys(results).length - 1)
+  })
+
+  it('drops the whole subtree below an orphan', () => {
+    // M97 is the quarter-final fed by M89's winner, so it is unresolvable for as long as M89 is.
+    const m97 = knockoutMatches.find(
+      (m) =>
+        (m.homeRef.kind === 'matchWinner' && m.homeRef.matchId === m89.id) ||
+        (m.awayRef.kind === 'matchWinner' && m.awayRef.matchId === m89.id),
+    )!
+    const results: Record<string, Result> = {
+      [m89.id]: makeResult(m89.id, 1, 0),
+      [m97.id]: makeResult(m97.id, 2, 0),
+    }
+
+    expect(withResolvableKnockoutResults(results)).toEqual({})
+  })
+
+  it('keeps a level knockout result, whose participants are known even though its winner is not', () => {
+    const results: Record<string, Result> = { ...allGroupResults(1, 0), M74: makeResult('M74', 1, 1) }
+
+    expect(withResolvableKnockoutResults(results)['M74']).toEqual(makeResult('M74', 1, 1))
   })
 })
 

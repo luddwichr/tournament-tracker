@@ -61,6 +61,28 @@ export function invalidatedDownstream(results: ResultsMap, matchId: string, newR
 }
 
 /**
+ * Copy of `results` without knockout entries whose participants cannot be resolved.
+ * Bulk writes such as an import or a rehydration carry no record of who a stored knockout result was entered for, so
+ * the per-edit check in `invalidatedDownstream` has nothing to compare against.
+ * An unresolvable pairing is the one case that is decidable, and it is exactly what a hand-edited or truncated map
+ * produces, for example a stored M90 whose feeders are missing.
+ *
+ * Orphans cascade without extra bookkeeping, because `resolveTeamRef` follows a matchWinner or matchLoser ref into the
+ * feeder's own participants and returns null as soon as any step in that chain is unresolvable.
+ * A single pass over the untouched map therefore already flags the whole subtree below an orphan.
+ *
+ * Returns the input itself when nothing is dropped, so callers can detect a change by identity.
+ */
+export function withResolvableKnockoutResults(results: ResultsMap): ResultsMap {
+  const orphaned = knockoutMatches
+    .filter((m) => results[m.id])
+    .filter((m) => !resolveTeamRef(m.homeRef, results) || !resolveTeamRef(m.awayRef, results))
+    .map((m) => m.id)
+
+  return orphaned.length > 0 ? resultsWithout(results, orphaned) : results
+}
+
+/**
  * German label for the confirm dialog, for example "Achtelfinale (Spiel 89): Deutschland – Spanien".
  * Participants are resolved under the CURRENT results, which is the old attribution the user is about to discard.
  */

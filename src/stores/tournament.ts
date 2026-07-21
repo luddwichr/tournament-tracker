@@ -2,7 +2,7 @@ import type { GroupId, Result, ResultsMap } from '../types/tournament'
 import { STORAGE_KEY, clearLegacyResults, isValidResultsMap, readLegacyResults } from '../lib/persistence'
 import { type TeamStat, clearStandingsCache, computeGroupStandings } from '../lib/standings'
 import { computed, ref } from 'vue'
-import { invalidatedDownstream, resultsWithout } from '../lib/invalidation'
+import { invalidatedDownstream, resultsWithout, withResolvableKnockoutResults } from '../lib/invalidation'
 import { GROUP_IDS } from '../types/tournament'
 import { defineStore } from 'pinia'
 import { freePossibleTeamsMemory } from '../lib/possible-teams'
@@ -20,9 +20,12 @@ export const useTournamentStore = defineStore(
     )
 
     // Invariant: the store never keeps a knockout result whose participants don't match what it was entered for.
-    // enterResult and clearResult compute the invalidated set, see invalidation.ts.
-    // They drop those entries in the same atomic write, so no caller can forget.
+    // Every write path enforces it, so no caller can forget.
+    // enterResult and clearResult compute the invalidated set, see invalidation.ts, and drop those entries in the
+    // same atomic write.
     // The UI is responsible for asking the user first, see use-match-result-form.ts.
+    // importResults and hydrate take results from outside, where the original attribution is unknowable, so they
+    // enforce the decidable half via withResolvableKnockoutResults.
     function enterResult(result: Result): void {
       const invalidated = invalidatedDownstream(results.value, result.matchId, result)
       results.value = { ...resultsWithout(results.value, invalidated), [result.matchId]: result }
@@ -40,18 +43,19 @@ export const useTournamentStore = defineStore(
     }
 
     function importResults(newResults: ResultsMap): void {
-      results.value = { ...newResults }
+      results.value = withResolvableKnockoutResults({ ...newResults })
       freePossibleTeamsMemory()
       clearStandingsCache()
     }
 
     /**
      * Run once after the persistence plugin rehydrates state (from the
-     * `afterHydrate` hook below). Validates the rehydrated results and performs
-     * the one-shot v1 → v2 migration; returns true when legacy data was adopted
-     * so the hook can persist it under the new key. Lives here, in the setup,
-     * so it works against the store's own typed state and actions instead of
-     * casting the loosely-typed plugin `context.store`.
+     * `afterHydrate` hook below). Validates the rehydrated results, drops
+     * knockout results left orphaned by a hand-edited store, and performs
+     * the one-shot v1 → v2 migration. Returns true when the state it leaves
+     * behind differs from what was on disk, so the hook can persist it. Lives
+     * here, in the setup, so it works against the store's own typed state and
+     * actions instead of casting the loosely-typed plugin `context.store`.
      *
      * `pinia-plugin-persistedstate`'s automatic rehydration bypasses `parseImport`'s validation entirely.
      * It just JSON.parses whatever is in localStorage and `$patch`es it straight into state.
@@ -64,6 +68,12 @@ export const useTournamentStore = defineStore(
     function hydrate(): boolean {
       if (!isValidResultsMap(results.value)) reset()
 
+      // isValidResultsMap checks each entry's shape, not whether the knockout entries still hang together.
+      // The sweep returns the same object when it finds nothing, so identity is enough to detect a change.
+      const swept = withResolvableKnockoutResults(results.value)
+      const dropped = swept !== results.value
+      results.value = swept
+
       // One-shot v1 → v2 migration (see persistence.ts): adopt results
       // persisted under the old key when the new key has none yet.
       // The hook persists them under the new key, and only then is the old entry dropped.
@@ -75,7 +85,7 @@ export const useTournamentStore = defineStore(
         adopted = true
       }
       clearLegacyResults()
-      return adopted
+      return adopted || dropped
     }
 
     return { clearResult, enterResult, hydrate, importResults, reset, results, standingsByGroup }

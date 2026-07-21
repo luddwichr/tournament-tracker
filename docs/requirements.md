@@ -406,5 +406,7 @@ See [`docs/pwa-architecture.md`](./pwa-architecture.md) for the full request-han
    every key is a real fixture id, that `result.matchId` matches its key, and that shootout fields obey the `Result`
    invariants.
    A level score on a knockout match without a shootout is still accepted and simply leaves the slot unresolved.
+   Neither path can tell which pairing an incoming knockout result was entered for, so both drop the knockout results
+   whose participants don't resolve at all, see `withResolvableKnockoutResults` in `src/lib/invalidation.ts`.
 9. **Schema migrations.** The v1 → v2 path exists, with identity on fields, a new localStorage key and legacy-key
    adoption, and it is covered by tests.
