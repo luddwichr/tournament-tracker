@@ -83,10 +83,10 @@ const spokenNumber = computed(() => `Spiel ${matchId.slice(1)}`)
 }
 
 /* The auto margin keeps the number next to the kickoff and leaves the link icon on the far edge. */
+/* The inherited muted color already sits close to the 4.5:1 floor, so this must not be dimmed further. */
 .match-card-meta__number {
   margin-inline: var(--space-2) auto;
   font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
-  opacity: 0.75;
 }
 </style>
