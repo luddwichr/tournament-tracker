@@ -8,7 +8,7 @@ ARG NODE_VERSION=24.18.0
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
 ARG NPM_VERSION=12.0.1
 # https://github.com/astral-sh/uv/releases
-ARG UV_VERSION=0.11.29
+ARG UV_VERSION=0.11.31
 # https://www.python.org/downloads/
 ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes
