@@ -68,7 +68,7 @@ jobs:
       - name: Install zizmor
         env:
           # keep in sync with ZIZMOR_VERSION in .devcontainer/Dockerfile
-          ZIZMOR_VERSION: 1.27.0
+          ZIZMOR_VERSION: 1.28.0
         run: |
           install_dir="$HOME/.zizmor/bin"
           mkdir -p "$install_dir"
