@@ -86,13 +86,6 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
-      "matchStrings": ["ARG PLAYWRIGHT_CLI_VERSION=(?<currentValue>.*)"],
-      "depNameTemplate": "@playwright/cli",
-      "datasourceTemplate": "npm",
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^\\.devcontainer/Dockerfile$/"],
       "matchStrings": ["ARG OPENGREP_VERSION=(?<currentValue>.*)"],
       "depNameTemplate": "opengrep",
       "packageNameTemplate": "opengrep/opengrep",
