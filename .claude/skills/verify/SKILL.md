@@ -15,7 +15,8 @@ Routes: `/` (Gruppen), `/knockout`, `/ranking`, `/settings`. German UI.
 
 ## Drive
 
-Use `playwright-cli` (globally installed): `playwright-cli open http://localhost:5173/<route>`,
+Use `playwright-cli` (a shim on PATH forwarding to the workspace `playwright cli`, see
+`.devcontainer/Dockerfile`): `playwright-cli open http://localhost:5173/<route>`,
 then `find "<German label>"` / `click <ref>` / `eval`. Close with `playwright-cli close`.
 
 For scripted scenarios prefer extending the e2e suite in `e2e/*.spec.ts`, with page objects in `e2e/support/`.

@@ -14,10 +14,6 @@ ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
 ARG PLAYWRIGHT_VERSION=1.62.0
-# https://www.npmjs.com/package/@playwright/cli?activeTab=versions
-# Versioned independently of @playwright/test and playwright.
-# Do NOT assume it tracks PLAYWRIGHT_VERSION.
-ARG PLAYWRIGHT_CLI_VERSION=0.1.17
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
 ARG OPENGREP_VERSION=1.26.0
@@ -114,7 +110,12 @@ RUN printf '%s\n' "${USERNAME}:1:999" "${USERNAME}:1001:64535" > /etc/subuid \
 # Install Playwright system dependencies (requires root); clean up the apt lists
 # left behind by its internal apt-get update and root's npm cache from npx
 # (never reused, since all later npm activity runs as ${USERNAME})
-RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps \
+# Naming chromium cuts the package set from 86 to 32 by dropping the firefox and webkit
+# libraries, most notably the whole GStreamer stack.
+# It still covers chromium-headless-shell, which shares chromium's dependency group, and
+# Playwright always adds its "tools" group on top, so xvfb and the fonts remain.
+# Add the browser here as well if a Playwright project ever targets firefox or webkit.
+RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps chromium \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
 USER ${USERNAME}
@@ -122,14 +123,27 @@ USER ${USERNAME}
 # Install pinned npm into NPM_CONFIG_PREFIX, which precedes /usr/local/bin on PATH and thus shadows the Node-bundled npm
 RUN npm install -g npm@${NPM_VERSION}
 
-# Pre-install Playwright browsers
-RUN npx playwright@${PLAYWRIGHT_VERSION} install
+# Pre-install the Playwright browser.
+# Only chromium is fetched, because both playwright.config.ts and playwright.pwa.config.ts
+# run every project on chromium, and Pixel 7 emulation is chromium too.
+RUN npx playwright@${PLAYWRIGHT_VERSION} install chromium
 
-# Install playwright cli and the browser matching its vendored playwright-core
-# (versioned independently of the project's playwright, so it needs its own
-# browser build; they coexist in ~/.cache/ms-playwright keyed by revision)
-RUN npm install -g @playwright/cli@${PLAYWRIGHT_CLI_VERSION} \
-    && playwright-cli install-browser chromium
+# Playwright bundles the cli as `playwright cli` since 1.62.0, so it rides the project's
+# playwright-core and needs no browser of its own.
+# The generated playwright-cli skill hardcodes the bare `playwright-cli` command and declares
+# `allowed-tools: Bash(playwright-cli:*)`, and it is regenerated on every rebuild, so patching its
+# text would not survive.
+# This shim keeps that name working from any working directory.
+# The `cd` matters, because the cli resolves .playwright/cli.config.json relative to the caller's
+# directory, and that file is what selects bundled chromium over the branded chrome channel the cli
+# would otherwise default to.
+# Passing --config instead would break callers that supply their own, since the cli concatenates
+# repeated --config values into one comma-joined path rather than letting the last one win.
+# Running from the workspace also keeps the .playwright-cli snapshot output in the ignored directory
+# instead of scattering it across whatever directory the caller happened to be in.
+RUN printf '#!/bin/sh\ncd %s || exit 1\nexec %s/node_modules/.bin/playwright cli "$@"\n' \
+        "${WORKSPACE_FOLDER}" "${WORKSPACE_FOLDER}" \
+    | install -Dm755 /dev/stdin ~/.local/bin/playwright-cli
 
 # Install uv (Python package manager) - useful for coding agents that use Python code for temporary scripting tasks
 RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
