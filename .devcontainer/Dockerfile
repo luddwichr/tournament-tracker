@@ -13,7 +13,7 @@ ARG UV_VERSION=0.11.32
 ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
-ARG PLAYWRIGHT_VERSION=1.61.1
+ARG PLAYWRIGHT_VERSION=1.62.0
 # https://www.npmjs.com/package/@playwright/cli?activeTab=versions
 # Versioned independently of @playwright/test and playwright.
 # Do NOT assume it tracks PLAYWRIGHT_VERSION.
