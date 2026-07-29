@@ -9,8 +9,9 @@
       "matchPackageNames": ["playwright", "@playwright/test"],
     },
     {
+      // Matches every manager on purpose, so .nvmrc, the Dockerfile ARG and engines.node in package.json
+      // all move in a single PR.
       "groupName": "node",
-      "matchManagers": ["nvm", "custom.regex"],
       "matchDepNames": ["node"],
     },
     {
