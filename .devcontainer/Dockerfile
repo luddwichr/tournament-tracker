@@ -6,7 +6,7 @@ ARG NODE_VERSION=24.18.1
 # https://github.com/npm/cli/releases
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
-ARG NPM_VERSION=12.0.1
+ARG NPM_VERSION=12.0.2
 # https://github.com/astral-sh/uv/releases
 ARG UV_VERSION=0.12.0
 # https://www.python.org/downloads/
