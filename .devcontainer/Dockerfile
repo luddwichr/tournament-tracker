@@ -13,7 +13,7 @@ ARG UV_VERSION=0.12.0
 ARG PYTHON_VERSION=3.14.6
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
-ARG PLAYWRIGHT_VERSION=1.62.0
+ARG PLAYWRIGHT_VERSION=1.62.1
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
 ARG OPENGREP_VERSION=1.26.0
