@@ -25,7 +25,7 @@ ARG GITLEAKS_VERSION=8.30.1
 ARG ZIZMOR_VERSION=1.29.0
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
-ARG TRIVY_VERSION=0.73.0
+ARG TRIVY_VERSION=0.74.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
