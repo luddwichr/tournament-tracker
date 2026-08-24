@@ -1,0 +1,31 @@
+# Ignore rules for the "scan:image" npm script, referenced by the "ignorefile" key in image.yaml.
+# Every entry carries an expiry date.
+# An exception that outlives its expiry starts failing the scan again instead of hiding the finding forever.
+# The expiry key is expired_at with an underscore.
+# Trivy silently accepts an unknown key, so a misspelling turns the entry into a permanent exception.
+
+vulnerabilities:
+  # util-linux in the pinned devcontainer base image.
+  # DSA-6442-1 published the fix as 2.41.5-0+deb13u1 in trixie-security on 14 August 2026.
+  # The pinned debian:trixie-slim was built on 3 August 2026, so it still ships the vulnerable 2.41-5.
+  # Nothing here is actionable from this repo until the Docker official image is rebuilt with that update.
+  # Renovate then bumps the FROM digest in .devcontainer/Dockerfile and every one of these clears at once,
+  # because all seven are fixed by the same 2.41.5-0+deb13u1.
+  # The debian entry in docker-library/official-images refreshes roughly every three weeks.
+  # The last refresh landed on 4 August 2026, so the expiry below is the next expected one plus a week.
+  # These affect mount and libblkid in the container used for development.
+  # They do not reach the deployed artifact, which is a static PWA.
+  - id: CVE-2026-53612
+    expired_at: 2026-09-02
+  - id: CVE-2026-53613
+    expired_at: 2026-09-02
+  - id: CVE-2026-53614
+    expired_at: 2026-09-02
+  - id: CVE-2026-53615
+    expired_at: 2026-09-02
+  - id: CVE-2026-13595
+    expired_at: 2026-09-02
+  - id: CVE-2026-27456
+    expired_at: 2026-09-02
+  - id: CVE-2025-14104
+    expired_at: 2026-09-02
