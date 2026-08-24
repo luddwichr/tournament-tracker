@@ -4,6 +4,9 @@
 # The script derives it from the FROM line in .devcontainer/Dockerfile and passes it as the scan target.
 exit-code: 1
 quiet: true
+# Time-boxed exceptions for findings the base image cannot fix yet.
+# The path is relative to the working directory of the npm script, which is the repo root.
+ignorefile: .trivy/image-ignore.yaml
 # The mirror image of the library-only scans: here we want the OS packages and not the application libraries, which "scan:deps" already covers.
 pkg-types: [os]
 severity: [LOW, MEDIUM, HIGH, CRITICAL]
