@@ -16,7 +16,7 @@ ARG PYTHON_VERSION=3.14.7
 ARG PLAYWRIGHT_VERSION=1.62.1
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
-ARG OPENGREP_VERSION=1.26.0
+ARG OPENGREP_VERSION=1.27.1
 # https://github.com/gitleaks/gitleaks/releases
 # Keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml.
 ARG GITLEAKS_VERSION=8.30.1
