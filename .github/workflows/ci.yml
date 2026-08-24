@@ -80,7 +80,7 @@ jobs:
       - name: Install trivy
         env:
           # keep in sync with TRIVY_VERSION in .devcontainer/Dockerfile
-          TRIVY_VERSION: 0.73.0
+          TRIVY_VERSION: 0.74.0
         run: |
           install_dir="$HOME/.trivy/bin"
           mkdir -p "$install_dir"
