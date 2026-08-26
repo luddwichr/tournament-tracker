@@ -49,6 +49,7 @@ ENV TZ="$TZ" \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # common utilities
     ca-certificates git curl jq nano unzip zip xz-utils htop procps gh \
+    shellcheck \
     # ssh client so git can push via the host's ssh-agent (VS Code forwards
     # SSH_AUTH_SOCK into the container automatically; no keys live in here)
     openssh-client \
