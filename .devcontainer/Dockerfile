@@ -23,6 +23,9 @@ ARG GITLEAKS_VERSION=8.30.1
 # https://github.com/zizmorcore/zizmor/releases
 # Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
 ARG ZIZMOR_VERSION=1.29.0
+# https://github.com/rhysd/actionlint/releases/
+# Keep in sync with ACTIONLINT_VERSION in .github/workflows/ci.yml.
+ARG ACTIONLINT_VERSION=1.7.12
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 ARG TRIVY_VERSION=0.74.0
@@ -161,13 +164,20 @@ RUN curl -fsSL --retry 3 --retry-all-errors -o /tmp/opengrep \
 
 # Install gitleaks - scans git history for committed credentials
 RUN curl -fsSL --retry 3 --retry-all-errors \
-        https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz \
+https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz \
     | tar -xz -C ~/.local/bin gitleaks \
     && gitleaks version
 
 # Install zizmor - static analysis for GitHub Actions workflows (installed via uv above)
 RUN uv tool install zizmor==${ZIZMOR_VERSION} \
-    && zizmor --version
+&& zizmor --version
+
+# Install actionlint - lints GitHub Actions workflow syntax, expressions and the shell in `run:` blocks.
+# It shells out to the shellcheck installed above, so that layer has to stay.
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz \
+    | tar -xz -C ~/.local/bin actionlint \
+    && actionlint --version
 
 # Install trivy - SBOM generation, permissive-license policy and dependency /
 # Dockerfile vulnerability scanning (the tarball contains a single static binary)
