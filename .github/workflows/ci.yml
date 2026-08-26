@@ -124,10 +124,8 @@ jobs:
           path: sbom.cdx.json
           retention-days: 30
       - name: Scan Dockerfile base image for OS CVEs
-        # `scan:image` reads the pinned FROM image out of the Dockerfile (single
-        # stage, literal ref) so CI and local runs scan the exact same base and
-        # never drift from the digest Renovate bumps there. Gates on fixable
-        # HIGH/CRITICAL only: a failure means "bump the pinned base".
+        # `scan:image` reads the pinned FROM image out of the Dockerfile, which is a single stage with a literal ref.
+        # CI and local runs therefore scan the same base and never drift from the digest Renovate bumps there.
         # This runs in this job rather than a separate one, to reuse the trivy binary and warm vuln DB.
         run: npm run scan:image
       - name: Get Playwright version

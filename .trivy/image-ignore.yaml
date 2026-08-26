@@ -5,27 +5,34 @@
 # Trivy silently accepts an unknown key, so a misspelling turns the entry into a permanent exception.
 
 vulnerabilities:
-  # util-linux in the pinned devcontainer base image.
-  # DSA-6442-1 published the fix as 2.41.5-0+deb13u1 in trixie-security on 14 August 2026.
-  # The pinned debian:trixie-slim was built on 3 August 2026, so it still ships the vulnerable 2.41-5.
+  # openssl in the pinned devcontainer base image.
+  # Debian has published the fix as 3.5.7-1~deb13u2, but no debian:trixie-slim build ships it yet.
+  # The 24 August rebuild pinned in the Dockerfile still carries 3.5.6-1~deb13u2, so a digest bump does not clear these.
   # Nothing here is actionable from this repo until the Docker official image is rebuilt with that update.
-  # Renovate then bumps the FROM digest in .devcontainer/Dockerfile and every one of these clears at once,
-  # because all seven are fixed by the same 2.41.5-0+deb13u1.
+  # Renovate then bumps the FROM digest in .devcontainer/Dockerfile and all ten clear at once,
+  # because one openssl version fixes every one of them.
   # The debian entry in docker-library/official-images refreshes roughly every three weeks.
-  # The last refresh landed on 4 August 2026, so the expiry below is the next expected one plus a week.
-  # These affect mount and libblkid in the container used for development.
+  # The last two refreshes landed on 3 and 24 August 2026, so the expiry below is the next expected one plus a week.
+  # Only CVE-2026-14456 is HIGH, and it needs a QUIC server.
+  # These affect TLS libraries in the container used for development.
   # They do not reach the deployed artifact, which is a static PWA.
-  - id: CVE-2026-53612
-    expired_at: 2026-09-02
-  - id: CVE-2026-53613
-    expired_at: 2026-09-02
-  - id: CVE-2026-53614
-    expired_at: 2026-09-02
-  - id: CVE-2026-53615
-    expired_at: 2026-09-02
-  - id: CVE-2026-13595
-    expired_at: 2026-09-02
-  - id: CVE-2026-27456
-    expired_at: 2026-09-02
-  - id: CVE-2025-14104
-    expired_at: 2026-09-02
+  - id: CVE-2026-14456
+    expired_at: 2026-09-21
+  - id: CVE-2026-14457
+    expired_at: 2026-09-21
+  - id: CVE-2026-18798
+    expired_at: 2026-09-21
+  - id: CVE-2026-54874
+    expired_at: 2026-09-21
+  - id: CVE-2026-63072
+    expired_at: 2026-09-21
+  - id: CVE-2026-63073
+    expired_at: 2026-09-21
+  - id: CVE-2026-63074
+    expired_at: 2026-09-21
+  - id: CVE-2026-63075
+    expired_at: 2026-09-21
+  - id: CVE-2026-63076
+    expired_at: 2026-09-21
+  - id: CVE-2026-75803
+    expired_at: 2026-09-21
