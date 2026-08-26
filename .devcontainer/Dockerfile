@@ -1,5 +1,5 @@
 # https://hub.docker.com/layers/library/debian/trixie-slim/
-FROM docker.io/library/debian:trixie-slim@sha256:3a39a0592364683e6bab97937b72cad5a8fa6dcbbee90edb3bb48c7f8e94f258
+FROM docker.io/library/debian:trixie-slim@sha256:abc9cb88a5587630d7f915f47b23b0668fe250fbfc6457aa4d52b534c1bbf73f
 
 # https://nodejs.org/en/about/previous-releases
 ARG NODE_VERSION=24.19.0
