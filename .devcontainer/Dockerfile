@@ -2,7 +2,7 @@
 FROM docker.io/library/debian:trixie-slim@sha256:abc9cb88a5587630d7f915f47b23b0668fe250fbfc6457aa4d52b534c1bbf73f
 
 # https://nodejs.org/en/about/previous-releases
-ARG NODE_VERSION=24.19.0
+ARG NODE_VERSION=24.20.0
 # https://github.com/npm/cli/releases
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
