@@ -77,6 +77,18 @@ jobs:
             | tar -xz -C "$install_dir" zizmor
           echo "$install_dir" >> "$GITHUB_PATH"
           "$install_dir/zizmor" --version
+      - name: Install actionlint
+        env:
+          # keep in sync with ACTIONLINT_VERSION in .devcontainer/Dockerfile
+          ACTIONLINT_VERSION: 1.7.12
+        run: |
+          install_dir="$HOME/.actionlint/bin"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz -C "$install_dir" actionlint
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/actionlint" --version
       - name: Install trivy
         env:
           # keep in sync with TRIVY_VERSION in .devcontainer/Dockerfile
@@ -105,6 +117,19 @@ jobs:
           restore-keys: |
             trivy-${{ runner.os }}-
       - run: npm ci
+      - name: Install hadolint
+        env:
+          # keep in sync with HADOLINT_VERSION in .devcontainer/Dockerfile
+          HADOLINT_VERSION: 2.15.1
+        run: |
+          install_dir="$HOME/.hadolint/bin"
+          mkdir -p "$install_dir"
+          curl -fsSL --retry 3 --retry-all-errors \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-linux-x86_64" \
+            -o "$install_dir/hadolint"
+          chmod +x "$install_dir/hadolint"
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/hadolint" --version
       - name: Verify registry signatures and provenance
         run: npm audit signatures
       - name: Validate renovate config
