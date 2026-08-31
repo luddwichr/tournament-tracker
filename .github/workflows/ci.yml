@@ -39,7 +39,7 @@ jobs:
       - name: Install opengrep
         env:
           # keep in sync with OPENGREP_VERSION in .devcontainer/Dockerfile
-          OPENGREP_VERSION: 1.27.1
+          OPENGREP_VERSION: 1.29.0
         # Download the pinned release binary directly instead of using install.sh:
         # the installer lists releases via the unauthenticated GitHub API, which
         # gets rate-limited on shared runners (HTTP 403 -> "Failed to fetch
