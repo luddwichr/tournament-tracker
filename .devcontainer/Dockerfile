@@ -22,7 +22,7 @@ ARG OPENGREP_VERSION=1.29.0
 ARG GITLEAKS_VERSION=8.30.1
 # https://github.com/zizmorcore/zizmor/releases
 # Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
-ARG ZIZMOR_VERSION=1.29.0
+ARG ZIZMOR_VERSION=1.30.0
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 ARG TRIVY_VERSION=0.74.0
