@@ -3,36 +3,120 @@
 # An exception that outlives its expiry starts failing the scan again instead of hiding the finding forever.
 # The expiry key is expired_at with an underscore.
 # Trivy silently accepts an unknown key, so a misspelling turns the entry into a permanent exception.
+#
+# Every block below has the same root cause, so they share one expiry.
+# The pinned debian:trixie-slim was built on 24 August 2026 and no newer build has been published since.
+# trixie-20260824 is still the newest dated tag, and the floating trixie-slim tag resolves to that same root filesystem.
+# Debian has published all of these fixes in trixie-security, so nothing here is actionable from this repo.
+# A digest bump cannot clear any of them, because there is no rebuilt image to bump to.
+# Renovate bumps the FROM digest in .devcontainer/Dockerfile once the image is rebuilt.
+# Each block then clears at once, because a single fixed version covers every CVE in it.
+#
+# The expiry follows the published policy of debuerreotype/docker-debian-artifacts, which builds these images.
+# Its "Update Frequency" section promises a build at least once a month, and sooner for a Debian point release
+# or for a severe security issue.
+# See https://github.com/debuerreotype/docker-debian-artifacts#update-frequency
+# That puts the next build due by 23 September, and Debian 13.7 on 12 September should have prompted an earlier one.
+# The expiry below is that due date plus a week of grace.
+#
+# All of this sits in the container used for development.
+# None of it reaches the deployed artifact, which is a static PWA.
 
 vulnerabilities:
-  # openssl in the pinned devcontainer base image.
-  # Debian has published the fix as 3.5.7-1~deb13u2, but no debian:trixie-slim build ships it yet.
-  # The 24 August rebuild pinned in the Dockerfile still carries 3.5.6-1~deb13u2, so a digest bump does not clear these.
-  # Nothing here is actionable from this repo until the Docker official image is rebuilt with that update.
-  # Renovate then bumps the FROM digest in .devcontainer/Dockerfile and all ten clear at once,
-  # because one openssl version fixes every one of them.
-  # The debian entry in docker-library/official-images refreshes roughly every three weeks.
-  # The last two refreshes landed on 3 and 24 August 2026, so the expiry below is the next expected one plus a week.
-  # Only CVE-2026-14456 is HIGH, and it needs a QUIC server.
-  # These affect TLS libraries in the container used for development.
-  # They do not reach the deployed artifact, which is a static PWA.
+  # glibc, installed 2.41-12+deb13u3, fixed in 2.41-12+deb13u4.
+  # Reported against both libc-bin and libc6, and both are MEDIUM.
+  - id: CVE-2026-5450
+    expired_at: 2026-09-30
+  - id: CVE-2026-5928
+    expired_at: 2026-09-30
+
+  # gzip, installed 1.13-1, fixed in 1.13-1+deb13u1.
+  # The HIGH one needs an attacker-supplied LZH archive, and the other needs gzexe, which nothing here runs.
+  - id: CVE-2026-41991
+    expired_at: 2026-09-30
+  - id: CVE-2026-41992
+    expired_at: 2026-09-30
+
+  # openssl, installed 3.5.6-1~deb13u2, fixed in 3.5.7-1~deb13u2.
+  # Reported against both libssl3t64 and openssl-provider-legacy.
+  # curl is the consumer that matters, because Node bundles its own openssl and the Go tools carry their own TLS.
+  # Only CVE-2026-14456 is HIGH, and it needs a QUIC peer.
+  # This curl is built with HTTP3, so that is reachable in principle, and nothing in this repo passes --http3.
+  # Triggering it takes a deliberate HTTP/3 request against a hostile endpoint.
   - id: CVE-2026-14456
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-14457
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-18798
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-54874
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-63072
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-63073
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-63074
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-63075
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-63076
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
   - id: CVE-2026-75803
-    expired_at: 2026-09-21
+    expired_at: 2026-09-30
+
+  # pcre2, installed 10.46-1~deb13u1, fixed in 10.46-1~deb13u2, in libpcre2-8-0.
+  # Every one of them needs an attacker-controlled pattern or subject.
+  # CVE-2026-89158 only affects 32-bit platforms, and this image is x86-64.
+  - id: CVE-2026-86145
+    expired_at: 2026-09-30
+  - id: CVE-2026-89156
+    expired_at: 2026-09-30
+  - id: CVE-2026-89157
+    expired_at: 2026-09-30
+  - id: CVE-2026-89158
+    expired_at: 2026-09-30
+  - id: CVE-2026-89160
+    expired_at: 2026-09-30
+  - id: CVE-2026-89161
+    expired_at: 2026-09-30
+  - id: CVE-2026-89162
+    expired_at: 2026-09-30
+
+  # perl, installed 5.40.1-6, fixed in 5.40.1-6+deb13u1, in perl-base.
+  # Three are CRITICAL, and none of them is reachable in this container without attacker-supplied input.
+  # CVE-2026-13221 needs a hostile regular expression.
+  # CVE-2026-42496 needs an untrusted archive extracted through Archive::Tar.
+  # CVE-2026-8376 only affects 32-bit builds, and this image is x86-64.
+  - id: CVE-2025-15649
+    expired_at: 2026-09-30
+  - id: CVE-2026-7010
+    expired_at: 2026-09-30
+  - id: CVE-2026-7017
+    expired_at: 2026-09-30
+  - id: CVE-2026-8376
+    expired_at: 2026-09-30
+  - id: CVE-2026-12087
+    expired_at: 2026-09-30
+  - id: CVE-2026-13221
+    expired_at: 2026-09-30
+  - id: CVE-2026-42496
+    expired_at: 2026-09-30
+  - id: CVE-2026-42497
+    expired_at: 2026-09-30
+  - id: CVE-2026-48959
+    expired_at: 2026-09-30
+  - id: CVE-2026-48961
+    expired_at: 2026-09-30
+  - id: CVE-2026-48962
+    expired_at: 2026-09-30
+  - id: CVE-2026-57432
+    expired_at: 2026-09-30
+  - id: CVE-2026-57433
+    expired_at: 2026-09-30
+
+  # sqlite, installed 3.46.1-7+deb13u1, fixed in 3.46.1-7+deb13u2, in libsqlite3-0.
+  # Both are HIGH and both need an attacker-controlled database file.
+  - id: CVE-2026-11822
+    expired_at: 2026-09-30
+  - id: CVE-2026-11824
+    expired_at: 2026-09-30
