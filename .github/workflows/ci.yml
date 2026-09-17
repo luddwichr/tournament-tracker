@@ -113,7 +113,25 @@ jobs:
       - run: npm ci
       - name: Verify registry signatures and provenance
         run: npm audit signatures
+      - name: Decide whether the renovate config needs validating
+        id: renovate-config
+        env:
+          # Empty for events that carry no diff base, which the script below treats as "validate anyway".
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # The validator npx-installs renovate, which costs about 25 s on every run.
+          # Only renovate.jsonc and the validator pin in package.json can invalidate the result, so skip it otherwise.
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "${BASE_SHA}...HEAD" | grep -qxE 'renovate\.jsonc|package\.json'; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          fi
       - name: Validate renovate config
+        if: steps.renovate-config.outputs.changed == 'true'
         run: npm run renovate:validate
       - run: npm run check:code
       - name: Lint workflows
