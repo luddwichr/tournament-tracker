@@ -76,7 +76,6 @@ async function flipM53ToAwayWin(wrapper: ReturnType<typeof mountDialog>) {
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  vi.clearAllMocks()
 })
 
 describe('ScoreDialog', () => {
