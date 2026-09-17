@@ -63,10 +63,11 @@ export function useBracketHighlight(roundsEl: Ref<HTMLElement | null>) {
   })
 
   const connectorPaths = computed((): string[] => {
-    // Dead-looking but load-bearing: DOM geometry isn't reactive, so this
-    // read is what makes ResizeObserver-driven layout shifts re-run the computed.
-    // eslint-disable-next-line sonarjs/void-use -- `void` documents the intentional discard of a value read purely for its reactive side effect
-    void measureVersion.value
+    // Dead-looking but load-bearing.
+    // DOM geometry is not reactive, so this read is what subscribes the computed to measureVersion.
+    // It is what makes ResizeObserver-driven layout shifts re-run the computed.
+    // oxlint-disable-next-line no-unused-expressions -- the read itself is the effect, so there is nothing to consume
+    measureVersion.value
     if (hoveredRefKey.value) {
       const matchId = teamRefToMatchId.get(hoveredRefKey.value)
       const p = matchId ? originConnector(hoveredRefKey.value, matchId) : null
