@@ -48,7 +48,6 @@ function createPersistedPinia() {
 describe('tournament store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    vi.clearAllMocks()
   })
 
   it('enterResult adds a result keyed by matchId', () => {
@@ -178,7 +177,6 @@ describe('tournament store — localStorage rehydration', () => {
   beforeEach(() => {
     localStorage.clear()
     setActivePinia(createPersistedPinia())
-    vi.clearAllMocks()
   })
 
   it('rehydrates a valid results map from localStorage', () => {

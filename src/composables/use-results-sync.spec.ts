@@ -1,14 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { makeResult } from '../test-support/results'
 import { nextTick } from 'vue'
 import { syncResults } from '../lib/results-sync'
 import { useResultsSync } from './use-results-sync'
 
 vi.mock('../lib/results-sync', () => ({ syncResults: vi.fn<typeof syncResults>() }))
-
-beforeEach(() => {
-  vi.clearAllMocks()
-})
 
 describe('useResultsSync', () => {
   it('open() enters the confirm state', () => {

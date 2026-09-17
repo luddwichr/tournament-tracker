@@ -27,7 +27,6 @@ vi.mock('../lib/results-sync', () => ({
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  vi.clearAllMocks()
 })
 
 afterEach(() => {
