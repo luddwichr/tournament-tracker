@@ -150,18 +150,13 @@ describe('exportJson', () => {
   beforeEach(() => {
     fakeUrl = 'blob:fake-url'
 
-    // Capture the real createElement before spying on it, so the mock's
-    // fallback branch (for tags other than 'a') delegates to the actual DOM
-    // implementation instead of recursing into itself.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated -- false positive: only the legacy-tag overloads (HTMLElementDeprecatedTagNameMap) are deprecated, but binding the method selects no overload, so the rule flags the whole symbol
-    const originalCreateElement = document.createElement.bind(document)
-    anchor = originalCreateElement('a')
+    // Build the anchor before createElement is spied on, so this call still hits the real DOM.
+    anchor = document.createElement('a')
     clickSpy = vi.spyOn(anchor, 'click').mockImplementation(() => {})
 
-    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-      if (tag === 'a') return anchor
-      return originalCreateElement(tag)
-    })
+    // Only an 'a' is swapped for the shared anchor.
+    // vi.when passes every other tag through to the spied-on original, so no manual fallback branch is needed.
+    vi.when(vi.spyOn(document, 'createElement')).calledWith('a').thenReturn(anchor)
 
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue(fakeUrl)
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
