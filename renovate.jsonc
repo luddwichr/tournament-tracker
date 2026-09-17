@@ -3,6 +3,13 @@
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "rangeStrategy": "pin",
   "minimumReleaseAge": "1 day",
+  // Only rebase a PR when it actually conflicts with main.
+  // The default rebases every open PR whenever main moves.
+  // In cases where main is updated frequently, several full CI runs on identical content are run before the update
+  // PR is merged.
+  // The cost of the narrower setting is that a PR's checks reflect its own merge base rather than the newest main,
+  // which the required checks on merge still catch.
+  "rebaseWhen": "conflicted",
   "packageRules": [
     {
       // Patch bumps are frequent and low-risk, so they share one PR instead of one each.
