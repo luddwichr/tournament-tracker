@@ -71,6 +71,9 @@ export default tseslint.config(
       'vue/no-negated-v-if-condition': 'error',
       'vue/no-ref-object-reactivity-loss': 'error',
       'vue/no-setup-props-reactivity-loss': 'error',
+      // A component emit that reuses a native event name is indistinguishable from the native one at the call site,
+      // because a fallthrough listener would fire for both.
+      'vue/no-shadow-native-events': 'error',
       'vue/no-unused-emit-declarations': 'error',
       'vue/no-unused-properties': 'error',
       'vue/no-unused-refs': 'error',

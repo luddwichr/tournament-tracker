@@ -74,7 +74,7 @@ const ariaLabel = computed(() => {
       :match-id="match.id"
       :pinned="!!pinned"
       :plain="plain"
-      @toggle="emit('toggleHighlight')"
+      @toggle-highlight="emit('toggleHighlight')"
     />
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -- mouse-only convenience click zone around the real MatchScoreButton control, which is already keyboard-accessible -->
     <div class="match-card__body" @click="onBodyClick">

@@ -35,10 +35,10 @@ describe('MatchCardMeta', () => {
     expect(wrapper.classes()).toContain('match-card-meta--active')
   })
 
-  it('emits "toggle" when clicked', async () => {
+  it('emits "toggleHighlight" when clicked', async () => {
     const wrapper = mount(MatchCardMeta, { props: { kickoff, matchId } })
     await wrapper.get('button').trigger('click')
-    expect(wrapper.emitted('toggle')).toHaveLength(1)
+    expect(wrapper.emitted('toggleHighlight')).toHaveLength(1)
   })
 
   it('shows the link icon by default', () => {
@@ -77,9 +77,9 @@ describe('MatchCardMeta', () => {
     expect(time.text()).toBe(expectedKickoff)
   })
 
-  it('does not emit "toggle" when plain (no click handler is wired up)', async () => {
+  it('does not emit "toggleHighlight" when plain (no click handler is wired up)', async () => {
     const wrapper = mount(MatchCardMeta, { props: { kickoff, matchId, plain: true } })
     await wrapper.trigger('click')
-    expect(wrapper.emitted('toggle')).toBeUndefined()
+    expect(wrapper.emitted('toggleHighlight')).toBeUndefined()
   })
 })

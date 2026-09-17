@@ -21,7 +21,7 @@ const { kickoff, matchId } = defineProps<{
   plain?: boolean
 }>()
 
-const emit = defineEmits<{ toggle: [] }>()
+const emit = defineEmits<{ toggleHighlight: [] }>()
 
 const formatted = computed(() => kickoffFmt.format(new Date(kickoff)))
 const number = computed(() => matchNumberLabel(matchId))
@@ -42,7 +42,7 @@ const spokenNumber = computed(() => `Spiel ${matchId.slice(1)}`)
     :class="{ 'match-card-meta--active': pinned }"
     :aria-pressed="pinned ? true : false"
     :aria-label="`Spielverbindungen hervorheben (${spokenNumber}, Anstoß ${formatted})`"
-    @click="emit('toggle')"
+    @click="emit('toggleHighlight')"
   >
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
     <span class="match-card-meta__number" aria-hidden="true">{{ number }}</span>
