@@ -167,7 +167,6 @@ describe('exportJson', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
     vi.useRealTimers()
   })
 

@@ -181,6 +181,8 @@ export default defineConfig(({ command }) => ({
     css: true,
     environment: 'node',
     include: ['src/**/*.spec.ts'],
+    restoreMocks: true,
     setupFiles: ['src/test-support/setup.ts'],
+    unstubGlobals: true,
   },
 }))

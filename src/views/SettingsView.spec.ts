@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import * as persistence from '../lib/persistence'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount } from '@vue/test-utils'
 import { logError, readErrorLog } from '../lib/error-log'
@@ -27,10 +27,6 @@ vi.mock('../lib/results-sync', () => ({
 
 beforeEach(() => {
   setActivePinia(createPinia())
-})
-
-afterEach(() => {
-  vi.unstubAllGlobals()
 })
 
 function mountView() {

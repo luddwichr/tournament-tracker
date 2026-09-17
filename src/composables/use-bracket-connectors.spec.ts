@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { useBracketConnectors } from './use-bracket-connectors'
 
@@ -19,10 +19,6 @@ function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
 }
 
 describe('useBracketConnectors', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   describe('matchConnector', () => {
     it('returns null when roundsEl is null', () => {
       const { matchConnector } = useBracketConnectors(ref(null))
