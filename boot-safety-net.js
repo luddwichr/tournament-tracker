@@ -17,8 +17,8 @@
       if (!Array.isArray(entries)) entries = []
       entries.push({ message: String(message), source: source, time: new Date().toISOString() })
       localStorage.setItem(key, JSON.stringify(entries.slice(-20)))
-      // eslint-disable-next-line sonarjs/no-ignored-exceptions -- must stay ES5 (see file header), so optional catch binding isn't available; localStorage being unavailable is genuinely unrecoverable here
     } catch (e) {
+      // The binding stays because this file must remain ES5, where optional catch binding does not exist.
       // localStorage is unavailable, and there is nothing sensible left to do.
     }
   }
