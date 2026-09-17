@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { defineComponent, h } from 'vue'
@@ -65,13 +65,10 @@ function makeRouter() {
   })
 }
 
-let activeWrapper: ReturnType<typeof mount> | undefined
-
 async function mountApp() {
   const router = makeRouter()
   await router.push('/groups')
   const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
-  activeWrapper = wrapper
   await flushPromises()
   return { router, wrapper }
 }
@@ -104,11 +101,6 @@ async function openScoreDialog(wrapper: ReturnType<typeof mount>) {
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.stubGlobal('scrollTo', vi.fn())
-})
-
-afterEach(() => {
-  activeWrapper?.unmount()
-  activeWrapper = undefined
 })
 
 describe('App', () => {
