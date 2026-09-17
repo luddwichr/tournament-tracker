@@ -38,7 +38,15 @@ export default defineConfig(({ command }) => ({
       name: 'strip-csp-meta-in-dev',
       transformIndexHtml(html: string) {
         if (command !== 'serve') return html
-        return html.replace(/<!-- csp:start[\s\S]*?<!-- csp:end -->\n?/, '')
+        // Built via `new RegExp` rather than written as a regex literal.
+        // opengrep's TypeScript lexer reads a literal `<!--` inside a regex as a legacy HTML comment and skips the
+        // rest of the line, which left this line out of `npm run scan:sast`.
+        // `String.raw` keeps the pattern identical to the literal form.
+        // The sanitization rule guards single-pass stripping of adversarial markup.
+        // It is suppressed because the input is the project's own index.html and the pattern matches a fixed marker
+        // block, so there is no nesting that could hide a surviving tag.
+        // nosemgrep: opengrep.incomplete-html-sanitization
+        return html.replace(new RegExp(String.raw`<!-- csp:start[\s\S]*?<!-- csp:end -->\n?`), '')
       },
     },
     VitePWA({
