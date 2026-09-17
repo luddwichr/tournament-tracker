@@ -44,4 +44,9 @@ export default defineConfig({
     timeout: 60_000,
     url: BASE_URL,
   },
+  // Playwright's default is '50%' of the available cores.
+  // The GitHub runner has four and this suite is IO-bound against a local preview server, so half of them left the
+  // longest step in CI running at half speed.
+  // Locally the default stays, to leave headroom for whatever else the machine is doing.
+  workers: isCI ? '100%' : '50%',
 })
