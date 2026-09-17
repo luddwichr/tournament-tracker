@@ -32,18 +32,15 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   await page.goto('/')
   await groups.expectLoaded()
 
-  // Wait for networkidle so Workbox precaching has time to complete.
-  await page.waitForLoadState('networkidle')
-
-  // Ensure the SW is actually controlling this page (Workbox uses skipWaiting +
-  // clientsClaim by default, so a single load + networkidle is normally enough).
+  // Workbox precaches during service worker install, and skipWaiting activates the worker right after.
+  // So `ready` resolving is the readiness signal that the shell is cached.
   await page.evaluate(() => navigator.serviceWorker.ready)
 
   const hasController = await page.evaluate(() => !!navigator.serviceWorker.controller)
   if (!hasController) {
     // On rare first-install timing, reload once so clientsClaim takes effect.
     await page.reload()
-    await page.waitForLoadState('networkidle')
+    await page.evaluate(() => navigator.serviceWorker.ready)
   }
 
   // --- Phase 2: go offline and verify the app still works ---
@@ -73,7 +70,6 @@ test('reload fetches a new deploy over the network instead of a stale cache', as
     // --- Phase 1: prime the SW cache with the current build (online) ---
     await page.goto('/')
     await new GroupsPage(page).expectLoaded()
-    await page.waitForLoadState('networkidle')
     await page.evaluate(() => navigator.serviceWorker.ready)
 
     // --- Phase 2: simulate a new deploy by rewriting the served index.html,
@@ -84,7 +80,6 @@ test('reload fetches a new deploy over the network instead of a stale cache', as
       originalHtml.replace('<head>', `<head>\n    <meta name="${marker}" content="v2">`),
     )
     await page.reload()
-    await page.waitForLoadState('networkidle')
 
     await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
     await new GroupsPage(page).expectLoaded()
