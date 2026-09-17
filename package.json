@@ -69,7 +69,7 @@
     "npm-run-all2": "9.0.3",
     "oxfmt": "0.68.0",
     "oxlint": "1.83.0",
-    "sass-embedded": "1.103.1",
+    "sass-embedded": "1.104.1",
     "size-limit": "14.0.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.68.0",
