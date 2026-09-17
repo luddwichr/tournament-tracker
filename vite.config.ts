@@ -160,10 +160,22 @@ export default defineConfig(({ command }) => ({
       include: ['src/**/*.ts', 'src/**/*.vue'],
       provider: 'v8',
       thresholds: {
-        branches: 90,
-        functions: 96,
-        lines: 96,
-        statements: 95,
+        branches: 93,
+        functions: 98,
+        lines: 99,
+        // A single thinly tested file barely moves an average taken over ~1600 statements, so the
+        // global numbers above cannot catch it.
+        // These are the highest per-file floors the suite clears today, so any file that drops below
+        // its worst current member fails the gate.
+        // The branch floor is held down by data/teams.ts, where one uncovered fallback out of two
+        // branches already reads as 50%.
+        perFile: {
+          branches: 50,
+          functions: 80,
+          lines: 91,
+          statements: 88,
+        },
+        statements: 98,
       },
     },
     css: true,
