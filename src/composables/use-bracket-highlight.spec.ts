@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { useBracketHighlight } from './use-bracket-highlight'
 
@@ -80,11 +80,6 @@ describe('useBracketHighlight — connectorPaths reactivity to DOM geometry', ()
   beforeEach(() => {
     FakeResizeObserver.instances.length = 0
     vi.stubGlobal('ResizeObserver', FakeResizeObserver)
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-    vi.restoreAllMocks()
   })
 
   it('observes roundsEl and recomputes connectorPaths when it fires', () => {

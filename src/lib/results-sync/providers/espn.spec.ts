@@ -1,5 +1,5 @@
 import { _internal, espnProvider } from './espn'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { fixtures } from '../../../data/fixtures-2026'
 
 interface TeamSide {
@@ -56,10 +56,6 @@ function recordingFetch(data: unknown) {
 
 // Pin "now" to mid-tournament so the query range is deterministic.
 const pinnedNow = () => new Date('2026-07-02T00:00:00Z')
-
-afterEach(() => {
-  vi.unstubAllGlobals()
-})
 
 describe('espnProvider.fetchResults', () => {
   it('maps finished matches with goals and cards, skipping the rest', async () => {

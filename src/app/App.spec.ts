@@ -109,7 +109,6 @@ beforeEach(() => {
 afterEach(() => {
   activeWrapper?.unmount()
   activeWrapper = undefined
-  vi.unstubAllGlobals()
 })
 
 describe('App', () => {

@@ -21,7 +21,6 @@ describe('useScrollLock', () => {
   })
 
   afterEach(() => {
-    vi.unstubAllGlobals()
     document.body.style.position = ''
     document.body.style.top = ''
     document.body.style.width = ''
