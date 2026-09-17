@@ -5,6 +5,12 @@
   "minimumReleaseAge": "1 day",
   "packageRules": [
     {
+      // Patch bumps are frequent and low-risk, so they share one PR instead of one each.
+      // This rule comes first on purpose, because the dedicated groups below override it for their own packages.
+      "groupName": "patch dependencies",
+      "matchUpdateTypes": ["patch"],
+    },
+    {
       "groupName": "playwright",
       "matchPackageNames": ["playwright", "@playwright/test"],
     },
