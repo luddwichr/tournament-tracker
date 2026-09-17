@@ -133,6 +133,10 @@ describe('tournament store', () => {
 // The end-to-end confirm flow lives in src/components/ScoreDialog.spec.ts.
 
 describe('tournament store — invalidation invariant', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
   it('enterResult feeds the pending edit to invalidatedDownstream and drops exactly the ids it returns', () => {
     const store = useTournamentStore()
     store.enterResult(makeResult('M90', 2, 1)) // a stored downstream result
