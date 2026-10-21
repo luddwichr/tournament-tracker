@@ -1,4 +1,4 @@
-import { GroupsPage, expectNoA11yViolations } from './support'
+import { GroupsPage, allGroupResults, expectNoA11yViolations, seedResultsOnLoad } from './support'
 import { expect, test } from '@playwright/test'
 import { GROUP_IDS } from '../src/types/tournament'
 import { teams } from '../src/data/teams'
@@ -34,6 +34,13 @@ test('each group has exactly 4 team rows and 6 match cards', async () => {
 })
 
 test('groups view has no detectable accessibility violations', async ({ page }) => {
+  await expectNoA11yViolations(page)
+})
+
+test('groups view with entered results has no detectable accessibility violations', async ({ page }) => {
+  // The bookings on M01 put a card summary into its score button's name, which the visible score lacks.
+  await seedResultsOnLoad(page, allGroupResults(2, 1, {}, { M01: { awayRed: 1, awayYellow: 2, homeYellow: 1 } }))
+  await groups.goto()
   await expectNoA11yViolations(page)
 })
 

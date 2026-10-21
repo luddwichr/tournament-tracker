@@ -183,6 +183,17 @@ test('knockout view with group results has no detectable accessibility violation
   await expectNoA11yViolations(page)
 })
 
+test('knockout view with entered knockout results has no detectable accessibility violations', async ({ page }) => {
+  // M73 shows the i.E. badge and M74 shows bookings, and neither is part of the visible score text.
+  const results = allGroupResults()
+  results['M73'] = makeResult('M73', 0, 0, { awayShootoutGoals: 3, homeShootoutGoals: 4 })
+  results['M74'] = makeResult('M74', 2, 1, { awayRed: 1, homeYellow: 2 })
+  await seedResultsOnLoad(page, results)
+  await knockout.goto()
+  await knockout.expectLoaded()
+  await expectNoA11yViolations(page)
+})
+
 // Scroll to the currently ongoing round on load
 
 test('does not scroll away from R32 while the group stage is still ongoing', async () => {

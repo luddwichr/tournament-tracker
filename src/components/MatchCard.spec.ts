@@ -31,6 +31,18 @@ function mountCard(overrides: Partial<Props> = {}) {
   return mount(MatchCard, { props: { awayTeam, homeTeam, match, ...overrides } })
 }
 
+/**
+ * The score button's accessible name as Chromium computes it.
+ * It skips aria-hidden parts and puts one space between the pill's grid items.
+ */
+function spokenName(wrapper: ReturnType<typeof mountCard>): string {
+  return [...wrapper.get('.match-score-btn__pill').element.children]
+    .filter((part) => part.getAttribute('aria-hidden') !== 'true')
+    .map((part) => part.textContent.trim())
+    .filter(Boolean)
+    .join(' ')
+}
+
 describe('MatchCard – composition', () => {
   it('renders the meta row, two team slots and the score button', () => {
     const wrapper = mountCard()
@@ -66,8 +78,8 @@ describe('MatchCard – accessible score label', () => {
   it('includes card counts for both sides, pluralized correctly', () => {
     const wrapper = mountCard({ result })
     // home: 1 yellow (singular); away: 2 yellow (plural) + 1 red (singular)
-    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
-      'Deutschland 2, 1 gelbe Karte : 1, 2 gelbe Karten, 1 rote Karte Frankreich – Ergebnis bearbeiten',
+    expect(spokenName(wrapper)).toBe(
+      'Deutschland 2 (1 gelbe Karte) : 1 (2 gelbe Karten, 1 rote Karte) Frankreich – Ergebnis bearbeiten',
     )
   })
 
@@ -75,23 +87,21 @@ describe('MatchCard – accessible score label', () => {
     const wrapper = mountCard({
       result: { ...result, awayRed: 0, awayYellow: 0, homeRed: 0, homeYellow: 0 },
     })
-    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
-      'Deutschland 2 : 1 Frankreich – Ergebnis bearbeiten',
-    )
+    expect(spokenName(wrapper)).toBe('Deutschland 2 : 1 Frankreich – Ergebnis bearbeiten')
   })
 
   it('pluralizes red cards too, and keeps sides independent', () => {
     const wrapper = mountCard({
       result: { ...result, awayRed: 0, awayYellow: 1, homeRed: 2, homeYellow: 0 },
     })
-    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
-      'Deutschland 2, 2 rote Karten : 1, 1 gelbe Karte Frankreich – Ergebnis bearbeiten',
+    expect(spokenName(wrapper)).toBe(
+      'Deutschland 2 (2 rote Karten) : 1 (1 gelbe Karte) Frankreich – Ergebnis bearbeiten',
     )
   })
 
   it('falls back to the no-result label (no card info) when there is no result yet', () => {
     const wrapper = mountCard()
-    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe('Deutschland – Frankreich: Ergebnis eingeben')
+    expect(spokenName(wrapper)).toBe('Deutschland – Frankreich: Ergebnis eingeben')
   })
 
   it('speaks the folded score plus "nach Elfmeterschießen" for a shootout result — the visual i.E. badge is aria-hidden', () => {
@@ -108,9 +118,7 @@ describe('MatchCard – accessible score label', () => {
         homeYellow: 0,
       },
     })
-    expect(wrapper.findComponent(MatchScoreButton).props('label')).toBe(
-      'Deutschland 5 : 3 Frankreich nach Elfmeterschießen – Ergebnis bearbeiten',
-    )
+    expect(spokenName(wrapper)).toBe('Deutschland 5 : 3 Frankreich nach Elfmeterschießen – Ergebnis bearbeiten')
   })
 })
 
