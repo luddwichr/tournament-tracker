@@ -47,11 +47,11 @@ describe('MatchCardMeta', () => {
     expect(wrapper.classes()).not.toContain('match-card-meta--plain')
   })
 
-  it("includes the match number and formatted kickoff time in the toggle button's aria-label", () => {
+  it('names the toggle button from its visible kickoff plus hidden match number and action', () => {
     const wrapper = mount(MatchCardMeta, { props: { kickoff, matchId } })
-    expect(wrapper.get('button').attributes('aria-label')).toBe(
-      `Spielverbindungen hervorheben (Spiel 73, Anstoß ${expectedKickoff})`,
-    )
+    const button = wrapper.get('button')
+    expect(button.attributes('aria-label')).toBeUndefined()
+    expect(button.get('.visually-hidden').text()).toBe('Spiel 73, Spielverbindungen hervorheben')
   })
 
   it('renders the match number so bracket labels like "Sieger Sp. 73" are locatable', () => {
