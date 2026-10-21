@@ -38,7 +38,7 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
-    "flag-icons": "7.5.0",
+    "flag-icons": "7.6.0",
     "pinia": "4.1.0",
     "pinia-plugin-persistedstate": "4.7.1",
     "vue": "3.5.44",
