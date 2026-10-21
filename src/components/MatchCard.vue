@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import MatchScoreButton, { type ScoreLabel } from './MatchScoreButton.vue'
 import type { MatchSlot, Result, Team } from '../types/tournament'
-import { decidedByShootout, foldedScore } from '../lib/knockout'
 import CardIcon from './icons/CardIcon.vue'
 import MatchCardMeta from './MatchCardMeta.vue'
-import MatchScoreButton from './MatchScoreButton.vue'
 import MatchTeamSlot from './MatchTeamSlot.vue'
 import { computed } from 'vue'
+import { decidedByShootout } from '../lib/knockout'
 
 const { homeTeam, awayTeam, result } = defineProps<{
   match: MatchSlot
@@ -35,27 +35,32 @@ function onBodyClick(): void {
   if (!blocked.value) emit('openScore')
 }
 
-// Appended to a side's goal count in `ariaLabel` so a screen reader user can learn about bookings too.
+// Appended to a side's goal count in `scoreLabel` so a screen reader user can learn about bookings too.
 // The visual card badges next to the score are `aria-hidden`, so this text is the only place that information exists.
+// Browsers put a space between the goal and the text after it, so the summary opens with a parenthesis, not a comma.
 function cardSummary(yellow: number, red: number): string {
   const parts: string[] = []
   if (yellow) parts.push(`${yellow} ${yellow === 1 ? 'gelbe Karte' : 'gelbe Karten'}`)
   if (red) parts.push(`${red} ${red === 1 ? 'rote Karte' : 'rote Karten'}`)
-  return parts.length ? `, ${parts.join(', ')}` : ''
+  return parts.length ? ` (${parts.join(', ')})` : ''
 }
 
-const ariaLabel = computed(() => {
+// MatchScoreButton renders the goals themselves between these parts.
+const scoreLabel = computed<ScoreLabel>(() => {
   const home = homeTeam?.name ?? 'Heim'
   const away = awayTeam?.name ?? 'Gast'
   if (result) {
     const homeCards = cardSummary(result.homeYellow, result.homeRed)
     const awayCards = cardSummary(result.awayYellow, result.awayRed)
-    const score = foldedScore(result)
     // The visual "i.E." badge next to the score is aria-hidden, and this is its accessible counterpart.
     const shootout = decidedByShootout(result) ? ' nach Elfmeterschießen' : ''
-    return `${home} ${score.home}${homeCards} : ${score.away}${awayCards} ${away}${shootout} – Ergebnis bearbeiten`
+    return {
+      afterAway: `${awayCards} ${away}${shootout} – Ergebnis bearbeiten`,
+      beforeHome: `${home} `,
+      betweenGoals: `${homeCards} : `,
+    }
   }
-  return `${home} – ${away}: Ergebnis eingeben`
+  return { afterAway: '', beforeHome: `${home} – ${away}: Ergebnis eingeben`, betweenGoals: '' }
 })
 </script>
 
@@ -113,7 +118,7 @@ const ariaLabel = computed(() => {
       <MatchScoreButton
         class="match-card__score"
         :result="result ?? null"
-        :label="ariaLabel"
+        :label="scoreLabel"
         :disabled="blocked"
         @open-score="emit('openScore')"
       />

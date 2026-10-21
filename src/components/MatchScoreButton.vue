@@ -3,9 +3,21 @@ import { decidedByShootout, foldedScore } from '../lib/knockout'
 import type { Result } from '../types/tournament'
 import { computed } from 'vue'
 
+/**
+ * The button's spoken name, split around the visible goals.
+ * Each part renders as visually hidden text next to the goals, so the goals a sighted user sees stay part of the
+ * name (WCAG 2.5.3 Label in Name).
+ */
+export interface ScoreLabel {
+  /** Text before the home goals, or the whole name while there is no result. */
+  readonly beforeHome: string
+  readonly betweenGoals: string
+  readonly afterAway: string
+}
+
 const { result } = defineProps<{
   result?: Result | null
-  label: string
+  label: ScoreLabel
   disabled?: boolean
 }>()
 
@@ -17,25 +29,23 @@ const shootout = computed(() => (result ? decidedByShootout(result) : false))
 </script>
 
 <template>
-  <button
-    type="button"
-    class="match-score-btn"
-    :aria-label="label"
-    :disabled="disabled"
-    @click.stop="emit('openScore')"
-  >
+  <button type="button" class="match-score-btn" :disabled="disabled" @click.stop="emit('openScore')">
     <span
       class="match-score-btn__pill"
       :class="{ 'match-score-btn__pill--split': score, 'match-score-btn__pill--shootout': shootout }"
     >
+      <!-- The hidden parts are absolutely positioned, so they take no cell in the pill's grid. -->
+      <span class="visually-hidden">{{ label.beforeHome }}</span>
       <template v-if="score">
         <span class="match-score-btn__value">{{ score.home }}</span>
-        <!-- Announced via the button's aria-label ("nach Elfmeterschießen"), see MatchCard. -->
+        <!-- Announced as "nach Elfmeterschießen" in the hidden name text, see MatchCard. -->
         <span v-if="shootout" class="match-score-btn__shootout" aria-hidden="true">i.E.</span>
+        <span class="visually-hidden">{{ label.betweenGoals }}</span>
         <span class="match-score-btn__value">{{ score.away }}</span>
+        <span class="visually-hidden">{{ label.afterAway }}</span>
       </template>
       <template v-else>
-        <span class="match-score-btn__dash">–</span>
+        <span class="match-score-btn__dash" aria-hidden="true">–</span>
       </template>
     </span>
   </button>
