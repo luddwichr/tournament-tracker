@@ -10,7 +10,7 @@ ARG NPM_VERSION=12.2.1
 # https://github.com/astral-sh/uv/releases
 ARG UV_VERSION=0.13.4
 # https://www.python.org/downloads/
-ARG PYTHON_VERSION=3.14.7
+ARG PYTHON_VERSION=3.15.0
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
 ARG PLAYWRIGHT_VERSION=1.63.0
