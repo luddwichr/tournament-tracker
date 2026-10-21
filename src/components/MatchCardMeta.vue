@@ -41,11 +41,12 @@ const spokenNumber = computed(() => `Spiel ${matchId.slice(1)}`)
     class="match-card-meta"
     :class="{ 'match-card-meta--active': pinned }"
     :aria-pressed="pinned ? true : false"
-    :aria-label="`Spielverbindungen hervorheben (${spokenNumber}, Anstoß ${formatted})`"
     @click="emit('toggleHighlight')"
   >
+    <!-- The name comes from the content, so the visible kickoff stays part of it (WCAG 2.5.3 Label in Name). -->
     <time class="match-card-meta__kickoff" :datetime="kickoff">{{ formatted }}</time>
     <span class="match-card-meta__number" aria-hidden="true">{{ number }}</span>
+    <span class="visually-hidden">{{ spokenNumber }}, Spielverbindungen hervorheben</span>
     <MatchLinkIcon class="match-card-meta__icon" />
   </button>
 </template>
