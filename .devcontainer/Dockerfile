@@ -2,29 +2,38 @@
 FROM docker.io/library/debian:trixie-slim@sha256:4876fdea29cac1a33a3195f1eb1952feb1fca7dd6dd00be3e2f1879cf20d34d2
 
 # https://nodejs.org/en/about/previous-releases
+# renovate: datasource=node-version depName=node
 ARG NODE_VERSION=24.22.0
 # https://github.com/npm/cli/releases
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
+# renovate: datasource=npm depName=npm
 ARG NPM_VERSION=12.2.1
 # https://github.com/astral-sh/uv/releases
+# renovate: datasource=github-releases depName=uv packageName=astral-sh/uv
 ARG UV_VERSION=0.13.4
 # https://www.python.org/downloads/
+# renovate: datasource=python-version depName=python
 ARG PYTHON_VERSION=3.15.0
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
+# renovate: datasource=npm depName=playwright
 ARG PLAYWRIGHT_VERSION=1.64.1
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=opengrep packageName=opengrep/opengrep
 ARG OPENGREP_VERSION=1.31.0
 # https://github.com/gitleaks/gitleaks/releases
 # Keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=gitleaks packageName=gitleaks/gitleaks
 ARG GITLEAKS_VERSION=8.30.1
 # https://github.com/zizmorcore/zizmor/releases
 # Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=zizmor packageName=zizmorcore/zizmor
 ARG ZIZMOR_VERSION=1.31.1
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=trivy packageName=aquasecurity/trivy
 ARG TRIVY_VERSION=0.76.0
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
