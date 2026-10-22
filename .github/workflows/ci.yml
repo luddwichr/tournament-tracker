@@ -90,7 +90,7 @@ jobs:
         env:
           # keep in sync with TRIVY_VERSION in .devcontainer/Dockerfile
           # renovate: datasource=github-releases depName=trivy packageName=aquasecurity/trivy
-          TRIVY_VERSION: 0.76.0
+          TRIVY_VERSION: 0.76.1
         run: |
           install_dir="$HOME/.trivy/bin"
           mkdir -p "$install_dir"

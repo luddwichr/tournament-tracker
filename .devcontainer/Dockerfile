@@ -34,7 +34,7 @@ ARG ZIZMOR_VERSION=1.31.1
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=trivy packageName=aquasecurity/trivy
-ARG TRIVY_VERSION=0.76.0
+ARG TRIVY_VERSION=0.76.1
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
 ARG USERNAME=developer
