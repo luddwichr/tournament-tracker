@@ -7,5 +7,12 @@
   "jsdoc": {
     "lineWrappingStyle": "balance"
   },
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "overrides": [
+    {
+      // size-limit strips comments from its .jsonc config but rejects trailing commas.
+      "files": [".size-limit.jsonc"],
+      "options": { "trailingComma": "none" }
+    }
+  ]
 }
