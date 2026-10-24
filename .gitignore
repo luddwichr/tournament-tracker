@@ -31,3 +31,7 @@ npm-debug.log*
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Mutation testing
+.stryker-tmp/
+reports/

@@ -6,5 +6,5 @@
     "lib": ["ES2025"],
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "scripts/**/*.ts"]
+  "include": ["vite.config.ts", "playwright.config.ts", "stryker.config.ts", "scripts/**/*.ts"]
 }
