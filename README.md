@@ -37,6 +37,7 @@ gh auth login --with-token < gh-token.txt
 | `npm run typecheck`               | Type-check only, using vue-tsc (TS 6) for the app and `tsc` (TS 7) for the Vue-free projects |
 | `npm run test:unit`               | Run unit tests (Vitest)                                                                      |
 | `npm run test:unit:coverage`      | Run unit tests with coverage                                                                 |
+| `npm run test:mutation`           | Mutation-test `src/lib` with Stryker, see [Mutation testing](#mutation-testing)              |
 | `npm run test:e2e`                | Run e2e tests against the production build (Playwright). Needs `npm run build` first         |
 | `npm run test:e2e:pwa`            | Run the offline and PWA e2e suite. Needs `npm run build` first                               |
 | `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                                    |
@@ -53,6 +54,19 @@ gh auth login --with-token < gh-token.txt
 | `npm run check:code`              | Run typecheck, format:check, lint, lint:unused, test:unit:coverage and the `scan:*` gates    |
 | `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size. Run this before pushing                          |
 | `npm run size`                    | Check bundle size budgets (size-limit). Needs `npm run build` first                          |
+
+## Mutation testing
+
+`npm run test:mutation` runs StrykerJS against the pure logic in `src/lib`, configured in `stryker.config.ts`.
+A full run takes about 10 minutes locally, so it is not part of `check:code`.
+In CI it runs only on demand, via the manually triggered `Mutation testing` workflow, which uploads the HTML report.
+Reports and the incremental cache land in `reports/mutation/`.
+The run fails when the mutation score drops below 85%, set as `thresholds.break` in `stryker.config.ts`.
+
+Static mutants, meaning mutants in code that runs at module load, are kept on purpose.
+`ignoreStatic` would make runs about a third faster, but it reports roughly 77 extra mutants as surviving that the
+full run kills.
+A few static mutants still flip between "timeout" and "survived" from run to run, so the score moves by about a point.
 
 ## TypeScript 6 + 7 side-by-side
 
