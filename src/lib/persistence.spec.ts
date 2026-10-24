@@ -38,6 +38,19 @@ describe('parseImport', () => {
     expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
   })
 
+  it.each([
+    ['a null payload', 'null'],
+    ['a null results value', JSON.stringify({ results: null, version: 1 })],
+    ['a null result entry', JSON.stringify({ results: { M01: null }, version: 1 })],
+  ])('throws the format error for %s', (_label, json) => {
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
+  })
+
+  it('throws when only some results are valid', () => {
+    const json = JSON.stringify({ results: { M01: validResult('M01'), M02: { matchId: 'M02' } }, version: 1 })
+    expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
+  })
+
   it('throws on a non-object results value', () => {
     const json = JSON.stringify({ results: 'bad', version: 1 })
     expect(() => parseImport(json)).toThrow(/Unbekanntes Dateiformat/)
@@ -124,6 +137,7 @@ describe('readLegacyResults / clearLegacyResults', () => {
 
   it.each([
     ['invalid JSON', 'not json {'],
+    ['a null payload', 'null'],
     ['a payload without results', JSON.stringify({})],
     ['an invalid results map', JSON.stringify({ results: { M01: { matchId: 'M01' } } })],
   ])('returns null for %s', (_label, raw) => {

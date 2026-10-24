@@ -63,6 +63,15 @@ describe('buildResultsFromSource', () => {
     expect(results['M01']!.homeGoals).toBe(2)
   })
 
+  it('picks the nearest candidate even when a farther one is listed first', () => {
+    const results = buildResultsFromSource([
+      src('mex', 'rsa', { date: '2026-07-15', homeGoals: 9 }),
+      src('mex', 'rsa', { date: '2026-06-12', homeGoals: 2 }),
+      src('mex', 'rsa', { date: '2026-05-01', homeGoals: 5 }),
+    ])
+    expect(results['M01']!.homeGoals).toBe(2)
+  })
+
   it('resolves a knockout slot once its feeder group results are present', () => {
     const groupSources = groupMatches.map((m) =>
       src((m.homeRef as { teamId: string }).teamId, (m.awayRef as { teamId: string }).teamId, {
@@ -117,6 +126,28 @@ describe('buildResultsFromSource', () => {
         awayShootoutGoals: 5,
         homeGoals: 1,
         homeShootoutGoals: 3,
+      })
+    })
+
+    it.each([
+      [3, 0],
+      [0, 3],
+    ])('keeps a %i:%i shootout in which one side scored no penalty', (homeShootout, awayShootout) => {
+      const results = buildResultsFromSource([
+        ...groupSources,
+        src(home.id, away.id, {
+          awayGoals: 1,
+          awayShootoutGoals: awayShootout,
+          date: '2026-06-28',
+          homeGoals: 1,
+          homeShootoutGoals: homeShootout,
+        }),
+      ])
+      expect(results['M73']).toMatchObject({
+        awayGoals: 1,
+        awayShootoutGoals: awayShootout,
+        homeGoals: 1,
+        homeShootoutGoals: homeShootout,
       })
     })
 

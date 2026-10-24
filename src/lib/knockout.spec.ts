@@ -105,6 +105,19 @@ describe("resolveTeamRef — kind 'matchWinner'", () => {
     expect(resolveTeamRef(ref, results)).toBeNull()
   })
 
+  it('returns null while only one side is resolved, even if that side won', () => {
+    // Group A is complete, so the home side A2 is known, but group B is not, so B2 is not.
+    const results: Record<string, Result> = {}
+    groupMatches
+      .filter((m) => m.group === 'A')
+      .forEach((m) => {
+        results[m.id] = makeResult(m.id, 1, 0)
+      })
+    results['M73'] = makeResult('M73', 1, 0)
+    const ref: TeamRef = { kind: 'matchWinner', matchId: 'M73' }
+    expect(resolveTeamRef(ref, results)).toBeNull()
+  })
+
   it('returns the winner of M73 (A2 vs B2) once groups A and B are complete', () => {
     const results: Record<string, Result> = {}
     // Complete groups A and B.
