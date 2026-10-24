@@ -1,0 +1,13 @@
+// Bundle size budgets for `npm run size`, checked against the output of `npm run build`.
+[
+  // Loaded on every page load.
+  { "name": "Entry JS", "path": "dist/assets/index-*.js", "limit": "35 KB" },
+  // Loaded on every page load.
+  { "name": "Entry CSS", "path": "dist/assets/index-*.css", "limit": "12 KB" },
+  // The subset built from styles/flags.scss.
+  // It catches a re-import of the full flag-icons catalog.
+  { "name": "Flag CSS", "path": "dist/assets/TeamLabel-*.css", "limit": "5 KB" },
+  // The whole build output.
+  // It catches overall bloat, whether on the hot path or in lazily loaded chunks.
+  { "name": "Total dist", "path": "dist/**/*", "limit": "1 MB" }
+]

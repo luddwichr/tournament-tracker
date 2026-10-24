@@ -78,28 +78,6 @@
     "vitest": "5.0.5",
     "vue-tsc": "3.3.13"
   },
-  "size-limit": [
-    {
-      "name": "Entry JS (loaded on every page load)",
-      "path": "dist/assets/index-*.js",
-      "limit": "35 KB"
-    },
-    {
-      "name": "Entry CSS (loaded on every page load)",
-      "path": "dist/assets/index-*.css",
-      "limit": "12 KB"
-    },
-    {
-      "name": "Flag CSS (subset built from styles/flags.scss; catches a re-import of the full flag-icons catalog)",
-      "path": "dist/assets/TeamLabel-*.css",
-      "limit": "5 KB"
-    },
-    {
-      "name": "Total dist (whole build output; catches overall bloat regardless of hot vs. lazy path)",
-      "path": "dist/**/*",
-      "limit": "1 MB"
-    }
-  ],
   "engines": {
     "node": "24.22.1",
     "npm": "12.2.1"
