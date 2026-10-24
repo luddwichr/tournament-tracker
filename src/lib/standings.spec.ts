@@ -74,6 +74,18 @@ describe('computeGroupStandings — basic aggregation', () => {
     expect(mex.form).toEqual(['W', 'D', 'L'])
   })
 
+  it('credits an away win and a draw to both sides', () => {
+    // M01 mex 1-1 rsa → both D
+    // M02 kor 0-2 cze → cze W away, kor L home
+    const standings = computeGroupStandings('A', resultsMap(makeResult(mid(0), 1, 1), makeResult(mid(1), 0, 2)))
+    const byId = (id: string) => standings.find((s) => s.team.id === id)!
+
+    expect(byId('cze')).toMatchObject({ draws: 0, form: ['W'], losses: 0, points: 3, wins: 1 })
+    expect(byId('kor')).toMatchObject({ draws: 0, form: ['L'], losses: 1, points: 0, wins: 0 })
+    expect(byId('mex')).toMatchObject({ draws: 1, form: ['D'], losses: 0, points: 1, wins: 0 })
+    expect(byId('rsa')).toMatchObject({ draws: 1, form: ['D'], losses: 0, points: 1, wins: 0 })
+  })
+
   it('accumulates yellow and red cards and computes fairPlayScore', () => {
     // M01 mex 1-0 rsa; mex gets 2 yellows (home), rsa gets 1 red (away)
     const standings = computeGroupStandings('A', resultsMap(makeResult(mid(0), 1, 0, { awayRed: 1, homeYellow: 2 })))

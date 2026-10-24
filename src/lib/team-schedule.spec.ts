@@ -85,11 +85,11 @@ describe('computeTeamStats', () => {
   it('attributes cards from the correct side, including when the team plays away', () => {
     const entries = matchesForTeam(
       ger,
-      resultsMap(makeResult('M56', 2, 1, { awayRed: 0, awayYellow: 2, homeRed: 1, homeYellow: 4 })),
+      resultsMap(makeResult('M56', 2, 1, { awayRed: 1, awayYellow: 2, homeRed: 3, homeYellow: 4 })),
     )
     const stats = computeTeamStats(ger, entries)
     expect(stats.yellowCards).toBe(2)
-    expect(stats.redCards).toBe(0)
+    expect(stats.redCards).toBe(1)
   })
 
   it('ignores unplayed matches', () => {

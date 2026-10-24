@@ -55,7 +55,14 @@ describe('readErrorLog', () => {
     const valid = { message: 'parse error', source: 'boot', time: '2026-07-13T10:00:00.000Z' }
     localStorage.setItem(
       ERROR_LOG_KEY,
-      JSON.stringify([valid, { message: 'x', source: 'vue', time: 123 }, { source: 'nope' }, null]),
+      JSON.stringify([
+        valid,
+        { message: 'x', source: 'vue', time: 123 },
+        { message: 'x', source: 'nope', time: '2026-07-13T10:00:00.000Z' },
+        { message: 42, source: 'vue', time: '2026-07-13T10:00:00.000Z' },
+        { source: 'nope' },
+        null,
+      ]),
     )
     expect(readErrorLog()).toEqual([valid])
   })

@@ -13,12 +13,12 @@
  * M53: cze(h) vs mex(a)
  */
 
+import { compareByPointsGdGf, sortTeams } from './tiebreakers'
 import { describe, expect, it } from 'vitest'
 import type { ResultsMap } from '../types/tournament'
 import type { TiebreakerStat } from './tiebreakers'
 import { groupMatches } from '../data/fixtures-2026'
 import { makeResult } from '../test-support/results'
-import { sortTeams } from './tiebreakers'
 import { teamsInGroup } from '../data/teams'
 
 const groupATeams = teamsInGroup('A') // mex(14), rsa(60), kor(25), cze(40)
@@ -185,5 +185,85 @@ describe('sortTeams — missing overallStats entry', () => {
     ])
 
     expect(() => sortTeams(groupATeams, groupAMatches, {}, incompleteStats)).toThrow(/rsa/)
+  })
+})
+
+describe('sortTeams — Step 2 re-applies head-to-head to the narrowed tie', () => {
+  it('ranks the remaining two teams by their own match, not by overall GD', () => {
+    // A three-way cycle in which every team wins once:
+    //   M28 mex(h) 2-1 kor(a)
+    //   M02 kor(h) 3-1 cze(a)
+    //   M53 cze(h) 3-0 mex(a)
+    //
+    // Three-way H2H: all 3 pts, GD mex −2, kor +1, cze +1, GF mex 2, kor 4, cze 4.
+    // mex drops out, and kor and cze remain level on a–c.
+    // Re-applying a–c to kor vs cze alone separates them, because kor won M02.
+    // cze has the better overall GD, so skipping the re-application would wrongly put cze first.
+    const stats: Map<string, TiebreakerStat> = new Map([
+      ['mex', { fairPlayScore: 0, goalDiff: 0, goalsFor: 5, points: 6 }],
+      ['kor', { fairPlayScore: 0, goalDiff: 1, goalsFor: 5, points: 6 }],
+      ['cze', { fairPlayScore: 0, goalDiff: 4, goalsFor: 5, points: 6 }],
+      ['rsa', { fairPlayScore: 0, goalDiff: -5, goalsFor: 0, points: 0 }],
+    ])
+    const results: ResultsMap = {
+      M02: makeResult('M02', 3, 1),
+      M28: makeResult('M28', 2, 1),
+      M53: makeResult('M53', 3, 0),
+    }
+
+    const ids = sortTeams(groupATeams, groupAMatches, results, stats).map((t) => t.id)
+
+    expect(ids).toEqual(['kor', 'cze', 'mex', 'rsa'])
+  })
+})
+
+describe('sortTeams — Step 2 applies d, e and f in order', () => {
+  // mex and kor are level on points and drew head-to-head, so only the overall criteria can split them.
+  const drawnH2H: ResultsMap = { M28: makeResult('M28', 1, 1) }
+
+  function rank(mex: TiebreakerStat, kor: TiebreakerStat): string[] {
+    const stats: Map<string, TiebreakerStat> = new Map([
+      ['mex', mex],
+      ['kor', kor],
+      ['cze', { fairPlayScore: 0, goalDiff: -5, goalsFor: 0, points: 0 }],
+      ['rsa', { fairPlayScore: 0, goalDiff: -5, goalsFor: 0, points: 0 }],
+    ])
+    return sortTeams(groupATeams, groupAMatches, drawnH2H, stats)
+      .map((t) => t.id)
+      .filter((id) => id === 'mex' || id === 'kor')
+  }
+
+  it('lets overall GD (d) win over more goals scored (e)', () => {
+    const ranking = rank(
+      { fairPlayScore: 0, goalDiff: 1, goalsFor: 9, points: 4 },
+      { fairPlayScore: 0, goalDiff: 2, goalsFor: 3, points: 4 },
+    )
+    expect(ranking).toEqual(['kor', 'mex'])
+  })
+
+  it('lets overall goals scored (e) win over a better fair-play score (f)', () => {
+    const ranking = rank(
+      { fairPlayScore: -4, goalDiff: 1, goalsFor: 5, points: 4 },
+      { fairPlayScore: 0, goalDiff: 1, goalsFor: 3, points: 4 },
+    )
+    expect(ranking).toEqual(['mex', 'kor'])
+  })
+
+  it('applies goals scored (e) the same way when the second team scored more', () => {
+    const ranking = rank(
+      { fairPlayScore: 0, goalDiff: 1, goalsFor: 3, points: 4 },
+      { fairPlayScore: -4, goalDiff: 1, goalsFor: 5, points: 4 },
+    )
+    expect(ranking).toEqual(['kor', 'mex'])
+  })
+})
+
+describe('compareByPointsGdGf', () => {
+  it('ranks the larger of two positive goal differences first, whatever the goals scored', () => {
+    const better = { goalDiff: 3, goalsFor: 4, points: 4 }
+    const worse = { goalDiff: 1, goalsFor: 9, points: 4 }
+
+    expect(compareByPointsGdGf(better, worse)).toBeLessThan(0)
+    expect(compareByPointsGdGf(worse, better)).toBeGreaterThan(0)
   })
 })

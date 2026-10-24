@@ -109,6 +109,16 @@ describe('rankThirdPlaced', () => {
     // rsa and bih both have same pts/GD/GF; rsa has fairPlay=-2, bih has fairPlay=0
     // → bih must rank above rsa despite rsa having a better FIFA rank
     expect(bihIdx).toBeLessThan(rsaIdx)
+    // Every other third-placed team is level with rsa on all criteria but fair-play, so rsa ranks last.
+    expect(rsaIdx).toBe(ranked.length - 1)
+  })
+
+  it('ranks the team with fewer cards first when both teams have cards', () => {
+    // Same all-1-0 pattern as above, so rsa (group A) and bih (group B) are level on pts, GD and GF.
+    // rsa takes 1 yellow in M54 and bih takes 3 in M49, so rsa's fair-play score of -1 beats bih's -3.
+    const results = allGroupResults(1, 0, {}, { M49: { homeYellow: 3 }, M54: { homeYellow: 1 } })
+    const ids = rankThirdPlaced(results)!.map((s) => s.team.id)
+    expect(ids.slice(-2)).toEqual(['rsa', 'bih'])
   })
 })
 
