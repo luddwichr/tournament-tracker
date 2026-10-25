@@ -172,7 +172,7 @@ RUN npx playwright@${PLAYWRIGHT_VERSION} install chromium
 # repeated --config values into one comma-joined path rather than letting the last one win.
 # Running from the workspace also keeps the .playwright-cli snapshot output in the ignored directory
 # instead of scattering it across whatever directory the caller happened to be in.
-RUN printf '#!/bin/sh\ncd %s || exit 1\nexec %s/node_modules/.bin/playwright cli "$@"\n' \
+RUN printf '#!/usr/bin/env bash\ncd %s || exit 1\nexec %s/node_modules/.bin/playwright cli "$@"\n' \
         "${WORKSPACE_FOLDER}" "${WORKSPACE_FOLDER}" \
     | install -Dm755 /dev/stdin ~/.local/bin/playwright-cli
 
