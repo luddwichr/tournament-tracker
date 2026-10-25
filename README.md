@@ -45,10 +45,11 @@ gh auth login --with-token < gh-token.txt
 | `npm run format` / `format:check` | Format / check formatting with oxfmt                                                         |
 | `npm run scan:sast`               | Scan for security issues with opengrep (registry rulesets + `.opengrep/rules.yml`)           |
 | `npm run scan:secrets`            | Scan the full git history for committed credentials with gitleaks                            |
-| `npm run scan:workflows`          | Lint GitHub Actions workflows for security issues with zizmor                                |
+| `npm run scan:shellscripts`       | Lint every shell script, including the git hooks, with shellcheck                            |
+| `npm run scan:workflows`          | Lint GitHub Actions workflows with zizmor (security) and actionlint (syntax)                 |
 | `npm run scan:licenses`           | Enforce the permissive-only license policy (trivy, see `.trivy/licenses.yaml`)               |
 | `npm run scan:deps`               | Scan dependencies for fixable HIGH/CRITICAL vulnerabilities (trivy)                          |
-| `npm run scan:dockerfile`         | Scan the devcontainer Dockerfile for misconfigurations (trivy)                               |
+| `npm run scan:dockerfile`         | Scan the devcontainer Dockerfile for misconfigurations (trivy) and lint it (hadolint)        |
 | `npm run scan:image`              | Scan the pinned Dockerfile base image for fixable OS CVEs (trivy)                            |
 | `npm run sbom`                    | Generate a CycloneDX SBOM into `sbom.cdx.json` (trivy)                                       |
 | `npm run check:code`              | Run typecheck, format:check, lint, lint:unused, test:unit:coverage and the `scan:*` gates    |
