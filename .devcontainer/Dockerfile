@@ -31,12 +31,25 @@ ARG GITLEAKS_VERSION=8.30.1
 # Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=zizmor packageName=zizmorcore/zizmor
 ARG ZIZMOR_VERSION=1.31.1
+# https://github.com/koalaman/shellcheck/releases
+# Keep in sync with SHELLCHECK_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=shellcheck packageName=koalaman/shellcheck
+ARG SHELLCHECK_VERSION=0.11.0
+# https://github.com/rhysd/actionlint/releases
+# Keep in sync with ACTIONLINT_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=actionlint packageName=rhysd/actionlint
+ARG ACTIONLINT_VERSION=1.7.12
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=trivy packageName=aquasecurity/trivy
 ARG TRIVY_VERSION=0.76.1
+# https://github.com/hadolint/hadolint/releases
+# Keep in sync with HADOLINT_VERSION in .github/workflows/ci.yml.
+# renovate: datasource=github-releases depName=hadolint packageName=hadolint/hadolint
+ARG HADOLINT_VERSION=2.15.1
 ARG COMMAND_HISTORY_FOLDER=/commandhistory
 ARG WORKSPACE_FOLDER=/workspace
+# hadolint ignore=DL3064 # username is not sensitive here
 ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=1000
@@ -54,7 +67,15 @@ ENV TZ="$TZ" \
     NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global \
     PATH="/home/${USERNAME}/.local/bin:/home/${USERNAME}/.npm-global/bin:$PATH"
 
+# Run every RUN below through bash with pipefail, so a failing command in a pipe fails the build.
+# Without it only the last command's status counts, and a truncated `curl | sh` can run a partial
+# installer and still report success.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # install additional system packages
+# We accept the default Debian package versions and do not want to pin them all here.
+# Potential version issues are accepted as a result.
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # common utilities
     ca-certificates git curl jq nano unzip zip xz-utils htop procps gh \
@@ -135,6 +156,7 @@ RUN npm install -g npm@${NPM_VERSION}
 # Pre-install the Playwright browser.
 # Only chromium is fetched, because both playwright.config.ts and playwright.pwa.config.ts
 # run every project on chromium, and Pixel 7 emulation is chromium too.
+# hadolint ignore=DL3059 # kept as its own layer, so a browser bump does not invalidate the npm layer above
 RUN npx playwright@${PLAYWRIGHT_VERSION} install chromium
 
 # Playwright bundles the cli as `playwright cli` since 1.62.0, so it rides the project's
@@ -155,7 +177,9 @@ RUN printf '#!/bin/sh\ncd %s || exit 1\nexec %s/node_modules/.bin/playwright cli
     | install -Dm755 /dev/stdin ~/.local/bin/playwright-cli
 
 # Install uv (Python package manager) - useful for coding agents that use Python code for temporary scripting tasks
-RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh \
+RUN curl -LsSf --retry 3 --retry-all-errors https://astral.sh/uv/${UV_VERSION}/install.sh -o /tmp/uv-install.sh \
+    && sh /tmp/uv-install.sh \
+    && rm /tmp/uv-install.sh \
     && uv python install ${PYTHON_VERSION} --default
 
 # Install opengrep - used for static code analysis
@@ -177,6 +201,20 @@ RUN curl -fsSL --retry 3 --retry-all-errors \
 RUN uv tool install zizmor==${ZIZMOR_VERSION} \
     && zizmor --version
 
+# Install shellcheck - lints shell scripts, for `npm run scan:shellscripts` and actionlint below.
+# The release binary is pinned rather than taken from apt, so the devcontainer and CI run the same version.
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz \
+    | tar -xJ -C ~/.local/bin --strip-components=1 shellcheck-v${SHELLCHECK_VERSION}/shellcheck \
+    && shellcheck --version
+
+# Install actionlint - lints GitHub Actions workflow syntax, expressions and the shell in `run:` blocks.
+# It shells out to the shellcheck installed above, so that layer has to stay.
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz \
+    | tar -xz -C ~/.local/bin actionlint \
+    && actionlint --version
+
 # Install trivy - SBOM generation, permissive-license policy and dependency /
 # Dockerfile vulnerability scanning (the tarball contains a single static binary)
 RUN curl -fsSL --retry 3 --retry-all-errors \
@@ -184,8 +222,17 @@ RUN curl -fsSL --retry 3 --retry-all-errors \
     | tar -xz -C ~/.local/bin trivy \
     && trivy --version
 
+# Install hadolint - lints Dockerfiles, including the shell in RUN instructions through its built-in ShellCheck
+RUN curl -fsSL --retry 3 --retry-all-errors \
+        https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-linux-x86_64 \
+        -o ~/.local/bin/hadolint \
+    && chmod +x ~/.local/bin/hadolint \
+    && hadolint --version
+
 # Install claude (version not pinned since it auto-updates itself and update is released more or less daily)
-RUN curl -fsSL https://claude.ai/install.sh | bash \
+RUN curl -fsSL --retry 3 --retry-all-errors https://claude.ai/install.sh -o /tmp/claude-install.sh \
+    && bash /tmp/claude-install.sh \
+    && rm /tmp/claude-install.sh \
     && claude plugin marketplace add anthropics/claude-plugins-official
 
 WORKDIR ${WORKSPACE_FOLDER}
