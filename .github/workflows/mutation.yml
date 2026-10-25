@@ -7,6 +7,12 @@ on:
 
 permissions: {}
 
+# Every `run:` step goes through bash with pipefail, which `shell: bash` spells `bash --noprofile --norc -eo pipefail`.
+# Without it the runner uses `bash -e`, and a failing command early in a pipe is masked by the last one.
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: mutation-${{ github.ref }}
   cancel-in-progress: true

@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Lint GitHub Actions workflows with zizmor and actionlint whenever a workflow file is staged.
 # Kept out of the pre-push gate so misconfigured workflows are caught at the
 # moment they're committed; runs offline (online audits are owned by CI).
-set -eu
-if git diff --cached --name-only --diff-filter=ACMR | grep -q '^\.github/workflows/'; then
+set -euo pipefail
+# The pathspec does the filtering, because piping into `grep -q` can fail under pipefail.
+# grep exits on the first match, and git then dies of SIGPIPE, which pipefail reports as a failure.
+staged_workflows=$(git diff --cached --name-only --diff-filter=ACMR -- .github/workflows/)
+if [[ -n "${staged_workflows}" ]]; then
   npm run scan:workflows
 fi

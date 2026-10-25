@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Fast local gate: typecheck, format check, lint, unit tests, opengrep (~seconds).
 # The expensive gate (build, e2e, size-limit) is owned by CI; run
 # `npm run check:build` manually before risky pushes if you want it locally.
-set -eu
+set -euo pipefail
 npm run check:code
