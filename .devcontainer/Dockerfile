@@ -22,7 +22,7 @@ ARG PLAYWRIGHT_VERSION=1.64.1
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=opengrep packageName=opengrep/opengrep
-ARG OPENGREP_VERSION=1.32.0
+ARG OPENGREP_VERSION=1.33.1
 # https://github.com/gitleaks/gitleaks/releases
 # Keep in sync with GITLEAKS_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=gitleaks packageName=gitleaks/gitleaks
