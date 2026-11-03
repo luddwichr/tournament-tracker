@@ -68,7 +68,11 @@ export default tseslint.config(
       'vue/html-indent': 'off',
       'vue/html-self-closing': 'off',
       'vue/max-attributes-per-line': 'off',
+      'vue/no-content-outside-block': 'error',
+      // A `defineModel` default never reaches the parent, so parent and child would disagree about the value.
+      'vue/no-define-model-default': 'error',
       'vue/no-negated-v-if-condition': 'error',
+      'vue/no-props-shadow': 'error',
       'vue/no-ref-object-reactivity-loss': 'error',
       'vue/no-setup-props-reactivity-loss': 'error',
       // A component emit that reuses a native event name is indistinguishable from the native one at the call site,
