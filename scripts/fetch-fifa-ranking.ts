@@ -17,7 +17,6 @@
 // given snapshot of the source table.
 
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { writeFileSync } from 'node:fs'
 
 const SOURCE_URL = 'https://www.whereig.com/football/fifa-world-rankings.html'
@@ -367,7 +366,7 @@ function emitTypescript(rows: RankingRow[], outPath: string): void {
 }
 
 async function main(): Promise<void> {
-  const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)))
+  const repoRoot = dirname(import.meta.dirname)
   const outPath = join(repoRoot, 'src', 'data', 'fifa-ranking.ts')
 
   const rows = parseRanking(await fetchHtml())

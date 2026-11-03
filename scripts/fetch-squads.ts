@@ -11,7 +11,6 @@
 // deterministic for the same wikitext.
 
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { writeFileSync } from 'node:fs'
 
 interface Player {
@@ -261,7 +260,7 @@ function emitTypescript(squads: Map<string, Player[]>, outPath: string): void {
 }
 
 async function main(): Promise<void> {
-  const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)))
+  const repoRoot = dirname(import.meta.dirname)
   const outPath = join(repoRoot, 'src', 'data', 'squads.ts')
 
   const wikitext = await fetchWikitext()
