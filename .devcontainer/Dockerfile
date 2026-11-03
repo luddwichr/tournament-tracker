@@ -79,6 +79,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # common utilities
     ca-certificates git curl jq nano unzip zip xz-utils htop procps gh \
+    # The official Node.js Linux binaries link against libatomic since Node 25.
+    # Listed explicitly so Node keeps working even if no other package pulls it in transitively.
+    libatomic1 \
     # ssh client so git can push via the host's ssh-agent (VS Code forwards
     # SSH_AUTH_SOCK into the container automatically; no keys live in here)
     openssh-client \
