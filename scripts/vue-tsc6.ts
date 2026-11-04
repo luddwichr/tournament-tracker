@@ -14,10 +14,11 @@
 // So resolve @typescript/old, which is the genuine typescript@6 hidden behind the alias.
 // Then hand its tsc entry point to vue-tsc's run().
 //
-// Usage: node scripts/vue-tsc6.js [vue-tsc args, e.g. -b]
+// Usage: node scripts/vue-tsc6.ts [vue-tsc args, e.g. -b]
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
+import { run } from 'vue-tsc'
 
 const require = createRequire(import.meta.url)
 
@@ -27,7 +28,7 @@ const require = createRequire(import.meta.url)
 // Both steps below depend on layout this project does not own, meaning Microsoft's internal repackage shape and the
 // linked-install symlink shape. That makes this the most fragile point in the toolchain, so a failure here explains
 // itself rather than surfacing as a bare MODULE_NOT_FOUND during an unrelated bump.
-let realTsc6
+let realTsc6: string
 try {
   const aliasRequire = createRequire(fs.realpathSync(require.resolve('typescript/package.json')))
   realTsc6 = aliasRequire.resolve('@typescript/old/lib/tsc.js')
@@ -40,4 +41,4 @@ try {
   )
 }
 
-require('vue-tsc').run(realTsc6)
+run(realTsc6)

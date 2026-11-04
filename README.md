@@ -78,7 +78,7 @@ This is because typescript-eslint and vue-tsc cannot use TS 7 until it ships a p
 The real TS 7 (`tsc`) checks the Vue-free projects, meaning the build config and e2e.
 vue-tsc (TS 6) checks everything that touches a `.vue` SFC.
 See [`docs/typescript-7-side-by-side.md`](./docs/typescript-7-side-by-side.md) for the tracking issues, the
-`scripts/vue-tsc6.js` workaround, and how to unwind the setup once upstream support lands.
+`scripts/vue-tsc6.ts` workaround, and how to unwind the setup once upstream support lands.
 
 ## Two Playwright configs
 

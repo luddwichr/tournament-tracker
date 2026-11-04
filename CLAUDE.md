@@ -9,7 +9,7 @@ Only `results`, the map of entered match results, is mutable state.
 Standings, the third-place ranking and the whole knockout bracket are derived by pure functions in `src/lib/`.
 Fixing a wrong table almost always means fixing a function there, not a component.
 
-Layers live in `src/` and `eslint-plugin-boundaries` enforces which may import which, configured in `eslint.config.js`.
+Layers live in `src/` and `eslint-plugin-boundaries` enforces which may import which, configured in `eslint.config.ts`.
 
 | Folder                                         | Role                                        |
 | ---------------------------------------------- | ------------------------------------------- |

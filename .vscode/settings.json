@@ -7,6 +7,7 @@
   "js/ts.tsdk.path": "./node_modules/typescript/lib",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "eslint.validate": ["typescript", "vue"],
+  "eslint.options": { "flags": ["unstable_native_nodejs_ts_config"] },
   "json.schemaDownload.trustedDomains": {
     "https://docs.renovatebot.com/renovate-schema.json": true
   }

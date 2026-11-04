@@ -1,20 +1,20 @@
+import { defineConfig, includeIgnoreFile } from 'eslint/config'
 import boundaries from 'eslint-plugin-boundaries'
 import eslint from '@eslint/js'
 import { fileURLToPath } from 'node:url'
 import globals from 'globals'
-import { includeIgnoreFile } from 'eslint/config'
 import oxlint from 'eslint-plugin-oxlint'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVueA11y from 'eslint-plugin-vuejs-accessibility'
-import sonarjs from 'eslint-plugin-sonarjs'
+import { configs as sonarjsConfigs } from 'eslint-plugin-sonarjs'
 import tseslint from 'typescript-eslint'
 
 const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
 
-export default tseslint.config(
+export default defineConfig(
   includeIgnoreFile(gitignorePath),
   eslint.configs.recommended,
-  sonarjs.configs.recommended,
+  sonarjsConfigs.recommended,
   tseslint.configs.strictTypeChecked,
   pluginVue.configs['flat/recommended'],
   pluginVueA11y.configs['flat/recommended'],
@@ -43,7 +43,7 @@ export default tseslint.config(
   },
   {
     extends: [tseslint.configs.disableTypeChecked],
-    // Plain JS files (this config, hooks, build scripts) have no tsconfig project; typed rules would error on them.
+    // The plain JS boot scripts in `public/` have no tsconfig project, so typed rules would error on them.
     files: ['**/*.js'],
   },
   {
@@ -119,12 +119,9 @@ export default tseslint.config(
     },
   },
   {
-    files: ['.claude/**/*.js'],
-    languageOptions: {
-      globals: globals.node,
-    },
+    files: ['.claude/**/*.ts'],
     rules: {
-      // Local dev tooling (statusline hook) shells out to fixed, trusted commands like `git`.
+      // Local dev tooling such as the status line shells out to fixed, trusted commands like `git`.
       // The PATH-hardening rule guards binaries invoked on untrusted input, which these are not.
       'sonarjs/no-os-command-from-path': 'off',
     },

@@ -62,7 +62,7 @@ Where the shipped code and the planning docs disagree, the **code is authoritati
   test.
 - **oxlint** and **eslint** for linting, and **oxfmt** for formatting.
   `npm run lint` runs both linters.
-  eslint additionally enforces the import boundaries configured in `eslint.config.js`.
+  eslint additionally enforces the import boundaries configured in `eslint.config.ts`.
 - **All npm dependencies pinned to exact versions**, so no `^` or `~`, enforced by `save-exact` in `.npmrc` and by
   Renovate's pinning config.
 - **Non-mutating array methods only**, meaning `toSorted`, `toReversed` and `toSpliced`.
