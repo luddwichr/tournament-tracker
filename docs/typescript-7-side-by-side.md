@@ -53,7 +53,7 @@ In `package.json`, which allows no comments, hence this file:
 - `"@typescript/native": "npm:typescript@7.…"` is the real TypeScript 7.
   It owns the `tsc` binary, which `typecheck:ts7` runs against the Vue-free projects via
   `tsc -b tsconfig.node.json tsconfig.e2e.json`.
-- `scripts/vue-tsc6.js` is the wrapper used by `npm run typecheck` and `npm run build`.
+- `scripts/vue-tsc6.ts` is the wrapper used by `npm run typecheck` and `npm run build`.
   vue-tsc cannot use the alias directly, because it patches the file behind `typescript/lib/tsc`.
   The repackage ships that as a one-line `require("@typescript/old/lib/tsc.js")` shim that `@volar/typescript` doesn't
   recognize.
@@ -72,6 +72,6 @@ Once both tracking issues above are resolved, expected earliest in TS 7.1:
 1. Replace the two aliased devDependencies with a single `"typescript": "7.x"`.
 2. Bump `typescript-eslint` and `vue-tsc` to releases whose peer ranges and runtime support TS 7.
    Watch the two tracking issues for the versions.
-3. Delete `scripts/vue-tsc6.js`, collapse `typecheck:vue` and `typecheck:ts7` back into a single `typecheck` running
+3. Delete `scripts/vue-tsc6.ts`, collapse `typecheck:vue` and `typecheck:ts7` back into a single `typecheck` running
    `vue-tsc -b` over the whole solution, and drop the `include` narrowing in `tsconfig.e2e.json`.
 4. Delete this file and the README section referencing it.

@@ -5,7 +5,7 @@
     "public/boot-safety-net.js",
     "public/boot-fallback-nomodule.js",
     "public/spa-github-pages.js",
-    ".claude/hooks/statusline.js"
+    ".claude/statusline.ts"
   ],
   "ignoreBinaries": ["gitleaks"],
   "include": ["cycles"]
