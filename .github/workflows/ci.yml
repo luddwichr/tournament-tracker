@@ -83,7 +83,7 @@ jobs:
         env:
           # keep in sync with ZIZMOR_VERSION in .devcontainer/Dockerfile
           # renovate: datasource=github-releases depName=zizmor packageName=zizmorcore/zizmor
-          ZIZMOR_VERSION: 1.31.1
+          ZIZMOR_VERSION: 1.32.0
         run: |
           install_dir="$HOME/.zizmor/bin"
           mkdir -p "$install_dir"

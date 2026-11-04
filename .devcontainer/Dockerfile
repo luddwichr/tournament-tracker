@@ -30,7 +30,7 @@ ARG GITLEAKS_VERSION=8.30.1
 # https://github.com/zizmorcore/zizmor/releases
 # Keep in sync with ZIZMOR_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=zizmor packageName=zizmorcore/zizmor
-ARG ZIZMOR_VERSION=1.31.1
+ARG ZIZMOR_VERSION=1.32.0
 # https://github.com/koalaman/shellcheck/releases
 # Keep in sync with SHELLCHECK_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=shellcheck packageName=koalaman/shellcheck
