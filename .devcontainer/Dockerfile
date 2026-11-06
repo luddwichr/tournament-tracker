@@ -18,7 +18,7 @@ ARG PYTHON_VERSION=3.15.1
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
 # renovate: datasource=npm depName=playwright
-ARG PLAYWRIGHT_VERSION=1.64.1
+ARG PLAYWRIGHT_VERSION=1.65.0
 # https://github.com/opengrep/opengrep/releases
 # Keep in sync with OPENGREP_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=opengrep packageName=opengrep/opengrep
