@@ -42,7 +42,7 @@ ARG ACTIONLINT_VERSION=1.7.12
 # https://github.com/aquasecurity/trivy/releases
 # Keep in sync with TRIVY_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=trivy packageName=aquasecurity/trivy
-ARG TRIVY_VERSION=0.76.1
+ARG TRIVY_VERSION=0.76.2
 # https://github.com/hadolint/hadolint/releases
 # Keep in sync with HADOLINT_VERSION in .github/workflows/ci.yml.
 # renovate: datasource=github-releases depName=hadolint packageName=hadolint/hadolint
