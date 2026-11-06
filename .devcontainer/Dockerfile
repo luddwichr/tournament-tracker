@@ -8,7 +8,7 @@ ARG NODE_VERSION=26.13.0
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
 # renovate: datasource=npm depName=npm
-ARG NPM_VERSION=12.2.1
+ARG NPM_VERSION=12.2.2
 # https://github.com/astral-sh/uv/releases
 # renovate: datasource=github-releases depName=uv packageName=astral-sh/uv
 ARG UV_VERSION=0.13.5
