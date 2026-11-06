@@ -1,5 +1,5 @@
 # https://hub.docker.com/layers/library/debian/trixie-slim/
-FROM docker.io/library/debian:trixie-slim@sha256:4876fdea29cac1a33a3195f1eb1952feb1fca7dd6dd00be3e2f1879cf20d34d2
+FROM docker.io/library/debian:trixie-slim@sha256:7378260c0a098d27ac206225db5e7d92b8c7c84ea7afccc86eeb513756bbd392
 
 # https://nodejs.org/en/about/previous-releases
 # renovate: datasource=node-version depName=node
