@@ -73,7 +73,7 @@
     "knip": "6.44.1",
     "npm-run-all2": "9.0.4",
     "oxfmt": "0.76.0",
-    "oxlint": "1.90.0",
+    "oxlint": "1.91.0",
     "sass-embedded": "1.108.0",
     "size-limit": "14.3.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
