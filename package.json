@@ -72,7 +72,7 @@
     "jsdom": "31.0.1",
     "knip": "6.44.1",
     "npm-run-all2": "9.0.4",
-    "oxfmt": "0.76.0",
+    "oxfmt": "0.78.0",
     "oxlint": "1.93.0",
     "sass-embedded": "1.108.2",
     "size-limit": "14.3.0",
