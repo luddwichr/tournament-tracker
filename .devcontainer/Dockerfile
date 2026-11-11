@@ -3,7 +3,7 @@ FROM docker.io/library/debian:trixie-slim@sha256:7378260c0a098d27ac206225db5e7d9
 
 # https://nodejs.org/en/about/previous-releases
 # renovate: datasource=node-version depName=node
-ARG NODE_VERSION=26.13.0
+ARG NODE_VERSION=26.13.1
 # https://github.com/npm/cli/releases
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
