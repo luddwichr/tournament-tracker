@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { type Router, createRouter, createWebHashHistory } from 'vue-router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AppHeader from './AppHeader.vue'
 import AppNav from './AppNav.vue'
 import { mount } from '@vue/test-utils'
@@ -76,19 +76,21 @@ describe('AppHeader – keyboard', () => {
     expect(wrapper.find('.app-header__burger').attributes('aria-expanded')).toBe('false')
   })
 
+  // jsdom applies the stylesheet's media queries at its fixed 1024px viewport, where the burger is display:none.
+  // A hidden element cannot take focus, so these assert the focus() call instead of document.activeElement.
   it('pressing Escape returns focus to the burger button', async () => {
-    const wrapper = mountHeader({ attachTo: document.body })
+    const wrapper = mountHeader()
+    const focus = vi.spyOn(wrapper.find<HTMLButtonElement>('.app-header__burger').element, 'focus')
     await wrapper.find('.app-header__burger').trigger('click')
     await wrapper.find('.app-header').trigger('keydown', { key: 'Escape' })
-    expect(document.activeElement).toBe(wrapper.find('.app-header__burger').element)
-    wrapper.unmount()
+    expect(focus).toHaveBeenCalledOnce()
   })
 
   it('pressing Escape while the nav is already closed does not steal focus', async () => {
-    const wrapper = mountHeader({ attachTo: document.body })
+    const wrapper = mountHeader()
+    const focus = vi.spyOn(wrapper.find<HTMLButtonElement>('.app-header__burger').element, 'focus')
     await wrapper.find('.app-header').trigger('keydown', { key: 'Escape' })
-    expect(document.activeElement).not.toBe(wrapper.find('.app-header__burger').element)
-    wrapper.unmount()
+    expect(focus).not.toHaveBeenCalled()
   })
 
   it('pressing a non-Escape key does not close the nav', async () => {

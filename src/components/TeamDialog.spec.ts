@@ -84,7 +84,8 @@ describe('TeamDialog', () => {
 
   describe('team tab', () => {
     it('is shown by default', () => {
-      const wrapper = mountDialog()
+      // isVisible() reads the computed style, and jsdom computes no style for a detached element.
+      const wrapper = mountDialog({}, true)
       const [teamTab, scheduleTab] = tabs(wrapper)
       const [teamPanel, schedulePanel] = panels(wrapper)
       expect(teamTab!.attributes('aria-selected')).toBe('true')
@@ -176,7 +177,7 @@ describe('TeamDialog', () => {
 
   describe('schedule tab', () => {
     it('switches panels when clicked', async () => {
-      const wrapper = mountDialog()
+      const wrapper = mountDialog({}, true)
       const scheduleTab = tabs(wrapper)[1]!
       await scheduleTab.trigger('click')
       expect(scheduleTab.attributes('aria-selected')).toBe('true')
