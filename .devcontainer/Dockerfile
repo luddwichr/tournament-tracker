@@ -3,7 +3,7 @@ FROM docker.io/library/debian:trixie-slim@sha256:7378260c0a098d27ac206225db5e7d9
 
 # https://nodejs.org/en/about/previous-releases
 # renovate: datasource=node-version depName=node
-ARG NODE_VERSION=26.13.0
+ARG NODE_VERSION=26.13.1
 # https://github.com/npm/cli/releases
 # Installed over the Node-bundled npm, because Node no longer bumps npm majors within a release line.
 # Keep in sync with engines.npm in package.json, which Renovate groups together under "npm".
@@ -11,10 +11,10 @@ ARG NODE_VERSION=26.13.0
 ARG NPM_VERSION=12.2.2
 # https://github.com/astral-sh/uv/releases
 # renovate: datasource=github-releases depName=uv packageName=astral-sh/uv
-ARG UV_VERSION=0.13.5
+ARG UV_VERSION=0.13.8
 # https://www.python.org/downloads/
 # renovate: datasource=python-version depName=python
-ARG PYTHON_VERSION=3.15.1
+ARG PYTHON_VERSION=3.15.2
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
 # renovate: datasource=npm depName=playwright
