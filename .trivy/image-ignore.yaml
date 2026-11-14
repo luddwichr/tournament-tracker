@@ -13,4 +13,26 @@
 #   - id: CVE-2026-12345
 #     expired_at: 2026-12-31
 
-vulnerabilities: []
+vulnerabilities:
+  # zlib1g in the pinned devcontainer base image.
+  # Installed 1:1.3.dfsg+really1.3.1-1+b1, fixed in 1:1.3.dfsg+really1.3.1-1+deb13u1.
+  # Debian has published the fix in trixie-security, but no debian:trixie-slim build ships it yet.
+  # The newest build is from 4 November 2026 and still carries the old version, so a digest bump cannot clear these.
+  # Renovate bumps the FROM digest in .devcontainer/Dockerfile once the image is rebuilt, and all three clear at once.
+  #
+  # The expiry follows the policy of debuerreotype/docker-debian-artifacts, which builds these images.
+  # It promises a build at least once a month, so the next one is due by 4 December.
+  # The expiry below is that due date plus a week of grace.
+  # See https://github.com/debuerreotype/docker-debian-artifacts#update-frequency
+  #
+  # Both HIGH findings sit in the gzFile API, gzwrite and gz_vacate, which write .gz files through zlib.
+  # Node bundles its own zlib, and nothing in this repo feeds untrusted data to a tool that writes .gz files.
+  # The MEDIUM one is an infinite loop in the CRC32 combine functions, so the worst case is a hung process.
+  # All of this sits in the container used for development.
+  # None of it reaches the deployed artifact, which is a static PWA.
+  - id: CVE-2026-76844
+    expired_at: 2026-12-11
+  - id: CVE-2026-85091
+    expired_at: 2026-12-11
+  - id: CVE-2026-27171
+    expired_at: 2026-12-11
