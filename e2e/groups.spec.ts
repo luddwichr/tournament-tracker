@@ -52,6 +52,12 @@ test('score dialog has no detectable accessibility violations', async ({ page })
   await expectNoA11yViolations(page)
 })
 
+test('clicking outside the score dialog keeps it open, so entered goals are not lost', async () => {
+  const dialog = await groups.openScoreDialog('Tschechien', 'Südafrika')
+  await dialog.clickOutside()
+  await dialog.expectVisible()
+})
+
 test('shows a third-place table with 12 rows, one per group', async () => {
   await expect(groups.thirdPlaceTable()).toBeVisible()
   await expect(groups.thirdPlaceRows()).toHaveCount(12)

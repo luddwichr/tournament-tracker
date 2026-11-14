@@ -25,6 +25,13 @@ test('pressing Escape closes the team dialog', async () => {
   await dialog.expectHidden()
 })
 
+test('clicking outside the team dialog closes it', async ({ page }) => {
+  const dialog = await groups.openTeamDialog('A')
+  await dialog.clickOutside()
+  await dialog.expectHidden()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})
+
 test('team dialog close button works', async () => {
   const dialog = await groups.openTeamDialog('A')
   await dialog.closeWithButton()

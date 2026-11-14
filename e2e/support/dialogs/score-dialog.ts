@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
+import { clickOutsideDialog } from './click-outside'
 import { expect } from '@playwright/test'
 
 /**
@@ -20,6 +21,10 @@ export class ScoreDialog {
 
   async expectHidden(): Promise<void> {
     await expect(this.root).not.toBeVisible()
+  }
+
+  async clickOutside(): Promise<void> {
+    await clickOutsideDialog(this.page, this.root)
   }
 
   title(): Locator {

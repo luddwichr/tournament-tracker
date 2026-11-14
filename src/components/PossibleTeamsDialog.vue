@@ -16,6 +16,7 @@ const emit = defineEmits<{ close: [] }>()
     title="Mögliche Teams"
     max-width="var(--dialog-width-sm)"
     max-height="min(90dvh, 36rem)"
+    light-dismiss
     @close="emit('close')"
   >
     <div class="possible-teams-dialog__content">

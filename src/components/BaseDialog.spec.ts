@@ -70,6 +70,18 @@ describe('BaseDialog', () => {
     })
   })
 
+  describe('lightDismiss prop', () => {
+    it('sets closedby="any" so a click outside closes the dialog', () => {
+      const wrapper = mount(BaseDialog, { props: { lightDismiss: true } })
+      expect(wrapper.find('dialog').attributes('closedby')).toBe('any')
+    })
+
+    it('leaves closedby unset by default, which keeps the browser default of Escape only', () => {
+      const wrapper = mount(BaseDialog)
+      expect(wrapper.find('dialog').attributes('closedby')).toBeUndefined()
+    })
+  })
+
   describe('exposed close()', () => {
     it('triggers the close emit', async () => {
       const wrapper = mount(BaseDialog)
