@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { expect } from '@playwright/test'
 
 /** Main navigation (the `Hauptnavigation` landmark) link labels per route. */
 const NAV_LABELS = {
@@ -16,13 +17,28 @@ export class AppNav {
     this.page = page
   }
 
-  private async click(label: string): Promise<void> {
-    // Below the 640px breakpoint the link list starts collapsed behind a
-    // burger button, see AppHeader.vue.
-    // Open it first when present, so nav helpers work on both desktop and mobile-viewport projects.
+  /**
+   * Below the 640px breakpoint the link list starts collapsed behind a burger button, see AppHeader.vue.
+   * This opens it when present and still closed, so nav helpers work on both desktop and mobile-viewport projects.
+   */
+  private async open(): Promise<void> {
     const burger = this.page.getByRole('button', { name: 'Navigation öffnen' })
-    if (await burger.isVisible()) await burger.click()
+    if ((await burger.isVisible()) && (await burger.getAttribute('aria-expanded')) !== 'true') await burger.click()
+  }
 
+  /**
+   * Waits until a collapsible menu has finished closing.
+   * Its close transition keeps the list in the layout until the fade ends, so the page height settles only then.
+   */
+  async expectCollapsed(): Promise<void> {
+    const burger = this.page.getByRole('button', { name: 'Navigation öffnen' })
+    if (!(await burger.isVisible())) return
+    await expect(burger).toHaveAttribute('aria-expanded', 'false')
+    await expect(this.page.getByRole('link', { name: NAV_LABELS.groups })).toBeHidden()
+  }
+
+  private async click(label: string): Promise<void> {
+    await this.open()
     await this.page.getByRole('link', { name: label }).click()
   }
 

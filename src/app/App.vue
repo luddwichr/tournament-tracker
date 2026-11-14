@@ -49,12 +49,13 @@ const { config: scoreDialogConfig, close: closeScoreDialog } = provideScoreDialo
 
 // On route change, move focus to the main landmark and announce the new page
 // so keyboard and screen-reader users are oriented.
+// preventScroll leaves the scroll position to the router's scrollBehavior, which restores it on back and forward.
 watch(
   () => route.fullPath,
   () => {
     const title = route.meta.title ?? ''
     announce(title ? `Seite: ${title}` : '')
-    mainRef.value?.focus()
+    mainRef.value?.focus({ preventScroll: true })
   },
 )
 </script>
