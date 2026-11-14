@@ -11,10 +11,10 @@ ARG NODE_VERSION=26.13.1
 ARG NPM_VERSION=12.2.2
 # https://github.com/astral-sh/uv/releases
 # renovate: datasource=github-releases depName=uv packageName=astral-sh/uv
-ARG UV_VERSION=0.13.5
+ARG UV_VERSION=0.13.8
 # https://www.python.org/downloads/
 # renovate: datasource=python-version depName=python
-ARG PYTHON_VERSION=3.15.1
+ARG PYTHON_VERSION=3.15.2
 # https://playwright.dev/docs/release-notes
 # Keep in sync with @playwright/test in package.json.
 # renovate: datasource=npm depName=playwright
