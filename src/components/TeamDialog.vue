@@ -67,6 +67,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
     :aria-label="team.name"
     max-width="var(--dialog-width-lg)"
     max-height="min(90dvh, 40rem)"
+    light-dismiss
     @close="emit('close')"
   >
     <template #title>

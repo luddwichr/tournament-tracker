@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
+import { clickOutsideDialog } from './click-outside'
 import { expect } from '@playwright/test'
 
 /** The team dialog opened by clicking a team name in a group standings table. */
@@ -30,6 +31,10 @@ export class TeamDialog {
 
   async closeWithEscape(): Promise<void> {
     await this.page.keyboard.press('Escape')
+  }
+
+  async clickOutside(): Promise<void> {
+    await clickOutsideDialog(this.page, this.root)
   }
 
   async closeWithButton(): Promise<void> {

@@ -17,6 +17,12 @@ const {
   maxWidth?: string
   maxHeight?: string
   showCloseButton?: boolean
+  /**
+   * Also close on a click or tap outside the dialog, through the native `closedby="any"`.
+   * Only for dialogs with nothing to lose, because a stray tap would otherwise discard input or count as a choice.
+   * Browsers without `closedby` ignore it and keep Escape and the close button.
+   */
+  lightDismiss?: boolean
 }>()
 
 const emit = defineEmits<{ close: [] }>()
@@ -52,6 +58,7 @@ defineExpose({ close })
     :aria-label="ariaLabel"
     :aria-labelledby="!ariaLabel && title ? titleId : undefined"
     :aria-describedby="ariaDescribedby"
+    :closedby="lightDismiss ? 'any' : undefined"
     @close="emit('close')"
   >
     <div class="base-dialog__inner">
