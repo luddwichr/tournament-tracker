@@ -15,7 +15,6 @@
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:pwa": "playwright test --config playwright.pwa.config.ts",
     "lint": "oxlint --deny-warnings && eslint . --flag unstable_native_nodejs_ts_config --max-warnings 0",
     "lint:fix": "oxlint --fix && eslint . --flag unstable_native_nodejs_ts_config --fix",
     "lint:unused": "knip",
@@ -35,7 +34,7 @@
     "scan:dockerfile": "trivy config -c .trivy/dockerfile.yaml .devcontainer/Dockerfile && hadolint .devcontainer/Dockerfile --failure-threshold style",
     "sbom": "trivy fs -c .trivy/sbom.yaml .",
     "check:code": "run-p -c --aggregate-output typecheck format:check lint lint:unused test:unit:coverage scan:shellscripts scan:sast scan:secrets scan:licenses scan:deps scan:dockerfile",
-    "check:build": "npm run build && npm run test:e2e && npm run size && npm run test:e2e:pwa",
+    "check:build": "npm run build && npm run test:e2e && npm run size",
     "prepare": "git config core.hooksPath .githooks",
     "test:mutation": "stryker run stryker.config.ts"
   },

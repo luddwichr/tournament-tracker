@@ -169,4 +169,4 @@ stateDiagram-v2
 - `src/components/UpdateDialog.vue` does SW registration and the update prompt.
 - `public/404.html` is the encode side of the GH Pages deep-link redirect.
 - `index.html` holds the redirect decode script, plus the SW-independent boot-error safety net.
-- `playwright.pwa.config.ts` and `e2e/pwa-offline.spec.ts` are the e2e tests that exercise the built SW.
+- `e2e/pwa-offline.spec.ts` holds the e2e tests that exercise the built SW.
