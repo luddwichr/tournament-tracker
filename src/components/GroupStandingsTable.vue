@@ -19,9 +19,7 @@ const columns = GROUP_STANDINGS_COLUMNS
     <table class="standings-table stat-table tinted-header">
       <caption class="visually-hidden">
         Tabelle Gruppe
-        {{
-          groupId
-        }}
+        {{ groupId }}
       </caption>
       <thead>
         <tr>
