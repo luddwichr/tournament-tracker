@@ -19,7 +19,9 @@ export default defineConfig({
       use: { ...devices['Pixel 7'] },
     },
   ],
-  reporter: isCI ? 'github' : 'list',
+  // Locally, 'failures' prints only failures and flaky retries plus a summary, which keeps agent and hook runs short.
+  // CI keeps 'github', which turns failures into annotations on the PR.
+  reporter: isCI ? 'github' : 'failures',
   retries: isCI ? 2 : 0,
   testDir: './e2e',
   use: {
