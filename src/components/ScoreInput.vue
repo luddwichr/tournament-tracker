@@ -23,9 +23,7 @@ const awayGoals = defineModel<number>('away', { required: true })
 
 <template>
   <fieldset class="score-input">
-    <legend class="score-input__heading">
-      <span aria-hidden="true">{{ emoji }}</span> {{ legend }}
-    </legend>
+    <legend class="score-input__heading"><span aria-hidden="true">{{ emoji }}</span> {{ legend }}</legend>
 
     <div class="score-input__grid">
       <div class="score-input__side">
