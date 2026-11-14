@@ -39,7 +39,6 @@ gh auth login --with-token < gh-token.txt
 | `npm run test:unit:coverage`      | Run unit tests with coverage                                                                 |
 | `npm run test:mutation`           | Mutation-test `src/lib` with Stryker, see [Mutation testing](#mutation-testing)              |
 | `npm run test:e2e`                | Run e2e tests against the production build (Playwright). Needs `npm run build` first         |
-| `npm run test:e2e:pwa`            | Run the offline and PWA e2e suite. Needs `npm run build` first                               |
 | `npm run lint` / `lint:fix`       | Lint with eslint + oxlint                                                                    |
 | `npm run lint:unused`             | Find unused files, exports and dependencies (knip)                                           |
 | `npm run format` / `format:check` | Format / check formatting with oxfmt                                                         |
@@ -53,7 +52,7 @@ gh auth login --with-token < gh-token.txt
 | `npm run scan:image`              | Scan the pinned Dockerfile base image for fixable OS CVEs (trivy)                            |
 | `npm run sbom`                    | Generate a CycloneDX SBOM into `sbom.cdx.json` (trivy)                                       |
 | `npm run check:code`              | Run typecheck, format:check, lint, lint:unused, test:unit:coverage and the `scan:*` gates    |
-| `npm run check:build`             | Run build, test:e2e, test:e2e:pwa and size. Run this before pushing                          |
+| `npm run check:build`             | Run build, test:e2e and size. Run this before pushing                                        |
 | `npm run size`                    | Check bundle size budgets (size-limit). Needs `npm run build` first                          |
 
 ## Mutation testing
@@ -86,18 +85,16 @@ Both suites run against the **production build** served via `npm run preview`.
 That way tests exercise the app exactly as shipped, including the CSP meta tag, hashed es2025 chunks and minification.
 Both therefore need `npm run build` first, which `npm run check:build` does in the right order.
 
-- `playwright.config.ts` is the regular e2e suite, run via `npm run test:e2e`.
-  It runs in parallel with the service worker blocked.
-  The SW is covered by its own suite, and left registered it would take over fetches mid-test, bypassing
-  `page.route()` interception.
-- `playwright.pwa.config.ts` is the offline and PWA suite in `pwa-offline.spec.ts`.
-  It runs serially via `npm run test:e2e:pwa`, because it exercises the built service worker and rewrites
-  `dist/index.html` on disk mid-test.
+`playwright.config.ts` runs the whole e2e suite in parallel via `npm run test:e2e`.
+The service worker is blocked there, because left registered it would take over fetches mid-test, bypassing
+`page.route()` interception.
+`pwa-offline.spec.ts` is the exception, because it tests the built service worker.
+One of its tests rewrites `dist/index.html` on disk, so it holds Playwright's `-exclusive-` lock and runs while no
+other test does.
 
 ```sh
 npm run build
 npm run test:e2e
-npm run test:e2e:pwa
 ```
 
 ## Deployment

@@ -7,7 +7,7 @@ const indexHtmlPath = path.resolve(import.meta.dirname, '..', 'dist', 'index.htm
 
 /**
  * PWA offline tests, run against the production build via `npm run preview`.
- * Usage: npm run build && npm run test:e2e:pwa
+ * Usage: npm run build && npm run test:e2e
  *
  * Each new BrowserContext has isolated storage, so online and offline phases
  * must run in the SAME context. We prime the SW cache online, then toggle
@@ -15,6 +15,9 @@ const indexHtmlPath = path.resolve(import.meta.dirname, '..', 'dist', 'index.htm
  * Workbox intercepts fetch events before they reach the network layer.
  * So cached responses still work when the network is emulated off.
  */
+
+// The rest of the suite blocks the service worker, and these tests are about nothing else.
+test.use({ serviceWorkers: 'allow' })
 
 test('app loads from the production build', async ({ page }) => {
   await page.goto('/')
@@ -62,36 +65,42 @@ test('app works fully offline after first visit', async ({ context, page }) => {
   await groups.expectLoaded()
 })
 
-test('reload fetches a new deploy over the network instead of a stale cache', async ({ context, page }) => {
-  const originalHtml = await fs.readFile(indexHtmlPath, 'utf-8')
-  const marker = 'e2e-deploy-marker'
+// This test rewrites dist/index.html on disk while the shared preview server serves it.
+// The exclusive lock holds every other test back until it has restored the file.
+test(
+  'reload fetches a new deploy over the network instead of a stale cache',
+  { lock: '-exclusive-' },
+  async ({ context, page }) => {
+    const originalHtml = await fs.readFile(indexHtmlPath, 'utf-8')
+    const marker = 'e2e-deploy-marker'
 
-  try {
-    // --- Phase 1: prime the SW cache with the current build (online) ---
-    await page.goto('/')
-    await new GroupsPage(page).expectLoaded()
-    await page.evaluate(() => navigator.serviceWorker.ready)
+    try {
+      // --- Phase 1: prime the SW cache with the current build (online) ---
+      await page.goto('/')
+      await new GroupsPage(page).expectLoaded()
+      await page.evaluate(() => navigator.serviceWorker.ready)
 
-    // --- Phase 2: simulate a new deploy by rewriting the served index.html,
-    // then reload while still online. NetworkFirst must hit the network and
-    // pick up the new file rather than reusing the shell cached in phase 1.
-    await fs.writeFile(
-      indexHtmlPath,
-      originalHtml.replace('<head>', `<head>\n    <meta name="${marker}" content="v2">`),
-    )
-    await page.reload()
+      // --- Phase 2: simulate a new deploy by rewriting the served index.html,
+      // then reload while still online. NetworkFirst must hit the network and
+      // pick up the new file rather than reusing the shell cached in phase 1.
+      await fs.writeFile(
+        indexHtmlPath,
+        originalHtml.replace('<head>', `<head>\n    <meta name="${marker}" content="v2">`),
+      )
+      await page.reload()
 
-    await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
-    await new GroupsPage(page).expectLoaded()
+      await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
+      await new GroupsPage(page).expectLoaded()
 
-    // Phase 3: the freshly-fetched shell is now cached.
-    // Verify that it, rather than the phase-1 shell, is what NetworkFirst falls back to when offline.
-    await context.setOffline(true)
-    await page.reload()
+      // Phase 3: the freshly-fetched shell is now cached.
+      // Verify that it, rather than the phase-1 shell, is what NetworkFirst falls back to when offline.
+      await context.setOffline(true)
+      await page.reload()
 
-    await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
-    await new GroupsPage(page).expectLoaded()
-  } finally {
-    await fs.writeFile(indexHtmlPath, originalHtml)
-  }
-})
+      await expect(page.locator(`meta[name="${marker}"]`)).toHaveCount(1)
+      await new GroupsPage(page).expectLoaded()
+    } finally {
+      await fs.writeFile(indexHtmlPath, originalHtml)
+    }
+  },
+)

@@ -10,7 +10,7 @@ description: Run this repo's CI gates locally before pushing, and watch or diagn
 | Command               | Covers                                                                               | Runs in                     |
 | --------------------- | ------------------------------------------------------------------------------------ | --------------------------- |
 | `npm run check:code`  | typecheck, format, lint, knip, unit tests + coverage, SAST/secrets/licence/dep scans | `.githooks/pre-push` and CI |
-| `npm run check:build` | `build` → e2e → `size-limit` → PWA e2e                                               | **CI only**                 |
+| `npm run check:build` | `build` → e2e → `size-limit`                                                         | **CI only**                 |
 
 `pre-push` deliberately runs only `check:code` (~20 s). That means anything touching
 layout, DOM structure, CSS or `index.html` can sail through the push and still break CI.
@@ -22,7 +22,7 @@ cells that fell below axe's 24×24 target-size minimum.
 
 ## e2e runs against the built `dist/`, never the dev server
 
-Both Playwright configs set `webServer.command` to `npm run preview`.
+The Playwright config sets `webServer.command` to `npm run preview`.
 That is `vite preview`, which serves whatever is already in `dist/`.
 `npm run check:build` builds first, so it is always self-consistent.
 Running a spec directly is not:
