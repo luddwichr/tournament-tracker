@@ -136,8 +136,8 @@ describe('App', () => {
     const meta = document.createElement('meta')
     meta.setAttribute('name', 'theme-color')
     document.head.append(meta)
-    // jsdom computes no stylesheet, so pin --color-bg explicitly; the point
-    // under test is that the watcher mirrors whatever the token resolves to.
+    // The spec mounts App without main.ts, so tokens.css is never loaded and --color-bg has to be pinned here.
+    // The point under test is that the watcher mirrors whatever the token resolves to.
     document.documentElement.style.setProperty('--color-bg', '#0f172a')
 
     const { wrapper } = await mountApp()
