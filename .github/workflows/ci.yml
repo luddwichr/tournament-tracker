@@ -164,7 +164,21 @@ jobs:
             trivy-${{ runner.os }}-
       - run: npm ci
       - name: Verify registry signatures and provenance
-        run: npm audit signatures
+        # The attestations endpoint sometimes answers a single request with a bare "OK" instead of JSON.
+        # npm then aborts the whole audit with FETCH_ERROR before it has verified anything.
+        # Only that error is retried, so a real signature or provenance mismatch still fails on the first attempt.
+        run: |
+          for attempt in 1 2 3; do
+            if npm audit signatures 2>&1 | tee "$RUNNER_TEMP/audit.log"; then
+              exit 0
+            fi
+            if ! grep -q 'code FETCH_ERROR' "$RUNNER_TEMP/audit.log"; then
+              exit 1
+            fi
+            echo "::warning::npm audit signatures hit a registry fetch error, attempt $attempt of 3"
+            sleep $((attempt * 10))
+          done
+          exit 1
       - name: Decide whether the renovate config needs validating
         id: renovate-config
         env:
