@@ -38,13 +38,9 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
-          # No `cache: npm` on purpose.
-          # That cache keys on the lockfile hash, and Renovate rewrites the lockfile on nearly every branch and rebase,
-          # so each distinct lockfile mints its own ~250 MB entry.
-          # Dozens of those push the repo past the 10 GB Actions cache limit and evict the Playwright and Trivy caches,
-          # which are the two that actually save time.
-          # A cold `npm ci` costs about 13 s here, so the cache was buying a few seconds at the price of the ones worth
-          # keeping.
+          # No `cache: npm` on purpose, because setup-node saves its cache on every run and restores exact keys only.
+          # Renovate rewrites the lockfile on nearly every branch, so each PR would save an entry no other run can read.
+          # The npm cache steps around `npm ci` below restore on every run and save from main only.
       - name: Install npm pinned in engines.npm
         # zizmor: ignore[adhoc-packages] npm itself has no lockfile; pinned to engines.npm
         run: npm install -g "npm@$(node -p 'require("./package.json").engines.npm')"
@@ -147,22 +143,49 @@ jobs:
           chmod +x "$install_dir/hadolint"
           echo "$install_dir" >> "$GITHUB_PATH"
           "$install_dir/hadolint" --version
-      - name: Trivy DB cache date
-        id: trivy-db-date
-        # The Trivy vuln DB refreshes ~daily upstream, so key the cache on the
-        # date: the first run of a day saves one entry and every later same-day
-        # run is an exact hit (no multi-hundred-MB re-upload). restore-keys still
-        # warm-starts a new day from the previous day's DB before updating it,
-        # avoiding a full re-download (and the GHCR rate limits that come with it).
-        run: echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
-      - name: Cache trivy data (vuln DB + misconfig checks)
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # Every cache below is restored on every run but saved only by pushes to main.
+      # A cache saved by a pull request run is scoped to that PR's merge ref, so no other run can ever restore it.
+      # Saving from main alone keeps one current entry per cache that every PR can read.
+      # It also means no pull request can plant content in a cache that main later restores.
+      - name: Cache key dates
+        id: cache-dates
+        # The Trivy vuln DB refreshes about daily upstream, so its key carries the date.
+        # The npm cache key carries the month, so its content starts fresh once a month instead of growing for good.
+        run: |
+          echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
+          echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - name: Restore trivy data (vuln DB + misconfig checks)
+        id: trivy-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/trivy
-          key: trivy-${{ runner.os }}-${{ steps.trivy-db-date.outputs.date }}
+          key: trivy-${{ runner.os }}-${{ steps.cache-dates.outputs.date }}
+          # A new day warm-starts from the newest DB main saved, so trivy only fetches the update.
+          # That avoids a full re-download and the GHCR rate limits that come with it.
           restore-keys: |
             trivy-${{ runner.os }}-
+      - name: Restore npm download cache
+        id: npm-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ steps.cache-dates.outputs.month }}-${{ hashFiles('package-lock.json') }}
+          # A Renovate branch rarely matches main's lockfile exactly.
+          # The prefix restores main's newest cache this month, so npm ci only downloads what the branch changed.
+          restore-keys: |
+            npm-${{ runner.os }}-${{ steps.cache-dates.outputs.month }}-
       - run: npm ci
+      - name: Save npm download cache
+        # Saved right after npm ci, before any later step writes to ~/.npm.
+        # npm audit signatures caches attestation responses there, including the bad "OK" bodies the registry
+        # sometimes sends, and the renovate validator's npx install would add a whole second dependency tree.
+        if: >-
+          github.event_name == 'push' && github.ref == 'refs/heads/main'
+          && steps.npm-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: ${{ steps.npm-cache.outputs.cache-primary-key }}
       - name: Verify registry signatures and provenance
         # The attestations endpoint sometimes answers a single request with a bare "OK" instead of JSON.
         # npm then aborts the whole audit with FETCH_ERROR before it has verified anything.
@@ -225,20 +248,38 @@ jobs:
         # CI and local runs therefore scan the same base and never drift from the digest Renovate bumps there.
         # This runs in this job rather than a separate one, to reuse the trivy binary and warm vuln DB.
         run: npm run scan:image
+      - name: Save trivy data
+        # Saved after scan:image, the last step that updates the DB.
+        if: >-
+          github.event_name == 'push' && github.ref == 'refs/heads/main'
+          && steps.trivy-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/trivy
+          key: ${{ steps.trivy-cache.outputs.cache-primary-key }}
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-      - name: Cache Playwright browsers
+      - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          # keyed on the Playwright version rather than the whole lockfile so
-          # unrelated dependency bumps don't re-download browsers
+          # Keyed on the Playwright version rather than the whole lockfile, so unrelated dependency bumps don't
+          # re-download browsers.
+          # A Playwright update PR downloads its browsers on each run, and main saves them once it is merged.
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - run: npx playwright install-deps chromium
       - run: npx playwright install chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Save Playwright browsers
+        if: >-
+          github.event_name == 'push' && github.ref == 'refs/heads/main'
+          && steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
       - run: npm run check:build
       - name: Upload Playwright traces (failures and flaky retries)
         if: ${{ !cancelled() }}
