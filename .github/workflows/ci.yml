@@ -167,9 +167,11 @@ jobs:
         # The attestations endpoint sometimes answers a single request with a bare "OK" instead of JSON.
         # npm then aborts the whole audit with FETCH_ERROR before it has verified anything.
         # Only that error is retried, so a real signature or provenance mismatch still fails on the first attempt.
+        # npm caches the bad body like any other 200 response, so each attempt starts from an empty cache.
+        # A retry on the shared cache would read the same "OK" back instead of asking the registry again.
         run: |
           for attempt in 1 2 3; do
-            if npm audit signatures 2>&1 | tee "$RUNNER_TEMP/audit.log"; then
+            if npm audit signatures --cache "$RUNNER_TEMP/npm-audit-cache-$attempt" 2>&1 | tee "$RUNNER_TEMP/audit.log"; then
               exit 0
             fi
             if ! grep -q 'code FETCH_ERROR' "$RUNNER_TEMP/audit.log"; then
