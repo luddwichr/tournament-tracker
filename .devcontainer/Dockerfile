@@ -189,7 +189,7 @@ RUN curl -LsSf --retry 3 --retry-all-errors https://astral.sh/uv/${UV_VERSION}/i
 # The upstream install.sh is avoided on purpose: it lists releases via the unauthenticated
 # GitHub API (rate-limited); downloading the pinned release directly avoids that.
 RUN curl -fsSL --retry 3 --retry-all-errors -o /tmp/opengrep \
-        https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_manylinux_x86 \
+        https://github.com/opengrep/opengrep/releases/download/v${OPENGREP_VERSION}/opengrep_linux_x86 \
     && install -Dm755 /tmp/opengrep ~/.local/bin/opengrep \
     && rm /tmp/opengrep \
     && opengrep --version
