@@ -38,9 +38,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
-          # No `cache: npm` on purpose, because setup-node saves its cache on every run and restores exact keys only.
-          # Renovate rewrites the lockfile on nearly every branch, so each PR would save an entry no other run can read.
-          # The npm cache steps around `npm ci` below restore on every run and save from main only.
+          # npm's download cache is left out on purpose, because it does not make `npm ci` faster here.
+          # Measured on main, `npm ci` took 7 to 12 s with an empty ~/.npm and 10 s with a restored one.
+          # Downloading from the registry is about as fast as restoring a 95 MB cache archive on GitHub's runners.
+          # A cache would still cost a new 95 MB entry for every lockfile change on main.
       - name: Install npm pinned in engines.npm
         # zizmor: ignore[adhoc-packages] npm itself has no lockfile; pinned to engines.npm
         run: npm install -g "npm@$(node -p 'require("./package.json").engines.npm')"
@@ -147,45 +148,21 @@ jobs:
       # A cache saved by a pull request run is scoped to that PR's merge ref, so no other run can ever restore it.
       # Saving from main alone keeps one current entry per cache that every PR can read.
       # It also means no pull request can plant content in a cache that main later restores.
-      - name: Cache key dates
-        id: cache-dates
+      - name: Cache key date
+        id: cache-date
         # The Trivy vuln DB refreshes about daily upstream, so its key carries the date.
-        # The npm cache key carries the month, so its content starts fresh once a month instead of growing for good.
-        run: |
-          echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
-          echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+        run: echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
       - name: Restore trivy data (vuln DB + misconfig checks)
         id: trivy-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/trivy
-          key: trivy-${{ runner.os }}-${{ steps.cache-dates.outputs.date }}
+          key: trivy-${{ runner.os }}-${{ steps.cache-date.outputs.date }}
           # A new day warm-starts from the newest DB main saved, so trivy only fetches the update.
           # That avoids a full re-download and the GHCR rate limits that come with it.
           restore-keys: |
             trivy-${{ runner.os }}-
-      - name: Restore npm download cache
-        id: npm-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ steps.cache-dates.outputs.month }}-${{ hashFiles('package-lock.json') }}
-          # A Renovate branch rarely matches main's lockfile exactly.
-          # The prefix restores main's newest cache this month, so npm ci only downloads what the branch changed.
-          restore-keys: |
-            npm-${{ runner.os }}-${{ steps.cache-dates.outputs.month }}-
       - run: npm ci
-      - name: Save npm download cache
-        # Saved right after npm ci, before any later step writes to ~/.npm.
-        # npm audit signatures caches attestation responses there, including the bad "OK" bodies the registry
-        # sometimes sends, and the renovate validator's npx install would add a whole second dependency tree.
-        if: >-
-          github.event_name == 'push' && github.ref == 'refs/heads/main'
-          && steps.npm-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.npm
-          key: ${{ steps.npm-cache.outputs.cache-primary-key }}
       - name: Verify registry signatures and provenance
         # The attestations endpoint sometimes answers a single request with a bare "OK" instead of JSON.
         # npm then aborts the whole audit with FETCH_ERROR before it has verified anything.
