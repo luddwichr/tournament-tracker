@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import type { MatchSlot, Team } from '../types/tournament'
-import OriginColumn, { type OriginGroupData } from './OriginColumn.vue'
 import { allGroupResults, makeResult } from '../test-support/results'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
@@ -8,12 +7,12 @@ import BracketConnectors from './BracketConnectors.vue'
 import BracketRound from './BracketRound.vue'
 import BracketView from './BracketView.vue'
 import type { MatchRow } from './BracketRound.vue'
+import OriginColumn from './OriginColumn.vue'
 import PossibleTeamsDialog from './PossibleTeamsDialog.vue'
 import { knockoutMatches } from '../data/fixtures-2026'
 import { makeMatch } from '../test-support/matches'
 import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
 import { scoreDialogKey } from '../composables/use-score-dialog'
 import { useTournamentStore } from '../stores/tournament'
 
@@ -47,7 +46,7 @@ describe('BracketView – structure', () => {
 
   it('renders rounds with the correct titles in order', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
-    const titles = wrapper.findAllComponents(BracketRound).map((r) => r.props('title') as string)
+    const titles = wrapper.findAllComponents(BracketRound).map((r) => r.props('title'))
     expect(titles).toEqual(['Runde der 32', 'Achtelfinale', 'Viertelfinale', 'Halbfinale', 'Finale'])
   })
 })
@@ -56,31 +55,31 @@ describe('BracketView – round match counts', () => {
   it('r32 round contains 16 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const r32 = wrapper.findAllComponents(BracketRound)[0]!
-    expect(r32.props('matches') as unknown[]).toHaveLength(16)
+    expect(r32.props('matches')).toHaveLength(16)
   })
 
   it('r16 round contains 8 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const r16 = wrapper.findAllComponents(BracketRound)[1]!
-    expect(r16.props('matches') as unknown[]).toHaveLength(8)
+    expect(r16.props('matches')).toHaveLength(8)
   })
 
   it('qf round contains 4 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const qf = wrapper.findAllComponents(BracketRound)[2]!
-    expect(qf.props('matches') as unknown[]).toHaveLength(4)
+    expect(qf.props('matches')).toHaveLength(4)
   })
 
   it('sf round contains 2 matches', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const sf = wrapper.findAllComponents(BracketRound)[3]!
-    expect(sf.props('matches') as unknown[]).toHaveLength(2)
+    expect(sf.props('matches')).toHaveLength(2)
   })
 
   it('Finale round contains 2 matches (third-place + final)', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finale = wrapper.findAllComponents(BracketRound)[4]!
-    expect(finale.props('matches') as unknown[]).toHaveLength(2)
+    expect(finale.props('matches')).toHaveLength(2)
   })
 })
 
@@ -109,11 +108,11 @@ describe('BracketView – score dialog', () => {
     }
   }
 
-  it('opens the score dialog with the row’s already-resolved teams', () => {
+  it('opens the score dialog with the row’s already-resolved teams', async () => {
     const { wrapper, openScoreDialog } = mountWithOpener()
     const firstRound = wrapper.findAllComponents(BracketRound)[0]!
     const r = row({})
-    firstRound.vm.$emit('matchClick', r)
+    await firstRound.emit('matchClick', r)
     expect(openScoreDialog).toHaveBeenCalledOnce()
     const [match, home, away] = openScoreDialog.mock.calls[0]!
     expect(match).toBe(r.match)
@@ -121,10 +120,10 @@ describe('BracketView – score dialog', () => {
     expect(away).toBe(awayTeam)
   })
 
-  it('does not open the dialog when a team slot is still unresolved', () => {
+  it('does not open the dialog when a team slot is still unresolved', async () => {
     const { wrapper, openScoreDialog } = mountWithOpener()
     const firstRound = wrapper.findAllComponents(BracketRound)[0]!
-    firstRound.vm.$emit('matchClick', row({ awayTeam: null }))
+    await firstRound.emit('matchClick', row({ awayTeam: null }))
     expect(openScoreDialog).not.toHaveBeenCalled()
   })
 })
@@ -133,20 +132,18 @@ describe('BracketView – PossibleTeamsDialog', () => {
   it('shows PossibleTeamsDialog when a BracketRound emits placeholderClick', async () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const firstRound = wrapper.findAllComponents(BracketRound)[0]!
-    const match = (firstRound.props('matches') as MatchRow[])[0]!.match
-    await firstRound.vm.$emit('placeholderClick', match, 'home')
+    const match = firstRound.props('matches')[0]!.match
+    await firstRound.emit('placeholderClick', match, 'home')
     expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(true)
   })
 
   it('hides PossibleTeamsDialog when it emits close', async () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const firstRound = wrapper.findAllComponents(BracketRound)[0]!
-    const match = (firstRound.props('matches') as MatchRow[])[0]!.match
-    await firstRound.vm.$emit('placeholderClick', match, 'home')
+    const match = firstRound.props('matches')[0]!.match
+    await firstRound.emit('placeholderClick', match, 'home')
     expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(true)
-    // emit close on the component directly
-    wrapper.findComponent(PossibleTeamsDialog).vm.$emit('close')
-    await nextTick()
+    await wrapper.findComponent(PossibleTeamsDialog).emit('close')
     expect(wrapper.findComponent(PossibleTeamsDialog).exists()).toBe(false)
   })
 })
@@ -155,14 +152,14 @@ describe('BracketView – Finale section labels', () => {
   it('first match in Finale has sectionLabel "Spiel um Platz 3"', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finale = wrapper.findAllComponents(BracketRound)[4]!
-    const matches = finale.props('matches') as Array<{ sectionLabel?: string }>
+    const matches = finale.props('matches')
     expect(matches[0]!.sectionLabel).toBe('Spiel um Platz 3')
   })
 
   it('second match in Finale has sectionLabel "Finale"', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const finale = wrapper.findAllComponents(BracketRound)[4]!
-    const matches = finale.props('matches') as Array<{ sectionLabel?: string }>
+    const matches = finale.props('matches')
     expect(matches[1]!.sectionLabel).toBe('Finale')
   })
 })
@@ -195,7 +192,7 @@ describe('BracketView – scroll to current round on mount', () => {
 describe('BracketView – groupData computed for OriginColumn', () => {
   it('passes 12 groups with 3 team rows each before any results exist', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
-    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData')
     expect(groupData).toHaveLength(12)
     for (const group of groupData) {
       expect(group.teams).toHaveLength(3)
@@ -204,7 +201,7 @@ describe('BracketView – groupData computed for OriginColumn', () => {
 
   it('gives group A a rank-1 row with refKey groupRank:A:1 and a refKey-less rank-3 row', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
-    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData')
     const groupA = groupData.find((g) => g.id === 'A')!
     expect(groupA.teams[0]!.refKey).toBe('groupRank:A:1')
     expect(groupA.teams[1]!.refKey).toBe('groupRank:A:2')
@@ -215,7 +212,7 @@ describe('BracketView – groupData computed for OriginColumn', () => {
   it('assigns a thirdPlace refKey to exactly 8 groups and marks 4 as eliminated once all groups complete', () => {
     useTournamentStore().importResults(allGroupResults(1, 0))
     const wrapper = mount(BracketView, { attachTo: document.body })
-    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData')
     const thirdRows = groupData.map((g) => g.teams[2]!)
     expect(thirdRows.filter((r) => r.refKey?.startsWith('thirdPlace:'))).toHaveLength(8)
     expect(thirdRows.filter((r) => r.eliminated)).toHaveLength(4)
@@ -224,7 +221,7 @@ describe('BracketView – groupData computed for OriginColumn', () => {
   it('reuses the store standingsByGroup data (same team ordering) rather than recomputing it', () => {
     const wrapper = mount(BracketView, { attachTo: document.body })
     const store = useTournamentStore()
-    const groupData = wrapper.findComponent(OriginColumn).props('groupData') as OriginGroupData[]
+    const groupData = wrapper.findComponent(OriginColumn).props('groupData')
     const groupA = groupData.find((g) => g.id === 'A')!
     const storeStandingsA = store.standingsByGroup.get('A')!
     expect(groupA.teams.map((t) => t.team.id)).toEqual(storeStandingsA.slice(0, 3).map((s) => s.team.id))
