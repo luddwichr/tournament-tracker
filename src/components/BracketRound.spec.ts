@@ -2,7 +2,6 @@
 import BracketRound, { type MatchRow } from './BracketRound.vue'
 import { describe, expect, it } from 'vitest'
 import MatchCard from './MatchCard.vue'
-import type { MatchSlot } from '../types/tournament'
 import { makeMatch } from '../test-support/matches'
 import { makeTeam } from '../test-support/teams'
 import { mount } from '@vue/test-utils'
@@ -153,8 +152,6 @@ describe('BracketRound – events', () => {
     const rows = [makeRow('M73', { homePlaceholder: 'Gruppe A – 1.', homeTeam: null })]
     const wrapper = mountRound({ matches: rows })
     await wrapper.find('.match-team-slot__placeholder').trigger('click')
-    const [emittedMatch, slot] = wrapper.emitted('placeholderClick')![0] as [MatchSlot, string]
-    expect(emittedMatch.id).toBe('M73')
-    expect(slot).toBe('home')
+    expect(wrapper.emitted('placeholderClick')?.[0]).toEqual([expect.objectContaining({ id: 'M73' }), 'home'])
   })
 })

@@ -38,9 +38,7 @@ describe('GroupsView', () => {
 
   it('passes the live third-place ranking (computed from store.results) to ThirdPlaceTable', () => {
     const wrapper = mount(GroupsView)
-    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking') as ReturnType<
-      typeof rankThirdPlacedLive
-    >
+    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking')
     expect(liveRanking).toEqual(rankThirdPlacedLive({}))
     expect(liveRanking.final).toBe(false)
   })
@@ -50,9 +48,7 @@ describe('GroupsView', () => {
     const wrapper = mount(GroupsView)
     store.importResults(allGroupResults(1, 0))
     await wrapper.vm.$nextTick()
-    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking') as ReturnType<
-      typeof rankThirdPlacedLive
-    >
+    const liveRanking = wrapper.findComponent(ThirdPlaceTable).props('liveRanking')
     expect(liveRanking.final).toBe(true)
   })
 })
