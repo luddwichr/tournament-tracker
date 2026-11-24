@@ -36,6 +36,9 @@ describe('scrollBehavior', () => {
   })
 
   it('scrolls to the hash target', async () => {
+    // The navigation itself scrolls to #main, which App.vue renders as the skip-link target.
+    // Without it in the DOM the router warns that the scroll target is missing.
+    document.body.innerHTML = '<main id="main"></main>'
     const [groups, skipLinkTarget] = [await routeAt('/groups'), await routeAt('/groups#main')]
     expect(scrollBehavior(skipLinkTarget, groups, null)).toEqual({ el: '#main' })
   })
